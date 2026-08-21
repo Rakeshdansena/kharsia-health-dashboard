@@ -10,590 +10,429 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-
 *{
-    box-sizing:border-box;
+  box-sizing:border-box;
 }
 
 body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#f1f5f9;
-    color:#1e293b;
+  margin:0;
+  padding:20px;
+  font-family:Arial, sans-serif;
+  background:#f2f5f9;
+  color:#222;
 }
 
 .container{
-    width:100%;
-    max-width:1500px;
-    margin:auto;
-    padding:15px;
-}
-
-.header{
-    background:linear-gradient(135deg,#0f766e,#0369a1);
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    text-align:center;
-    margin-bottom:15px;
-}
-
-.header h1{
-    margin:0;
-    font-size:28px;
-}
-
-.header p{
-    margin:6px 0 0;
-    font-size:15px;
+  max-width:1500px;
+  margin:auto;
 }
 
 .page{
-    background:white;
-    padding:18px;
-    margin-bottom:20px;
-    border-radius:12px;
-    box-shadow:0 3px 12px rgba(0,0,0,.08);
+  background:#fff;
+  padding:18px;
+  margin-bottom:25px;
+  border-radius:8px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
-.page-title{
-    text-align:center;
-    font-size:21px;
-    font-weight:bold;
-    margin-bottom:15px;
-    color:#0f172a;
+.page-break{
+  page-break-before:always;
 }
 
-.table-wrap{
-    width:100%;
-    overflow-x:auto;
+.sheet-title{
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  margin:5px 0 15px;
+  color:#17365d;
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
 }
 
 th{
-    background:#0f766e;
-    color:white;
-    padding:9px 6px;
-    border:1px solid #cbd5e1;
-    text-align:center;
-    white-space:nowrap;
+  background:#17365d;
+  color:white;
+  border:1px solid #777;
+  padding:7px 5px;
+  text-align:center;
+  vertical-align:middle;
 }
 
 td{
-    padding:7px 6px;
-    border:1px solid #cbd5e1;
-    text-align:center;
-    white-space:nowrap;
+  border:1px solid #aaa;
+  padding:6px 5px;
+  text-align:center;
+  vertical-align:middle;
 }
 
-tbody tr:nth-child(even){
-    background:#f8fafc;
+/* Detail table me KISI bhi row ko highlight nahi karna */
+.detail-table tbody tr{
+  background:white !important;
+  color:#222 !important;
+  font-weight:normal !important;
 }
 
-/* Sector column */
-td.sector,
-th.sector{
-    font-weight:bold;
-    background:#eef6ff;
+.detail-table tbody tr td{
+  background:white !important;
+  color:#222 !important;
+  font-weight:normal !important;
 }
 
-/* No special colors for individual SN */
-td.sn{
-    font-weight:normal;
-    background:transparent;
+/* Sector ko clearly alag dikhane ke liye */
+.detail-table td:nth-child(2){
+  font-weight:bold;
+  background:#f7f7f7 !important;
 }
 
-.total{
-    font-weight:bold;
-    background:#dbeafe !important;
+/* Total row */
+.total-row td{
+  background:#e8eef7 !important;
+  font-weight:bold !important;
 }
 
-.badge{
-    display:inline-block;
-    padding:4px 9px;
-    border-radius:15px;
-    font-weight:bold;
-    background:#e0f2fe;
+/* Summary table */
+.summary-table th{
+  background:#385723;
 }
 
-.buttons{
-    text-align:center;
-    margin:15px 0;
+.summary-table tbody tr{
+  background:white !important;
+}
+
+.summary-table td:nth-child(2){
+  font-weight:bold;
+  background:#f7f7f7 !important;
+}
+
+.summary-total td{
+  background:#e8eef7 !important;
+  font-weight:bold !important;
+}
+
+.btn-area{
+  text-align:center;
+  margin:20px 0;
 }
 
 button{
-    border:none;
-    padding:10px 18px;
-    margin:5px;
-    border-radius:7px;
-    cursor:pointer;
-    font-weight:bold;
-    color:white;
-    background:#0369a1;
+  border:none;
+  padding:10px 22px;
+  margin:5px;
+  border-radius:6px;
+  background:#17365d;
+  color:white;
+  cursor:pointer;
+  font-size:14px;
 }
 
 button:hover{
-    opacity:.9;
+  opacity:.85;
 }
 
-.footer{
-    text-align:center;
-    color:#64748b;
-    font-size:12px;
-    margin-top:15px;
+.update-date{
+  text-align:right;
+  font-size:12px;
+  color:#666;
+  margin-bottom:8px;
 }
 
-/* Print / PDF */
+@media(max-width:900px){
+  body{
+    padding:5px;
+  }
 
-.page-break{
-    page-break-before:always;
+  .page{
+    padding:8px;
+    overflow-x:auto;
+  }
+
+  table{
+    min-width:1100px;
+  }
 }
 
 @media print{
+  body{
+    background:white;
+    padding:0;
+  }
 
-    body{
-        background:white;
-    }
+  .btn-area{
+    display:none;
+  }
 
-    .buttons{
-        display:none;
-    }
+  .page{
+    box-shadow:none;
+    margin:0;
+    border-radius:0;
+  }
 
-    .container{
-        max-width:none;
-        padding:0;
-    }
-
-    .page{
-        box-shadow:none;
-        border-radius:0;
-        margin:0;
-        page-break-after:always;
-    }
-
-    table{
-        font-size:10px;
-    }
-
+  .page-break{
+    page-break-before:always;
+  }
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-    <!-- HEADER -->
-
-    <div class="header">
-        <h1>Kharsia Health Dashboard</h1>
-        <p>Health Department • Kharsia</p>
-    </div>
-
-    <div class="buttons">
-        <button onclick="window.print()">🖨 Print</button>
-        <button onclick="downloadPDF()">📄 Download PDF</button>
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- PAGE 1 : SECTOR SUMMARY -->
-    <!-- ================================================= -->
-
-    <div class="page" id="page1">
-
-        <div class="page-title" id="summaryHeading">
-            RCH 2.0 PW Registration Detail FY 2025-26
-        </div>
-
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Sn</th>
-                        <th class="sector">Sector</th>
-                        <th>HFR ID</th>
-                        <th>Health Facility</th>
-                        <th>Health Facility Type</th>
-                        <th>HMIS PW Registration</th>
-                        <th>RCH 2.0 PW Registration</th>
-                        <th>%</th>
-                        <th>Tem.<br>Registration</th>
-                        <th>Backlog</th>
-                        <th>High Risk</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <tr>
-                        <td class="sn">1</td>
-                        <td class="sector">Barra</td>
-                        <td>-</td>
-                        <td>3</td>
-                        <td>SHC</td>
-                        <td>40</td>
-                        <td>54</td>
-                        <td>135</td>
-                        <td>11</td>
-                        <td>-14</td>
-                        <td>12</td>
-                    </tr>
-
-                    <tr>
-                        <td class="sn">2</td>
-                        <td class="sector">Binjkot</td>
-                        <td>-</td>
-                        <td>9</td>
-                        <td>SHC</td>
-                        <td>98</td>
-                        <td>121</td>
-                        <td>123</td>
-                        <td>31</td>
-                        <td>-23</td>
-                        <td>67</td>
-                    </tr>
-
-                    <tr>
-                        <td class="sn">3</td>
-                        <td class="sector">Gorpar</td>
-                        <td>-</td>
-                        <td>3</td>
-                        <td>SHC</td>
-                        <td>50</td>
-                        <td>55</td>
-                        <td>110</td>
-                        <td>8</td>
-                        <td>-5</td>
-                        <td>5</td>
-                    </tr>
-
-                    <tr>
-                        <td class="sn">4</td>
-                        <td class="sector">Jobi</td>
-                        <td>-</td>
-                        <td>3</td>
-                        <td>SHC</td>
-                        <td>29</td>
-                        <td>40</td>
-                        <td>138</td>
-                        <td>15</td>
-                        <td>-11</td>
-                        <td>8</td>
-                    </tr>
-
-                    <tr>
-                        <td class="sn">5</td>
-                        <td class="sector">Sarwani</td>
-                        <td>-</td>
-                        <td>8</td>
-                        <td>SHC</td>
-                        <td>118</td>
-                        <td>167</td>
-                        <td>142</td>
-                        <td>27</td>
-                        <td>-49</td>
-                        <td>42</td>
-                    </tr>
-
-                    <tr>
-                        <td class="sn">6</td>
-                        <td class="sector">Sondka</td>
-                        <td>-</td>
-                        <td>8</td>
-                        <td>SHC</td>
-                        <td>93</td>
-                        <td>119</td>
-                        <td>128</td>
-                        <td>20</td>
-                        <td>-26</td>
-                        <td>33</td>
-                    </tr>
+<div class="container" id="report">
 
-                    <tr>
-                        <td class="sn">7</td>
-                        <td class="sector">Turekela</td>
-                        <td>-</td>
-                        <td>7</td>
-                        <td>SHC</td>
-                        <td>96</td>
-                        <td>146</td>
-                        <td>152</td>
-                        <td>17</td>
-                        <td>-50</td>
-                        <td>51</td>
-                    </tr>
+<!-- =========================
+     PAGE 1 : DETAIL 1-42
+========================= -->
 
-                    <tr>
-                        <td class="sn">8</td>
-                        <td class="sector">Urban Kharsia</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>SDH</td>
-                        <td>64</td>
-                        <td>85</td>
-                        <td>133</td>
-                        <td>64</td>
-                        <td>21</td>
-                        <td>8</td>
-                    </tr>
+<div class="page">
 
-                </tbody>
+<div class="sheet-title" id="detailTitle">
+RCH 2.0 PW Registration Detail FY 2026-27
+</div>
 
-            </table>
+<div class="update-date" id="detailDate">
+As on Date: 01-08-2026
+</div>
 
-        </div>
+<table class="detail-table">
 
-    </div>
+<thead>
+<tr>
+<th>SN</th>
+<th>Sector</th>
+<th>HFR ID</th>
+<th>Health Facility</th>
+<th>Health Facility Type</th>
+<th>HMIS PW Registration</th>
+<th>RCH 2.0 PW Registration</th>
+<th>%</th>
+<th>Tem.<br>Registration</th>
+<th>Backlog</th>
+<th>High Risk</th>
+</tr>
+</thead>
 
+<tbody>
 
-    <!-- ================================================= -->
-    <!-- PAGE 2 : DETAILED DATA -->
-    <!-- ================================================= -->
+<tr><td>1</td><td>Barra</td><td>IN2210002161</td><td>BARRA</td><td>AAM-SHC</td><td>21</td><td>20</td><td>95</td><td>2</td><td>-1</td><td>1</td></tr>
 
-    <div class="page page-break" id="page2">
+<tr><td>2</td><td>Barra</td><td>IN2210002145</td><td>DEHJARI</td><td>AAM-SHC</td><td>6</td><td>11</td><td>183</td><td>6</td><td>5</td><td>7</td></tr>
 
-        <div class="page-title" id="detailHeading">
-            RCH 2.0 PW Registration Detail FY 2026-27 as on Date 01-08-2026
-        </div>
+<tr><td>3</td><td>Barra</td><td>IN2210002154</td><td>FARKANARA</td><td>AAM-SHC</td><td>13</td><td>23</td><td>177</td><td>3</td><td>10</td><td>4</td></tr>
 
-        <div class="table-wrap">
+<tr><td>4</td><td>Binjkot</td><td>IN2210002274</td><td>BADE DUMARPALI</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>1</td></tr>
 
-            <table>
+<tr><td>5</td><td>Binjkot</td><td>IN2210002296</td><td>BARBHAUNA</td><td>AAM-SHC</td><td>12</td><td>13</td><td>108</td><td>4</td><td>1</td><td>7</td></tr>
 
-                <thead>
+<tr><td>6</td><td>Binjkot</td><td>IN2210002316</td><td>BHUPDEOPUR</td><td>AAM-SHC</td><td>10</td><td>18</td><td>180</td><td>6</td><td>8</td><td>9</td></tr>
 
-                    <tr>
-                        <th>Sn</th>
-                        <th class="sector">Sector</th>
-                        <th>HFR ID</th>
-                        <th>Health Facility</th>
-                        <th>Health Facility Type</th>
-                        <th>HMIS PW Registration</th>
-                        <th>RCH 2.0 PW Registration</th>
-                        <th>%</th>
-                        <th>Tem.<br>Registration</th>
-                        <th>Backlog</th>
-                        <th>High Risk</th>
-                    </tr>
+<tr><td>7</td><td>Binjkot</td><td>IN2210002373</td><td>BINJKOT</td><td>AAM-SHC</td><td>10</td><td>1</td><td>10</td><td>1</td><td>-9</td><td>0</td></tr>
 
-                </thead>
+<tr><td>8</td><td>Binjkot</td><td>IN2210002428</td><td>GURDA</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>5</td></tr>
 
-                <tbody>
+<tr><td>9</td><td>Binjkot</td><td>IN2210002357</td><td>LODHAJHAR</td><td>AAM-SHC</td><td>17</td><td>27</td><td>159</td><td>6</td><td>10</td><td>14</td></tr>
 
-                    <tr><td class="sn">1</td><td class="sector">Barra</td><td>IN2210002161</td><td>BARRA</td><td>AAM-SHC</td><td>21</td><td>20</td><td>95</td><td>2</td><td>-1</td><td>1</td></tr>
+<tr><td>10</td><td>Binjkot</td><td>IN2210002344</td><td>MURA</td><td>AAM-SHC</td><td>15</td><td>16</td><td>107</td><td>3</td><td>1</td><td>13</td></tr>
 
-                    <tr><td class="sn">2</td><td class="sector">Barra</td><td>IN2210002145</td><td>DEHJARI</td><td>AAM-SHC</td><td>6</td><td>11</td><td>183</td><td>6</td><td>5</td><td>7</td></tr>
+<tr><td>11</td><td>Binjkot</td><td>IN2210002389</td><td>NAHARPALI</td><td>AAM-SHC</td><td>12</td><td>19</td><td>158</td><td>2</td><td>7</td><td>12</td></tr>
 
-                    <tr><td class="sn">3</td><td class="sector">Barra</td><td>IN2210002154</td><td>FARKANARA</td><td>AAM-SHC</td><td>13</td><td>23</td><td>177</td><td>3</td><td>10</td><td>4</td></tr>
+<tr><td>12</td><td>Binjkot</td><td>IN2210002259</td><td>PAMGARH</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>5</td><td>1</td><td>6</td></tr>
 
-                    <tr><td class="sn">4</td><td class="sector">Binjkot</td><td>IN2210002274</td><td>BADE DUMARPALI</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>1</td></tr>
+<tr><td>13</td><td>Gorpar</td><td>IN2210002269</td><td>GANDAPALI</td><td>AAM-SHC</td><td>14</td><td>10</td><td>71</td><td>0</td><td>-4</td><td>0</td></tr>
 
-                    <tr><td class="sn">5</td><td class="sector">Binjkot</td><td>IN2210002296</td><td>BARBHAUNA</td><td>AAM-SHC</td><td>12</td><td>13</td><td>108</td><td>4</td><td>1</td><td>7</td></tr>
+<tr><td>14</td><td>Gorpar</td><td>IN2210002239</td><td>GORPAR</td><td>AAM-SHC</td><td>23</td><td>28</td><td>122</td><td>3</td><td>5</td><td>2</td></tr>
 
-                    <tr><td class="sn">6</td><td class="sector">Binjkot</td><td>IN2210002316</td><td>BHUPDEOPUR</td><td>AAM-SHC</td><td>10</td><td>18</td><td>180</td><td>6</td><td>8</td><td>9</td></tr>
+<tr><td>15</td><td>Gorpar</td><td>IN2210002256</td><td>KHADGAON</td><td>AAM-SHC</td><td>13</td><td>17</td><td>131</td><td>5</td><td>4</td><td>3</td></tr>
 
-                    <tr><td class="sn">7</td><td class="sector">Binjkot</td><td>IN2210002373</td><td>BINJKOT</td><td>AAM-SHC</td><td>10</td><td>1</td><td>10</td><td>1</td><td>-9</td><td>0</td></tr>
+<tr><td>16</td><td>Jobi</td><td>IN2210002127</td><td>KHAMHAR</td><td>AAM-SHC</td><td>15</td><td>17</td><td>113</td><td>0</td><td>2</td><td>2</td></tr>
 
-                    <tr><td class="sn">8</td><td class="sector">Binjkot</td><td>IN2210002428</td><td>GURDA</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>5</td></tr>
+<tr><td>17</td><td>Jobi</td><td>IN2210002543</td><td>NAGOI</td><td>AAM-SHC</td><td>7</td><td>13</td><td>186</td><td>7</td><td>6</td><td>4</td></tr>
 
-                    <tr><td class="sn">9</td><td class="sector">Binjkot</td><td>IN2210002357</td><td>LODHAJHAR</td><td>AAM-SHC</td><td>17</td><td>27</td><td>159</td><td>6</td><td>10</td><td>14</td></tr>
+<tr><td>18</td><td>Jobi</td><td>IN2210002119</td><td>NANDGAON</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>8</td><td>3</td><td>2</td></tr>
 
-                    <tr><td class="sn">10</td><td class="sector">Binjkot</td><td>IN2210002344</td><td>MURA</td><td>AAM-SHC</td><td>15</td><td>16</td><td>107</td><td>3</td><td>1</td><td>13</td></tr>
+<tr><td>19</td><td>Sarwani</td><td>IN2210003173</td><td>AURDA</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>0</td><td>1</td><td>1</td></tr>
 
-                    <tr><td class="sn">11</td><td class="sector">Binjkot</td><td>IN2210002389</td><td>NAHARPALI</td><td>AAM-SHC</td><td>12</td><td>19</td><td>158</td><td>2</td><td>7</td><td>12</td></tr>
+<tr><td>20</td><td>Sarwani</td><td>IN2210003325</td><td>BARGARH</td><td>AAM-SHC</td><td>7</td><td>17</td><td>243</td><td>2</td><td>10</td><td>5</td></tr>
 
-                    <tr><td class="sn">12</td><td class="sector">Binjkot</td><td>IN2210002259</td><td>PAMGARH</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>5</td><td>1</td><td>6</td></tr>
+<tr><td>21</td><td>Sarwani</td><td>IN2210003254</td><td>BOTALDA</td><td>AAM-SHC</td><td>24</td><td>28</td><td>117</td><td>2</td><td>4</td><td>8</td></tr>
 
-                    <tr><td class="sn">13</td><td class="sector">Gorpar</td><td>IN2210002269</td><td>GANDAPALI</td><td>AAM-SHC</td><td>14</td><td>10</td><td>71</td><td>0</td><td>-4</td><td>0</td></tr>
+<tr><td>22</td><td>Sarwani</td><td>IN2210003239</td><td>CHHOTE DEOGAON</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>3</td><td>5</td><td>3</td></tr>
 
-                    <tr><td class="sn">14</td><td class="sector">Gorpar</td><td>IN2210002239</td><td>GORPAR</td><td>AAM-SHC</td><td>23</td><td>28</td><td>122</td><td>3</td><td>5</td><td>2</td></tr>
+<tr><td>23</td><td>Sarwani</td><td>IN2210003307</td><td>MADANPUR</td><td>AAM-SHC</td><td>30</td><td>54</td><td>180</td><td>12</td><td>24</td><td>15</td></tr>
 
-                    <tr><td class="sn">15</td><td class="sector">Gorpar</td><td>IN2210002256</td><td>KHADGAON</td><td>AAM-SHC</td><td>13</td><td>17</td><td>131</td><td>5</td><td>4</td><td>3</td></tr>
+<tr><td>24</td><td>Sarwani</td><td>IN2210002417</td><td>PARASKOL</td><td>AAM-SHC</td><td>13</td><td>13</td><td>100</td><td>0</td><td>0</td><td>9</td></tr>
 
-                    <tr><td class="sn">16</td><td class="sector">Jobi</td><td>IN2210002127</td><td>KHAMHAR</td><td>AAM-SHC</td><td>15</td><td>17</td><td>113</td><td>0</td><td>2</td><td>2</td></tr>
+<tr><td>25</td><td>Sarwani</td><td>IN2210003214</td><td>SARWANI</td><td>AAM-SHC</td><td>16</td><td>23</td><td>144</td><td>3</td><td>7</td><td>1</td></tr>
 
-                    <tr><td class="sn">17</td><td class="sector">Jobi</td><td>IN2210002543</td><td>NAGOI</td><td>AAM-SHC</td><td>7</td><td>13</td><td>186</td><td>7</td><td>6</td><td>4</td></tr>
+<tr><td>26</td><td>Sarwani</td><td>IN2210003203</td><td>TIUR</td><td>AAM-SHC</td><td>9</td><td>7</td><td>78</td><td>5</td><td>-2</td><td>0</td></tr>
 
-                    <tr><td class="sn">18</td><td class="sector">Jobi</td><td>IN2210002119</td><td>NANDGAON</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>8</td><td>3</td><td>2</td></tr>
+<tr><td>27</td><td>Sondka</td><td>IN2210002521</td><td>BANIPATHAR</td><td>AAM-SHC</td><td>7</td><td>12</td><td>171</td><td>1</td><td>5</td><td>2</td></tr>
 
-                    <tr><td class="sn">19</td><td class="sector">Sarwani</td><td>IN2210003173</td><td>AURDA</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td>28</td><td>Sondka</td><td>IN2210003092</td><td>BASNAJHAR</td><td>AAM-SHC</td><td>19</td><td>31</td><td>163</td><td>5</td><td>12</td><td>17</td></tr>
 
-                    <tr><td class="sn">20</td><td class="sector">Sarwani</td><td>IN2210003325</td><td>BARGARH</td><td>AAM-SHC</td><td>7</td><td>17</td><td>243</td><td>2</td><td>10</td><td>5</td></tr>
+<tr><td>29</td><td>Sondka</td><td>IN2210002507</td><td>GIDHA</td><td>AAM-SHC</td><td>11</td><td>16</td><td>145</td><td>2</td><td>5</td><td>7</td></tr>
 
-                    <tr><td class="sn">21</td><td class="sector">Sarwani</td><td>IN2210003254</td><td>BOTALDA</td><td>AAM-SHC</td><td>24</td><td>28</td><td>117</td><td>2</td><td>4</td><td>8</td></tr>
+<tr><td>30</td><td>Sondka</td><td>IN2210002539</td><td>JAIMURA</td><td>AAM-SHC</td><td>9</td><td>12</td><td>133</td><td>0</td><td>3</td><td>1</td></tr>
 
-                    <tr><td class="sn">22</td><td class="sector">Sarwani</td><td>IN2210003239</td><td>CHHOTE DEOGAON</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>3</td><td>5</td><td>3</td></tr>
+<tr><td>31</td><td>Sondka</td><td>IN2210003101</td><td>KUNKUNI</td><td>AAM-SHC</td><td>26</td><td>23</td><td>88</td><td>12</td><td>-3</td><td>4</td></tr>
 
-                    <tr><td class="sn">23</td><td class="sector">Sarwani</td><td>IN2210003307</td><td>MADANPUR</td><td>AAM-SHC</td><td>30</td><td>54</td><td>180</td><td>12</td><td>24</td><td>15</td></tr>
+<tr><td>32</td><td>Sondka</td><td>IN2210002531</td><td>SONBARSA</td><td>AAM-SHC</td><td>8</td><td>6</td><td>75</td><td>0</td><td>-2</td><td>0</td></tr>
 
-                    <tr><td class="sn">24</td><td class="sector">Sarwani</td><td>IN2210002417</td><td>PARASKOL</td><td>AAM-SHC</td><td>13</td><td>13</td><td>100</td><td>0</td><td>0</td><td>9</td></tr>
+<tr><td>33</td><td>Sondka</td><td>IN2210003123</td><td>SONDKA</td><td>AAM-SHC</td><td>5</td><td>5</td><td>100</td><td>0</td><td>0</td><td>0</td></tr>
 
-                    <tr><td class="sn">25</td><td class="sector">Sarwani</td><td>IN2210003214</td><td>SARWANI</td><td>AAM-SHC</td><td>16</td><td>23</td><td>144</td><td>3</td><td>7</td><td>1</td></tr>
+<tr><td>34</td><td>Sondka</td><td>IN2210002545</td><td>TEMTEMA</td><td>AAM-SHC</td><td>8</td><td>14</td><td>175</td><td>0</td><td>6</td><td>2</td></tr>
 
-                    <tr><td class="sn">26</td><td class="sector">Sarwani</td><td>IN2210003203</td><td>TIUR</td><td>AAM-SHC</td><td>9</td><td>7</td><td>78</td><td>5</td><td>-2</td><td>0</td></tr>
+<tr><td>35</td><td>Turekela</td><td>IN2210002178</td><td>BAKELI</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>0</td><td>3</td><td>6</td></tr>
 
-                    <tr><td class="sn">27</td><td class="sector">Sondka</td><td>IN2210002521</td><td>BANIPATHAR</td><td>AAM-SHC</td><td>7</td><td>12</td><td>171</td><td>1</td><td>5</td><td>2</td></tr>
+<tr><td>36</td><td>Turekela</td><td>IN2210002190</td><td>DUMARBHANTHA</td><td>AAM-SHC</td><td>21</td><td>21</td><td>100</td><td>1</td><td>0</td><td>16</td></tr>
 
-                    <tr><td class="sn">28</td><td class="sector">Sondka</td><td>IN2210003092</td><td>BASNAJHAR</td><td>AAM-SHC</td><td>19</td><td>31</td><td>163</td><td>5</td><td>12</td><td>17</td></tr>
+<tr><td>37</td><td>Turekela</td><td>IN2210002213</td><td>HALAHULI</td><td>AAM-SHC</td><td>12</td><td>16</td><td>133</td><td>3</td><td>4</td><td>4</td></tr>
 
-                    <tr><td class="sn">29</td><td class="sector">Sondka</td><td>IN2210002507</td><td>GIDHA</td><td>AAM-SHC</td><td>11</td><td>16</td><td>145</td><td>2</td><td>5</td><td>7</td></tr>
+<tr><td>38</td><td>Turekela</td><td>IN2210002199</td><td>MAHUAPALI</td><td>AAM-SHC</td><td>19</td><td>38</td><td>200</td><td>0</td><td>19</td><td>12</td></tr>
 
-                    <tr><td class="sn">30</td><td class="sector">Sondka</td><td>IN2210002539</td><td>JAIMURA</td><td>AAM-SHC</td><td>9</td><td>12</td><td>133</td><td>0</td><td>3</td><td>1</td></tr>
+<tr><td>39</td><td>Turekela</td><td>IN2210002224</td><td>MAKRI</td><td>AAM-SHC</td><td>11</td><td>17</td><td>155</td><td>5</td><td>6</td><td>6</td></tr>
 
-                    <tr><td class="sn">31</td><td class="sector">Sondka</td><td>IN2210003101</td><td>KUNKUNI</td><td>AAM-SHC</td><td>26</td><td>23</td><td>88</td><td>12</td><td>-3</td><td>4</td></tr>
+<tr><td>40</td><td>Turekela</td><td>IN2210002236</td><td>TELIKOT</td><td>AAM-SHC</td><td>17</td><td>30</td><td>176</td><td>3</td><td>13</td><td>7</td></tr>
 
-                    <tr><td class="sn">32</td><td class="sector">Sondka</td><td>IN2210002531</td><td>SONBARSA</td><td>AAM-SHC</td><td>8</td><td>6</td><td>75</td><td>0</td><td>-2</td><td>0</td></tr>
+<tr><td>41</td><td>Turekela</td><td>IN2210002207</td><td>TUREKELA</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>5</td><td>5</td><td>0</td></tr>
 
-                    <tr><td class="sn">33</td><td class="sector">Sondka</td><td>IN2210003123</td><td>SONDKA</td><td>AAM-SHC</td><td>5</td><td>5</td><td>100</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>42</td><td>Urban Kharsia</td><td>IN2210000364</td><td>Urban Kharsia</td><td>SDH</td><td>64</td><td>85</td><td>133</td><td>64</td><td>21</td><td>8</td></tr>
 
-                    <tr><td class="sn">34</td><td class="sector">Sondka</td><td>IN2210002545</td><td>TEMTEMA</td><td>AAM-SHC</td><td>8</td><td>14</td><td>175</td><td>0</td><td>6</td><td>2</td></tr>
+<tr class="total-row">
+<td>TOTAL</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>588</td>
+<td>787</td>
+<td>134</td>
+<td>193</td>
+<td>199</td>
+<td>226</td>
+</tr>
 
-                    <tr><td class="sn">35</td><td class="sector">Turekela</td><td>IN2210002178</td><td>BAKELI</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>0</td><td>3</td><td>6</td></tr>
+</tbody>
+</table>
 
-                    <tr><td class="sn">36</td><td class="sector">Turekela</td><td>IN2210002190</td><td>DUMARBHANTHA</td><td>AAM-SHC</td><td>21</td><td>21</td><td>100</td><td>1</td><td>0</td><td>16</td></tr>
+</div>
 
-                    <tr><td class="sn">37</td><td class="sector">Turekela</td><td>IN2210002213</td><td>HALAHULI</td><td>AAM-SHC</td><td>12</td><td>16</td><td>133</td><td>3</td><td>4</td><td>4</td></tr>
 
-                    <tr><td class="sn">38</td><td class="sector">Turekela</td><td>IN2210002199</td><td>MAHUAPALI</td><td>AAM-SHC</td><td>19</td><td>38</td><td>200</td><td>0</td><td>19</td><td>12</td></tr>
+<!-- =========================
+     PAGE 2 : SECTOR SUMMARY
+========================= -->
 
-                    <tr><td class="sn">39</td><td class="sector">Turekela</td><td>IN2210002224</td><td>MAKRI</td><td>AAM-SHC</td><td>11</td><td>17</td><td>155</td><td>5</td><td>6</td><td>6</td></tr>
+<div class="page page-break">
 
-                    <tr><td class="sn">40</td><td class="sector">Turekela</td><td>IN2210002236</td><td>TELIKOT</td><td>AAM-SHC</td><td>17</td><td>30</td><td>176</td><td>3</td><td>13</td><td>7</td></tr>
+<div class="sheet-title">
+RCH 2.0 PW Registration Detail FY 2025-26
+</div>
 
-                    <tr><td class="sn">41</td><td class="sector">Turekela</td><td>IN2210002207</td><td>TUREKELA</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>5</td><td>5</td><td>0</td></tr>
+<table class="summary-table">
 
-                    <tr><td class="sn">42</td><td class="sector">Urban Kharsia</td><td>IN2210000364</td><td>Urban Kharsia</td><td>SDH</td><td>64</td><td>85</td><td>133</td><td>64</td><td>21</td><td>8</td></tr>
+<thead>
+<tr>
+<th>SN</th>
+<th>Sector</th>
+<th>HFR ID</th>
+<th>Health Facility</th>
+<th>Health Facility Type</th>
+<th>HMIS PW Registration</th>
+<th>RCH 2.0 PW Registration</th>
+<th>%</th>
+<th>Tem.<br>Registration</th>
+<th>Backlog</th>
+<th>High Risk</th>
+</tr>
+</thead>
 
-                </tbody>
+<tbody>
 
-                <tfoot>
+<tr><td>1</td><td>Barra</td><td>-</td><td>3</td><td>SHC</td><td>40</td><td>54</td><td>135</td><td>11</td><td>-14</td><td>12</td></tr>
 
-                    <tr class="total">
-                        <td colspan="5">Total</td>
-                        <td>588</td>
-                        <td>787</td>
-                        <td>134</td>
-                        <td>193</td>
-                        <td>199</td>
-                        <td>226</td>
-                    </tr>
+<tr><td>2</td><td>Binjkot</td><td>-</td><td>9</td><td>SHC</td><td>98</td><td>121</td><td>123</td><td>31</td><td>-23</td><td>67</td></tr>
 
-                </tfoot>
+<tr><td>3</td><td>Gorpar</td><td>-</td><td>3</td><td>SHC</td><td>50</td><td>55</td><td>110</td><td>8</td><td>-5</td><td>5</td></tr>
 
-            </table>
+<tr><td>4</td><td>Jobi</td><td>-</td><td>3</td><td>SHC</td><td>29</td><td>40</td><td>138</td><td>15</td><td>-11</td><td>8</td></tr>
 
-        </div>
+<tr><td>5</td><td>Sarwani</td><td>-</td><td>8</td><td>SHC</td><td>118</td><td>167</td><td>142</td><td>27</td><td>-49</td><td>42</td></tr>
 
-    </div>
+<tr><td>6</td><td>Sondka</td><td>-</td><td>8</td><td>SHC</td><td>93</td><td>119</td><td>128</td><td>20</td><td>-26</td><td>33</td></tr>
 
+<tr><td>7</td><td>Turekela</td><td>-</td><td>7</td><td>SHC</td><td>96</td><td>146</td><td>152</td><td>17</td><td>-50</td><td>51</td></tr>
 
-    <div class="footer">
-        Kharsia Health Dashboard • RCH 2.0 PW Registration
-    </div>
+<tr><td>8</td><td>Urban Kharsia</td><td>-</td><td>-</td><td>SDH</td><td>64</td><td>85</td><td>133</td><td>64</td><td>21</td><td>8</td></tr>
 
+<tr class="summary-total">
+<td>TOTAL</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>588</td>
+<td>787</td>
+<td>134</td>
+<td>193</td>
+<td>199</td>
+<td>226</td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+
+<div class="btn-area">
+<button onclick="window.print()">🖨️ Print</button>
+
+<button onclick="downloadPDF()">
+📄 Download PDF
+</button>
 </div>
 
 
 <script>
 
-/* =========================================================
-   GOOGLE SHEET CONNECTION
-   ========================================================= */
-
-/*
-   यहाँ बाद में आपके पुराने Google Sheet का ID लगाया जाएगा।
-
-   अभी dashboard में ऊपर दिया गया data दिखेगा।
-*/
-
-const GOOGLE_SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
-
-
-/* =========================================================
-   PDF DOWNLOAD
-   ========================================================= */
-
 function downloadPDF(){
 
-    const element = document.querySelector(".container");
+  const element = document.getElementById("report");
 
-    const options = {
-        margin: 5,
-        filename: "Kharsia_Health_Dashboard.pdf",
-        image: {
-            type: "jpeg",
-            quality: 0.98
-        },
-        html2canvas: {
-            scale: 2,
-            useCORS: true
-        },
-        jsPDF: {
-            unit: "mm",
-            format: "a4",
-            orientation: "landscape"
-        },
-        pagebreak: {
-            mode: ["css", "legacy"]
-        }
-    };
+  const options = {
+    margin: 5,
+    filename: "RCH_2.0_PW_Registration_Report.pdf",
 
-    html2pdf()
-        .set(options)
-        .from(element)
-        .save();
+    image: {
+      type: "jpeg",
+      quality: 0.98
+    },
+
+    html2canvas: {
+      scale: 2,
+      useCORS: true
+    },
+
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "landscape"
+    },
+
+    pagebreak: {
+      mode: ["css", "legacy"]
+    }
+  };
+
+  html2pdf()
+    .set(options)
+    .from(element)
+    .save();
 }
-
-
-/* =========================================================
-   GOOGLE SHEET DATE / HEADING
-   ========================================================= */
-
-/*
-   जब आपके पुराने Google Sheet connection को यहाँ लगाया जाएगा,
-   तो heading में date automatic बदल जाएगी।
-
-   उदाहरण:
-
-   RCH 2.0 PW Registration Detail FY 2026-27
-   as on Date 01-08-2026
-
-   Google Sheet में date बदलने पर website में भी बदल जाएगी।
-*/
-
-
-function setHeading(date){
-
-    if(!date) return;
-
-    document.getElementById("detailHeading").innerHTML =
-        "RCH 2.0 PW Registration Detail FY 2026-27 as on Date " + date;
-}
-
-
-/* =========================================================
-   PAGE CONTROL
-   ========================================================= */
-
-document.addEventListener("DOMContentLoaded", function(){
-
-    /*
-       कोई भी अलग SN colour नहीं लगाया गया है।
-       सभी SN सामान्य रहेंगे।
-    */
-
-    console.log("Kharsia Health Dashboard Loaded");
-
-});
 
 </script>
 
