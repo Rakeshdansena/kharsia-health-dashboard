@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Kharsia Health Dashboard</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box
+}
 
 body{
   margin:0;
@@ -16,6 +20,11 @@ body{
   background:#f3f6fa;
   color:#1f2937
 }
+
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .header{
   min-height:70px;
@@ -27,13 +36,30 @@ body{
   box-shadow:0 3px 10px rgba(0,0,0,.15)
 }
 
-.header h1{margin:0;font-size:24px}
-.header small{margin-left:15px;opacity:.9}
+.header h1{
+  margin:0;
+  font-size:24px
+}
+
+.header small{
+  margin-left:15px;
+  opacity:.9
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
 
 .container{
   display:flex;
   min-height:calc(100vh - 70px)
 }
+
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
 .sidebar{
   width:255px;
@@ -46,7 +72,8 @@ body{
   color:#b9d7ec;
   font-size:13px;
   padding:8px 12px;
-  text-transform:uppercase
+  text-transform:uppercase;
+  letter-spacing:.5px
 }
 
 .menu-btn{
@@ -59,11 +86,23 @@ body{
   border-radius:8px;
   text-align:left;
   font-size:14px;
-  cursor:pointer
+  cursor:pointer;
+  transition:.2s
 }
 
-.menu-btn:hover{background:#174d78}
-.menu-btn.active{background:#0ea5a4;color:#fff}
+.menu-btn:hover{
+  background:#174d78
+}
+
+.menu-btn.active{
+  background:#0ea5a4;
+  color:#fff
+}
+
+
+/* =====================================================
+   CONTENT
+===================================================== */
 
 .content{
   flex:1;
@@ -71,8 +110,18 @@ body{
   min-width:0
 }
 
-.page{display:none}
-.page.active{display:block}
+.page{
+  display:none
+}
+
+.page.active{
+  display:block
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
 
 .welcome,
 .report-header,
@@ -100,7 +149,8 @@ body{
 
 .cards{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  grid-template-columns:
+    repeat(auto-fit,minmax(210px,1fr));
   gap:16px
 }
 
@@ -109,16 +159,34 @@ body{
   border-radius:14px;
   padding:20px;
   box-shadow:0 3px 12px rgba(0,0,0,.07);
-  cursor:pointer
+  cursor:pointer;
+  transition:.2s
 }
 
 .card:hover{
-  transform:translateY(-3px)
+  transform:translateY(-3px);
+  box-shadow:0 7px 20px rgba(0,0,0,.12)
 }
 
-.card-icon{font-size:30px}
-.card h3{margin:12px 0 5px;font-size:16px}
-.card p{margin:0;color:#64748b;font-size:13px}
+.card-icon{
+  font-size:30px
+}
+
+.card h3{
+  margin:12px 0 5px;
+  font-size:16px
+}
+
+.card p{
+  margin:0;
+  color:#64748b;
+  font-size:13px
+}
+
+
+/* =====================================================
+   REPORT HEADER
+===================================================== */
 
 .report-header{
   padding:20px;
@@ -145,6 +213,10 @@ body{
   outline:none
 }
 
+.search:focus{
+  border-color:#0ea5a4
+}
+
 .action-btn{
   border:0;
   color:#fff;
@@ -154,17 +226,38 @@ body{
   font-size:14px
 }
 
-.back-btn{background:#475569}
-.refresh-btn{background:#0f766e}
-.pdf-btn{background:#b91c1c}
-.print-btn{background:#334155}
+.back-btn{
+  background:#475569
+}
+
+.refresh-btn{
+  background:#0f766e
+}
+
+.pdf-btn{
+  background:#b91c1c
+}
+
+.print-btn{
+  background:#334155
+}
+
+.action-btn:hover{
+  opacity:.88
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
 
 .status{
   padding:12px 15px;
   border-radius:9px;
   background:#e0f2fe;
   color:#075985;
-  margin-bottom:15px
+  margin-bottom:15px;
+  font-size:14px
 }
 
 .status.success{
@@ -177,6 +270,11 @@ body{
   color:#991b1b
 }
 
+
+/* =====================================================
+   NORMAL TABLE
+===================================================== */
+
 .table-box{
   padding:12px;
   overflow:auto
@@ -186,7 +284,8 @@ body{
   border-collapse:collapse;
   width:100%;
   min-width:900px;
-  font-size:13px
+  font-size:13px;
+  table-layout:auto
 }
 
 #reportTable th{
@@ -194,6 +293,10 @@ body{
   color:#fff;
   padding:9px 7px;
   border:1px solid #d1d5db;
+  white-space:normal;
+  position:sticky;
+  top:0;
+  z-index:2;
   text-align:center;
   vertical-align:middle
 }
@@ -201,6 +304,7 @@ body{
 #reportTable td{
   padding:7px;
   border:1px solid #d1d5db;
+  white-space:nowrap;
   vertical-align:middle
 }
 
@@ -218,12 +322,12 @@ body{
 }
 
 
-/* =========================================================
-   AYUSHMAN CARD - FIXED LAYOUT
-========================================================= */
+/* =====================================================
+   AYUSHMAN CARD
+===================================================== */
 
 #ayushmanReport{
-  display:none;
+  display:none
 }
 
 .ayushman-section{
@@ -265,6 +369,7 @@ body{
   background:#0f766e;
   color:#fff;
   font-weight:700;
+  font-size:14px;
   height:42px
 }
 
@@ -272,12 +377,17 @@ body{
   background:#dff5f2;
   color:#075985;
   font-weight:700;
+  font-size:13px;
   height:38px
 }
 
 .ayushman-table tbody td{
   height:44px;
   background:#fff
+}
+
+.ayushman-table tbody tr:hover td{
+  background:#ecfeff
 }
 
 .ayushman-table td:first-child{
@@ -295,141 +405,145 @@ body{
   background:#ecfeff!important
 }
 
-.ayushman-table col:nth-child(1){width:8%}
+.ayushman-table col:nth-child(1){
+  width:8%
+}
 
 .ayushman-table col:nth-child(2),
 .ayushman-table col:nth-child(3),
 .ayushman-table col:nth-child(4),
 .ayushman-table col:nth-child(5),
 .ayushman-table col:nth-child(6),
-.ayushman-table col:nth-child(7){width:12%}
-
-.ayushman-table col:nth-child(8){width:10%}
-
-
-/* =========================================================
-   RCH 2.0
-========================================================= */
-
-.rch-table{
-  width:100%!important;
-  min-width:1150px!important;
-  border-collapse:collapse;
-  table-layout:fixed!important;
-  font-size:13px
+.ayushman-table col:nth-child(7){
+  width:12%
 }
 
-.rch-table th{
-  background:#075985!important;
-  color:#fff!important;
-  text-align:center!important;
-  font-weight:700;
-  padding:10px 6px!important;
-  border:1px solid #cbd5e1!important;
-  white-space:normal!important;
-  line-height:1.3
-}
-
-.rch-table td{
-  padding:8px 6px!important;
-  border:1px solid #d1d5db!important;
-  text-align:center;
-  vertical-align:middle;
-  white-space:normal!important;
-  word-break:break-word
-}
-
-.rch-table tbody tr:nth-child(even){
-  background:#f8fafc
-}
-
-.rch-table tbody tr:hover{
-  background:#e0f2fe
-}
-
-.rch-table th:nth-child(1),
-.rch-table td:nth-child(1){
-  width:5%
-}
-
-.rch-table th:nth-child(2),
-.rch-table td:nth-child(2){
-  width:8%
-}
-
-.rch-table th:nth-child(3),
-.rch-table td:nth-child(3){
-  width:13%
-}
-
-.rch-table th:nth-child(4),
-.rch-table td:nth-child(4){
-  width:14%;
-  text-align:left
-}
-
-.rch-table th:nth-child(5),
-.rch-table td:nth-child(5){
-  width:13%
-}
-
-.rch-table th:nth-child(6),
-.rch-table td:nth-child(6){
+.ayushman-table col:nth-child(8){
   width:10%
 }
 
-.rch-table th:nth-child(7),
-.rch-table td:nth-child(7){
-  width:11%
+
+/* =====================================================
+   RCH 2.0
+   EXACTLY 11 COLUMNS
+===================================================== */
+
+.rch-wrapper{
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.07);
+  padding:12px;
+  overflow:auto
 }
 
-.rch-table th:nth-child(8),
-.rch-table td:nth-child(8){
-  width:6%
-}
-
-.rch-table th:nth-child(9),
-.rch-table td:nth-child(9){
-  width:9%
-}
-
-.rch-table th:nth-child(10),
-.rch-table td:nth-child(10){
-  width:6%
-}
-
-.rch-table th:nth-child(11),
-.rch-table td:nth-child(11){
-  width:5%
-}
-
-.rch-title{
+.rch-heading{
   background:#075985;
   color:#fff;
   text-align:center;
   font-size:17px;
   font-weight:700;
-  padding:13px;
-  border-radius:10px 10px 0 0
+  padding:12px;
+  border-radius:8px 8px 0 0;
+  margin-bottom:0
 }
 
-.rch-percent{
-  font-weight:700;
-  color:#075985
+.rch-table{
+  width:100%;
+  min-width:1250px;
+  border-collapse:collapse;
+  table-layout:auto;
+  font-size:13px
 }
 
-.rch-high-risk{
-  font-weight:700;
+.rch-table th{
+  background:#0f766e;
+  color:#fff;
+  border:1px solid #cbd5e1;
+  padding:10px 7px;
+  text-align:center;
+  vertical-align:middle;
+  white-space:normal;
+  line-height:1.25;
+  font-weight:700
 }
 
-.rch-backlog{
-  font-weight:700;
+.rch-table td{
+  border:1px solid #cbd5e1;
+  padding:8px 7px;
+  text-align:center;
+  vertical-align:middle;
+  white-space:nowrap;
+  background:#fff
+}
+
+.rch-table tbody tr:nth-child(even) td{
+  background:#f8fafc
+}
+
+.rch-table tbody tr:hover td{
+  background:#e0f2fe
 }
 
 
-/* =========================================================
+/* Facility related columns */
+
+.rch-table td:nth-child(2),
+.rch-table td:nth-child(4),
+.rch-table td:nth-child(5){
+  text-align:left
+}
+
+
+/* 11 columns */
+
+.rch-table th:nth-child(1){
+  width:45px
+}
+
+.rch-table th:nth-child(2){
+  width:90px
+}
+
+.rch-table th:nth-child(3){
+  width:125px
+}
+
+.rch-table th:nth-child(4){
+  width:190px
+}
+
+.rch-table th:nth-child(5){
+  width:130px
+}
+
+.rch-table th:nth-child(6){
+  width:130px
+}
+
+.rch-table th:nth-child(7){
+  width:150px
+}
+
+.rch-table th:nth-child(8){
+  width:60px
+}
+
+.rch-table th:nth-child(9){
+  width:125px
+}
+
+.rch-table th:nth-child(10){
+  width:80px
+}
+
+.rch-table th:nth-child(11){
+  width:80px
+}
+
+
+/* =====================================================
    NCD
-========================================================= */
+===================================================== */
 
 .ncd-table{
   table-layout:fixed!important;
@@ -466,9 +580,9 @@ body{
 }
 
 
-/* =========================================================
+/* =====================================================
    PDF
-========================================================= */
+===================================================== */
 
 .report-title-pdf{
   display:none
@@ -500,38 +614,44 @@ body{
 }
 
 .pdf-mode .ayushman-title{
-  font-size:14px;
-  padding:8px
-}
-
-.pdf-mode .ayushman-table{
-  font-size:11px
-}
-
-.pdf-mode .ayushman-table th,
-.pdf-mode .ayushman-table td{
-  padding:5px 4px
-}
-
-.pdf-mode .rch-table{
-  font-size:9px!important;
-  min-width:0!important
-}
-
-.pdf-mode .rch-table th,
-.pdf-mode .rch-table td{
-  padding:4px 3px!important
-}
-
-.pdf-mode .rch-title{
   font-size:13px;
   padding:7px
 }
 
+.pdf-mode .ayushman-table{
+  font-size:10px
+}
 
-/* =========================================================
+.pdf-mode .ayushman-table th,
+.pdf-mode .ayushman-table td{
+  padding:4px 3px
+}
+
+.pdf-mode .rch-wrapper{
+  box-shadow:none;
+  padding:0
+}
+
+.pdf-mode .rch-heading{
+  font-size:14px;
+  padding:7px
+}
+
+.pdf-mode .rch-table{
+  min-width:0;
+  width:100%;
+  font-size:8px
+}
+
+.pdf-mode .rch-table th,
+.pdf-mode .rch-table td{
+  padding:4px 3px
+}
+
+
+/* =====================================================
    FOOTER
-========================================================= */
+===================================================== */
 
 .footer{
   text-align:center;
@@ -541,9 +661,9 @@ body{
 }
 
 
-/* =========================================================
+/* =====================================================
    MOBILE
-========================================================= */
+===================================================== */
 
 @media(max-width:800px){
 
@@ -553,10 +673,17 @@ body{
     gap:4px
   }
 
-  .header h1{font-size:19px}
-  .header small{margin-left:0}
+  .header h1{
+    font-size:19px
+  }
 
-  .container{flex-direction:column}
+  .header small{
+    margin-left:0
+  }
+
+  .container{
+    flex-direction:column
+  }
 
   .sidebar{
     width:100%;
@@ -566,14 +693,18 @@ body{
     padding:8px
   }
 
-  .sidebar-title{display:none}
+  .sidebar-title{
+    display:none
+  }
 
   .menu-btn{
     min-width:150px;
     white-space:nowrap
   }
 
-  .content{padding:12px}
+  .content{
+    padding:12px
+  }
 
   .search{
     width:100%;
@@ -585,14 +716,15 @@ body{
   }
 
   .rch-table{
-    min-width:1150px!important
+    min-width:1250px
   }
+
 }
 
 
-/* =========================================================
+/* =====================================================
    PRINT
-========================================================= */
+===================================================== */
 
 @media print{
 
@@ -601,7 +733,9 @@ body{
     margin:6mm
   }
 
-  body{background:#fff}
+  body{
+    background:#fff
+  }
 
   .header,
   .sidebar,
@@ -618,8 +752,13 @@ body{
     padding:0
   }
 
-  .page{display:none}
-  .page.active{display:block}
+  .page{
+    display:none
+  }
+
+  .page.active{
+    display:block
+  }
 
   .report-header{
     box-shadow:none;
@@ -646,12 +785,12 @@ body{
   }
 
   .ayushman-title{
-    font-size:13px;
-    padding:7px
+    font-size:12px;
+    padding:6px
   }
 
   .ayushman-table{
-    font-size:10px
+    font-size:9px
   }
 
   .ayushman-table th,
@@ -659,33 +798,63 @@ body{
     padding:4px 3px
   }
 
-  .rch-title{
+  .rch-wrapper{
+    box-shadow:none;
+    padding:0;
+    overflow:visible
+  }
+
+  .rch-heading{
     font-size:13px;
     padding:6px
   }
 
   .rch-table{
-    font-size:8.5px!important;
-    min-width:0!important
+    width:100%;
+    min-width:0;
+    font-size:8px
   }
 
   .rch-table th,
   .rch-table td{
-    padding:3px 2px!important
+    padding:3px 2px
   }
+
 }
+
+
+/* =====================================================
+   END CSS
+===================================================== */
 
 </style>
 </head>
 
+
 <body>
 
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
 <div class="header">
+
   <h1>🏥 Kharsia Health Dashboard</h1>
-  <small>Block Kharsia · District Raigarh · Chhattisgarh</small>
+
+  <small>
+    Block Kharsia · District Raigarh · Chhattisgarh
+  </small>
+
 </div>
 
+
 <div class="container">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
 
 <aside class="sidebar">
 
@@ -697,20 +866,36 @@ body{
     class="menu-btn active"
     id="dashboardBtn"
     onclick="showDashboard()">
+
     🏠 Dashboard
+
   </button>
 
   <div id="menuButtons"></div>
 
 </aside>
 
+
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
 <main class="content">
 
-<section id="dashboardPage" class="page active">
+
+<!-- =====================================================
+     DASHBOARD
+===================================================== -->
+
+<section
+  id="dashboardPage"
+  class="page active">
 
   <div class="welcome">
 
-    <h2>Kharsia Health Programme Dashboard</h2>
+    <h2>
+      Kharsia Health Programme Dashboard
+    </h2>
 
     <p>
       विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए
@@ -719,44 +904,76 @@ body{
 
   </div>
 
-  <div id="dashboardCards" class="cards"></div>
+  <div
+    id="dashboardCards"
+    class="cards">
+  </div>
 
 </section>
 
 
-<section id="reportPage" class="page">
+<!-- =====================================================
+     REPORT PAGE
+===================================================== -->
+
+<section
+  id="reportPage"
+  class="page">
+
 
   <div class="report-header">
 
-    <div id="pdfTitle" class="report-title-pdf"></div>
+    <div
+      id="pdfTitle"
+      class="report-title-pdf">
+    </div>
 
-    <h2 id="reportTitle">Report</h2>
+    <h2 id="reportTitle">
+      Report
+    </h2>
 
     <p id="reportDescription">
       Google Sheet से live data
     </p>
 
+
     <div class="report-actions">
 
-      <button class="action-btn back-btn"
+      <button
+        class="action-btn back-btn"
         onclick="showDashboard()">
+
         ← Dashboard
+
       </button>
 
-      <button class="action-btn refresh-btn"
+
+      <button
+        class="action-btn refresh-btn"
         onclick="refreshReport()">
+
         🔄 Refresh
+
       </button>
 
-      <button class="action-btn pdf-btn"
+
+      <button
+        class="action-btn pdf-btn"
         onclick="downloadPDF()">
+
         📄 Download PDF
+
       </button>
 
-      <button class="action-btn print-btn"
+
+      <button
+        class="action-btn print-btn"
         onclick="printReport()">
+
         🖨️ Print
+
       </button>
+
 
       <input
         id="searchBox"
@@ -770,22 +987,32 @@ body{
   </div>
 
 
-  <div id="status" class="status">
+  <div
+    id="status"
+    class="status">
+
     Google Sheet से data load हो रहा है...
+
   </div>
 
 
   <div id="pdfArea">
 
+
+    <!-- =================================================
+         AYUSHMAN
+    ================================================= -->
+
     <div id="ayushmanReport">
+
       <div id="ayushmanSections"></div>
+
     </div>
 
 
-    <div id="rchReport" style="display:none">
-      <div id="rchSections"></div>
-    </div>
-
+    <!-- =================================================
+         NORMAL / RCH / NCD TABLE
+    ================================================= -->
 
     <div class="table-box">
 
@@ -801,11 +1028,14 @@ body{
 
     </div>
 
+
   </div>
 
 
   <div class="footer">
+
     Data source: Google Sheet · Kharsia Health Dashboard
+
   </div>
 
 </section>
@@ -815,7 +1045,9 @@ body{
 </div>
 
 
+
 <script>
+
 
 /* =====================================================
    GOOGLE SHEET
@@ -831,101 +1063,115 @@ const SPREADSHEET_ID =
 
 const REPORTS=[
 
-{
- name:"Ayushman Card",
- icon:"💳",
- gid:"925649620",
- description:"आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
-},
+  {
+    name:"Ayushman Card",
+    icon:"💳",
+    gid:"925649620",
+    description:
+      "आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
+  },
 
-{
- name:"RCH 2.0",
- icon:"👩‍🍼",
- gid:"1044088930",
- description:"RCH 2.0 PW Registration Detail"
-},
+  {
+    name:"RCH 2.0",
+    icon:"👩‍🍼",
+    gid:"1044088930",
+    description:
+      "RCH 2.0 PW Registration Detail"
+  },
 
-{
- name:"NCD",
- icon:"❤️",
- gid:"1254412412",
- description:"NCD Status 2026-27"
-},
+  {
+    name:"NCD",
+    icon:"❤️",
+    gid:"1254412412",
+    description:
+      "NCD Status 2026-27"
+  },
 
-{
- name:"JAS Meeting",
- icon:"🤝",
- gid:"1018164338",
- description:"JAS Meeting Reporting"
-},
+  {
+    name:"JAS Meeting",
+    icon:"🤝",
+    gid:"1018164338",
+    description:
+      "JAS Meeting Reporting"
+  },
 
-{
- name:"Health & Wellness Center",
- icon:"🏥",
- gid:"0",
- description:"Health Wellness Center - Block Kharsia"
-},
+  {
+    name:"Health & Wellness Center",
+    icon:"🏥",
+    gid:"0",
+    description:
+      "Health Wellness Center - Block Kharsia"
+  },
 
-{
- name:"Ayushman Shivir",
- icon:"🏕️",
- gid:"1262815420",
- description:"Ayushman Shivir Reporting FY 2026-27"
-},
+  {
+    name:"Ayushman Shivir",
+    icon:"🏕️",
+    gid:"1262815420",
+    description:
+      "Ayushman Shivir Reporting FY 2026-27"
+  },
 
-{
- name:"Wellness Activity",
- icon:"🩺",
- gid:"447031017",
- description:"Ayushman Arogya Mandir Wellness Activity"
-},
+  {
+    name:"Wellness Activity",
+    icon:"🩺",
+    gid:"447031017",
+    description:
+      "Ayushman Arogya Mandir Wellness Activity"
+  },
 
-{
- name:"RBSK",
- icon:"👶",
- gid:"1502752823",
- description:"राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
-},
+  {
+    name:"RBSK",
+    icon:"👶",
+    gid:"1502752823",
+    description:
+      "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
+  },
 
-{
- name:"NRC Kharsia",
- icon:"🏥",
- gid:"1010102020",
- description:"NRC Kharsia Reporting"
-},
+  {
+    name:"NRC Kharsia",
+    icon:"🏥",
+    gid:"1010102020",
+    description:
+      "NRC Kharsia Reporting"
+  },
 
-{
- name:"Blindness Control",
- icon:"👁️",
- gid:"1002009767",
- description:"National Blindness Control Programme"
-},
+  {
+    name:"Blindness Control",
+    icon:"👁️",
+    gid:"1002009767",
+    description:
+      "National Blindness Control Programme"
+  },
 
-{
- name:"NQAS Certification",
- icon:"🏅",
- gid:"728123647",
- description:"NQAS Certification Detail Kharsia"
-},
+  {
+    name:"NQAS Certification",
+    icon:"🏅",
+    gid:"728123647",
+    description:
+      "NQAS Certification Detail Kharsia"
+  },
 
-{
- name:"Dialysis",
- icon:"💧",
- gid:"781496964",
- description:"प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
-},
+  {
+    name:"Dialysis",
+    icon:"💧",
+    gid:"781496964",
+    description:
+      "प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
+  },
 
-{
- name:"NLEP",
- icon:"🦠",
- gid:"1536656599",
- description:"National Leprosy Eradication Programme"
-}
+  {
+    name:"NLEP",
+    icon:"🦠",
+    gid:"1536656599",
+    description:
+      "National Leprosy Eradication Programme"
+  }
 
 ];
 
 
 let currentReportIndex=null;
+
 let currentData=null;
 
 
@@ -935,34 +1181,51 @@ let currentData=null;
 
 function createMenu(){
 
-  const menu=document.getElementById("menuButtons");
-  const cards=document.getElementById("dashboardCards");
+  const menu=
+    document.getElementById("menuButtons");
+
+  const cards=
+    document.getElementById("dashboardCards");
 
   menu.innerHTML="";
   cards.innerHTML="";
 
+
   REPORTS.forEach((report,index)=>{
 
-    const button=document.createElement("button");
+    const button=
+      document.createElement("button");
 
     button.className="menu-btn";
-    button.innerHTML=report.icon+" "+report.name;
-    button.onclick=()=>openReport(index);
+
+    button.innerHTML=
+      report.icon+" "+report.name;
+
+    button.onclick=
+      ()=>openReport(index);
 
     menu.appendChild(button);
 
 
-    const card=document.createElement("div");
+    const card=
+      document.createElement("div");
 
     card.className="card";
 
     card.innerHTML=`
-      <div class="card-icon">${report.icon}</div>
+
+      <div class="card-icon">
+        ${report.icon}
+      </div>
+
       <h3>${report.name}</h3>
+
       <p>${report.description}</p>
+
     `;
 
-    card.onclick=()=>openReport(index);
+    card.onclick=
+      ()=>openReport(index);
 
     cards.appendChild(card);
 
@@ -977,16 +1240,24 @@ function createMenu(){
 
 function showDashboard(){
 
-  document.getElementById("dashboardPage")
+  document
+    .getElementById("dashboardPage")
     .classList.add("active");
 
-  document.getElementById("reportPage")
+  document
+    .getElementById("reportPage")
     .classList.remove("active");
 
-  document.querySelectorAll(".menu-btn")
-    .forEach(b=>b.classList.remove("active"));
 
-  document.getElementById("dashboardBtn")
+  document
+    .querySelectorAll(".menu-btn")
+    .forEach(b=>
+      b.classList.remove("active")
+    );
+
+
+  document
+    .getElementById("dashboardBtn")
     .classList.add("active");
 
 }
@@ -998,9 +1269,12 @@ function showDashboard(){
 
 function setStatus(text,type=""){
 
-  const status=document.getElementById("status");
+  const status=
+    document.getElementById("status");
 
-  status.className="status "+type;
+  status.className=
+    "status "+type;
+
   status.innerText=text;
 
 }
@@ -1014,57 +1288,92 @@ function openReport(index){
 
   currentReportIndex=index;
 
-  const report=REPORTS[index];
+  const report=
+    REPORTS[index];
 
-  document.getElementById("dashboardPage")
+
+  document
+    .getElementById("dashboardPage")
     .classList.remove("active");
 
-  document.getElementById("reportPage")
+
+  document
+    .getElementById("reportPage")
     .classList.add("active");
 
-  document.getElementById("reportTitle")
-    .innerText=report.icon+" "+report.name;
 
-  document.getElementById("pdfTitle")
-    .innerText="Kharsia Health Dashboard — "+report.name;
+  document
+    .getElementById("reportTitle")
+    .innerText=
+      report.icon+" "+report.name;
 
-  document.getElementById("reportDescription")
-    .innerText=report.description;
 
-  document.getElementById("searchBox").value="";
+  document
+    .getElementById("pdfTitle")
+    .innerText=
+      "Kharsia Health Dashboard — "+
+      report.name;
 
-  document.querySelectorAll(".menu-btn")
-    .forEach(b=>b.classList.remove("active"));
+
+  document
+    .getElementById("reportDescription")
+    .innerText=
+      report.description;
+
+
+  document
+    .getElementById("searchBox")
+    .value="";
+
+
+  document
+    .querySelectorAll(".menu-btn")
+    .forEach(b=>
+      b.classList.remove("active")
+    );
+
 
   const menuButtons=
-    document.querySelectorAll("#menuButtons .menu-btn");
+    document.querySelectorAll(
+      "#menuButtons .menu-btn"
+    );
+
 
   if(menuButtons[index]){
-    menuButtons[index].classList.add("active");
+    menuButtons[index]
+      .classList.add("active");
   }
 
-  document.getElementById("ayushmanReport")
+
+  document
+    .getElementById("ayushmanReport")
     .style.display="none";
 
-  document.getElementById("rchReport")
-    .style.display="none";
 
-  document.getElementById("ayushmanSections")
+  document
+    .getElementById("ayushmanSections")
     .innerHTML="";
 
-  document.getElementById("rchSections")
-    .innerHTML="";
 
-  document.getElementById("reportTable")
+  document
+    .getElementById("reportTable")
     .style.display="table";
 
-  document.querySelector("#reportTable thead")
+
+  document
+    .querySelector("#reportTable thead")
     .innerHTML="";
 
-  document.querySelector("#reportTable tbody")
+
+  document
+    .querySelector("#reportTable tbody")
     .innerHTML="";
 
-  setStatus("Google Sheet से data load हो रहा है...");
+
+  setStatus(
+    "Google Sheet से data load हो रहा है..."
+  );
+
 
   loadGoogleSheet(report.gid);
 
@@ -1078,7 +1387,9 @@ function openReport(index){
 function refreshReport(){
 
   if(currentReportIndex!==null){
+
     openReport(currentReportIndex);
+
   }
 
 }
@@ -1090,7 +1401,9 @@ function refreshReport(){
 
 function loadGoogleSheet(gid){
 
-  const callbackName="sheetCallback_"+Date.now();
+  const callbackName=
+    "sheetCallback_"+Date.now();
+
 
   const url=
     "https://docs.google.com/spreadsheets/d/"+
@@ -1101,26 +1414,35 @@ function loadGoogleSheet(gid){
     "&tqx=responseHandler:"+
     callbackName;
 
-  const script=document.createElement("script");
 
-  const timeout=setTimeout(()=>{
+  const script=
+    document.createElement("script");
 
-    cleanup();
 
-    setStatus(
-      "❌ Google Sheet से response नहीं मिला।",
-      "error"
-    );
+  const timeout=
+    setTimeout(()=>{
 
-  },15000);
+      cleanup();
+
+      setStatus(
+        "❌ Google Sheet से response नहीं मिला।",
+        "error"
+      );
+
+    },15000);
 
 
   window[callbackName]=function(response){
 
     clearTimeout(timeout);
+
     cleanup();
 
-    if(!response || response.status!=="ok"){
+
+    if(
+      !response ||
+      response.status!=="ok"
+    ){
 
       setStatus(
         "❌ Google Sheet से data load नहीं हो पाया।",
@@ -1131,30 +1453,41 @@ function loadGoogleSheet(gid){
 
     }
 
-    currentData=convertTable(response.table);
 
-    const report=REPORTS[currentReportIndex];
+    currentData=
+      convertTable(
+        response.table
+      );
+
+
+    const report=
+      REPORTS[currentReportIndex];
+
 
     if(report.name==="Ayushman Card"){
 
       renderAyushmanCard(currentData);
 
     }
+
     else if(report.name==="RCH 2.0"){
 
       renderRCHTable(currentData);
 
     }
+
     else if(report.name==="NCD"){
 
       renderNCDTable(currentData);
 
     }
+
     else{
 
       renderNormalTable(currentData);
 
     }
+
 
     setStatus(
       "✓ Google Sheet से data successfully loaded",
@@ -1167,6 +1500,7 @@ function loadGoogleSheet(gid){
   script.onerror=()=>{
 
     clearTimeout(timeout);
+
     cleanup();
 
     setStatus(
@@ -1178,6 +1512,7 @@ function loadGoogleSheet(gid){
 
 
   document.head.appendChild(script);
+
   script.src=url;
 
 
@@ -1186,7 +1521,9 @@ function loadGoogleSheet(gid){
     delete window[callbackName];
 
     if(script.parentNode){
+
       script.parentNode.removeChild(script);
+
     }
 
   }
@@ -1196,164 +1533,224 @@ function loadGoogleSheet(gid){
 
 /* =====================================================
    CONVERT DATA
+   ALL COLUMNS ARE PRESERVED
 ===================================================== */
 
 function convertTable(table){
 
-  return{
+  return {
 
-    columns:table.cols.map(c=>c.label||""),
+    columns:
+      table.cols.map((c,i)=>
+        c && c.label
+          ? c.label
+          : "Column "+(i+1)
+      ),
 
-    rows:table.rows.map(row=>
-      row.c.map(cell=>({
 
-        value:
-          cell && cell.v!=null
-          ? cell.v
-          :"",
+    rows:
+      table.rows.map(row=>{
 
-        formatted:
-          cell && cell.f!=null
-          ? String(cell.f)
-          :""
+        const cells=[];
 
-      }))
-    )
+
+        for(
+          let i=0;
+          i<table.cols.length;
+          i++
+        ){
+
+          const cellData=
+            row.c && row.c[i]
+              ? row.c[i]
+              : null;
+
+
+          cells.push({
+
+            value:
+              cellData &&
+              cellData.v!=null
+                ? cellData.v
+                : "",
+
+
+            formatted:
+              cellData &&
+              cellData.f!=null
+                ? String(cellData.f)
+                :
+                (
+                  cellData &&
+                  cellData.v!=null
+                    ? String(cellData.v)
+                    : ""
+                )
+
+          });
+
+        }
+
+
+        return cells;
+
+      })
 
   };
 
 }
 
 
+/* =====================================================
+   CELL
+===================================================== */
+
 function cell(data,r,c){
 
   if(
+    !data ||
     !data.rows[r] ||
     !data.rows[r][c]
   ){
+
     return "";
+
   }
 
+
   return data.rows[r][c].formatted;
+
 }
 
 
 /* =====================================================
    AYUSHMAN CARD
-   FIXED 8-COLUMN LAYOUT
+   FIXED 8-COLUMN DISPLAY
 ===================================================== */
 
 function renderAyushmanCard(data){
 
-  document.getElementById("reportTable")
+  document
+    .getElementById("reportTable")
     .style.display="none";
 
-  document.getElementById("rchReport")
-    .style.display="none";
 
-  document.getElementById("ayushmanReport")
+  document
+    .getElementById("ayushmanReport")
     .style.display="block";
 
+
   const container=
-    document.getElementById("ayushmanSections");
+    document.getElementById(
+      "ayushmanSections"
+    );
+
 
   container.innerHTML="";
 
 
-  /*
-     केवल heading वाली rows खोजेंगे।
-     बाकी layout fixed रहेगा।
-  */
-
   const sections=[];
 
-  for(let r=0;r<data.rows.length;r++){
+
+  for(
+    let r=0;
+    r<data.rows.length;
+    r++
+  ){
 
     let text="";
 
-    for(let c=0;c<8;c++){
+
+    for(
+      let c=0;
+      c<data.rows[r].length;
+      c++
+    ){
+
       text+=" "+cell(data,r,c);
+
     }
+
 
     text=text.trim();
 
+
     if(
-      text.includes("आयुष्मान कार्ड") &&
-      !text.includes("वय वंदन")
+      text.includes("आयुष्मान कार्ड") ||
+      text.includes("वय वंदन")
     ){
 
       sections.push({
+
         row:r,
-        title:"आयुष्मान कार्ड की जानकारी दिनांक 15.05.2026 की स्थिति में"
-      });
 
-    }
+        title:text
 
-    if(text.includes("वय वंदन कार्ड")){
-
-      sections.push({
-        row:r,
-        title:"वय वंदन कार्ड की प्रगति की जानकारी दिनांक 19.04.2026 की स्थिति में"
       });
 
     }
 
   }
-
-
-  sections.forEach((section,i)=>{
-
-    const next=
-      sections[i+1]
-      ? sections[i+1].row
-      : data.rows.length;
-
-    createFixedAyushmanSection(
-      data,
-      section.row,
-      next,
-      section.title
-    );
-
-  });
 
 
   if(sections.length===0){
 
-    createFixedAyushmanSection(
-      data,
-      -1,
-      data.rows.length,
-      "आयुष्मान कार्ड"
-    );
+    createFallbackAyushman(data);
+
+    return;
 
   }
+
+
+  sections.forEach(
+    (section,index)=>{
+
+      createStableAyushmanSection(
+
+        data,
+
+        section.row,
+
+        section.title,
+
+        index+1<sections.length
+          ? sections[index+1].row
+          : data.rows.length
+
+      );
+
+    }
+  );
 
 }
 
 
 /* =====================================================
-   FIXED AYUSHMAN SECTION
+   AYUSHMAN SECTION
 ===================================================== */
 
-function createFixedAyushmanSection(
+function createStableAyushmanSection(
   data,
   titleRow,
-  endRow,
-  titleText
+  titleText,
+  endRow
 ){
 
   const wrapper=
     document.createElement("div");
 
-  wrapper.className="ayushman-section";
+  wrapper.className=
+    "ayushman-section";
 
 
   const title=
     document.createElement("div");
 
-  title.className="ayushman-title";
-  title.innerText=titleText;
+  title.className=
+    "ayushman-title";
+
+  title.innerText=
+    titleText;
 
   wrapper.appendChild(title);
 
@@ -1361,63 +1758,76 @@ function createFixedAyushmanSection(
   const table=
     document.createElement("table");
 
-  table.className="ayushman-table";
+  table.className=
+    "ayushman-table";
 
 
   const colgroup=
     document.createElement("colgroup");
 
+
   for(let i=0;i<8;i++){
+
     colgroup.appendChild(
       document.createElement("col")
     );
+
   }
+
 
   table.appendChild(colgroup);
 
 
-  /* HEADER */
-
-  const thead=document.createElement("thead");
-
-  const r1=document.createElement("tr");
+  const thead=
+    document.createElement("thead");
 
 
-  const cr=document.createElement("th");
-
-  cr.rowSpan=2;
-  cr.innerText="क्र";
-
-  r1.appendChild(cr);
+  const row1=
+    document.createElement("tr");
 
 
-  const target=document.createElement("th");
+  let th=
+    document.createElement("th");
 
-  target.colSpan=3;
-  target.innerText="लक्ष्य";
+  th.rowSpan=2;
+  th.innerText="क्र";
 
-  r1.appendChild(target);
-
-
-  const achievement=document.createElement("th");
-
-  achievement.colSpan=3;
-  achievement.innerText="उपलब्धि";
-
-  r1.appendChild(achievement);
+  row1.appendChild(th);
 
 
-  const percentage=document.createElement("th");
+  th=
+    document.createElement("th");
 
-  percentage.rowSpan=2;
-  percentage.innerText="प्रतिशत";
+  th.colSpan=3;
+  th.innerText="लक्ष्य";
 
-  r1.appendChild(percentage);
-
-  thead.appendChild(r1);
+  row1.appendChild(th);
 
 
-  const r2=document.createElement("tr");
+  th=
+    document.createElement("th");
+
+  th.colSpan=3;
+  th.innerText="उपलब्धि";
+
+  row1.appendChild(th);
+
+
+  th=
+    document.createElement("th");
+
+  th.rowSpan=2;
+  th.innerText="प्रतिशत";
+
+  row1.appendChild(th);
+
+
+  thead.appendChild(row1);
+
+
+  const row2=
+    document.createElement("tr");
+
 
   [
     "ग्रामीण",
@@ -1426,27 +1836,31 @@ function createFixedAyushmanSection(
     "ग्रामीण",
     "अर्बन",
     "योग"
-  ].forEach(text=>{
+  ]
+  .forEach(text=>{
 
-    const th=document.createElement("th");
+    const h=
+      document.createElement("th");
 
-    th.innerText=text;
+    h.innerText=text;
 
-    r2.appendChild(th);
+    row2.appendChild(h);
 
   });
 
-  thead.appendChild(r2);
+
+  thead.appendChild(row2);
+
 
   table.appendChild(thead);
 
 
-  /* DATA */
+  const tbody=
+    document.createElement("tbody");
 
-  const tbody=document.createElement("tbody");
 
+  let headerPassed=false;
 
-  let dataStarted=false;
 
   for(
     let r=titleRow+1;
@@ -1456,78 +1870,91 @@ function createFixedAyushmanSection(
 
     const values=[];
 
+
     for(let c=0;c<8;c++){
-      values.push(cell(data,r,c));
+
+      values.push(
+        cell(data,r,c)
+      );
+
     }
 
-    const text=values.join(" ").trim();
 
-    if(text==="") continue;
+    const text=
+      values.join(" ").trim();
 
 
-    /*
-       Header rows को ignore करें
-    */
+    if(!text){
+      continue;
+    }
+
 
     if(
       text.includes("लक्ष्य") ||
-      text.includes("उपलब्धि")
-    ){
-      continue;
-    }
-
-    if(
-      text.includes("ग्रामीण") &&
-      text.includes("अर्बन") &&
-      text.includes("योग")
-    ){
-      continue;
-    }
-
-
-    /*
-       केवल actual data row लें।
-       पहला cell सामान्यतः क्रमांक होगा।
-    */
-
-    if(
-      values[0]!=="" &&
+      text.includes("उपलब्धि") ||
       (
-        /^\d+$/.test(values[0]) ||
-        values.slice(1).some(v=>v!=="")
+        text.includes("ग्रामीण") &&
+        text.includes("अर्बन")
       )
     ){
 
-      dataStarted=true;
+      headerPassed=true;
 
-      const tr=document.createElement("tr");
-
-
-      values.forEach((value,c)=>{
-
-        const td=document.createElement("td");
-
-        td.innerText=value;
-
-        if(c===0){
-          td.style.fontWeight="700";
-        }
-
-        if(c===3 || c===6){
-          td.classList.add("total-cell");
-        }
-
-        if(c===7){
-          td.classList.add("percent-cell");
-        }
-
-        tr.appendChild(td);
-
-      });
-
-      tbody.appendChild(tr);
+      continue;
 
     }
+
+
+    if(!headerPassed){
+      continue;
+    }
+
+
+    const tr=
+      document.createElement("tr");
+
+
+    for(let c=0;c<8;c++){
+
+      const td=
+        document.createElement("td");
+
+
+      td.innerText=
+        values[c] || "";
+
+
+      if(c===0){
+
+        td.style.fontWeight="700";
+
+      }
+
+
+      if(c===3 || c===6){
+
+        td.classList.add(
+          "total-cell"
+        );
+
+      }
+
+
+      if(c===7){
+
+        td.classList.add(
+          "percent-cell"
+        );
+
+      }
+
+
+      tr.appendChild(td);
+
+    }
+
+
+    tbody.appendChild(tr);
 
   }
 
@@ -1536,8 +1963,141 @@ function createFixedAyushmanSection(
 
   wrapper.appendChild(table);
 
+
   document
-    .getElementById("ayushmanSections")
+    .getElementById(
+      "ayushmanSections"
+    )
+    .appendChild(wrapper);
+
+}
+
+
+/* =====================================================
+   AYUSHMAN FALLBACK
+===================================================== */
+
+function createFallbackAyushman(data){
+
+  const wrapper=
+    document.createElement("div");
+
+  wrapper.className=
+    "ayushman-section";
+
+
+  const title=
+    document.createElement("div");
+
+  title.className=
+    "ayushman-title";
+
+  title.innerText=
+    "आयुष्मान कार्ड";
+
+  wrapper.appendChild(title);
+
+
+  const table=
+    document.createElement("table");
+
+  table.className=
+    "ayushman-table";
+
+
+  table.innerHTML=`
+
+    <thead>
+
+      <tr>
+
+        <th rowspan="2">क्र</th>
+
+        <th colspan="3">लक्ष्य</th>
+
+        <th colspan="3">उपलब्धि</th>
+
+        <th rowspan="2">प्रतिशत</th>
+
+      </tr>
+
+      <tr>
+
+        <th>ग्रामीण</th>
+        <th>अर्बन</th>
+        <th>योग</th>
+
+        <th>ग्रामीण</th>
+        <th>अर्बन</th>
+        <th>योग</th>
+
+      </tr>
+
+    </thead>
+
+  `;
+
+
+  const tbody=
+    document.createElement("tbody");
+
+
+  data.rows.forEach(
+    (row,r)=>{
+
+      const values=[];
+
+
+      for(let c=0;c<8;c++){
+
+        values.push(
+          cell(data,r,c)
+        );
+
+      }
+
+
+      if(
+        values.some(
+          v=>v!==""
+        )
+      ){
+
+        const tr=
+          document.createElement("tr");
+
+
+        values.forEach(
+          value=>{
+
+            const td=
+              document.createElement("td");
+
+            td.innerText=value;
+
+            tr.appendChild(td);
+
+          }
+        );
+
+
+        tbody.appendChild(tr);
+
+      }
+
+    }
+  );
+
+
+  table.appendChild(tbody);
+
+  wrapper.appendChild(table);
+
+
+  document
+    .getElementById(
+      "ayushmanSections"
+    )
     .appendChild(wrapper);
 
 }
@@ -1545,48 +2105,92 @@ function createFixedAyushmanSection(
 
 /* =====================================================
    RCH 2.0
-   FIXED 11 COLUMNS
+   EXACTLY 11 COLUMNS
 ===================================================== */
 
 function renderRCHTable(data){
 
-  document.getElementById("reportTable")
-    .style.display="none";
-
-  document.getElementById("ayushmanReport")
-    .style.display="none";
-
-  document.getElementById("rchReport")
-    .style.display="block";
+  const table=
+    document.getElementById(
+      "reportTable"
+    );
 
 
-  const container=
-    document.getElementById("rchSections");
-
-  container.innerHTML="";
+  table.style.display="none";
 
 
   /*
-     Google Sheet में पहला non-empty row
-     report heading है।
+     RCH का अलग wrapper
   */
 
-  let titleRow=-1;
+  let old=
+    document.getElementById(
+      "rchReport"
+    );
 
-  for(let r=0;r<data.rows.length;r++){
 
-    const text=
-      data.rows[r]
-      .map(x=>x.formatted||"")
-      .join(" ")
-      .trim();
+  if(old){
+    old.remove();
+  }
 
-    if(
-      text.includes("RCH 2.0") ||
-      text.includes("PW Registration Detail")
+
+  const wrapper=
+    document.createElement("div");
+
+  wrapper.id="rchReport";
+
+  wrapper.className=
+    "rch-wrapper";
+
+
+  /*
+     HEADING
+  */
+
+  const heading=
+    document.createElement("div");
+
+  heading.className=
+    "rch-heading";
+
+  heading.innerText=
+    "RCH 2.0 PW Registration Detail FY 2026-27";
+
+
+  /*
+     अगर Sheet में as on date है,
+     तो उसे heading में जोड़ें।
+  */
+
+  for(
+    let r=0;
+    r<Math.min(5,data.rows.length);
+    r++
+  ){
+
+    let text="";
+
+
+    for(
+      let c=0;
+      c<data.rows[r].length;
+      c++
     ){
 
-      titleRow=r;
+      text+=" "+cell(data,r,c);
+
+    }
+
+
+    if(
+      text.includes(
+        "RCH 2.0 PW Registration Detail"
+      )
+    ){
+
+      heading.innerText=
+        text.trim();
+
       break;
 
     }
@@ -1594,39 +2198,22 @@ function renderRCHTable(data){
   }
 
 
-  const title=
-    titleRow>=0
-    ? data.rows[titleRow]
-        .map(x=>x.formatted||"")
-        .join(" ")
-        .trim()
-    : "RCH 2.0 PW Registration Detail FY 2026-27";
-
-
-  const wrapper=
-    document.createElement("div");
-
-  wrapper.className="ayushman-section";
-
-
-  const heading=
-    document.createElement("div");
-
-  heading.className="rch-title";
-
-  heading.innerText=title;
-
   wrapper.appendChild(heading);
 
 
-  const table=
+  /*
+     TABLE
+  */
+
+  const rchTable=
     document.createElement("table");
 
-  table.className="rch-table";
+  rchTable.className=
+    "rch-table";
 
 
   /*
-     EXACTLY 11 VISIBLE COLUMNS
+     EXACT 11 HEADERS
   */
 
   const headers=[
@@ -1649,84 +2236,46 @@ function renderRCHTable(data){
   const thead=
     document.createElement("thead");
 
+
   const trHead=
     document.createElement("tr");
 
 
-  headers.forEach(text=>{
+  headers.forEach(
+    text=>{
 
-    const th=
-      document.createElement("th");
+      const th=
+        document.createElement("th");
 
-    th.innerText=text;
+      th.innerText=text;
 
-    trHead.appendChild(th);
+      trHead.appendChild(th);
 
-  });
+    }
+  );
 
 
   thead.appendChild(trHead);
-  table.appendChild(thead);
 
+  rchTable.appendChild(thead);
+
+
+  /*
+     BODY
+  */
 
   const tbody=
     document.createElement("tbody");
 
 
-  /*
-     Header row ढूँढें।
-  */
-
-  let headerRow=-1;
-
   for(
-    let r=Math.max(0,titleRow);
+    let r=0;
     r<data.rows.length;
     r++
   ){
-
-    const rowText=
-      data.rows[r]
-      .map(x=>(x.formatted||"").toLowerCase())
-      .join(" ");
-
-    if(
-      rowText.includes("sector") &&
-      rowText.includes("hfr") &&
-      rowText.includes("health facility")
-    ){
-
-      headerRow=r;
-      break;
-
-    }
-
-  }
-
-
-  /*
-     Data हमेशा header के बाद से।
-  */
-
-  const start=
-    headerRow>=0
-    ? headerRow+1
-    : titleRow+1;
-
-
-  for(
-    let r=start;
-    r<data.rows.length;
-    r++
-  ){
-
-    /*
-       केवल पहले 11 columns पढ़ें।
-       Google Sheet के बाद के hidden/extra
-       columns वेबसाइट में नहीं आएंगे।
-    */
 
     const values=[];
+
 
     for(let c=0;c<11;c++){
 
@@ -1737,73 +2286,89 @@ function renderRCHTable(data){
     }
 
 
-    const rowText=
+    const text=
       values.join(" ").trim();
 
 
-    if(rowText==="") continue;
-
-
     /*
-       अगर फिर से heading आ जाए तो रोकें।
+       blank row
     */
 
-    if(
-      rowText.includes("RCH 2.0 PW Registration Detail")
-    ){
+    if(!text){
       continue;
     }
 
 
     /*
-       Header दोबारा मिले तो skip।
+       Title row skip
     */
 
     if(
-      rowText.toLowerCase().includes("sector") &&
-      rowText.toLowerCase().includes("hfr")
+      text.includes(
+        "RCH 2.0 PW Registration Detail"
+      )
     ){
+
       continue;
+
     }
 
 
     /*
-       पूरी तरह empty row skip।
+       Original header row skip
     */
 
     if(
-      values.every(v=>String(v).trim()==="")
+      text.includes("Health Facility") &&
+      text.includes("HFR ID")
     ){
+
       continue;
+
     }
 
 
-    const tr=document.createElement("tr");
+    /*
+       11-column data row
+    */
+
+    const tr=
+      document.createElement("tr");
 
 
-    for(let c=0;c<11;c++){
+    for(
+      let c=0;
+      c<11;
+      c++
+    ){
 
-      const td=document.createElement("td");
+      const td=
+        document.createElement("td");
 
-      td.innerText=values[c] || "";
+
+      td.innerText=
+        values[c] || "";
 
 
       /*
-         Health Facility
+         Facility Name
       */
 
       if(c===3){
-        td.style.textAlign="left";
+
         td.style.fontWeight="600";
+
       }
 
 
       /*
-         %
+         Percentage
       */
 
       if(c===7){
-        td.classList.add("rch-percent");
+
+        td.style.fontWeight="700";
+
       }
 
 
@@ -1812,7 +2377,9 @@ function renderRCHTable(data){
       */
 
       if(c===9){
-        td.classList.add("rch-backlog");
+
+        td.style.fontWeight="600";
+
       }
 
 
@@ -1821,7 +2388,9 @@ function renderRCHTable(data){
       */
 
       if(c===10){
-        td.classList.add("rch-high-risk");
+
+        td.style.fontWeight="600";
+
       }
 
 
@@ -1835,11 +2404,18 @@ function renderRCHTable(data){
   }
 
 
-  table.appendChild(tbody);
+  rchTable.appendChild(tbody);
 
-  wrapper.appendChild(table);
 
-  container.appendChild(wrapper);
+  wrapper.appendChild(rchTable);
+
+
+  document
+    .getElementById("pdfArea")
+    .insertBefore(
+      wrapper,
+      document.getElementById("reportTable")
+    );
 
 }
 
@@ -1851,11 +2427,25 @@ function renderRCHTable(data){
 function renderNormalTable(data){
 
   const table=
-    document.getElementById("reportTable");
+    document.getElementById(
+      "reportTable"
+    );
+
 
   table.style.display="table";
 
   table.className="";
+
+
+  const rch=
+    document.getElementById(
+      "rchReport"
+    );
+
+
+  if(rch){
+    rch.remove();
+  }
 
 
   const thead=
@@ -1863,6 +2453,7 @@ function renderNormalTable(data){
 
   const tbody=
     table.querySelector("tbody");
+
 
   thead.innerHTML="";
   tbody.innerHTML="";
@@ -1889,63 +2480,91 @@ function renderNormalTable(data){
 
   }
 
+
   thead.appendChild(header);
 
 
-  data.rows.forEach((row,r)=>{
+  data.rows.forEach(
+    (row,r)=>{
 
-    if(r===0)return;
-
-    const tr=document.createElement("tr");
-
-    let rowText="";
+      if(r===0)return;
 
 
-    for(
-      let c=0;
-      c<data.columns.length;
-      c++
-    ){
+      const tr=
+        document.createElement("tr");
 
-      const td=
-        document.createElement("td");
+      let rowText="";
 
-      const value=
-        cell(data,r,c);
 
-      td.innerText=value;
+      for(
+        let c=0;
+        c<data.columns.length;
+        c++
+      ){
 
-      rowText+=" "+value;
+        const td=
+          document.createElement("td");
 
-      tr.appendChild(td);
+
+        const value=
+          cell(data,r,c);
+
+
+        td.innerText=value;
+
+        rowText+=" "+value;
+
+        tr.appendChild(td);
+
+      }
+
+
+      if(
+        /total|योग|कुल/i.test(rowText)
+      ){
+
+        tr.classList.add(
+          "total-row"
+        );
+
+      }
+
+
+      tbody.appendChild(tr);
 
     }
-
-
-    if(/total|योग|कुल/i.test(rowText)){
-
-      tr.classList.add("total-row");
-
-    }
-
-    tbody.appendChild(tr);
-
-  });
+  );
 
 }
 
 
 /* =====================================================
    NCD
-========================================================= */
+===================================================== */
 
 function renderNCDTable(data){
 
+  const rch=
+    document.getElementById(
+      "rchReport"
+    );
+
+
+  if(rch){
+    rch.remove();
+  }
+
+
   const table=
-    document.getElementById("reportTable");
+    document.getElementById(
+      "reportTable"
+    );
+
 
   table.style.display="table";
-  table.className="ncd-table";
+
+  table.className=
+    "ncd-table";
 
 
   const thead=
@@ -1953,6 +2572,7 @@ function renderNCDTable(data){
 
   const tbody=
     table.querySelector("tbody");
+
 
   thead.innerHTML="";
   tbody.innerHTML="";
@@ -1965,15 +2585,22 @@ function renderNCDTable(data){
   const titleRow=
     document.createElement("tr");
 
+
   const titleCell=
     document.createElement("th");
 
   titleCell.colSpan=25;
-  titleCell.className="ncd-main-title";
+
+  titleCell.className=
+    "ncd-main-title";
+
   titleCell.innerText=
-    title || "NCD Status 2026-27";
+    title ||
+    "NCD Status 2026-27";
+
 
   titleRow.appendChild(titleCell);
+
   thead.appendChild(titleRow);
 
 
@@ -1992,34 +2619,49 @@ function renderNCDTable(data){
   ];
 
 
-  const gr=document.createElement("tr");
+  const gr=
+    document.createElement("tr");
 
 
-  groups.forEach(([text,span])=>{
+  groups.forEach(
+    ([text,span])=>{
 
-    const th=document.createElement("th");
+      const th=
+        document.createElement("th");
 
-    th.innerText=text;
-    th.colSpan=span;
+      th.innerText=text;
 
-    if(span===1){
-      th.rowSpan=2;
-      th.className="ncd-sub";
-    }else{
-      th.className="ncd-group";
+      th.colSpan=span;
+
+      if(span===1){
+
+        th.rowSpan=2;
+
+        th.className="ncd-sub";
+
+      }
+
+      else{
+
+        th.className="ncd-group";
+
+      }
+
+      gr.appendChild(th);
+
     }
+  );
 
-    gr.appendChild(th);
-
-  });
 
   thead.appendChild(gr);
 
 
-  const sub=document.createElement("tr");
+  const sub=
+    document.createElement("tr");
 
 
   [
+
     "Screening",
     "%",
     "Estimated Hypertensive Patient",
@@ -2042,14 +2684,17 @@ function renderNCDTable(data){
 
   ].forEach(text=>{
 
-    const th=document.createElement("th");
+    const th=
+      document.createElement("th");
 
     th.innerText=text;
+
     th.className="ncd-sub";
 
     sub.appendChild(th);
 
   });
+
 
   thead.appendChild(sub);
 
@@ -2060,17 +2705,26 @@ function renderNCDTable(data){
     r++
   ){
 
-    const tr=document.createElement("tr");
+    const tr=
+      document.createElement("tr");
 
-    for(let c=0;c<25;c++){
 
-      const td=document.createElement("td");
+    for(
+      let c=0;
+      c<25;
+      c++
+    ){
 
-      td.innerText=cell(data,r,c);
+      const td=
+        document.createElement("td");
+
+      td.innerText=
+        cell(data,r,c);
 
       tr.appendChild(td);
 
     }
+
 
     tbody.appendChild(tr);
 
@@ -2086,36 +2740,25 @@ function renderNCDTable(data){
 function filterTable(){
 
   const value=
-    document.getElementById("searchBox")
-    .value
-    .toLowerCase()
-    .trim();
-
-
-  document
-    .querySelectorAll("#reportTable tbody tr")
-    .forEach(row=>{
-
-      row.style.display=
-        row.innerText.toLowerCase()
-        .includes(value)
-        ? ""
-        : "none";
-
-    });
+    document
+      .getElementById("searchBox")
+      .value
+      .toLowerCase()
+      .trim();
 
 
   document
     .querySelectorAll(
-      ".ayushman-table tbody tr"
+      "#reportTable tbody tr"
     )
     .forEach(row=>{
 
       row.style.display=
-        row.innerText.toLowerCase()
-        .includes(value)
-        ? ""
-        : "none";
+        row.innerText
+          .toLowerCase()
+          .includes(value)
+          ? ""
+          : "none";
 
     });
 
@@ -2127,10 +2770,27 @@ function filterTable(){
     .forEach(row=>{
 
       row.style.display=
-        row.innerText.toLowerCase()
-        .includes(value)
-        ? ""
-        : "none";
+        row.innerText
+          .toLowerCase()
+          .includes(value)
+          ? ""
+          : "none";
+
+    });
+
+
+  document
+    .querySelectorAll(
+      ".ayushman-table tbody tr"
+    )
+    .forEach(row=>{
+
+      row.style.display=
+        row.innerText
+          .toLowerCase()
+          .includes(value)
+          ? ""
+          : "none";
 
     });
 
@@ -2145,7 +2805,10 @@ async function downloadPDF(){
 
   if(!currentData){
 
-    alert("पहले report का data load होने दें।");
+    alert(
+      "पहले report का data load होने दें।"
+    );
+
     return;
 
   }
@@ -2153,6 +2816,7 @@ async function downloadPDF(){
 
   const area=
     document.getElementById("pdfArea");
+
 
   area.classList.add("pdf-mode");
 
@@ -2162,10 +2826,11 @@ async function downloadPDF(){
 
 
   const filename=
-    report.name.replace(
-      /[\\/:*?"<>|]/g,
-      "_"
-    )+
+    report.name
+      .replace(
+        /[\\/:*?"<>|]/g,
+        "_"
+      )+
     "_Kharsia_Health.pdf";
 
 
@@ -2204,16 +2869,22 @@ async function downloadPDF(){
       .save();
 
 
-  }catch(error){
+  }
+
+  catch(error){
 
     console.error(error);
 
-    alert("PDF बनाने में समस्या हुई।");
+    alert(
+      "PDF बनाने में समस्या हुई।"
+    );
 
   }
 
 
-  area.classList.remove("pdf-mode");
+  area.classList.remove(
+    "pdf-mode"
+  );
 
 }
 
@@ -2226,10 +2897,14 @@ function printReport(){
 
   if(!currentData){
 
-    alert("पहले report का data load होने दें।");
+    alert(
+      "पहले report का data load होने दें।"
+    );
+
     return;
 
   }
+
 
   window.print();
 
@@ -2241,6 +2916,7 @@ function printReport(){
 ===================================================== */
 
 createMenu();
+
 
 </script>
 
