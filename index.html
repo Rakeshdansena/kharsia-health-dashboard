@@ -33,41 +33,71 @@ body{margin:0;font-family:Arial,"Noto Sans",sans-serif;background:#f3f6fa;color:
 .status{padding:12px 15px;border-radius:9px;background:#e0f2fe;color:#075985;margin-bottom:15px;font-size:14px}
 .status.success{background:#dcfce7;color:#166534}.status.error{background:#fee2e2;color:#991b1b}
 .table-box{padding:12px;overflow:auto}
-#reportTable{border-collapse:collapse;width:100%;min-width:900px;font-size:13px}
-#reportTable th{background:#075985;color:#fff;padding:10px 8px;border:1px solid #d1d5db;white-space:nowrap;position:sticky;top:0;z-index:2}
-#reportTable td{padding:8px;border:1px solid #d1d5db;white-space:nowrap}
+#reportTable{border-collapse:collapse;width:100%;min-width:900px;font-size:13px;table-layout:auto}
+#reportTable th{background:#075985;color:#fff;padding:9px 7px;border:1px solid #d1d5db;white-space:normal;position:sticky;top:0;z-index:2;text-align:center;vertical-align:middle}
+#reportTable td{padding:7px;border:1px solid #d1d5db;white-space:nowrap;vertical-align:middle}
 #reportTable tbody tr:nth-child(even){background:#f8fafc}
 #reportTable tbody tr:hover{background:#e0f2fe}
 #reportTable tbody tr.total-row{font-weight:700;background:#dbeafe}
 .report-title-pdf{display:none}
 .footer{text-align:center;color:#64748b;padding:20px;font-size:12px}
 
+/* NCD: exact 25-column report width ratios from the supplied workbook */
+.ncd-table{table-layout:fixed!important;min-width:0!important;width:100%!important}
+.ncd-table col:nth-child(1){width:9.5%}
+.ncd-table col:nth-child(2){width:5.5%}
+.ncd-table col:nth-child(3){width:7.4%}
+.ncd-table col:nth-child(4){width:4.1%}
+.ncd-table col:nth-child(5){width:6.2%}
+.ncd-table col:nth-child(6){width:6.2%}
+.ncd-table col:nth-child(7){width:6.2%}
+.ncd-table col:nth-child(n+8):nth-child(-n+24){width:5.8%}
+.ncd-table col:nth-child(25){width:3.8%}
+.ncd-table .ncd-main-title{background:#075985;color:#fff;font-size:16px;font-weight:700;height:48px}
+.ncd-table .ncd-group{background:#075985;color:#fff;font-weight:700;font-size:13px}
+.ncd-table .ncd-sub{background:#0f766e;color:#fff;font-weight:700;font-size:12px}
+.ncd-table .ncd-percent{font-weight:700}
+.ncd-table .ncd-pink{background:#f3d1df!important}
+.ncd-table .ncd-cyan{background:#00ffff!important;color:#111}
+.ncd-table .ncd-summary-title{background:#075985;color:#fff;font-size:15px;font-weight:700;height:42px}
+.ncd-table .ncd-summary-head{background:#0f766e;color:#fff;font-weight:700}
+.ncd-table td{text-align:center;white-space:normal;word-break:break-word}
+.ncd-table td:first-child{text-align:left;font-weight:600}
+.ncd-table tr.ncd-data-row:nth-child(even){background:#f8fafc}
+
+/* PDF/print */
+.pdf-mode{background:#fff!important;padding:6px!important}
+.pdf-mode .table-box{box-shadow:none;border-radius:0}
+.pdf-mode #reportTable{min-width:0!important;width:100%!important;font-size:7px}
+.pdf-mode #reportTable th{position:static;padding:4px 3px;white-space:normal}
+.pdf-mode #reportTable td{padding:3px 2px;white-space:normal}
+.pdf-mode .report-title-pdf{display:block;text-align:center;font-size:17px;font-weight:700;margin:0 0 8px;color:#075985}
+.pdf-mode .status,.pdf-mode .report-actions,.pdf-mode .footer{display:none}
+
 @media(max-width:800px){
 .header{flex-direction:column;align-items:flex-start;gap:4px}.header h1{font-size:19px}.header small{margin-left:0}
 .container{flex-direction:column}.sidebar{width:100%;display:flex;overflow-x:auto;gap:5px;padding:8px}.sidebar-title{display:none}
 .menu-btn{min-width:150px;white-space:nowrap}.content{padding:12px}.search{width:100%;min-width:0}
+.ncd-table{min-width:1050px!important}
 }
 
-/* PDF/print capture area */
-.pdf-mode{background:#fff!important;padding:10px!important}
-.pdf-mode .table-box{box-shadow:none;border-radius:0}
-.pdf-mode #reportTable{min-width:0;width:100%;font-size:9px}
-.pdf-mode #reportTable th{position:static;padding:6px 4px;white-space:normal}
-.pdf-mode #reportTable td{padding:5px 4px;white-space:normal}
-.pdf-mode .report-title-pdf{display:block;text-align:center;font-size:18px;font-weight:700;margin:0 0 12px;color:#075985}
-.pdf-mode .status,.pdf-mode .report-actions,.pdf-mode .footer{display:none}
-
 @media print{
+@page{size:A4 landscape;margin:6mm}
 body{background:#fff}
 .header,.sidebar,.welcome,.report-actions,.status,.footer{display:none!important}
 .container,.content{display:block;padding:0}
 .page{display:none}.page.active{display:block}
-.report-header{box-shadow:none;padding:0;margin:0 0 10px}
-.report-title-pdf{display:block;text-align:center;font-size:18px;font-weight:700}
-.table-box{box-shadow:none;padding:0}
-#reportTable{min-width:0;width:100%;font-size:8px}
+.report-header{box-shadow:none;padding:0;margin:0 0 5px}
+.report-title-pdf{display:block;text-align:center;font-size:16px;font-weight:700}
+.table-box{box-shadow:none;padding:0;overflow:visible}
+#reportTable{min-width:0;width:100%;font-size:7px}
 #reportTable th{position:static;white-space:normal}
 #reportTable td{white-space:normal}
+.ncd-table{width:100%!important;table-layout:fixed!important}
+.ncd-table .ncd-main-title{height:34px;font-size:12px}
+.ncd-table .ncd-group{font-size:8px}
+.ncd-table .ncd-sub{font-size:7px}
+.ncd-table td{padding:2px 1px;font-size:7px}
 }
 </style>
 </head>
@@ -107,15 +137,12 @@ body{background:#fff}
       <input id="searchBox" class="search" type="text" placeholder="🔎 Table में search करें..." oninput="filterTable()">
     </div>
   </div>
-
   <div id="status" class="status">Google Sheet से data load हो रहा है...</div>
-
   <div id="pdfArea">
     <div class="table-box">
-      <table id="reportTable"><thead></thead><tbody></tbody></table>
+      <table id="reportTable"><colgroup></colgroup><thead></thead><tbody></tbody></table>
     </div>
   </div>
-
   <div class="footer">Data source: Google Sheet · Kharsia Health Dashboard</div>
 </section>
 </main>
@@ -153,7 +180,6 @@ function createMenu(){
     button.innerHTML=report.icon+" "+report.name;
     button.onclick=()=>openReport(index);
     menu.appendChild(button);
-
     const card=document.createElement("div");
     card.className="card";
     card.innerHTML=`<div class="card-icon">${report.icon}</div><h3>${report.name}</h3><p>${report.description}</p>`;
@@ -178,7 +204,6 @@ function setStatus(text,type=""){
 function openReport(index){
   currentReportIndex=index;
   const report=REPORTS[index];
-
   document.getElementById("dashboardPage").classList.remove("active");
   document.getElementById("reportPage").classList.add("active");
   document.getElementById("reportTitle").innerText=report.icon+" "+report.name;
@@ -188,19 +213,17 @@ function openReport(index){
   document.querySelectorAll(".menu-btn").forEach(b=>b.classList.remove("active"));
   const menuButtons=document.querySelectorAll("#menuButtons .menu-btn");
   if(menuButtons[index]) menuButtons[index].classList.add("active");
-
+  document.querySelector("#reportTable colgroup").innerHTML="";
   document.querySelector("#reportTable thead").innerHTML="";
   document.querySelector("#reportTable tbody").innerHTML="";
   setStatus("Google Sheet से data load हो रहा है...");
   loadGoogleSheet(report.gid);
 }
 
-function refreshReport(){
-  if(currentReportIndex!==null) openReport(currentReportIndex);
-}
+function refreshReport(){ if(currentReportIndex!==null) openReport(currentReportIndex); }
 
 function loadGoogleSheet(gid){
-  const url="https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+"/gviz/tq?gid="+encodeURIComponent(gid);
+  const url="https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+"/gviz/tq?gid="+encodeURIComponent(gid)+"&headers=0";
   const query=new google.visualization.Query(url);
   query.setQuery("select *");
   query.send(response=>{
@@ -209,39 +232,124 @@ function loadGoogleSheet(gid){
       return;
     }
     currentData=response.getDataTable();
-    renderTable(currentData);
+    if(REPORTS[currentReportIndex].name==="NCD") renderNCDTable(currentData);
+    else renderNormalTable(currentData);
     setStatus("✓ Google Sheet से data successfully loaded","success");
   });
 }
 
-function renderTable(data){
-  const thead=document.querySelector("#reportTable thead");
-  const tbody=document.querySelector("#reportTable tbody");
-  thead.innerHTML=""; tbody.innerHTML="";
+function setupColGroup(count, ncd=false){
+  const cg=document.querySelector("#reportTable colgroup");
+  cg.innerHTML="";
+  for(let i=0;i<count;i++){
+    const col=document.createElement("col");
+    cg.appendChild(col);
+  }
+}
 
+function formatted(data,r,c){
+  try{return data.getFormattedValue(r,c)||"";}catch(e){return "";}
+}
+
+function renderNormalTable(data){
+  const table=document.getElementById("reportTable");
+  table.className="";
+  setupColGroup(data.getNumberOfColumns());
+  const thead=table.querySelector("thead"), tbody=table.querySelector("tbody");
+  thead.innerHTML=""; tbody.innerHTML="";
   const hr=document.createElement("tr");
   for(let c=0;c<data.getNumberOfColumns();c++){
     const th=document.createElement("th");
-    let label=data.getColumnLabel(c);
-    th.innerText=label||("Column "+(c+1));
+    th.innerText=formatted(data,0,c)||("Column "+(c+1));
     hr.appendChild(th);
   }
   thead.appendChild(hr);
-
-  for(let r=0;r<data.getNumberOfRows();r++){
-    const tr=document.createElement("tr");
-    let rowText="";
+  for(let r=1;r<data.getNumberOfRows();r++){
+    const tr=document.createElement("tr"); let rowText="";
     for(let c=0;c<data.getNumberOfColumns();c++){
-      const td=document.createElement("td");
-      let value="";
-      try{value=data.getFormattedValue(r,c)||"";}catch(e){value="";}
-      td.innerText=value;
-      rowText+=" "+value;
-      tr.appendChild(td);
+      const td=document.createElement("td"), value=formatted(data,r,c);
+      td.innerText=value; rowText+=" "+value; tr.appendChild(td);
     }
     if(/total|योग|कुल/i.test(rowText)) tr.classList.add("total-row");
     tbody.appendChild(tr);
   }
+}
+
+/* NCD layout based on TL Meeting Information workbook:
+   A1:Y2 title, A3:G4 vertical headers, H3:P3 HTN, Q3:Y3 DM,
+   row 4 sub-headings. The workbook also repeats a summary section
+   at A50:Y53; data continues below it. */
+function renderNCDTable(data){
+  const table=document.getElementById("reportTable");
+  table.className="ncd-table";
+  setupColGroup(25,true);
+  const thead=table.querySelector("thead"), tbody=table.querySelector("tbody");
+  thead.innerHTML=""; tbody.innerHTML="";
+
+  const title=formatted(data,0,0);
+  const t1=document.createElement("tr"), titleCell=document.createElement("th");
+  titleCell.colSpan=25; titleCell.className="ncd-main-title";
+  titleCell.innerText=title || "NCD status 2026-27";
+  t1.appendChild(titleCell); thead.appendChild(t1);
+
+  const g=document.createElement("tr");
+  const groups=[
+    ["Subcenter",1],["Total Population",1],["Screening Target\n(47.8% of Total Population)",1],
+    ["Enrollment 30+(Progressive)",1],["%",1],["ABHA Link(Progressive)",1],["ABHA Link %",1],
+    ["HTN",9],["DM",9]
+  ];
+  groups.forEach(([txt,span])=>{
+    const th=document.createElement("th"); th.innerText=txt; th.colSpan=span; th.rowSpan=(span===1&&["Subcenter","Total Population","Screening Target\n(47.8% of Total Population)","Enrollment 30+(Progressive)","%","ABHA Link(Progressive)","ABHA Link %"].includes(txt))?2:1;
+    th.className=span>1?"ncd-group":"ncd-sub"; g.appendChild(th);
+  });
+  thead.appendChild(g);
+
+  const sub=document.createElement("tr");
+  ["Screening","%","Estimated Hypertensive Patient\n(NFHS - 29%)","Under Treatment","%","Followup","%","Under Control","%",
+   "Screening","%","Estimated Diabetes Patients (NFHS - 10.8%)","Under Treatment","%","Followup","%","Under Control","%"]
+   .forEach((txt,i)=>{const th=document.createElement("th");th.innerText=txt;th.className=(i===3||i===12)?"ncd-pink":((i===0||i===5||i===7||i===9||i===14||i===16)?"ncd-cyan":"ncd-sub");sub.appendChild(th);});
+  thead.appendChild(sub);
+
+  // Data rows 5 onward in the workbook correspond to rows 5..49.
+  // The gviz table is zero-based here, so workbook row 5 = data index 4.
+  const totalRows=data.getNumberOfRows();
+  const start=Math.min(4,totalRows);
+  const end=Math.min(49,totalRows);
+  for(let r=start;r<end;r++) appendNCDDataRow(data,r,tbody);
+
+  // Repeated summary section around workbook rows 50-53.
+  if(totalRows>49){
+    const st=document.createElement("tr"), sc=document.createElement("th");
+    sc.colSpan=25; sc.className="ncd-summary-title";
+    sc.innerText=formatted(data,49,0)||"Summary";
+    st.appendChild(sc); thead.appendChild(st);
+
+    const sg=document.createElement("tr");
+    [["Sector",1],["Total Population",1],["Screening Target\n(47.8% of Total Population)",1],
+     ["Enrollment 30+(Progressive)",1],["%",1],["ABHA Link(Progressive)",1],["ABHA Link %",1],["HTN",9],["DM",9]]
+     .forEach(([txt,span])=>{const th=document.createElement("th");th.innerText=txt;th.colSpan=span;th.rowSpan=span===1?2:1;th.className=span>1?"ncd-group":"ncd-summary-head";sg.appendChild(th);});
+    thead.appendChild(sg);
+    const ss=document.createElement("tr");
+    ["Screening","%","Estimated Hypertensive Patient\n(NFHS - 29%)","Under Treatment","%","Followup","%","Under Control","%",
+     "Screening","%","Estimated Diabetes Patients (NFHS - 10.8%)","Under Treatment","%","Followup","%","Under Control","%"]
+      .forEach(txt=>{const th=document.createElement("th");th.innerText=txt;th.className="ncd-summary-head";ss.appendChild(th);});
+    thead.appendChild(ss);
+
+    for(let r=53;r<totalRows;r++) appendNCDDataRow(data,r,tbody);
+  }
+}
+
+function appendNCDDataRow(data,r,tbody){
+  const tr=document.createElement("tr"); tr.className="ncd-data-row";
+  let rowText="";
+  for(let c=0;c<25;c++){
+    const td=document.createElement("td"), value=formatted(data,r,c);
+    td.innerText=value; rowText+=" "+value;
+    if(c===4||c===6||c===8||c===11||c===13||c===15||c===17||c===20||c===22||c===24) td.classList.add("ncd-percent");
+    tr.appendChild(td);
+  }
+  if(/total|योग|कुल/i.test(rowText)) tr.classList.add("total-row");
+  tbody.appendChild(tr);
 }
 
 function filterTable(){
@@ -252,37 +360,24 @@ function filterTable(){
 }
 
 async function downloadPDF(){
-  if(!currentData){
-    alert("पहले report का data load होने दें।");
-    return;
-  }
-  const area=document.getElementById("pdfArea");
-  area.classList.add("pdf-mode");
+  if(!currentData){alert("पहले report का data load होने दें।");return;}
+  const area=document.getElementById("pdfArea"); area.classList.add("pdf-mode");
   const report=REPORTS[currentReportIndex];
   const filename=report.name.replace(/[\\/:*?"<>|]/g,"_")+"_Kharsia_Health.pdf";
-  const options={
-    margin:[8,6,8,6],
-    filename:filename,
-    image:{type:"jpeg",quality:0.95},
-    html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#ffffff"},
-    jsPDF:{unit:"mm",format:"a4",orientation:"landscape"},
-    pagebreak:{mode:["css","legacy"]}
-  };
   try{
-    await html2pdf().set(options).from(area).save();
-  }catch(e){
-    alert("PDF बनाने में समस्या हुई। कृपया फिर से कोशिश करें।");
-    console.error(e);
-  }finally{
-    area.classList.remove("pdf-mode");
-  }
+    await html2pdf().set({
+      margin:[5,4,5,4],filename,
+      image:{type:"jpeg",quality:.95},
+      html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#fff"},
+      jsPDF:{unit:"mm",format:"a4",orientation:"landscape"},
+      pagebreak:{mode:["css","legacy"]}
+    }).from(area).save();
+  }catch(e){alert("PDF बनाने में समस्या हुई।");console.error(e)}
+  finally{area.classList.remove("pdf-mode")}
 }
 
 function printReport(){
-  if(!currentData){
-    alert("पहले report का data load होने दें।");
-    return;
-  }
+  if(!currentData){alert("पहले report का data load होने दें।");return}
   window.print();
 }
 
