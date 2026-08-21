@@ -116,6 +116,7 @@ body{
 
 .card:hover{
   transform:translateY(-3px);
+  box-shadow:0 7px 20px rgba(0,0,0,.12);
 }
 
 .card-icon{font-size:30px}
@@ -127,9 +128,7 @@ body{
   margin-bottom:15px;
 }
 
-.report-header h2{
-  margin:0 0 6px;
-}
+.report-header h2{margin:0 0 6px}
 
 .report-actions{
   display:flex;
@@ -144,6 +143,7 @@ body{
   border-radius:8px;
   min-width:250px;
   font-size:14px;
+  outline:none;
 }
 
 .action-btn{
@@ -196,6 +196,7 @@ body{
   color:#fff;
   padding:9px 7px;
   border:1px solid #d1d5db;
+  white-space:normal;
   text-align:center;
   vertical-align:middle;
 }
@@ -204,6 +205,7 @@ body{
   padding:7px;
   border:1px solid #d1d5db;
   white-space:nowrap;
+  vertical-align:middle;
 }
 
 #reportTable tbody tr:nth-child(even){
@@ -216,9 +218,9 @@ body{
 }
 
 
-/* =====================================================
-   AYUSHMAN CARD SPECIAL LAYOUT
-===================================================== */
+/* =========================================================
+   AYUSHMAN CARD
+========================================================= */
 
 #ayushmanReport{
   display:none;
@@ -237,17 +239,18 @@ body{
   background:#075985;
   color:#fff;
   text-align:center;
-  font-size:17px;
+  font-size:19px;
   font-weight:700;
-  padding:14px 10px;
+  padding:15px 10px;
   line-height:1.5;
+  border:1px solid #075985;
 }
 
 .ayushman-table{
   width:100%;
   border-collapse:collapse;
   table-layout:fixed;
-  font-size:14px;
+  font-size:15px;
 }
 
 .ayushman-table th,
@@ -255,24 +258,29 @@ body{
   border:1px solid #9ca3af;
   text-align:center;
   vertical-align:middle;
-  padding:9px 6px;
+  padding:10px 7px;
 }
 
 .ayushman-table thead tr:first-child th{
   background:#0f766e;
   color:#fff;
   font-weight:700;
+  font-size:15px;
+  height:44px;
 }
 
 .ayushman-table thead tr:nth-child(2) th{
   background:#dff5f2;
   color:#075985;
   font-weight:700;
+  font-size:14px;
+  height:40px;
 }
 
 .ayushman-table tbody td{
-  height:44px;
+  height:48px;
   background:#fff;
+  font-size:15px;
 }
 
 .ayushman-table td:first-child{
@@ -290,33 +298,32 @@ body{
   background:#ecfeff!important;
 }
 
+/* 8 columns */
 .ayushman-table col:nth-child(1){width:8%}
+
 .ayushman-table col:nth-child(2),
 .ayushman-table col:nth-child(3),
 .ayushman-table col:nth-child(4),
 .ayushman-table col:nth-child(5),
 .ayushman-table col:nth-child(6),
 .ayushman-table col:nth-child(7){width:12%}
+
 .ayushman-table col:nth-child(8){width:10%}
 
 
-/* =====================================================
+/* =========================================================
    NCD
-===================================================== */
+========================================================= */
 
 .ncd-table{
   table-layout:fixed!important;
-  min-width:1100px!important;
+  min-width:0!important;
   width:100%!important;
-}
-
-.ncd-table th{
-  white-space:normal!important;
 }
 
 .ncd-table td{
   text-align:center;
-  white-space:normal!important;
+  white-space:normal;
   word-break:break-word;
 }
 
@@ -343,9 +350,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================================================
    PDF
-===================================================== */
+========================================================= */
 
 .report-title-pdf{
   display:none;
@@ -359,10 +366,10 @@ body{
 .pdf-mode .report-title-pdf{
   display:block;
   text-align:center;
-  font-size:17px;
+  font-size:20px;
   font-weight:700;
   color:#075985;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 
 .pdf-mode .report-actions,
@@ -373,27 +380,39 @@ body{
 
 .pdf-mode .ayushman-section{
   box-shadow:none;
-  margin-bottom:15px;
+  margin-bottom:18px;
 }
 
 .pdf-mode .ayushman-title{
-  font-size:13px;
-  padding:7px;
+  font-size:17px;
+  padding:9px;
 }
 
 .pdf-mode .ayushman-table{
-  font-size:9px;
+  font-size:13px;
 }
 
 .pdf-mode .ayushman-table th,
 .pdf-mode .ayushman-table td{
-  padding:4px 3px;
+  padding:6px 4px;
+}
+
+.pdf-mode .ayushman-table thead tr:first-child th{
+  font-size:13px;
+}
+
+.pdf-mode .ayushman-table thead tr:nth-child(2) th{
+  font-size:12px;
+}
+
+.pdf-mode .ayushman-table tbody td{
+  font-size:13px;
 }
 
 
-/* =====================================================
+/* =========================================================
    FOOTER
-===================================================== */
+========================================================= */
 
 .footer{
   text-align:center;
@@ -403,9 +422,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================================================
    MOBILE
-===================================================== */
+========================================================= */
 
 @media(max-width:800px){
 
@@ -448,18 +467,20 @@ body{
 }
 
 
-/* =====================================================
-   PRINT
-===================================================== */
+/* =========================================================
+   PRINT — FONT BIGGER
+========================================================= */
 
 @media print{
 
   @page{
     size:A4 landscape;
-    margin:6mm;
+    margin:7mm;
   }
 
-  body{background:#fff}
+  body{
+    background:#fff;
+  }
 
   .header,
   .sidebar,
@@ -476,40 +497,109 @@ body{
     padding:0;
   }
 
-  .page{display:none}
-  .page.active{display:block}
+  .page{
+    display:none;
+  }
+
+  .page.active{
+    display:block;
+  }
 
   .report-header{
     box-shadow:none;
     padding:0;
-    margin:0 0 5px;
+    margin:0 0 8px;
+  }
+
+  .report-header h2,
+  .report-header p{
+    display:none;
   }
 
   .report-title-pdf{
     display:block;
     text-align:center;
-    font-size:16px;
+    font-size:20px;
     font-weight:700;
+    margin:0 0 10px;
+    color:#075985;
   }
+
+  .table-box{
+    box-shadow:none;
+    padding:0;
+    overflow:visible;
+  }
+
+  /* AYUSHMAN PRINT */
 
   .ayushman-section{
     box-shadow:none;
-    margin-bottom:12px;
+    margin-bottom:15px;
+    page-break-inside:avoid;
+    break-inside:avoid;
   }
 
   .ayushman-title{
-    font-size:12px;
-    padding:6px;
+    font-size:16px!important;
+    padding:8px!important;
+    line-height:1.4;
   }
 
   .ayushman-table{
-    font-size:8px;
+    width:100%!important;
+    min-width:0!important;
+    font-size:12px!important;
   }
 
   .ayushman-table th,
   .ayushman-table td{
-    padding:3px 2px;
+    padding:6px 4px!important;
+    height:auto!important;
+    line-height:1.35;
   }
+
+  .ayushman-table thead tr:first-child th{
+    font-size:13px!important;
+    height:34px;
+  }
+
+  .ayushman-table thead tr:nth-child(2) th{
+    font-size:12px!important;
+    height:30px;
+  }
+
+  .ayushman-table tbody td{
+    font-size:13px!important;
+    height:34px!important;
+  }
+
+  /* OTHER TABLE PRINT */
+
+  #reportTable{
+    width:100%!important;
+    min-width:0!important;
+    font-size:10px!important;
+  }
+
+  #reportTable th,
+  #reportTable td{
+    padding:4px 3px!important;
+    white-space:normal!important;
+  }
+}
+
+
+/* =========================================================
+   SCREEN ONLY — KEEP TABLE LARGE
+========================================================= */
+
+@media screen and (min-width:801px){
+
+  .ayushman-table{
+    min-width:850px;
+  }
+
 }
 
 </style>
@@ -546,14 +636,12 @@ body{
 <section id="dashboardPage" class="page active">
 
   <div class="welcome">
-
     <h2>Kharsia Health Programme Dashboard</h2>
 
     <p>
       विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए
       programme पर क्लिक करें।
     </p>
-
   </div>
 
   <div id="dashboardCards" class="cards"></div>
@@ -575,27 +663,23 @@ body{
 
     <div class="report-actions">
 
-      <button
-        class="action-btn back-btn"
-        onclick="showDashboard()">
+      <button class="action-btn back-btn"
+              onclick="showDashboard()">
         ← Dashboard
       </button>
 
-      <button
-        class="action-btn refresh-btn"
-        onclick="refreshReport()">
+      <button class="action-btn refresh-btn"
+              onclick="refreshReport()">
         🔄 Refresh
       </button>
 
-      <button
-        class="action-btn pdf-btn"
-        onclick="downloadPDF()">
+      <button class="action-btn pdf-btn"
+              onclick="downloadPDF()">
         📄 Download PDF
       </button>
 
-      <button
-        class="action-btn print-btn"
-        onclick="printReport()">
+      <button class="action-btn print-btn"
+              onclick="printReport()">
         🖨️ Print
       </button>
 
@@ -646,7 +730,6 @@ body{
 </section>
 
 </main>
-
 </div>
 
 
@@ -756,9 +839,7 @@ let currentReportIndex=null;
 let currentData=null;
 
 
-/* =====================================================
-   MENU
-===================================================== */
+/* MENU */
 
 function createMenu(){
 
@@ -798,9 +879,7 @@ function createMenu(){
 }
 
 
-/* =====================================================
-   DASHBOARD
-===================================================== */
+/* DASHBOARD */
 
 function showDashboard(){
 
@@ -818,9 +897,7 @@ function showDashboard(){
 }
 
 
-/* =====================================================
-   STATUS
-===================================================== */
+/* STATUS */
 
 function setStatus(text,type=""){
 
@@ -831,9 +908,7 @@ function setStatus(text,type=""){
 }
 
 
-/* =====================================================
-   OPEN REPORT
-===================================================== */
+/* OPEN */
 
 function openReport(index){
 
@@ -861,12 +936,11 @@ function openReport(index){
   document.querySelectorAll(".menu-btn")
     .forEach(b=>b.classList.remove("active"));
 
-  const menuButtons=
+  const buttons=
     document.querySelectorAll("#menuButtons .menu-btn");
 
-  if(menuButtons[index]){
-    menuButtons[index].classList.add("active");
-  }
+  if(buttons[index])
+    buttons[index].classList.add("active");
 
   document.getElementById("ayushmanReport")
     .style.display="none";
@@ -889,23 +963,21 @@ function openReport(index){
 }
 
 
+/* REFRESH */
+
 function refreshReport(){
 
-  if(currentReportIndex!==null){
+  if(currentReportIndex!==null)
     openReport(currentReportIndex);
-  }
 
 }
 
 
-/* =====================================================
-   GOOGLE SHEET
-===================================================== */
+/* GOOGLE SHEET */
 
 function loadGoogleSheet(gid){
 
-  const callbackName=
-    "sheetCallback_"+Date.now();
+  const callbackName="sheetCallback_"+Date.now();
 
   const url=
     "https://docs.google.com/spreadsheets/d/"+
@@ -933,7 +1005,6 @@ function loadGoogleSheet(gid){
   window[callbackName]=function(response){
 
     clearTimeout(timeout);
-
     cleanup();
 
     if(!response || response.status!=="ok"){
@@ -950,19 +1021,14 @@ function loadGoogleSheet(gid){
 
     const report=REPORTS[currentReportIndex];
 
-    if(report.name==="Ayushman Card"){
-
+    if(report.name==="Ayushman Card")
       renderAyushmanCard(currentData);
 
-    }else if(report.name==="NCD"){
-
+    else if(report.name==="NCD")
       renderNCDTable(currentData);
 
-    }else{
-
+    else
       renderNormalTable(currentData);
-
-    }
 
     setStatus(
       "✓ Google Sheet से data successfully loaded",
@@ -993,26 +1059,21 @@ function loadGoogleSheet(gid){
 
     delete window[callbackName];
 
-    if(script.parentNode){
+    if(script.parentNode)
       script.parentNode.removeChild(script);
-    }
 
   }
 
 }
 
 
-/* =====================================================
-   CONVERT
-===================================================== */
+/* DATA */
 
 function convertTable(table){
 
   return{
 
-    columns:table.cols.map(
-      c=>c.label||""
-    ),
+    columns:table.cols.map(c=>c.label||""),
 
     rows:table.rows.map(row=>
       row.c.map(cell=>({
@@ -1025,8 +1086,6 @@ function convertTable(table){
         formatted:
           cell && cell.f!=null
           ? String(cell.f)
-          :cell && cell.v!=null
-          ? String(cell.v)
           :""
 
       }))
@@ -1039,146 +1098,25 @@ function convertTable(table){
 
 function cell(data,r,c){
 
-  if(
-    !data.rows[r] ||
-    !data.rows[r][c]
-  ){
+  if(!data.rows[r] || !data.rows[r][c])
     return "";
-  }
 
   return data.rows[r][c].formatted;
 }
 
 
-/* =====================================================
-   GET COMPLETE ROW TEXT
-===================================================== */
-
-function getRowText(data,r){
-
-  let text="";
-
-  for(let c=0;c<data.rows[r].length;c++){
-
-    text+=" "+cell(data,r,c);
-
-  }
-
-  return text.trim();
-}
-
-
-/* =====================================================
-   IDENTIFY SECTION HEADING
-===================================================== */
-
-function isAyushmanHeading(text){
-
-  return /आयुष्मान\s*कार्ड/i.test(text);
-}
-
-
-function isVayVandanHeading(text){
-
-  return /वय\s*वंदन/i.test(text);
-}
-
-
-function isSectionHeading(text){
-
-  return (
-    isAyushmanHeading(text) ||
-    isVayVandanHeading(text)
-  );
-}
-
-
-/* =====================================================
-   IDENTIFY HEADER ROW
-===================================================== */
-
-function isMainHeader(text){
-
-  return (
-    /क्र/.test(text) &&
-    /लक्ष्य/.test(text) &&
-    /उपलब्धि/.test(text)
-  );
-}
-
-
-function isSubHeader(text){
-
-  return (
-    /ग्रामीण/.test(text) &&
-    /अर्बन/.test(text) &&
-    /योग/.test(text)
-  );
-}
-
-
-/* =====================================================
-   CHECK DATA ROW
-===================================================== */
-
-function isDataRow(values){
-
-  if(!values || values.length<8){
-    return false;
-  }
-
-  const clean=values.map(v=>String(v).trim());
-
-  const first=clean[0];
-
-  /*
-     पहली column में क्रमांक होना चाहिए।
-  */
-
-  if(
-    first!=="" &&
-    (
-      /^\d+$/.test(first) ||
-      /^[-]?\d+(\.\d+)?$/.test(first)
-    )
-  ){
-    return true;
-  }
-
-  /*
-     अगर क्रमांक blank है लेकिन
-     बाकी columns में numeric data है
-  */
-
-  let numericCount=0;
-
-  for(let i=1;i<8;i++){
-
-    if(
-      /^[-]?\d+(\.\d+)?%?$/.test(
-        clean[i]
-      )
-    ){
-      numericCount++;
-    }
-
-  }
-
-  return numericCount>=3;
-}
-
-
-/* =====================================================
-   AYUSHMAN CARD
-===================================================== */
+/* =========================================================
+   AYUSHMAN
+========================================================= */
 
 function renderAyushmanCard(data){
 
   document.getElementById("reportTable")
     .style.display="none";
 
-  document.getElementById("ayushmanReport")
-    .style.display="block";
+  const report=document.getElementById("ayushmanReport");
+
+  report.style.display="block";
 
   const container=
     document.getElementById("ayushmanSections");
@@ -1186,23 +1124,37 @@ function renderAyushmanCard(data){
   container.innerHTML="";
 
 
-  /*
-     सबसे पहले सभी section headings खोजें।
-     इससे row number बदलने पर भी layout नहीं बिगड़ेगा।
-  */
-
   const sections=[];
 
 
   for(let r=0;r<data.rows.length;r++){
 
-    const text=getRowText(data,r);
+    let text="";
 
-    if(isSectionHeading(text)){
+    for(let c=0;c<8;c++)
+      text+=" "+cell(data,r,c);
+
+    text=text.trim();
+
+
+    if(
+      /आयुष्मान\s*कार्ड/i.test(text)
+    ){
 
       sections.push({
-        row:r,
-        title:text
+        titleRow:r,
+        title:extractTitle(text,"आयुष्मान कार्ड")
+      });
+
+    }
+
+    else if(
+      /वय\s*वंदन\s*कार्ड/i.test(text)
+    ){
+
+      sections.push({
+        titleRow:r,
+        title:extractTitle(text,"वय वंदन कार्ड")
       });
 
     }
@@ -1210,114 +1162,79 @@ function renderAyushmanCard(data){
   }
 
 
-  /*
-     प्रत्येक section अलग-अलग बनायें।
-  */
-
-  sections.forEach((section,index)=>{
-
-    const nextSection=
-      sections[index+1]
-      ? sections[index+1].row
-      : data.rows.length;
+  sections.forEach(section=>{
 
     createAyushmanSection(
       data,
-      section.row,
-      nextSection,
+      section.titleRow,
       section.title
     );
 
   });
 
 
-  /*
-     यदि heading नहीं मिली तो fallback।
-  */
-
-  if(sections.length===0){
-
+  if(sections.length===0)
     createFallbackAyushman(data);
-
-  }
-
 }
 
 
-/* =====================================================
-   CREATE SECTION
-===================================================== */
+/* TITLE CLEANING */
+
+function extractTitle(text,keyword){
+
+  const pos=text.indexOf(keyword);
+
+  if(pos>=0)
+    return text.substring(pos).trim();
+
+  return text.trim();
+}
+
+
+/* CREATE SECTION */
 
 function createAyushmanSection(
   data,
   titleRow,
-  endRow,
   titleText
 ){
 
-  const wrapper=
-    document.createElement("div");
+  const wrapper=document.createElement("div");
 
   wrapper.className="ayushman-section";
 
 
-  /* =========================
-     MERGED HEADING
-  ========================= */
-
-  const title=
-    document.createElement("div");
+  const title=document.createElement("div");
 
   title.className="ayushman-title";
-
-  /*
-     केवल वास्तविक heading रखें।
-     बाकी columns की खाली values हटायें।
-  */
 
   title.innerText=titleText;
 
   wrapper.appendChild(title);
 
 
-  /* =========================
-     TABLE
-  ========================= */
-
-  const table=
-    document.createElement("table");
+  const table=document.createElement("table");
 
   table.className="ayushman-table";
 
 
-  const colgroup=
-    document.createElement("colgroup");
+  const colgroup=document.createElement("colgroup");
 
-  for(let i=0;i<8;i++){
-
-    colgroup.appendChild(
-      document.createElement("col")
-    );
-
-  }
+  for(let i=0;i<8;i++)
+    colgroup.appendChild(document.createElement("col"));
 
   table.appendChild(colgroup);
 
 
-  /* =========================
-     HEADER
-  ========================= */
-
-  const thead=
-    document.createElement("thead");
+  const thead=document.createElement("thead");
 
 
-  const r1=
-    document.createElement("tr");
+  /* FIRST HEADER */
+
+  const r1=document.createElement("tr");
 
 
-  const cr=
-    document.createElement("th");
+  const cr=document.createElement("th");
 
   cr.rowSpan=2;
   cr.innerText="क्र";
@@ -1325,8 +1242,7 @@ function createAyushmanSection(
   r1.appendChild(cr);
 
 
-  const target=
-    document.createElement("th");
+  const target=document.createElement("th");
 
   target.colSpan=3;
   target.innerText="लक्ष्य";
@@ -1334,8 +1250,7 @@ function createAyushmanSection(
   r1.appendChild(target);
 
 
-  const achievement=
-    document.createElement("th");
+  const achievement=document.createElement("th");
 
   achievement.colSpan=3;
   achievement.innerText="उपलब्धि";
@@ -1343,21 +1258,19 @@ function createAyushmanSection(
   r1.appendChild(achievement);
 
 
-  const percent=
-    document.createElement("th");
+  const percentage=document.createElement("th");
 
-  percent.rowSpan=2;
-  percent.innerText="प्रतिशत";
+  percentage.rowSpan=2;
+  percentage.innerText="प्रतिशत";
 
-  r1.appendChild(percent);
-
+  r1.appendChild(percentage);
 
   thead.appendChild(r1);
 
 
-  const r2=
-    document.createElement("tr");
+  /* SECOND HEADER */
 
+  const r2=document.createElement("tr");
 
   [
     "ग्रामीण",
@@ -1368,8 +1281,7 @@ function createAyushmanSection(
     "योग"
   ].forEach(text=>{
 
-    const th=
-      document.createElement("th");
+    const th=document.createElement("th");
 
     th.innerText=text;
 
@@ -1377,197 +1289,131 @@ function createAyushmanSection(
 
   });
 
-
   thead.appendChild(r2);
 
   table.appendChild(thead);
 
 
-  /* =========================
-     DATA
-  ========================= */
+  /* DATA */
 
-  const tbody=
-    document.createElement("tbody");
-
+  const tbody=document.createElement("tbody");
 
   let headerFound=false;
-  let dataFound=false;
 
 
   for(
     let r=titleRow+1;
-    r<endRow;
+    r<data.rows.length;
     r++
   ){
 
     const values=[];
 
-    for(let c=0;c<8;c++){
-
-      values.push(
-        cell(data,r,c)
-      );
-
-    }
+    for(let c=0;c<8;c++)
+      values.push(cell(data,r,c));
 
 
     const text=values.join(" ").trim();
 
 
-    /*
-       Blank row
-    */
-
-    if(text===""){
-      continue;
-    }
-
-
-    /*
-       Main header
-    */
-
-    if(isMainHeader(text)){
-
-      headerFound=true;
-      continue;
-
-    }
-
-
-    /*
-       Sub header
-    */
-
-    if(isSubHeader(text)){
-
-      headerFound=true;
-      continue;
-
-    }
-
-
-    /*
-       अगर कोई दूसरा heading type मिल जाए
-    */
-
-    if(isSectionHeading(text)){
-
-      break;
-
-    }
-
-
-    /*
-       वास्तविक data
-    */
+    /* NEXT SECTION */
 
     if(
-      headerFound &&
-      isDataRow(values)
+      r>titleRow &&
+      (
+        /आयुष्मान\s*कार्ड/i.test(text) ||
+        /वय\s*वंदन\s*कार्ड/i.test(text)
+      )
     ){
 
-      dataFound=true;
-
-      const tr=
-        document.createElement("tr");
-
-
-      for(let c=0;c<8;c++){
-
-        const td=
-          document.createElement("td");
-
-        td.innerText=
-          values[c] || "";
-
-
-        /*
-           Target Total
-        */
-
-        if(c===3){
-
-          td.classList.add(
-            "total-cell"
-          );
-
-        }
-
-
-        /*
-           Achievement Total
-        */
-
-        if(c===6){
-
-          td.classList.add(
-            "total-cell"
-          );
-
-        }
-
-
-        /*
-           Percentage
-        */
-
-        if(c===7){
-
-          td.classList.add(
-            "percent-cell"
-          );
-
-        }
-
-
-        tr.appendChild(td);
-
-      }
-
-
-      tbody.appendChild(tr);
-
+      break;
     }
 
+
+    /* HEADER */
+
+    if(
+      text.includes("क्र") ||
+      (
+        text.includes("लक्ष्य") &&
+        text.includes("उपलब्धि")
+      )
+    ){
+
+      headerFound=true;
+      continue;
+    }
+
+
+    if(
+      text.includes("ग्रामीण") &&
+      text.includes("अर्बन") &&
+      text.includes("योग")
+    ){
+
+      continue;
+    }
+
+
+    if(text==="")
+      continue;
+
+
+    if(!headerFound)
+      continue;
+
+
+    /* DATA ROW */
+
+    const tr=document.createElement("tr");
+
+
+    for(let c=0;c<8;c++){
+
+      const td=document.createElement("td");
+
+      td.innerText=values[c]||"";
+
+
+      if(c===0)
+        td.style.fontWeight="700";
+
+
+      if(c===3 || c===6)
+        td.classList.add("total-cell");
+
+
+      if(c===7)
+        td.classList.add("percent-cell");
+
+
+      tr.appendChild(td);
+    }
+
+
+    tbody.appendChild(tr);
   }
 
 
-  /*
-     केवल तब table add करें
-     जब data मिला हो।
-  */
+  table.appendChild(tbody);
 
-  if(dataFound){
+  wrapper.appendChild(table);
 
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-
-    document
-      .getElementById("ayushmanSections")
-      .appendChild(wrapper);
-
-  }
-
+  document.getElementById("ayushmanSections")
+    .appendChild(wrapper);
 }
 
 
-/* =====================================================
-   FALLBACK
-===================================================== */
+/* FALLBACK */
 
 function createFallbackAyushman(data){
 
-  const wrapper=
-    document.createElement("div");
+  const wrapper=document.createElement("div");
 
   wrapper.className="ayushman-section";
 
 
-  const title=
-    document.createElement("div");
+  const title=document.createElement("div");
 
   title.className="ayushman-title";
 
@@ -1576,99 +1422,55 @@ function createFallbackAyushman(data){
   wrapper.appendChild(title);
 
 
-  const table=
-    document.createElement("table");
+  const table=document.createElement("table");
 
   table.className="ayushman-table";
-
 
   table.innerHTML=`
 
     <thead>
 
       <tr>
-
         <th rowspan="2">क्र</th>
-
         <th colspan="3">लक्ष्य</th>
-
         <th colspan="3">उपलब्धि</th>
-
         <th rowspan="2">प्रतिशत</th>
-
       </tr>
 
       <tr>
-
         <th>ग्रामीण</th>
         <th>अर्बन</th>
         <th>योग</th>
-
         <th>ग्रामीण</th>
         <th>अर्बन</th>
         <th>योग</th>
-
       </tr>
 
     </thead>
-
   `;
 
 
-  const tbody=
-    document.createElement("tbody");
+  const tbody=document.createElement("tbody");
 
 
-  data.rows.forEach((row,r)=>{
+  data.rows.forEach(row=>{
 
-    const values=[];
+    const values=row.map(x=>x.formatted);
 
-    for(let c=0;c<8;c++){
+    if(values.some(v=>v!=="")){
 
-      values.push(
-        cell(data,r,c)
-      );
+      const tr=document.createElement("tr");
 
-    }
+      for(let c=0;c<8;c++){
 
+        const td=document.createElement("td");
 
-    if(isDataRow(values)){
-
-      const tr=
-        document.createElement("tr");
-
-
-      values.forEach((value,c)=>{
-
-        const td=
-          document.createElement("td");
-
-        td.innerText=value;
-
-
-        if(c===3 || c===6){
-
-          td.classList.add(
-            "total-cell"
-          );
-
-        }
-
-        if(c===7){
-
-          td.classList.add(
-            "percent-cell"
-          );
-
-        }
+        td.innerText=values[c]||"";
 
         tr.appendChild(td);
-
-      });
-
+      }
 
       tbody.appendChild(tr);
-
     }
 
   });
@@ -1678,55 +1480,42 @@ function createFallbackAyushman(data){
 
   wrapper.appendChild(table);
 
-  document
-    .getElementById("ayushmanSections")
+  document.getElementById("ayushmanSections")
     .appendChild(wrapper);
-
 }
 
 
-/* =====================================================
-   NORMAL TABLE
-===================================================== */
+/* NORMAL TABLE */
 
 function renderNormalTable(data){
 
-  const table=
-    document.getElementById("reportTable");
+  const table=document.getElementById("reportTable");
 
   table.style.display="table";
   table.className="";
 
-  const thead=
-    table.querySelector("thead");
 
-  const tbody=
-    table.querySelector("tbody");
+  const thead=table.querySelector("thead");
+  const tbody=table.querySelector("tbody");
 
   thead.innerHTML="";
   tbody.innerHTML="";
 
 
-  const header=
-    document.createElement("tr");
+  const header=document.createElement("tr");
 
 
-  for(
-    let c=0;
-    c<data.columns.length;
-    c++
-  ){
+  for(let c=0;c<data.columns.length;c++){
 
-    const th=
-      document.createElement("th");
+    const th=document.createElement("th");
 
     th.innerText=
       data.columns[c] ||
       "Column "+(c+1);
 
     header.appendChild(th);
-
   }
+
 
   thead.appendChild(header);
 
@@ -1735,87 +1524,61 @@ function renderNormalTable(data){
 
     if(r===0)return;
 
-    const tr=
-      document.createElement("tr");
+    const tr=document.createElement("tr");
 
-    let rowText="";
+    let text="";
 
 
-    for(
-      let c=0;
-      c<data.columns.length;
-      c++
-    ){
+    for(let c=0;c<data.columns.length;c++){
 
-      const td=
-        document.createElement("td");
+      const td=document.createElement("td");
 
-      const value=
-        cell(data,r,c);
+      const value=cell(data,r,c);
 
       td.innerText=value;
 
-      rowText+=" "+value;
+      text+=" "+value;
 
       tr.appendChild(td);
-
     }
 
 
-    if(
-      /total|योग|कुल/i.test(rowText)
-    ){
+    if(/total|योग|कुल/i.test(text))
+      tr.classList.add("total-row");
 
-      tr.classList.add(
-        "total-row"
-      );
-
-    }
 
     tbody.appendChild(tr);
 
   });
-
 }
 
 
-/* =====================================================
-   NCD
-===================================================== */
+/* NCD */
 
 function renderNCDTable(data){
 
-  const table=
-    document.getElementById("reportTable");
+  const table=document.getElementById("reportTable");
 
   table.style.display="table";
   table.className="ncd-table";
 
-  const thead=
-    table.querySelector("thead");
 
-  const tbody=
-    table.querySelector("tbody");
+  const thead=table.querySelector("thead");
+  const tbody=table.querySelector("tbody");
 
   thead.innerHTML="";
   tbody.innerHTML="";
 
 
-  const title=
-    cell(data,0,0);
+  const titleRow=document.createElement("tr");
 
-
-  const titleRow=
-    document.createElement("tr");
-
-  const titleCell=
-    document.createElement("th");
+  const titleCell=document.createElement("th");
 
   titleCell.colSpan=25;
   titleCell.className="ncd-main-title";
 
   titleCell.innerText=
-    title ||
+    cell(data,0,0) ||
     "NCD Status 2026-27";
 
   titleRow.appendChild(titleCell);
@@ -1824,7 +1587,6 @@ function renderNCDTable(data){
 
 
   const groups=[
-
     ["Subcenter",1],
     ["Total Population",1],
     ["Screening Target",1],
@@ -1834,31 +1596,24 @@ function renderNCDTable(data){
     ["ABHA Link %",1],
     ["HTN",9],
     ["DM",9]
-
   ];
 
 
-  const gr=
-    document.createElement("tr");
+  const gr=document.createElement("tr");
 
 
   groups.forEach(([text,span])=>{
 
-    const th=
-      document.createElement("th");
+    const th=document.createElement("th");
 
     th.innerText=text;
     th.colSpan=span;
 
     if(span===1){
-
       th.rowSpan=2;
       th.className="ncd-sub";
-
     }else{
-
       th.className="ncd-group";
-
     }
 
     gr.appendChild(th);
@@ -1869,36 +1624,19 @@ function renderNCDTable(data){
   thead.appendChild(gr);
 
 
-  const sub=
-    document.createElement("tr");
+  const sub=document.createElement("tr");
 
 
   [
-
-    "Screening",
-    "%",
-    "Estimated Hypertensive Patient",
-    "Under Treatment",
-    "%",
-    "Followup",
-    "%",
-    "Under Control",
-    "%",
-
-    "Screening",
-    "%",
-    "Estimated Diabetes Patients",
-    "Under Treatment",
-    "%",
-    "Followup",
-    "%",
-    "Under Control",
-    "%"
-
+    "Screening","%","Estimated Hypertensive Patient",
+    "Under Treatment","%","Followup","%",
+    "Under Control","%",
+    "Screening","%","Estimated Diabetes Patients",
+    "Under Treatment","%","Followup","%",
+    "Under Control","%"
   ].forEach(text=>{
 
-    const th=
-      document.createElement("th");
+    const th=document.createElement("th");
 
     th.innerText=text;
     th.className="ncd-sub";
@@ -1911,117 +1649,83 @@ function renderNCDTable(data){
   thead.appendChild(sub);
 
 
-  for(
-    let r=4;
-    r<Math.min(49,data.rows.length);
-    r++
-  ){
+  for(let r=4;r<Math.min(49,data.rows.length);r++){
 
-    const tr=
-      document.createElement("tr");
-
+    const tr=document.createElement("tr");
 
     for(let c=0;c<25;c++){
 
-      const td=
-        document.createElement("td");
+      const td=document.createElement("td");
 
-      td.innerText=
-        cell(data,r,c);
+      td.innerText=cell(data,r,c);
 
       tr.appendChild(td);
-
     }
 
-
     tbody.appendChild(tr);
-
   }
-
 }
 
 
-/* =====================================================
-   SEARCH
-===================================================== */
+/* SEARCH */
 
 function filterTable(){
 
   const value=
     document.getElementById("searchBox")
-      .value
-      .toLowerCase()
-      .trim();
+    .value.toLowerCase().trim();
 
 
-  document
-    .querySelectorAll(
-      "#reportTable tbody tr"
-    )
-    .forEach(row=>{
+  document.querySelectorAll(
+    "#reportTable tbody tr"
+  ).forEach(row=>{
 
-      row.style.display=
-        row.innerText
-          .toLowerCase()
-          .includes(value)
-          ? ""
-          : "none";
+    row.style.display=
+      row.innerText.toLowerCase().includes(value)
+      ? ""
+      : "none";
 
-    });
+  });
 
 
-  document
-    .querySelectorAll(
-      ".ayushman-table tbody tr"
-    )
-    .forEach(row=>{
+  document.querySelectorAll(
+    ".ayushman-table tbody tr"
+  ).forEach(row=>{
 
-      row.style.display=
-        row.innerText
-          .toLowerCase()
-          .includes(value)
-          ? ""
-          : "none";
+    row.style.display=
+      row.innerText.toLowerCase().includes(value)
+      ? ""
+      : "none";
 
-    });
+  });
 
 }
 
 
-/* =====================================================
-   PDF
-===================================================== */
+/* PDF */
 
 async function downloadPDF(){
 
   if(!currentData){
 
-    alert(
-      "पहले report का data load होने दें।"
-    );
-
+    alert("पहले report का data load होने दें।");
     return;
-
   }
 
 
-  const area=
-    document.getElementById("pdfArea");
+  const area=document.getElementById("pdfArea");
 
   area.classList.add("pdf-mode");
 
 
-  const report=
-    REPORTS[currentReportIndex];
+  const report=REPORTS[currentReportIndex];
 
 
   const filename=
-    report.name
-      .replace(
-        /[\\/:*?"<>|]/g,
-        "_"
-      )+
-    "_Kharsia_Health.pdf";
+    report.name.replace(
+      /[\\/:*?"<>|]/g,
+      "_"
+    )+"_Kharsia_Health.pdf";
 
 
   try{
@@ -2029,17 +1733,17 @@ async function downloadPDF(){
     await html2pdf()
       .set({
 
-        margin:[5,4,5,4],
+        margin:[5,5,5,5],
 
         filename:filename,
 
         image:{
           type:"jpeg",
-          quality:.95
+          quality:.98
         },
 
         html2canvas:{
-          scale:1.5,
+          scale:1.8,
           useCORS:true,
           backgroundColor:"#fff"
         },
@@ -2058,47 +1762,35 @@ async function downloadPDF(){
       .from(area)
       .save();
 
-
   }catch(error){
 
     console.error(error);
 
-    alert(
-      "PDF बनाने में समस्या हुई।"
-    );
+    alert("PDF बनाने में समस्या हुई।");
+
+  }finally{
+
+    area.classList.remove("pdf-mode");
 
   }
-
-
-  area.classList.remove("pdf-mode");
-
 }
 
 
-/* =====================================================
-   PRINT
-===================================================== */
+/* PRINT */
 
 function printReport(){
 
   if(!currentData){
 
-    alert(
-      "पहले report का data load होने दें।"
-    );
-
+    alert("पहले report का data load होने दें।");
     return;
-
   }
 
   window.print();
-
 }
 
 
-/* =====================================================
-   START
-===================================================== */
+/* START */
 
 createMenu();
 
