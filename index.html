@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,9 +10,7 @@
 
 <style>
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -188,21 +185,10 @@ body{
   font-size:14px;
 }
 
-.back-btn{
-  background:#475569;
-}
-
-.refresh-btn{
-  background:#0f766e;
-}
-
-.pdf-btn{
-  background:#b91c1c;
-}
-
-.print-btn{
-  background:#334155;
-}
+.back-btn{background:#475569}
+.refresh-btn{background:#0f766e}
+.pdf-btn{background:#b91c1c}
+.print-btn{background:#334155}
 
 .status{
   padding:12px 15px;
@@ -229,10 +215,10 @@ body{
   margin-top:7px;
 }
 
-
-/* =========================================================
-   NORMAL TABLE
-========================================================= */
+.table-box{
+  padding:12px;
+  overflow:auto;
+}
 
 #reportTable{
   border-collapse:collapse;
@@ -255,6 +241,7 @@ body{
   border:1px solid #d1d5db;
   white-space:nowrap;
   vertical-align:middle;
+  text-align:center;
 }
 
 #reportTable tbody tr:nth-child(even){
@@ -267,7 +254,13 @@ body{
 
 #reportTable tbody tr.total-row{
   font-weight:700;
-  background:#dbeafe;
+  background:#dbeafe!important;
+}
+
+#reportTable tbody tr.low-percent{
+  background:#fee2e2!important;
+  color:#991b1b;
+  font-weight:600;
 }
 
 
@@ -373,53 +366,44 @@ body{
    RCH 2.0
 ========================================================= */
 
-#rchReport{
-  display:none;
-}
-
-.rch-wrapper{
+.rch-report{
   background:#fff;
-  border-radius:14px;
-  box-shadow:0 3px 12px rgba(0,0,0,.07);
-  overflow:hidden;
-  margin-bottom:20px;
 }
 
 .rch-title{
   background:#075985;
   color:#fff;
+  padding:14px;
   text-align:center;
   font-size:18px;
   font-weight:700;
-  padding:15px 10px;
-  line-height:1.5;
+  border-radius:10px 10px 0 0;
 }
 
-.rch-table-box{
-  overflow:auto;
-  padding:12px;
+.rch-table-wrap{
+  overflow-x:auto;
+  background:#fff;
 }
 
 .rch-table{
   border-collapse:collapse;
   width:100%;
-  min-width:1150px;
-  font-size:13px;
+  min-width:1250px;
+  font-size:12px;
 }
 
 .rch-table th{
   background:#0f766e;
   color:#fff;
   border:1px solid #cbd5e1;
-  padding:9px 7px;
+  padding:8px 6px;
   text-align:center;
   vertical-align:middle;
-  font-weight:700;
 }
 
 .rch-table td{
   border:1px solid #cbd5e1;
-  padding:8px 7px;
+  padding:7px 6px;
   text-align:center;
   vertical-align:middle;
   white-space:nowrap;
@@ -430,77 +414,57 @@ body{
 }
 
 .rch-table tbody tr:hover{
-  background:#ecfeff;
+  background:#e0f2fe;
 }
 
-
-/* RCH total */
-
-.rch-total-row{
-  background:#dbeafe!important;
-  font-weight:800!important;
+.rch-table .grand-total{
+  background:#bfdbfe!important;
   color:#075985;
+  font-weight:800;
+  border-top:3px solid #075985;
 }
 
-.rch-total-row td{
-  background:#dbeafe!important;
-  font-weight:800!important;
-  border-top:2px solid #075985!important;
-  border-bottom:2px solid #075985!important;
-}
-
-
-/* RCH percentage */
-
-.rch-percent-high{
-  background:#dcfce7!important;
-  color:#166534!important;
-  font-weight:800!important;
-}
-
-.rch-percent-medium{
-  background:#fef3c7!important;
-  color:#92400e!important;
-  font-weight:800!important;
-}
-
-.rch-percent-low{
+.rch-table .low-percent{
   background:#fee2e2!important;
-  color:#991b1b!important;
-  font-weight:800!important;
+  color:#991b1b;
+  font-weight:700;
 }
 
+.rch-table .very-low-percent{
+  background:#fecaca!important;
+  color:#7f1d1d;
+  font-weight:800;
+}
 
-/* Sector summary */
-
-.rch-sector-title{
-  background:#0f766e;
+.rch-section-title{
+  background:#075985;
   color:#fff;
   text-align:center;
-  font-size:16px;
+  font-size:17px;
   font-weight:700;
   padding:12px;
   margin-top:20px;
+  border-radius:10px 10px 0 0;
 }
 
 .rch-sector-table{
   border-collapse:collapse;
   width:100%;
-  min-width:1150px;
-  font-size:13px;
+  min-width:1050px;
+  font-size:12px;
 }
 
 .rch-sector-table th{
-  background:#075985;
+  background:#0f766e;
   color:#fff;
   border:1px solid #cbd5e1;
-  padding:9px 7px;
+  padding:8px 6px;
   text-align:center;
 }
 
 .rch-sector-table td{
   border:1px solid #cbd5e1;
-  padding:8px 7px;
+  padding:7px 6px;
   text-align:center;
   white-space:nowrap;
 }
@@ -509,15 +473,17 @@ body{
   background:#f8fafc;
 }
 
-.rch-sector-total{
-  background:#dbeafe!important;
-  font-weight:800!important;
+.rch-sector-table .sector-total{
+  background:#bfdbfe!important;
   color:#075985;
+  font-weight:800;
+  border-top:3px solid #075985;
 }
 
-.rch-sector-total td{
-  background:#dbeafe!important;
-  font-weight:800!important;
+.rch-sector-table .low-percent{
+  background:#fee2e2!important;
+  color:#991b1b;
+  font-weight:700;
 }
 
 
@@ -572,7 +538,7 @@ body{
 
 .pdf-mode{
   background:#fff!important;
-  padding:5px!important;
+  padding:0!important;
 }
 
 .pdf-mode .report-title-pdf{
@@ -610,24 +576,52 @@ body{
   padding:5px 4px;
 }
 
-.pdf-mode .rch-wrapper{
-  box-shadow:none;
+
+/* RCH PDF */
+
+.pdf-rch-main{
+  page-break-after:always;
+  break-after:page;
 }
 
-.pdf-mode .rch-title{
+.pdf-rch-sector{
+  page-break-before:always;
+  break-before:page;
+}
+
+.rch-pdf-page{
+  width:100%;
+}
+
+.rch-pdf-page .rch-table{
+  font-size:9px;
+  min-width:0;
+  width:100%;
+}
+
+.rch-pdf-page .rch-table th,
+.rch-pdf-page .rch-table td{
+  padding:4px 3px;
+}
+
+.rch-pdf-page .rch-title{
+  font-size:15px;
+  padding:8px;
+}
+
+.rch-pdf-page .rch-section-title{
   font-size:14px;
   padding:8px;
 }
 
-.pdf-mode .rch-table,
-.pdf-mode .rch-sector-table{
+.rch-pdf-page .rch-sector-table{
   font-size:9px;
+  min-width:0;
+  width:100%;
 }
 
-.pdf-mode .rch-table th,
-.pdf-mode .rch-table td,
-.pdf-mode .rch-sector-table th,
-.pdf-mode .rch-sector-table td{
+.rch-pdf-page .rch-sector-table th,
+.rch-pdf-page .rch-sector-table td{
   padding:4px 3px;
 }
 
@@ -698,9 +692,8 @@ body{
     min-width:800px;
   }
 
-  .rch-table,
-  .rch-sector-table{
-    min-width:1150px;
+  .rch-table{
+    min-width:1250px;
   }
 
 }
@@ -714,7 +707,7 @@ body{
 
   @page{
     size:A4 landscape;
-    margin:6mm;
+    margin:5mm;
   }
 
   body{
@@ -783,40 +776,31 @@ body{
     padding:4px 3px;
   }
 
-  .rch-wrapper{
-    box-shadow:none;
+  .pdf-rch-main{
+    page-break-after:always;
   }
 
-  .rch-title{
-    font-size:14px;
-    padding:7px;
+  .pdf-rch-sector{
+    page-break-before:always;
   }
 
-  .rch-table,
-  .rch-sector-table{
-    font-size:9px;
+  .rch-pdf-page .rch-table{
+    font-size:8.5px;
   }
 
-  .rch-table th,
-  .rch-table td,
-  .rch-sector-table th,
-  .rch-sector-table td{
-    padding:4px 3px;
+  .rch-pdf-page .rch-sector-table{
+    font-size:8.5px;
   }
 
 }
 
 </style>
-
 </head>
-
 
 <body>
 
 
-<!-- =========================================================
-     HEADER
-========================================================= -->
+<!-- HEADER -->
 
 <div class="header">
 
@@ -832,9 +816,7 @@ body{
 <div class="container">
 
 
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
+<!-- SIDEBAR -->
 
 <aside class="sidebar">
 
@@ -856,16 +838,12 @@ body{
 </aside>
 
 
-<!-- =========================================================
-     CONTENT
-========================================================= -->
+<!-- CONTENT -->
 
 <main class="content">
 
 
-<!-- =========================================================
-     DASHBOARD
-========================================================= -->
+<!-- DASHBOARD -->
 
 <section
   id="dashboardPage"
@@ -892,14 +870,11 @@ body{
 </section>
 
 
-<!-- =========================================================
-     REPORT PAGE
-========================================================= -->
+<!-- REPORT PAGE -->
 
 <section
   id="reportPage"
   class="page">
-
 
   <div class="report-header">
 
@@ -994,56 +969,28 @@ body{
 
 
     <!-- =====================================================
-         RCH SPECIAL REPORT
+         RCH REPORT
     ====================================================== -->
 
-    <div id="rchReport">
+    <div id="rchReport"
+         style="display:none;">
 
       <div
-        id="rchTitle"
-        class="rch-title">
+        id="rchMainReport"
+        class="rch-pdf-page pdf-rch-main">
+
       </div>
 
-      <div class="rch-table-box">
-
-        <table
-          id="rchMainTable"
-          class="rch-table">
-
-          <thead></thead>
-
-          <tbody></tbody>
-
-        </table>
-
-
-        <div
-          id="rchSectorTitle"
-          class="rch-sector-title">
-
-          Sector-wise Summary
-
-        </div>
-
-
-        <table
-          id="rchSectorTable"
-          class="rch-sector-table">
-
-          <thead></thead>
-
-          <tbody></tbody>
-
-        </table>
+      <div
+        id="rchSectorReport"
+        class="rch-pdf-page pdf-rch-sector">
 
       </div>
 
     </div>
 
 
-    <!-- =====================================================
-         NORMAL REPORT
-    ====================================================== -->
+    <!-- NORMAL REPORT -->
 
     <div class="table-box">
 
@@ -1386,7 +1333,7 @@ function showLastUpdate(){
       "lastUpdate"
     )
     .innerText=
-      "Last updated: "+text;
+      "Website updated: "+text;
 
 }
 
@@ -1485,7 +1432,46 @@ function openReport(index){
   }
 
 
-  hideAllSpecialReports();
+  document
+    .getElementById(
+      "ayushmanReport"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchReport"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchMainReport"
+    )
+    .innerHTML="";
+
+
+  document
+    .getElementById(
+      "rchSectorReport"
+    )
+    .innerHTML="";
+
+
+  document
+    .getElementById(
+      "ayushmanSections"
+    )
+    .innerHTML="";
+
+
+  document
+    .getElementById(
+      "reportTable"
+    )
+    .style.display="table";
 
 
   document
@@ -1515,74 +1501,6 @@ function openReport(index){
 
 
 /* =========================================================
-   HIDE SPECIAL REPORTS
-========================================================= */
-
-function hideAllSpecialReports(){
-
-  document
-    .getElementById(
-      "ayushmanReport"
-    )
-    .style.display="none";
-
-
-  document
-    .getElementById(
-      "rchReport"
-    )
-    .style.display="none";
-
-
-  document
-    .getElementById(
-      "ayushmanSections"
-    )
-    .innerHTML="";
-
-
-  document
-    .getElementById(
-      "rchMainTable"
-    )
-    .querySelector("thead")
-    .innerHTML="";
-
-
-  document
-    .getElementById(
-      "rchMainTable"
-    )
-    .querySelector("tbody")
-    .innerHTML="";
-
-
-  document
-    .getElementById(
-      "rchSectorTable"
-    )
-    .querySelector("thead")
-    .innerHTML="";
-
-
-  document
-    .getElementById(
-      "rchSectorTable"
-    )
-    .querySelector("tbody")
-    .innerHTML="";
-
-
-  document
-    .getElementById(
-      "reportTable"
-    )
-    .style.display="table";
-
-}
-
-
-/* =========================================================
    REFRESH
 ========================================================= */
 
@@ -1591,9 +1509,7 @@ function refreshReport(){
   if(
     currentReportIndex===null
   ){
-
     return;
-
   }
 
 
@@ -1693,7 +1609,6 @@ function loadGoogleSheet(
 
         cleanup();
 
-
         if(!silent){
 
           setStatus(
@@ -1765,7 +1680,7 @@ function loadGoogleSheet(
         "RCH 2.0"
       ){
 
-        renderRCH(
+        renderRCHTable(
           currentData
         );
 
@@ -1928,7 +1843,8 @@ function cell(
 
 
 /* =========================================================
-   AYUSHMAN CARD - LOCKED
+   AYUSHMAN CARD
+   LOCKED - DO NOT CHANGE
 ========================================================= */
 
 function renderAyushmanCard(
@@ -1938,6 +1854,13 @@ function renderAyushmanCard(
   document
     .getElementById(
       "reportTable"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchReport"
     )
     .style.display="none";
 
@@ -2124,21 +2047,27 @@ function createAyushmanSection(
 
     </colgroup>
 
-
     <thead>
 
       <tr>
 
-        <th rowspan="2">क्र</th>
+        <th rowspan="2">
+          क्र
+        </th>
 
-        <th colspan="3">लक्ष्य</th>
+        <th colspan="3">
+          लक्ष्य
+        </th>
 
-        <th colspan="3">उपलब्धि</th>
+        <th colspan="3">
+          उपलब्धि
+        </th>
 
-        <th rowspan="2">प्रतिशत</th>
+        <th rowspan="2">
+          प्रतिशत
+        </th>
 
       </tr>
-
 
       <tr>
 
@@ -2338,23 +2267,32 @@ function createAyushmanSection(
         "tr"
       );
 
+
     const td=
       document.createElement(
         "td"
       );
+
 
     td.colSpan=8;
 
     td.innerText=
       "Google Sheet में data उपलब्ध नहीं है।";
 
-    td.style.textAlign="center";
+    td.style.textAlign=
+      "center";
 
-    td.style.padding="15px";
+    td.style.padding=
+      "15px";
 
-    tr.appendChild(td);
 
-    tbody.appendChild(tr);
+    tr.appendChild(
+      td
+    );
+
+    tbody.appendChild(
+      tr
+    );
 
   }
 
@@ -2362,7 +2300,6 @@ function createAyushmanSection(
   table.appendChild(
     tbody
   );
-
 
   wrapper.appendChild(
     table
@@ -2381,814 +2318,310 @@ function createAyushmanSection(
 
 
 /* =========================================================
-   RCH 2.0 - SPECIAL RENDERER
+   RCH HELPERS
 ========================================================= */
 
-function renderRCH(data){
+function cleanText(value){
 
-  document
-    .getElementById(
-      "reportTable"
-    )
-    .style.display="none";
+  return String(
+    value ?? ""
+  )
+  .replace(/\s+/g," ")
+  .trim();
 
-
-  document
-    .getElementById(
-      "rchReport"
-    )
-    .style.display="block";
+}
 
 
-  const rows=
-    data.rows;
+function numericValue(value){
 
+  const s=
+    cleanText(value)
+      .replace(/,/g,"")
+      .replace(/%/g,"");
+
+  if(
+    s==="" ||
+    s==="-"
+  ){
+
+    return 0;
+
+  }
+
+  const n=
+    Number(s);
+
+  return isNaN(n)
+    ? 0
+    : n;
+
+}
+
+
+function findRCHHeading(data){
 
   /*
-    ---------------------------------------------------------
-    STEP 1
-    असली RCH title खोजें।
-    Google Sheet में:
-    RCH 2.0 PW Registration Detail FY 2026-27
-    as on Date ...
-    ---------------------------------------------------------
+    Google Sheet में heading
+    पहली row में है।
+
+    उदाहरण:
+    RCH 2.0 PW Registration Detail
+    FY 2026-27 as on Date 29-07-2026
   */
-
-  let titleText="";
-
 
   for(
     let r=0;
-    r<rows.length;
-    r++
-  ){
-
-    const text=
-      getRowText(
-        rows[r]
-      );
-
-
-    if(
-      /RCH\s*2\.0/i.test(text) ||
-      /PW Registration Detail/i.test(text)
-    ){
-
-      titleText=text;
-
-      break;
-
-    }
-
-  }
-
-
-  if(
-    !titleText
-  ){
-
-    titleText=
-      "RCH 2.0 PW Registration Detail FY 2026-27";
-
-  }
-
-
-  /*
-    Title को display करें
-  */
-
-  document
-    .getElementById(
-      "rchTitle"
-    )
-    .innerText=
-      titleText;
-
-
-  /*
-    ---------------------------------------------------------
-    STEP 2
-    पहला असली header ढूंढें।
-    ---------------------------------------------------------
-  */
-
-  let mainHeaderRow=-1;
-
-
-  for(
-    let r=0;
-    r<rows.length;
-    r++
-  ){
-
-    const text=
-      getRowText(
-        rows[r]
-      );
-
-
-    if(
-      text.includes("Sector") &&
-      text.includes("HFR ID") &&
-      text.includes("Health Facility")
-    ){
-
-      mainHeaderRow=r;
-
-      break;
-
-    }
-
-  }
-
-
-  /*
-    अगर header नहीं मिला
-  */
-
-  if(
-    mainHeaderRow===-1
-  ){
-
-    setStatus(
-      "❌ RCH header Google Sheet में नहीं मिला।",
-      "error"
+    r<Math.min(
+      6,
+      data.rows.length
     );
-
-    return;
-
-  }
-
-
-  /*
-    ---------------------------------------------------------
-    STEP 3
-    Main data rows
-    SN 1 से 42 तक
-    ---------------------------------------------------------
-  */
-
-  const mainRows=[];
-
-  let mainTotal=null;
-
-  let sectorHeaderRow=-1;
-
-
-  for(
-    let r=mainHeaderRow+1;
-    r<rows.length;
     r++
   ){
 
-    const values=
-      getFirst11Values(
-        data,
-        r
-      );
-
-
     const text=
-      values.join(" ")
+      data.rows[r]
+        .map(
+          x=>
+            cleanText(
+              x?.formatted ||
+              x?.value ||
+              ""
+            )
+        )
+        .join(" ")
         .replace(/\s+/g," ")
         .trim();
 
 
     if(
-      text===""
+      /RCH\s*2\.0/i.test(text) ||
+      /PW Registration/i.test(text) ||
+      /as on Date/i.test(text)
     ){
 
-      continue;
-
-    }
-
-
-    /*
-      दूसरा Sector header मिल गया
-    */
-
-    if(
-      isSectorHeader(values)
-    ){
-
-      sectorHeaderRow=r;
-
-      break;
-
-    }
-
-
-    /*
-      Total row
-    */
-
-    if(
-      isTotalRow(values)
-    ){
-
-      mainTotal=
-        values;
-
-      continue;
-
-    }
-
-
-    /*
-      SN number वाली rows
-    */
-
-    const sn=
-      String(
-        values[0] || ""
-      ).trim();
-
-
-    if(
-      /^\d+$/.test(sn)
-    ){
-
-      mainRows.push(
-        values
-      );
+      return text;
 
     }
 
   }
 
 
-  /*
-    ---------------------------------------------------------
-    STEP 4
-    Main table render
-    ---------------------------------------------------------
-  */
+  return "RCH 2.0 PW Registration Detail FY 2026-27";
 
-  const mainTable=
-    document.getElementById(
-      "rchMainTable"
+}
+
+
+/* =========================================================
+   FIND RCH DATA HEADER
+========================================================= */
+
+function findRCHHeaderRow(data){
+
+  for(
+    let r=0;
+    r<Math.min(
+      12,
+      data.rows.length
     );
-
-
-  const mainThead=
-    mainTable.querySelector(
-      "thead"
-    );
-
-
-  const mainTbody=
-    mainTable.querySelector(
-      "tbody"
-    );
-
-
-  mainThead.innerHTML="";
-  mainTbody.innerHTML="";
-
-
-  /*
-    सही heading
-  */
-
-  const headers=[
-
-    "Sn",
-    "Sector",
-    "HFR ID",
-    "Health Facility",
-    "Health Facility Type",
-    "HMIS PW Registration",
-    "RCH 2.0 PW Registration",
-    "%",
-    "Tem. Registration",
-    "Backlog",
-    "High Risk"
-
-  ];
-
-
-  const headerTr=
-    document.createElement(
-      "tr"
-    );
-
-
-  headers.forEach(
-    h=>{
-
-      const th=
-        document.createElement(
-          "th"
-        );
-
-      th.innerText=h;
-
-      headerTr.appendChild(th);
-
-    }
-  );
-
-
-  mainThead.appendChild(
-    headerTr
-  );
-
-
-  /*
-    Main 1-42 data
-  */
-
-  mainRows.forEach(
-    values=>{
-
-      const tr=
-        createRCHRow(
-          values
-        );
-
-      mainTbody.appendChild(
-        tr
-      );
-
-    }
-  );
-
-
-  /*
-    Total
-  */
-
-  if(
-    mainTotal
+    r++
   ){
 
-    const tr=
-      createRCHTotalRow(
-        mainTotal
-      );
-
-    mainTbody.appendChild(
-      tr
-    );
-
-  }
-  else{
-
-    /*
-      अगर Google Sheet में total नहीं है,
-      तो 1-42 से total calculate करें।
-    */
-
-    const calculated=
-      calculateRCHTotal(
-        mainRows
-      );
+    const text=
+      data.rows[r]
+        .map(
+          x=>
+            cleanText(
+              x?.formatted ||
+              x?.value ||
+              ""
+            )
+        )
+        .join(" ")
+        .toLowerCase();
 
 
-    const tr=
-      createRCHTotalRow(
-        calculated
-      );
+    if(
+      text.includes("sector") &&
+      text.includes("hfr") &&
+      text.includes("health facility")
+    ){
 
-    mainTbody.appendChild(
-      tr
-    );
+      return r;
+
+    }
 
   }
 
 
-  /*
-    ---------------------------------------------------------
-    STEP 5
-    Sector-wise summary
-    ---------------------------------------------------------
-  */
-
-  renderRCHSectorSummary(
-    data,
-    sectorHeaderRow
-  );
+  return 3;
 
 }
 
 
 /* =========================================================
-   GET ROW TEXT
+   RCH HEADER NAMES
 ========================================================= */
 
-function getRowText(row){
+const RCH_HEADERS=[
 
-  return(
-    (row||[])
-      .map(
-        x=>
-          String(
-            x?.formatted ||
-            x?.value ||
-            ""
-          )
-      )
-      .join(" ")
-      .replace(/\s+/g," ")
-      .trim()
-  );
+  "SN",
+  "Sector",
+  "HFR ID",
+  "Health Facility",
+  "Health Facility Type",
+  "HMIS PW Registration",
+  "RCH 2.0 PW Registration",
+  "%",
+  "Tem. Registration",
+  "Backlog",
+  "High Risk"
 
-}
+];
 
 
 /* =========================================================
-   GET FIRST 11 VALUES
+   RCH MAIN DATA
 ========================================================= */
 
-function getFirst11Values(
+function getRCHMainRows(
   data,
-  r
+  headerRow
 ){
 
-  const values=[];
+  const result=[];
 
 
   for(
-    let c=0;
-    c<11;
-    c++
+    let r=headerRow+1;
+    r<data.rows.length;
+    r++
   ){
 
-    values.push(
-      String(
-        cell(data,r,c)
-      ).trim()
-    );
-
-  }
-
-
-  return values;
-
-}
-
-
-/* =========================================================
-   CHECK HEADER
-========================================================= */
-
-function isSectorHeader(
-  values
-){
-
-  const text=
-    values
-      .join(" ")
-      .toLowerCase();
-
-
-  return(
-    text.includes("sector") &&
-    text.includes("hfr id") &&
-    text.includes("health facility")
-  );
-
-}
-
-
-/* =========================================================
-   CHECK TOTAL
-========================================================= */
-
-function isTotalRow(
-  values
-){
-
-  const text=
-    values
-      .join(" ")
-      .toLowerCase()
-      .trim();
-
-
-  /*
-    पहला column खाली और numeric
-    data मौजूद है = total row
-  */
-
-  if(
-    values[0]==="" &&
-    values
-      .slice(1)
-      .some(
-        v=>
-          v!=="" &&
-          /^-?\d+(\.\d+)?$/.test(
-            String(v)
-              .replace(/,/g,"")
-              .trim()
+    const row=
+      RCH_HEADERS.map(
+        (_,c)=>
+          cleanText(
+            cell(data,r,c)
           )
-      )
-  ){
-
-    return true;
-
-  }
-
-
-  return(
-    text.includes("total") ||
-    text.includes("योग") ||
-    text.includes("कुल")
-  );
-
-}
-
-
-/* =========================================================
-   CREATE RCH NORMAL ROW
-========================================================= */
-
-function createRCHRow(
-  values
-){
-
-  const tr=
-    document.createElement(
-      "tr"
-    );
-
-
-  for(
-    let c=0;
-    c<11;
-    c++
-  ){
-
-    const td=
-      document.createElement(
-        "td"
       );
 
 
-    td.innerText=
-      values[c] || "";
+    const first=
+      row[0];
 
 
     /*
-      Percentage column
-      Column 8 = index 7
+      SN 1 से 42 तक ही
+      Main Facility report में।
     */
 
     if(
-      c===7
+      /^\d+$/.test(first)
     ){
 
-      const percent=
-        parseFloat(
-          String(
-            values[c] || ""
-          )
-            .replace("%","")
-            .replace(",","")
-        );
-
+      const sn=
+        Number(first);
 
       if(
-        !isNaN(percent)
+        sn>=1 &&
+        sn<=42
       ){
 
-        if(
-          percent<100
-        ){
-
-          td.classList.add(
-            "rch-percent-low"
-          );
-
-        }
-
-        else if(
-          percent<120
-        ){
-
-          td.classList.add(
-            "rch-percent-medium"
-          );
-
-        }
-
-        else{
-
-          td.classList.add(
-            "rch-percent-high"
-          );
-
-        }
+        result.push({
+          row,
+          sourceRow:r
+        });
 
       }
 
     }
 
-
-    tr.appendChild(
-      td
-    );
-
   }
 
 
-  return tr;
+  return result;
 
 }
 
 
 /* =========================================================
-   CREATE TOTAL ROW
+   RCH GRAND TOTAL
 ========================================================= */
 
-function createRCHTotalRow(
-  values
-){
-
-  const tr=
-    document.createElement(
-      "tr"
-    );
-
-
-  tr.className=
-    "rch-total-row";
-
-
-  for(
-    let c=0;
-    c<11;
-    c++
-  ){
-
-    const td=
-      document.createElement(
-        "td"
-      );
-
-
-    if(
-      c===0
-    ){
-
-      td.innerText=
-        "TOTAL";
-
-    }
-
-    else{
-
-      td.innerText=
-        values[c] || "";
-
-    }
-
-
-    /*
-      Total percentage
-    */
-
-    if(
-      c===7
-    ){
-
-      const percent=
-        parseFloat(
-          String(
-            values[c] || ""
-          )
-            .replace("%","")
-            .replace(",","")
-        );
-
-
-      if(
-        !isNaN(percent)
-      ){
-
-        if(
-          percent<100
-        ){
-
-          td.classList.add(
-            "rch-percent-low"
-          );
-
-        }
-
-        else if(
-          percent<120
-        ){
-
-          td.classList.add(
-            "rch-percent-medium"
-          );
-
-        }
-
-        else{
-
-          td.classList.add(
-            "rch-percent-high"
-          );
-
-        }
-
-      }
-
-    }
-
-
-    tr.appendChild(
-      td
-    );
-
-  }
-
-
-  return tr;
-
-}
-
-
-/* =========================================================
-   CALCULATE TOTAL
-========================================================= */
-
-function calculateRCHTotal(
+function calculateRCHGrandTotal(
   rows
 ){
 
   const total=
-    [
-      "TOTAL",
-      "",
-      "",
-      "",
-      "",
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ];
+    new Array(11)
+      .fill("");
 
 
-  rows.forEach(
-    values=>{
-
-      for(
-        let c=5;
-        c<=10;
-        c++
-      ){
-
-        const num=
-          parseFloat(
-            String(
-              values[c] || ""
-            )
-              .replace(/,/g,"")
-              .replace("%","")
-              .trim()
-          );
+  total[0]="TOTAL";
 
 
-        if(
-          !isNaN(num)
-        ){
+  total[1]="";
 
-          total[c]+=
-            num;
+  total[2]="";
 
-        }
+  total[3]="";
 
-      }
-
-    }
-  );
+  total[4]="";
 
 
-  /*
-    Percentage = RCH registration /
-    HMIS registration × 100
-  */
-
-  if(
-    total[5]!==0
+  for(
+    let c=5;
+    c<=10;
+    c++
   ){
 
-    total[7]=
-      Math.round(
-        (
-          total[6]/
-          total[5]
-        )*100
+    let sum=0;
+
+
+    rows.forEach(
+      item=>{
+
+        sum+=
+          numericValue(
+            item.row[c]
+          );
+
+      }
+    );
+
+
+    total[c]=
+      String(
+        Math.round(sum)
       );
 
   }
+
+
+  /*
+    Percentage = RCH Registration /
+    HMIS Registration × 100
+  */
+
+  const hmis=
+    numericValue(
+      total[5]
+    );
+
+  const rch=
+    numericValue(
+      total[6]
+    );
+
+
+  total[7]=
+    hmis>0
+    ? String(
+        Math.round(
+          rch/hmis*100
+        )
+      )
+    : "0";
 
 
   return total;
@@ -3200,81 +2633,223 @@ function calculateRCHTotal(
    RCH SECTOR SUMMARY
 ========================================================= */
 
-function renderRCHSectorSummary(
-  data,
-  sectorHeaderRow
+function calculateSectorSummary(
+  rows
 ){
 
-  const table=
-    document.getElementById(
-      "rchSectorTable"
+  const map={};
+
+
+  rows.forEach(
+    item=>{
+
+      const row=
+        item.row;
+
+      const sector=
+        row[1] ||
+        "Other";
+
+
+      if(
+        !map[sector]
+      ){
+
+        map[sector]={
+          sector,
+          facilities:0,
+          hmis:0,
+          rch:0,
+          temp:0,
+          backlog:0,
+          highRisk:0
+        };
+
+      }
+
+
+      map[sector].facilities++;
+
+      map[sector].hmis+=
+        numericValue(
+          row[5]
+        );
+
+      map[sector].rch+=
+        numericValue(
+          row[6]
+        );
+
+      map[sector].temp+=
+        numericValue(
+          row[8]
+        );
+
+      map[sector].backlog+=
+        numericValue(
+          row[9]
+        );
+
+      map[sector].highRisk+=
+        numericValue(
+          row[10]
+        );
+
+    }
+  );
+
+
+  const sectors=
+    Object.values(map);
+
+
+  sectors.sort(
+    (a,b)=>
+      a.sector.localeCompare(
+        b.sector
+      )
+  );
+
+
+  return sectors;
+
+}
+
+
+/* =========================================================
+   RCH TOTAL ROW FOR SECTOR SUMMARY
+========================================================= */
+
+function calculateSectorTotal(
+  sectors
+){
+
+  const total={
+    sector:"TOTAL",
+    facilities:0,
+    hmis:0,
+    rch:0,
+    temp:0,
+    backlog:0,
+    highRisk:0
+  };
+
+
+  sectors.forEach(
+    s=>{
+
+      total.facilities+=
+        s.facilities;
+
+      total.hmis+=
+        s.hmis;
+
+      total.rch+=
+        s.rch;
+
+      total.temp+=
+        s.temp;
+
+      total.backlog+=
+        s.backlog;
+
+      total.highRisk+=
+        s.highRisk;
+
+    }
+  );
+
+
+  return total;
+
+}
+
+
+/* =========================================================
+   RCH PERCENT COLOR
+========================================================= */
+
+function applyRCHPercentColor(
+  tr,
+  percent
+){
+
+  const p=
+    Number(
+      String(percent)
+        .replace("%","")
+        .trim()
     );
 
-
-  const thead=
-    table.querySelector(
-      "thead"
-    );
-
-
-  const tbody=
-    table.querySelector(
-      "tbody"
-    );
-
-
-  thead.innerHTML="";
-  tbody.innerHTML="";
-
-
-  /*
-    अगर sector header नहीं मिला
-  */
 
   if(
-    sectorHeaderRow===-1
+    isNaN(p)
   ){
-
-    document
-      .getElementById(
-        "rchSectorTitle"
-      )
-      .innerText=
-        "Sector-wise Summary";
 
     return;
 
   }
 
 
-  /*
-    Sector header
-  */
+  if(
+    p<100
+  ){
 
-  const headers=[
+    tr.classList.add(
+      "low-percent"
+    );
 
-    "Sn",
-    "Sector",
-    "HFR ID",
-    "Health Facility",
-    "Health Facility Type",
-    "HMIS PW Registration",
-    "RCH 2.0 PW Registration",
-    "%",
-    "Tem. Registration",
-    "Backlog",
-    "High Risk"
-
-  ];
+  }
 
 
-  const headerTr=
+  if(
+    p<80
+  ){
+
+    tr.classList.remove(
+      "low-percent"
+    );
+
+    tr.classList.add(
+      "very-low-percent"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CREATE RCH MAIN TABLE
+========================================================= */
+
+function createRCHMainTable(
+  rows,
+  total
+){
+
+  const table=
+    document.createElement(
+      "table"
+    );
+
+  table.className=
+    "rch-table";
+
+
+  const thead=
+    document.createElement(
+      "thead"
+    );
+
+
+  const trh=
     document.createElement(
       "tr"
     );
 
 
-  headers.forEach(
+  RCH_HEADERS.forEach(
     h=>{
 
       const th=
@@ -3284,7 +2859,7 @@ function renderRCHSectorSummary(
 
       th.innerText=h;
 
-      headerTr.appendChild(
+      trh.appendChild(
         th
       );
 
@@ -3293,91 +2868,236 @@ function renderRCHSectorSummary(
 
 
   thead.appendChild(
-    headerTr
+    trh
+  );
+
+
+  table.appendChild(
+    thead
+  );
+
+
+  const tbody=
+    document.createElement(
+      "tbody"
+    );
+
+
+  rows.forEach(
+    item=>{
+
+      const tr=
+        document.createElement(
+          "tr"
+        );
+
+
+      item.row.forEach(
+        (value,c)=>{
+
+          const td=
+            document.createElement(
+              "td"
+            );
+
+          td.innerText=
+            value;
+
+          tr.appendChild(
+            td
+          );
+
+        }
+      );
+
+
+      applyRCHPercentColor(
+        tr,
+        item.row[7]
+      );
+
+
+      tbody.appendChild(
+        tr
+      );
+
+    }
   );
 
 
   /*
-    Sector rows निकालें
+    Grand Total
   */
 
-  const sectorRows=[];
+  const totalTr=
+    document.createElement(
+      "tr"
+    );
 
-  let sectorTotal=null;
-
-
-  for(
-    let r=sectorHeaderRow+1;
-    r<data.rows.length;
-    r++
-  ){
-
-    const values=
-      getFirst11Values(
-        data,
-        r
-      );
+  totalTr.className=
+    "grand-total";
 
 
-    const text=
-      values.join(" ")
-        .replace(/\s+/g," ")
-        .trim();
+  total.forEach(
+    value=>{
 
+      const td=
+        document.createElement(
+          "td"
+        );
 
-    if(
-      text===""
-    ){
+      td.innerText=
+        value;
 
-      continue;
-
-    }
-
-
-    if(
-      isTotalRow(values)
-    ){
-
-      sectorTotal=
-        values;
-
-      continue;
-
-    }
-
-
-    /*
-      Sector summary में SN numeric होगा
-    */
-
-    if(
-      /^\d+$/.test(
-        String(
-          values[0]
-        ).trim()
-      )
-    ){
-
-      sectorRows.push(
-        values
+      totalTr.appendChild(
+        td
       );
 
     }
+  );
 
-  }
+
+  tbody.appendChild(
+    totalTr
+  );
 
 
-  /*
-    Sector rows render
-  */
+  table.appendChild(
+    tbody
+  );
 
-  sectorRows.forEach(
-    values=>{
+
+  return table;
+
+}
+
+
+/* =========================================================
+   CREATE RCH SECTOR TABLE
+========================================================= */
+
+function createRCHSectorTable(
+  sectors,
+  total
+){
+
+  const table=
+    document.createElement(
+      "table"
+    );
+
+  table.className=
+    "rch-sector-table";
+
+
+  const thead=
+    document.createElement(
+      "thead"
+    );
+
+
+  const tr=
+    document.createElement(
+      "tr"
+    );
+
+
+  [
+
+    "Sector",
+    "Health Facility",
+    "HMIS PW Registration",
+    "RCH 2.0 PW Registration",
+    "%",
+    "Tem. Registration",
+    "Backlog",
+    "High Risk"
+
+  ].forEach(
+    h=>{
+
+      const th=
+        document.createElement(
+          "th"
+        );
+
+      th.innerText=h;
+
+      tr.appendChild(
+        th
+      );
+
+    }
+  );
+
+
+  thead.appendChild(
+    tr
+  );
+
+  table.appendChild(
+    thead
+  );
+
+
+  const tbody=
+    document.createElement(
+      "tbody"
+    );
+
+
+  sectors.forEach(
+    s=>{
 
       const tr=
-        createSectorRow(
-          values
+        document.createElement(
+          "tr"
         );
+
+
+      const percent=
+        s.hmis>0
+        ? Math.round(
+            s.rch/s.hmis*100
+          )
+        : 0;
+
+
+      [
+
+        s.sector,
+        s.facilities,
+        s.hmis,
+        s.rch,
+        percent,
+        s.temp,
+        s.backlog,
+        s.highRisk
+
+      ].forEach(
+        value=>{
+
+          const td=
+            document.createElement(
+              "td"
+            );
+
+          td.innerText=
+            value;
+
+          tr.appendChild(
+            td
+          );
+
+        }
+      );
+
+
+      applyRCHPercentColor(
+        tr,
+        percent
+      );
+
 
       tbody.appendChild(
         tr
@@ -3391,231 +3111,255 @@ function renderRCHSectorSummary(
     Sector total
   */
 
-  if(
-    sectorTotal
-  ){
-
-    const tr=
-      createSectorTotalRow(
-        sectorTotal
-      );
-
-    tbody.appendChild(
-      tr
+  const totalTr=
+    document.createElement(
+      "tr"
     );
 
-  }
-  else{
+  totalTr.className=
+    "sector-total";
 
-    const calculated=
-      calculateRCHTotal(
-        sectorRows
+
+  const totalPercent=
+    total.hmis>0
+    ? Math.round(
+        total.rch/
+        total.hmis*
+        100
+      )
+    : 0;
+
+
+  [
+
+    total.sector,
+    total.facilities,
+    total.hmis,
+    total.rch,
+    totalPercent,
+    total.temp,
+    total.backlog,
+    total.highRisk
+
+  ].forEach(
+    value=>{
+
+      const td=
+        document.createElement(
+          "td"
+        );
+
+      td.innerText=
+        value;
+
+      totalTr.appendChild(
+        td
       );
 
+    }
+  );
 
-    const tr=
-      createSectorTotalRow(
-        calculated
-      );
 
-    tbody.appendChild(
-      tr
-    );
+  tbody.appendChild(
+    totalTr
+  );
 
-  }
+
+  table.appendChild(
+    tbody
+  );
+
+
+  return table;
+
+}
+
+
+/* =========================================================
+   RCH RENDER
+========================================================= */
+
+function renderRCHTable(
+  data
+){
+
+  document
+    .getElementById(
+      "reportTable"
+    )
+    .style.display="none";
 
 
   document
     .getElementById(
-      "rchSectorTitle"
+      "ayushmanReport"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchReport"
+    )
+    .style.display="block";
+
+
+  const main=
+    document.getElementById(
+      "rchMainReport"
+    );
+
+  const sector=
+    document.getElementById(
+      "rchSectorReport"
+    );
+
+
+  main.innerHTML="";
+  sector.innerHTML="";
+
+
+  /*
+    Heading Google Sheet से
+  */
+
+  const heading=
+    findRCHHeading(
+      data
+    );
+
+
+  /*
+    Header row
+  */
+
+  const headerRow=
+    findRCHHeaderRow(
+      data
+    );
+
+
+  /*
+    Main rows SN 1-42
+  */
+
+  const rows=
+    getRCHMainRows(
+      data,
+      headerRow
+    );
+
+
+  /*
+    Grand Total
+  */
+
+  const grandTotal=
+    calculateRCHGrandTotal(
+      rows
+    );
+
+
+  /*
+    Sector summary
+  */
+
+  const sectors=
+    calculateSectorSummary(
+      rows
+    );
+
+
+  const sectorTotal=
+    calculateSectorTotal(
+      sectors
+    );
+
+
+  /* MAIN TITLE */
+
+  const title=
+    document.createElement(
+      "div"
+    );
+
+  title.className=
+    "rch-title";
+
+  title.innerText=
+    heading;
+
+
+  main.appendChild(
+    title
+  );
+
+
+  /* MAIN TABLE */
+
+  const mainTable=
+    createRCHMainTable(
+      rows,
+      grandTotal
+    );
+
+
+  main.appendChild(
+    mainTable
+  );
+
+
+  /* SECTOR TITLE */
+
+  const sectorTitle=
+    document.createElement(
+      "div"
+    );
+
+  sectorTitle.className=
+    "rch-section-title";
+
+  sectorTitle.innerText=
+    "Sector Wise Summary";
+
+
+  sector.appendChild(
+    sectorTitle
+  );
+
+
+  /* SECTOR TABLE */
+
+  const sectorTable=
+    createRCHSectorTable(
+      sectors,
+      sectorTotal
+    );
+
+
+  sector.appendChild(
+    sectorTable
+  );
+
+
+  /*
+    Report header में भी exact
+    Google Sheet heading दिखाएं।
+  */
+
+  document
+    .getElementById(
+      "reportDescription"
     )
     .innerText=
-      "Sector-wise Summary";
-
-}
-
-
-/* =========================================================
-   CREATE SECTOR ROW
-========================================================= */
-
-function createSectorRow(
-  values
-){
-
-  const tr=
-    document.createElement(
-      "tr"
-    );
-
-
-  for(
-    let c=0;
-    c<11;
-    c++
-  ){
-
-    const td=
-      document.createElement(
-        "td"
-      );
-
-
-    td.innerText=
-      values[c] || "";
-
-
-    if(
-      c===7
-    ){
-
-      applyPercentageColor(
-        td,
-        values[c]
-      );
-
-    }
-
-
-    tr.appendChild(
-      td
-    );
-
-  }
-
-
-  return tr;
-
-}
-
-
-/* =========================================================
-   SECTOR TOTAL
-========================================================= */
-
-function createSectorTotalRow(
-  values
-){
-
-  const tr=
-    document.createElement(
-      "tr"
-    );
-
-
-  tr.className=
-    "rch-sector-total";
-
-
-  for(
-    let c=0;
-    c<11;
-    c++
-  ){
-
-    const td=
-      document.createElement(
-        "td"
-      );
-
-
-    if(
-      c===0
-    ){
-
-      td.innerText=
-        "TOTAL";
-
-    }
-
-    else{
-
-      td.innerText=
-        values[c] || "";
-
-    }
-
-
-    if(
-      c===7
-    ){
-
-      applyPercentageColor(
-        td,
-        values[c]
-      );
-
-    }
-
-
-    tr.appendChild(
-      td
-    );
-
-  }
-
-
-  return tr;
-
-}
-
-
-/* =========================================================
-   PERCENTAGE COLOR
-========================================================= */
-
-function applyPercentageColor(
-  td,
-  value
-){
-
-  const percent=
-    parseFloat(
-      String(
-        value || ""
-      )
-        .replace("%","")
-        .replace(",","")
-        .trim()
-    );
-
-
-  if(
-    isNaN(percent)
-  ){
-
-    return;
-
-  }
-
-
-  if(
-    percent<100
-  ){
-
-    td.classList.add(
-      "rch-percent-low"
-    );
-
-  }
-
-  else if(
-    percent<120
-  ){
-
-    td.classList.add(
-      "rch-percent-medium"
-    );
-
-  }
-
-  else{
-
-    td.classList.add(
-      "rch-percent-high"
-    );
-
-  }
+      heading;
+
+  document
+    .getElementById(
+      "pdfTitle"
+    )
+    .innerText=
+      heading;
 
 }
 
@@ -3627,6 +3371,20 @@ function applyPercentageColor(
 function renderNormalTable(
   data
 ){
+
+  document
+    .getElementById(
+      "ayushmanReport"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchReport"
+    )
+    .style.display="none";
+
 
   const table=
     document.getElementById(
@@ -3675,29 +3433,11 @@ function renderNormalTable(
       );
 
 
-    /*
-      Google Sheet की default
-      Column 1, Column 2 आदि को
-      कभी display नहीं करना।
-    */
-
-    let heading=
-      data.columns[c] || "";
-
-
-    if(
-      /^Column\s*\d+$/i.test(
-        heading.trim()
-      )
-    ){
-
-      heading="";
-
-    }
-
-
     th.innerText=
-      heading;
+      data.columns[c] ||
+      "Column "+(
+        c+1
+      );
 
 
     header.appendChild(
@@ -3797,6 +3537,20 @@ function renderNCDTable(
   data
 ){
 
+  document
+    .getElementById(
+      "ayushmanReport"
+    )
+    .style.display="none";
+
+
+  document
+    .getElementById(
+      "rchReport"
+    )
+    .style.display="none";
+
+
   const table=
     document.getElementById(
       "reportTable"
@@ -3849,10 +3603,8 @@ function renderNCDTable(
 
   titleCell.colSpan=25;
 
-
   titleCell.className=
     "ncd-main-title";
-
 
   titleCell.innerText=
     title ||
@@ -3862,7 +3614,6 @@ function renderNCDTable(
   titleRow.appendChild(
     titleCell
   );
-
 
   thead.appendChild(
     titleRow
@@ -3898,13 +3649,9 @@ function renderNCDTable(
           "th"
         );
 
+      th.innerText=text;
 
-      th.innerText=
-        text;
-
-
-      th.colSpan=
-        span;
+      th.colSpan=span;
 
 
       if(span===1){
@@ -3973,14 +3720,10 @@ function renderNCDTable(
           "th"
         );
 
-
-      th.innerText=
-        text;
-
+      th.innerText=text;
 
       th.className=
         "ncd-sub";
-
 
       sub.appendChild(
         th
@@ -4105,7 +3848,7 @@ function filterTable(){
 
   document
     .querySelectorAll(
-      "#rchMainTable tbody tr, #rchSectorTable tbody tr"
+      ".rch-table tbody tr, .rch-sector-table tbody tr"
     )
     .forEach(
       row=>{
@@ -4191,7 +3934,15 @@ async function downloadPDF(){
         html2canvas:{
           scale:1.5,
           useCORS:true,
-          backgroundColor:"#fff"
+          backgroundColor:"#fff",
+
+          /*
+            पूरे element को capture
+            करने के लिए
+          */
+
+          scrollX:0,
+          scrollY:0
         },
 
         jsPDF:{
@@ -4204,7 +3955,22 @@ async function downloadPDF(){
           mode:[
             "css",
             "legacy"
+          ],
+
+          before:[
+            ".pdf-rch-sector"
+          ],
+
+          after:[
+            ".pdf-rch-main"
+          ],
+
+          avoid:[
+            ".rch-table tr",
+            ".rch-sector-table tr",
+            ".ayushman-section"
           ]
+
         }
 
       })
