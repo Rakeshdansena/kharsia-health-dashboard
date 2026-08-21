@@ -1,25 +1,41 @@
 <!DOCTYPE html>
 <html lang="hi">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Kharsia Health Dashboard</title>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 
 <style>
 
-*{box-sizing:border-box}
+/* =====================================================
+   BASIC
+===================================================== */
+
+*{
+ box-sizing:border-box;
+}
 
 body{
  margin:0;
  font-family:Arial,"Noto Sans",sans-serif;
  background:#f3f6fa;
- color:#1f2937
+ color:#1f2937;
 }
+
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 .header{
  min-height:70px;
@@ -28,29 +44,41 @@ body{
  display:flex;
  align-items:center;
  padding:14px 25px;
- box-shadow:0 3px 10px rgba(0,0,0,.15)
+ box-shadow:0 3px 10px rgba(0,0,0,.15);
 }
 
-.header h1{margin:0;font-size:24px}
-.header small{margin-left:15px;opacity:.9}
+.header h1{
+ margin:0;
+ font-size:24px;
+}
+
+.header small{
+ margin-left:15px;
+ opacity:.9;
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
 
 .container{
  display:flex;
- min-height:calc(100vh - 70px)
+ min-height:calc(100vh - 70px);
 }
 
 .sidebar{
  width:255px;
  background:#0f2942;
  padding:15px 12px;
- overflow-y:auto
+ overflow-y:auto;
 }
 
 .sidebar-title{
  color:#b9d7ec;
  font-size:13px;
  padding:8px 12px;
- text-transform:uppercase
+ text-transform:uppercase;
 }
 
 .menu-btn{
@@ -63,49 +91,77 @@ body{
  border-radius:8px;
  text-align:left;
  font-size:14px;
- cursor:pointer
+ cursor:pointer;
 }
 
-.menu-btn:hover{background:#174d78}
-.menu-btn.active{background:#0ea5a4;color:white}
+.menu-btn:hover{
+ background:#174d78;
+}
+
+.menu-btn.active{
+ background:#0ea5a4;
+ color:white;
+}
+
 
 .content{
  flex:1;
  padding:25px;
- min-width:0
+ min-width:0;
 }
 
-.page{display:none}
-.page.active{display:block}
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.page{
+ display:none;
+}
+
+.page.active{
+ display:block;
+}
+
+
+/* =====================================================
+   COMMON BOX
+===================================================== */
 
 .welcome,
 .report-header,
 .table-box{
  background:white;
  border-radius:14px;
- box-shadow:0 3px 12px rgba(0,0,0,.07)
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
 }
 
 .welcome{
  padding:25px;
- margin-bottom:20px
+ margin-bottom:20px;
 }
 
 .welcome h2,
 .report-header h2{
  margin-top:0;
- color:#075985
+ color:#075985;
 }
 
 .welcome p,
 .report-header p{
- color:#64748b
+ color:#64748b;
 }
+
+
+/* =====================================================
+   DASHBOARD CARDS
+===================================================== */
 
 .cards{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
- gap:16px
+ grid-template-columns:
+ repeat(auto-fit,minmax(210px,1fr));
+ gap:16px;
 }
 
 .card{
@@ -114,41 +170,48 @@ body{
  padding:20px;
  box-shadow:0 3px 12px rgba(0,0,0,.07);
  cursor:pointer;
- transition:.2s
+ transition:.2s;
 }
 
 .card:hover{
  transform:translateY(-3px);
- box-shadow:0 7px 20px rgba(0,0,0,.12)
+ box-shadow:0 7px 20px rgba(0,0,0,.12);
 }
 
-.card-icon{font-size:30px}
+.card-icon{
+ font-size:30px;
+}
 
 .card h3{
  margin:12px 0 5px;
- font-size:16px
+ font-size:16px;
 }
 
 .card p{
  margin:0;
  color:#64748b;
- font-size:13px
+ font-size:13px;
 }
+
+
+/* =====================================================
+   REPORT HEADER
+===================================================== */
 
 .report-header{
  padding:20px;
- margin-bottom:15px
+ margin-bottom:15px;
 }
 
 .report-header h2{
- margin:0 0 6px
+ margin:0 0 6px;
 }
 
 .report-actions{
  display:flex;
  gap:9px;
  flex-wrap:wrap;
- margin-top:15px
+ margin-top:15px;
 }
 
 .search{
@@ -157,7 +220,7 @@ body{
  border-radius:8px;
  min-width:250px;
  font-size:14px;
- outline:none
+ outline:none;
 }
 
 .action-btn{
@@ -166,16 +229,37 @@ body{
  padding:10px 14px;
  border-radius:8px;
  cursor:pointer;
- font-size:14px
+ font-size:14px;
 }
 
-.back-btn{background:#475569}
-.refresh-btn{background:#0f766e}
-.pdf-btn{background:#b91c1c}
-.excel-btn{background:#15803d}
-.print-btn{background:#334155}
+.back-btn{
+ background:#475569;
+}
 
-.action-btn:hover{opacity:.88}
+.refresh-btn{
+ background:#0f766e;
+}
+
+.pdf-btn{
+ background:#b91c1c;
+}
+
+.excel-btn{
+ background:#15803d;
+}
+
+.print-btn{
+ background:#334155;
+}
+
+.action-btn:hover{
+ opacity:.88;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
 
 .status{
  padding:12px 15px;
@@ -183,29 +267,34 @@ body{
  background:#e0f2fe;
  color:#075985;
  margin-bottom:15px;
- font-size:14px
+ font-size:14px;
 }
 
 .status.success{
  background:#dcfce7;
- color:#166534
+ color:#166534;
 }
 
 .status.error{
  background:#fee2e2;
- color:#991b1b
+ color:#991b1b;
 }
+
+
+/* =====================================================
+   NORMAL TABLE
+===================================================== */
 
 .table-box{
  padding:12px;
- overflow:auto
+ overflow:auto;
 }
 
 #reportTable{
  border-collapse:collapse;
  width:100%;
  min-width:900px;
- font-size:13px
+ font-size:13px;
 }
 
 #reportTable th{
@@ -215,137 +304,27 @@ body{
  border:1px solid #d1d5db;
  white-space:normal;
  text-align:center;
- vertical-align:middle
+ vertical-align:middle;
 }
 
 #reportTable td{
  padding:7px;
  border:1px solid #d1d5db;
  white-space:nowrap;
- vertical-align:middle
+ vertical-align:middle;
 }
 
 #reportTable tbody tr:nth-child(even){
- background:#f8fafc
+ background:#f8fafc;
 }
 
 #reportTable tbody tr:hover{
- background:#e0f2fe
+ background:#e0f2fe;
 }
 
 #reportTable tbody tr.total-row{
  font-weight:700;
- background:#dbeafe
-}
-
-.report-title-pdf{
- display:none
-}
-
-.footer{
- text-align:center;
- color:#64748b;
- padding:20px;
- font-size:12px
-}
-
-
-/* =====================================================
-   AYUSHMAN
-===================================================== */
-
-.ayushman-wrapper{
- width:100%;
- overflow:auto
-}
-
-.ayushman-table{
- width:100%;
- min-width:900px;
- border-collapse:collapse;
- table-layout:fixed;
- font-size:13px
-}
-
-.ayushman-table th,
-.ayushman-table td{
- border:1px solid #cbd5e1;
- text-align:center;
- vertical-align:middle;
- padding:7px 5px;
- white-space:normal
-}
-
-.ayushman-table th{
- background:#075985;
- color:white;
- font-weight:700
-}
-
-.ayushman-title td{
- background:#075985;
- color:white;
- font-size:17px;
- font-weight:800;
- height:45px
-}
-
-.ayushman-subtitle td{
- background:#0f766e;
- color:white;
- font-size:15px;
- font-weight:800;
- height:40px
-}
-
-.ayushman-header td{
- background:#e0f2fe;
- color:#075985;
- font-weight:800
-}
-
-.ayushman-subheader td{
- background:#f1f5f9;
- color:#334155;
- font-weight:700
-}
-
-.ayushman-data td{
- background:white
-}
-
-.ayushman-percent{
- font-weight:800
-}
-
-.ayushman-total td{
  background:#dbeafe;
- font-weight:800
-}
-
-.ayushman-good{
- background:#dcfce7!important;
- color:#166534;
- font-weight:800
-}
-
-.ayushman-warning{
- background:#fef3c7!important;
- color:#92400e;
- font-weight:800
-}
-
-.ayushman-bad{
- background:#fecaca!important;
- color:#991b1b;
- font-weight:800
-}
-
-.ayushman-blank td{
- height:8px;
- padding:3px;
- background:white;
- border:0
 }
 
 
@@ -355,13 +334,14 @@ body{
 
 #rchSummaryCards{
  display:none;
- grid-template-columns:repeat(6,minmax(130px,1fr));
+ grid-template-columns:
+ repeat(6,minmax(130px,1fr));
  gap:10px;
- margin:15px 0 5px
+ margin:15px 0 5px;
 }
 
 #rchSummaryCards.show{
- display:grid
+ display:grid;
 }
 
 .rch-summary-card{
@@ -369,20 +349,20 @@ body{
  border:1px solid #dbe3ec;
  border-radius:10px;
  padding:10px 8px;
- text-align:center
+ text-align:center;
 }
 
 .rch-card-title{
  color:#64748b;
  font-size:11px;
- font-weight:600
+ font-weight:600;
 }
 
 .rch-card-value{
  color:#075985;
  font-size:21px;
  font-weight:800;
- margin-top:5px
+ margin-top:5px;
 }
 
 
@@ -391,7 +371,7 @@ body{
 ===================================================== */
 
 #rchContainer{
- display:none
+ display:none;
 }
 
 .rch-page{
@@ -399,7 +379,7 @@ body{
  border-radius:12px;
  padding:12px;
  margin-bottom:15px;
- box-shadow:0 3px 12px rgba(0,0,0,.07)
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
 }
 
 .rch-page-title{
@@ -407,7 +387,7 @@ body{
  color:#075985;
  font-size:18px;
  font-weight:800;
- margin:2px 0
+ margin:2px 0;
 }
 
 .rch-page-date{
@@ -415,14 +395,14 @@ body{
  color:#334155;
  font-size:13px;
  font-weight:700;
- margin-bottom:10px
+ margin-bottom:10px;
 }
 
 .rch-table{
  width:100%;
  border-collapse:collapse;
  table-layout:fixed;
- font-size:12px
+ font-size:12px;
 }
 
 .rch-table th{
@@ -432,7 +412,7 @@ body{
  padding:7px 5px;
  text-align:center;
  vertical-align:middle;
- font-weight:700
+ font-weight:700;
 }
 
 .rch-table td{
@@ -440,76 +420,226 @@ body{
  padding:6px 5px;
  text-align:center;
  vertical-align:middle;
- white-space:normal
+ white-space:normal;
 }
 
 .rch-table tbody tr:nth-child(even){
- background:#f8fafc
+ background:#f8fafc;
 }
 
 .rch-table tbody tr:hover{
- background:#e0f2fe
+ background:#e0f2fe;
 }
 
 .rch-total-row{
  background:#dbeafe!important;
- font-weight:800
+ font-weight:800;
 }
 
 .rch-low-red{
  background:#fecaca!important;
  color:#991b1b!important;
- font-weight:800
+ font-weight:800;
 }
 
 .rch-low-yellow{
  background:#fef3c7!important;
  color:#92400e!important;
- font-weight:800
+ font-weight:800;
 }
 
 .rch-good-green{
  background:#dcfce7!important;
  color:#166534!important;
- font-weight:800
+ font-weight:800;
 }
 
+.rch-sector-table th:nth-child(1){
+ width:5%;
+}
 
-/* Sector Wise */
+.rch-sector-table th:nth-child(2){
+ width:14%;
+}
 
-.rch-sector-table th:nth-child(1){width:5%}
-.rch-sector-table th:nth-child(2){width:14%}
-.rch-sector-table th:nth-child(3){width:10%}
-.rch-sector-table th:nth-child(4){width:14%}
-.rch-sector-table th:nth-child(5){width:16%}
-.rch-sector-table th:nth-child(6){width:7%}
-.rch-sector-table th:nth-child(7){width:12%}
-.rch-sector-table th:nth-child(8){width:9%}
-.rch-sector-table th:nth-child(9){width:9%}
+.rch-sector-table th:nth-child(3){
+ width:12%;
+}
 
+.rch-sector-table th:nth-child(4){
+ width:13%;
+}
 
-/* Facility Wise */
+.rch-sector-table th:nth-child(5){
+ width:13%;
+}
 
-.rch-facility-table th:nth-child(1){width:4%}
-.rch-facility-table th:nth-child(2){width:11%}
-.rch-facility-table th:nth-child(3){width:10%}
-.rch-facility-table th:nth-child(4){width:13%}
-.rch-facility-table th:nth-child(5){width:13%}
-.rch-facility-table th:nth-child(6){width:12%}
-.rch-facility-table th:nth-child(7){width:13%}
-.rch-facility-table th:nth-child(8){width:6%}
-.rch-facility-table th:nth-child(9){width:9%}
-.rch-facility-table th:nth-child(10){width:8%}
-.rch-facility-table th:nth-child(11){width:8%}
+.rch-sector-table th:nth-child(6){
+ width:8%;
+}
+
+.rch-sector-table th:nth-child(7){
+ width:13%;
+}
+
+.rch-sector-table th:nth-child(8){
+ width:10%;
+}
+
+.rch-sector-table th:nth-child(9){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(1){
+ width:4%;
+}
+
+.rch-facility-table th:nth-child(2){
+ width:13%;
+}
+
+.rch-facility-table th:nth-child(3){
+ width:11%;
+}
+
+.rch-facility-table th:nth-child(4){
+ width:12%;
+}
+
+.rch-facility-table th:nth-child(5){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(6){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(7){
+ width:11%;
+}
+
+.rch-facility-table th:nth-child(8){
+ width:7%;
+}
+
+.rch-facility-table th:nth-child(9){
+ width:9%;
+}
+
+.rch-facility-table th:nth-child(10){
+ width:8%;
+}
+
+.rch-facility-table th:nth-child(11){
+ width:8%;
+}
 
 .rch-sector-page{
  page-break-after:always;
- break-after:page
+ break-after:page;
 }
 
 .rch-facility-page{
  page-break-before:always;
- break-before:page
+ break-before:page;
+}
+
+
+/* =====================================================
+   AYUSHMAN CARD
+===================================================== */
+
+.ayushman-table{
+ width:100%!important;
+ min-width:900px!important;
+ border-collapse:collapse!important;
+ table-layout:fixed!important;
+ font-size:13px!important;
+}
+
+.ayushman-table td{
+ border:1px solid #cbd5e1!important;
+ text-align:center!important;
+ vertical-align:middle!important;
+ padding:8px 6px!important;
+ white-space:normal!important;
+}
+
+
+/* Title */
+
+.ayushman-title-cell{
+ background:#075985!important;
+ color:white!important;
+ font-size:18px!important;
+ font-weight:800!important;
+ height:48px!important;
+}
+
+
+/* First header */
+
+.ayushman-main-header{
+ background:#0f766e!important;
+ color:white!important;
+ font-weight:800!important;
+ font-size:14px!important;
+}
+
+
+/* Second header */
+
+.ayushman-sub-header{
+ background:#dbeafe!important;
+ color:#075985!important;
+ font-weight:800!important;
+ font-size:13px!important;
+}
+
+
+/* Data */
+
+.ayushman-data-cell{
+ background:white!important;
+ font-weight:700!important;
+ font-size:14px!important;
+}
+
+
+/* Percentage */
+
+.ayushman-percent{
+ background:#dcfce7!important;
+ color:#166534!important;
+ font-weight:900!important;
+}
+
+
+/* Blank */
+
+.ayushman-blank-cell{
+ height:10px!important;
+ padding:3px!important;
+ background:white!important;
+ border:0!important;
+}
+
+
+/* Vay Vandan title */
+
+.ayushman-vay-title-cell{
+ background:#075985!important;
+ color:white!important;
+ font-size:17px!important;
+ font-weight:800!important;
+ height:46px!important;
+}
+
+
+/* Hover */
+
+.ayushman-table tr:hover td{
+ background:#e0f2fe!important;
 }
 
 
@@ -520,22 +650,22 @@ body{
 .ncd-table{
  table-layout:fixed!important;
  min-width:0!important;
- width:100%!important
+ width:100%!important;
 }
 
 .ncd-table td{
  text-align:center;
  white-space:normal;
- word-break:break-word
+ word-break:break-word;
 }
 
 .ncd-table td:first-child{
  text-align:left;
- font-weight:600
+ font-weight:600;
 }
 
 .ncd-data-row:nth-child(even){
- background:#f8fafc
+ background:#f8fafc;
 }
 
 
@@ -543,30 +673,34 @@ body{
    PDF
 ===================================================== */
 
+.report-title-pdf{
+ display:none;
+}
+
 .pdf-mode{
  background:white!important;
- padding:0!important
+ padding:0!important;
 }
 
 .pdf-mode .table-box{
  box-shadow:none;
- border-radius:0
+ border-radius:0;
 }
 
 .pdf-mode #reportTable{
  min-width:0!important;
  width:100%!important;
- font-size:7px
+ font-size:7px;
 }
 
 .pdf-mode #reportTable th{
  position:static;
- padding:4px 3px
+ padding:4px 3px;
 }
 
 .pdf-mode #reportTable td{
  padding:3px 2px;
- white-space:normal
+ white-space:normal;
 }
 
 .pdf-mode .report-title-pdf{
@@ -575,63 +709,56 @@ body{
  font-size:17px;
  font-weight:700;
  margin-bottom:8px;
- color:#075985
+ color:#075985;
 }
 
 .pdf-mode .status,
 .pdf-mode .report-actions,
 .pdf-mode .footer{
- display:none
+ display:none;
 }
 
 .pdf-mode #rchContainer{
- display:block!important
+ display:block!important;
 }
 
 .pdf-mode .rch-page{
  box-shadow:none;
  border-radius:0;
  padding:0;
- margin:0
+ margin:0;
 }
 
 .pdf-mode .rch-page-title{
- font-size:14px
+ font-size:14px;
 }
 
 .pdf-mode .rch-page-date{
  font-size:9px;
- margin-bottom:4px
+ margin-bottom:4px;
 }
 
 .pdf-mode .rch-table{
  font-size:6.5px;
- line-height:1.05
+ line-height:1.05;
 }
 
 .pdf-mode .rch-table th{
- padding:2.5px 2px
+ padding:2.5px 2px;
 }
 
 .pdf-mode .rch-table td{
- padding:2.2px 1.5px
+ padding:2.2px 1.5px;
 }
 
-.pdf-mode .ayushman-table{
- font-size:8px
+.pdf-mode .rch-sector-page{
+ page-break-after:always;
+ break-after:page;
 }
 
-.pdf-mode .ayushman-table th,
-.pdf-mode .ayushman-table td{
- padding:4px 3px
-}
-
-.pdf-mode .ayushman-title td{
- font-size:12px
-}
-
-.pdf-mode .ayushman-subtitle td{
- font-size:10px
+.pdf-mode .rch-facility-page{
+ page-break-before:always;
+ break-before:page;
 }
 
 
@@ -644,19 +771,19 @@ body{
  .header{
   flex-direction:column;
   align-items:flex-start;
-  gap:4px
+  gap:4px;
  }
 
  .header h1{
-  font-size:19px
+  font-size:19px;
  }
 
  .header small{
-  margin-left:0
+  margin-left:0;
  }
 
  .container{
-  flex-direction:column
+  flex-direction:column;
  }
 
  .sidebar{
@@ -664,33 +791,38 @@ body{
   display:flex;
   overflow-x:auto;
   gap:5px;
-  padding:8px
+  padding:8px;
  }
 
  .sidebar-title{
-  display:none
+  display:none;
  }
 
  .menu-btn{
   min-width:150px;
-  white-space:nowrap
+  white-space:nowrap;
  }
 
  .content{
-  padding:12px
+  padding:12px;
  }
 
  .search{
   width:100%;
-  min-width:0
+  min-width:0;
  }
 
  #rchSummaryCards{
-  grid-template-columns:repeat(2,minmax(140px,1fr))
+  grid-template-columns:
+  repeat(2,minmax(140px,1fr));
  }
 
  .rch-table{
-  min-width:900px
+  min-width:900px;
+ }
+
+ .ayushman-table{
+  min-width:850px!important;
  }
 
 }
@@ -704,11 +836,11 @@ body{
 
  @page{
   size:A4 landscape;
-  margin:5mm
+  margin:5mm;
  }
 
  body{
-  background:white
+  background:white;
  }
 
  .header,
@@ -718,112 +850,130 @@ body{
  .status,
  .footer,
  #rchSummaryCards{
-  display:none!important
+  display:none!important;
  }
 
  .container,
  .content{
   display:block;
-  padding:0
+  padding:0;
  }
 
  .page{
-  display:none
+  display:none;
  }
 
  .page.active{
-  display:block
+  display:block;
  }
 
  .report-header{
   box-shadow:none;
   padding:0;
-  margin-bottom:5px
+  margin-bottom:5px;
  }
 
  .report-title-pdf{
   display:block;
   text-align:center;
   font-size:16px;
-  font-weight:700
+  font-weight:700;
  }
 
  .table-box{
   box-shadow:none;
   padding:0;
-  overflow:visible
+  overflow:visible;
  }
 
  #reportTable{
   min-width:0;
   width:100%;
-  font-size:7px
+  font-size:7px;
  }
 
  #reportTable th{
-  position:static
+  position:static;
  }
 
  #reportTable td{
-  white-space:normal
+  white-space:normal;
  }
 
  #rchContainer{
-  display:block!important
+  display:block!important;
  }
 
  .rch-page{
   box-shadow:none!important;
   border-radius:0!important;
   padding:0!important;
-  margin:0!important
+  margin:0!important;
  }
 
  .rch-page-title{
-  font-size:13px
+  font-size:13px;
  }
 
  .rch-page-date{
-  font-size:9px
+  font-size:9px;
  }
 
  .rch-table{
   width:100%!important;
   min-width:0!important;
-  font-size:6.5px!important
+  font-size:6.5px!important;
  }
 
  .rch-table th{
-  padding:2px!important
+  padding:2px!important;
  }
 
  .rch-table td{
-  padding:2px 1px!important
+  padding:2px 1px!important;
  }
 
  .rch-sector-page{
   page-break-after:always;
-  break-after:page
+  break-after:page;
  }
 
  .rch-facility-page{
   page-break-before:always;
-  break-before:page
+  break-before:page;
  }
 
  .ayushman-table{
   width:100%!important;
   min-width:0!important;
-  font-size:8px!important
+  font-size:8px!important;
+ }
+
+ .ayushman-table td{
+  padding:4px 3px!important;
+ }
+
+ .ayushman-title-cell{
+  font-size:12px!important;
+ }
+
+ .ayushman-vay-title-cell{
+  font-size:11px!important;
  }
 
 }
 
 </style>
+
 </head>
 
 
 <body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <div class="header">
 
@@ -838,6 +988,11 @@ body{
 
 <div class="container">
 
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
 <aside class="sidebar">
 
  <div class="sidebar-title">
@@ -848,7 +1003,9 @@ body{
   class="menu-btn active"
   id="dashboardBtn"
   onclick="showDashboard()">
+
   🏠 Dashboard
+
  </button>
 
  <div id="menuButtons"></div>
@@ -856,10 +1013,20 @@ body{
 </aside>
 
 
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
 <main class="content">
 
 
-<section id="dashboardPage" class="page active">
+<!-- =====================================================
+     DASHBOARD PAGE
+===================================================== -->
+
+<section
+ id="dashboardPage"
+ class="page active">
 
  <div class="welcome">
 
@@ -874,18 +1041,33 @@ body{
 
  </div>
 
- <div id="dashboardCards" class="cards"></div>
+ <div
+  id="dashboardCards"
+  class="cards">
+ </div>
 
 </section>
 
 
-<section id="reportPage" class="page">
+<!-- =====================================================
+     REPORT PAGE
+===================================================== -->
+
+<section
+ id="reportPage"
+ class="page">
+
 
  <div class="report-header">
 
-  <div id="pdfTitle" class="report-title-pdf"></div>
+  <div
+   id="pdfTitle"
+   class="report-title-pdf">
+  </div>
 
-  <h2 id="reportTitle">Report</h2>
+  <h2 id="reportTitle">
+   Report
+  </h2>
 
   <p id="reportDescription">
    Google Sheet से live data
@@ -897,81 +1079,145 @@ body{
   <div id="rchSummaryCards">
 
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      HMIS PW Registration
     </div>
-    <div id="rchCardHMIS" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardHMIS"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
+
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      RCH 2.0 PW Registration
     </div>
-    <div id="rchCardRCH" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardRCH"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
+
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      Overall %
     </div>
-    <div id="rchCardPercent" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardPercent"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
+
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      Temporary Registration
     </div>
-    <div id="rchCardTemp" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardTemp"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
+
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      Backlog
     </div>
-    <div id="rchCardBacklog" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardBacklog"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
+
    <div class="rch-summary-card">
+
     <div class="rch-card-title">
      High Risk
     </div>
-    <div id="rchCardHighRisk" class="rch-card-value">-</div>
+
+    <div
+     id="rchCardHighRisk"
+     class="rch-card-value">
+     -
+    </div>
+
    </div>
 
   </div>
 
+
+  <!-- ACTIONS -->
 
   <div class="report-actions">
 
    <button
     class="action-btn back-btn"
     onclick="showDashboard()">
+
     ← Dashboard
+
    </button>
+
 
    <button
     class="action-btn refresh-btn"
     onclick="refreshReport()">
+
     🔄 Refresh
+
    </button>
+
 
    <button
     class="action-btn pdf-btn"
     onclick="downloadPDF()">
+
     📄 Download PDF
+
    </button>
+
 
    <button
     class="action-btn excel-btn"
     onclick="downloadExcel()">
+
     📊 Download Excel
+
    </button>
+
 
    <button
     class="action-btn print-btn"
     onclick="printReport()">
+
     🖨️ Print
+
    </button>
+
 
    <input
     id="searchBox"
@@ -985,12 +1231,19 @@ body{
  </div>
 
 
- <div id="status" class="status">
+ <div
+  id="status"
+  class="status">
+
   Google Sheet से data load हो रहा है...
+
  </div>
 
 
  <div id="pdfArea">
+
+
+  <!-- RCH -->
 
   <div id="rchContainer">
 
@@ -1007,9 +1260,9 @@ body{
   </div>
 
 
-  <div class="table-box">
+  <!-- NORMAL TABLE -->
 
-   <div id="ayushmanContainer"></div>
+  <div class="table-box">
 
    <table id="reportTable">
 
@@ -1023,18 +1276,23 @@ body{
 
   </div>
 
+
  </div>
 
 
  <div class="footer">
+
   Data source: Google Sheet · Kharsia Health Dashboard
+
  </div>
+
 
 </section>
 
 </main>
 
 </div>
+
 
 
 <script>
@@ -1156,11 +1414,14 @@ const REPORTS=[
   description:
    "National Leprosy Eradication Programme"
  }
+
 ];
 
 
 let currentReportIndex=null;
+
 let currentData=null;
+
 let currentRCHData=null;
 
 
@@ -1169,6 +1430,7 @@ let currentRCHData=null;
 ===================================================== */
 
 const RCH_SECTORS=[
+
  "Barra",
  "Binjkot",
  "Gorpar",
@@ -1177,6 +1439,7 @@ const RCH_SECTORS=[
  "Sondka",
  "Turekela",
  "Urban Kharsia"
+
 ];
 
 
@@ -1186,45 +1449,73 @@ const RCH_SECTORS=[
 
 function createMenu(){
 
- const menu=document.getElementById("menuButtons");
- const cards=document.getElementById("dashboardCards");
+ const menu =
+  document.getElementById(
+   "menuButtons"
+  );
+
+ const cards =
+  document.getElementById(
+   "dashboardCards"
+  );
 
  menu.innerHTML="";
  cards.innerHTML="";
 
- REPORTS.forEach((report,index)=>{
 
-  const btn=document.createElement("button");
+ REPORTS.forEach(
+  (report,index)=>{
 
-  btn.className="menu-btn";
+   const btn =
+    document.createElement(
+     "button"
+    );
 
-  btn.innerHTML=
-   report.icon+" "+report.name;
+   btn.className="menu-btn";
 
-  btn.onclick=()=>{
-   openReport(index);
-  };
+   btn.innerHTML =
+    report.icon+
+    " "+
+    report.name;
 
-  menu.appendChild(btn);
+   btn.onclick=()=>{
+    openReport(index);
+   };
+
+   menu.appendChild(btn);
 
 
-  const card=document.createElement("div");
+   const card =
+    document.createElement(
+     "div"
+    );
 
-  card.className="card";
+   card.className="card";
 
-  card.innerHTML=`
-   <div class="card-icon">${report.icon}</div>
-   <h3>${report.name}</h3>
-   <p>${report.description}</p>
-  `;
+   card.innerHTML=`
 
-  card.onclick=()=>{
-   openReport(index);
-  };
+    <div class="card-icon">
+     ${report.icon}
+    </div>
 
-  cards.appendChild(card);
+    <h3>
+     ${report.name}
+    </h3>
 
- });
+    <p>
+     ${report.description}
+    </p>
+
+   `;
+
+   card.onclick=()=>{
+    openReport(index);
+   };
+
+   cards.appendChild(card);
+
+  }
+ );
 
 }
 
@@ -1243,15 +1534,18 @@ function showDashboard(){
   .getElementById("reportPage")
   .classList.remove("active");
 
+
  document
   .querySelectorAll(".menu-btn")
   .forEach(btn=>{
    btn.classList.remove("active");
   });
 
+
  document
   .getElementById("dashboardBtn")
   .classList.add("active");
+
 
  hideRCHSummary();
 
@@ -1266,12 +1560,14 @@ function openReport(index){
 
  currentReportIndex=index;
 
- const report=REPORTS[index];
+ const report =
+  REPORTS[index];
 
 
  document
   .getElementById("dashboardPage")
   .classList.remove("active");
+
 
  document
   .getElementById("reportPage")
@@ -1280,20 +1576,22 @@ function openReport(index){
 
  document
   .getElementById("reportTitle")
-  .innerText=
-   report.icon+" "+report.name;
+  .innerText =
+   report.icon+
+   " "+
+   report.name;
 
 
  document
   .getElementById("pdfTitle")
-  .innerText=
-   "Kharsia Health Dashboard — "
-   +report.name;
+  .innerText =
+   "Kharsia Health Dashboard — "+
+   report.name;
 
 
  document
   .getElementById("reportDescription")
-  .innerText=
+  .innerText =
    report.description;
 
 
@@ -1302,13 +1600,21 @@ function openReport(index){
   .value="";
 
 
- if(report.name==="RCH 2.0"){
+ if(
+  report.name==="RCH 2.0"
+ ){
+
   document
-   .getElementById("rchSummaryCards")
+   .getElementById(
+    "rchSummaryCards"
+   )
    .classList.add("show");
+
  }
  else{
+
   hideRCHSummary();
+
  }
 
 
@@ -1319,31 +1625,33 @@ function openReport(index){
   });
 
 
- const buttons=
+ const buttons =
   document.querySelectorAll(
    "#menuButtons .menu-btn"
   );
 
 
  if(buttons[index]){
-  buttons[index].classList.add("active");
+  buttons[index].classList.add(
+   "active"
+  );
  }
 
 
  clearTable();
 
- document
-  .getElementById("ayushmanContainer")
-  .innerHTML="";
-
 
  document
-  .getElementById("rchContainer")
+  .getElementById(
+   "rchContainer"
+  )
   .style.display="none";
 
 
  document
-  .querySelector(".table-box")
+  .querySelector(
+   ".table-box"
+  )
   .style.display="block";
 
 
@@ -1355,7 +1663,9 @@ function openReport(index){
  );
 
 
- loadGoogleSheet(report.gid);
+ loadGoogleSheet(
+  report.gid
+ );
 
 }
 
@@ -1366,8 +1676,14 @@ function openReport(index){
 
 function refreshReport(){
 
- if(currentReportIndex!==null){
-  openReport(currentReportIndex);
+ if(
+  currentReportIndex!==null
+ ){
+
+  openReport(
+   currentReportIndex
+  );
+
  }
 
 }
@@ -1379,74 +1695,99 @@ function refreshReport(){
 
 function loadGoogleSheet(gid){
 
- const url=
-  "https://docs.google.com/spreadsheets/d/"
-  +SPREADSHEET_ID
-  +"/gviz/tq?gid="
-  +encodeURIComponent(gid)
-  +"&headers=0";
+ const url =
+  "https://docs.google.com/spreadsheets/d/"+
+  SPREADSHEET_ID+
+  "/gviz/tq?gid="+
+  encodeURIComponent(gid)+
+  "&headers=0";
 
 
- const query=
-  new google.visualization.Query(url);
-
- query.setQuery("select *");
-
-
- query.send(response=>{
-
-  if(response.isError()){
-
-   setStatus(
-    "Google Sheet से data load नहीं हो पाया: "
-    +response.getMessage(),
-    "error"
-   );
-
-   return;
-
-  }
-
-
-  currentData=
-   response.getDataTable();
-
-
-  const report=
-   REPORTS[currentReportIndex];
-
-
-  if(report.name==="Ayushman Card"){
-
-   renderAyushmanTable(currentData);
-
-  }
-
-  else if(report.name==="RCH 2.0"){
-
-   renderRCHTable(currentData);
-
-  }
-
-  else if(report.name==="NCD"){
-
-   renderNCDTable(currentData);
-
-  }
-
-  else{
-
-   renderNormalTable(currentData);
-
-  }
-
-
-  setStatus(
-   "✓ Google Sheet से data successfully loaded",
-   "success"
+ const query =
+  new google.visualization.Query(
+   url
   );
 
- });
+
+ query.setQuery(
+  "select *"
+ );
+
+
+ query.send(
+  response=>{
+
+   if(
+    response.isError()
+   ){
+
+    setStatus(
+     "Google Sheet से data load नहीं हो पाया: "+
+     response.getMessage(),
+     "error"
+    );
+
+    return;
+
+   }
+
+
+   currentData =
+    response.getDataTable();
+
+
+   const report =
+    REPORTS[
+     currentReportIndex
+    ];
+
+
+   if(
+    report.name==="Ayushman Card"
+   ){
+
+    renderAyushmanTable(
+     currentData
+    );
+
+   }
+
+   else if(
+    report.name==="RCH 2.0"
+   ){
+
+    renderRCHTable(
+     currentData
+    );
+
+   }
+
+   else if(
+    report.name==="NCD"
+   ){
+
+    renderNCDTable(
+     currentData
+    );
+
+   }
+
+   else{
+
+    renderNormalTable(
+     currentData
+    );
+
+   }
+
+
+   setStatus(
+    "✓ Google Sheet से data successfully loaded",
+    "success"
+   );
+
+  }
+ );
 
 }
 
@@ -1458,10 +1799,18 @@ function loadGoogleSheet(gid){
 function formatted(data,r,c){
 
  try{
-  return data.getFormattedValue(r,c)||"";
+
+  return (
+   data.getFormattedValue(
+    r,c
+   ) || ""
+  );
+
  }
  catch(e){
+
   return "";
+
  }
 
 }
@@ -1475,6 +1824,7 @@ function getSheetRow(data,r){
 
  const row=[];
 
+
  for(
   let c=0;
   c<data.getNumberOfColumns();
@@ -1482,10 +1832,15 @@ function getSheetRow(data,r){
  ){
 
   row.push(
-   formatted(data,r,c)
+   formatted(
+    data,
+    r,
+    c
+   )
   );
 
  }
+
 
  return row;
 
@@ -1503,18 +1858,26 @@ function numericValue(value){
   value===undefined ||
   value===""
  ){
+
   return 0;
+
  }
 
- let text=
+
+ let text =
   String(value)
    .replace(/,/g,"")
    .replace(/%/g,"")
    .trim();
 
- const n=parseFloat(text);
 
- return isNaN(n)?0:n;
+ const n =
+  parseFloat(text);
+
+
+ return isNaN(n)
+  ?0
+  :n;
 
 }
 
@@ -1525,16 +1888,53 @@ function numericValue(value){
 
 function isNumberLike(value){
 
- if(value===null || value===undefined){
+ if(
+  value===null ||
+  value===undefined
+ ){
+
   return false;
+
  }
 
- const t=
+
+ const t =
   String(value)
    .replace(/,/g,"")
    .trim();
 
+
  return /^-?\d+(?:\.\d+)?$/.test(t);
+
+}
+
+
+/* =====================================================
+   FIND NUMBER
+===================================================== */
+
+function findNumber(row,indexes){
+
+ for(
+  const index of indexes
+ ){
+
+  if(
+   row[index]!==undefined &&
+   row[index]!==null &&
+   String(row[index]).trim()!==""
+  ){
+
+   return numericValue(
+    row[index]
+   );
+
+  }
+
+ }
+
+
+ return 0;
 
 }
 
@@ -1543,25 +1943,36 @@ function isNumberLike(value){
    RCH PERCENT COLOR
 ===================================================== */
 
-function applyRCHPercentColor(td,value){
+function applyRCHPercentColor(
+ td,
+ value
+){
 
- const n=numericValue(value);
+ const n =
+  numericValue(value);
+
 
  if(n<80){
 
-  td.classList.add("rch-low-red");
+  td.classList.add(
+   "rch-low-red"
+  );
 
  }
 
  else if(n<100){
 
-  td.classList.add("rch-low-yellow");
+  td.classList.add(
+   "rch-low-yellow"
+  );
 
  }
 
  else{
 
-  td.classList.add("rch-good-green");
+  td.classList.add(
+   "rch-good-green"
+  );
 
  }
 
@@ -1572,11 +1983,18 @@ function applyRCHPercentColor(td,value){
    RCH CELL
 ===================================================== */
 
-function makeRCHCell(value,isPercent=false){
+function makeRCHCell(
+ value,
+ isPercent=false
+){
 
- const td=document.createElement("td");
+ const td =
+  document.createElement(
+   "td"
+  );
 
- td.innerText=
+
+ td.innerText =
   value===null ||
   value===undefined
    ?""
@@ -1584,8 +2002,14 @@ function makeRCHCell(value,isPercent=false){
 
 
  if(isPercent){
-  applyRCHPercentColor(td,value);
+
+  applyRCHPercentColor(
+   td,
+   value
+  );
+
  }
+
 
  return td;
 
@@ -1593,14 +2017,15 @@ function makeRCHCell(value,isPercent=false){
 
 
 /* =====================================================
-   PARSE RCH
+   RCH DATA PARSER
 ===================================================== */
 
 function parseRCHData(data){
 
  const facilityRows=[];
 
- let asOnDate="01-08-2026";
+ let asOnDate =
+  "01-08-2026";
 
 
  for(
@@ -1609,12 +2034,19 @@ function parseRCHData(data){
   r++
  ){
 
-  const row=getSheetRow(data,r);
+  const row =
+   getSheetRow(
+    data,
+    r
+   );
 
-  const joined=row.join(" ").trim();
+
+  const joined =
+   row.join(" ")
+    .trim();
 
 
-  const dateMatch=
+  const dateMatch =
    joined.match(
     /(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/
    );
@@ -1625,62 +2057,89 @@ function parseRCHData(data){
    /RCH/i.test(joined)
   ){
 
-   asOnDate=
-    dateMatch[1].replace(/\//g,"-");
+   asOnDate =
+    dateMatch[1]
+     .replace(
+      /\//g,
+      "-"
+     );
 
   }
 
 
-  const sn=
-   String(row[0]||"").trim();
-
-  const sector=
-   String(row[1]||"").trim();
-
-  const hfr=
-   String(row[2]||"").trim();
-
-  const facility=
-   String(row[3]||"").trim();
-
-  const type=
-   String(row[4]||"").trim();
+  const sn =
+   String(
+    row[0]||""
+   ).trim();
 
 
-  /*
-    Actual facility rows
-  */
+  const sector =
+   String(
+    row[1]||""
+   ).trim();
+
+
+  const hfr =
+   String(
+    row[2]||""
+   ).trim();
+
+
+  const facility =
+   String(
+    row[3]||""
+   ).trim();
+
+
+  const type =
+   String(
+    row[4]||""
+   ).trim();
+
 
   if(
    isNumberLike(sn) &&
-   RCH_SECTORS.includes(sector) &&
+   RCH_SECTORS.includes(
+    sector
+   ) &&
    /^IN\d+/i.test(hfr) &&
    facility!==""
   ){
 
    facilityRows.push({
 
-    sn:numericValue(sn),
+    sn:
+     numericValue(sn),
 
-    sector:sector,
+    sector:
+     sector,
 
-    hfr:hfr,
+    hfr:
+     hfr,
 
-    facility:facility,
+    facility:
+     facility,
 
-    type:type,
+    type:
+     type,
 
-    hmis:numericValue(row[5]),
+    hmis:
+     numericValue(row[5]),
 
-    rch:numericValue(row[6]),
+    rch:
+     numericValue(row[6]),
 
-    percent:numericValue(row[7]),
+    percent:
+     numericValue(row[7]),
 
-    temp:numericValue(row[8]),
+    temp:
+     numericValue(row[8]),
 
-    backlog:numericValue(row[9]),
+    backlog:
+     numericValue(row[9]),
 
-    highRisk:numericValue(row[10])
+    highRisk:
+     numericValue(row[10])
 
    });
 
@@ -1690,8 +2149,13 @@ function parseRCHData(data){
 
 
  return {
-  facilityRows:facilityRows,
-  asOnDate:asOnDate
+
+  facilityRows:
+   facilityRows,
+
+  asOnDate:
+   asOnDate
+
  };
 
 }
@@ -1701,69 +2165,94 @@ function parseRCHData(data){
    BUILD SECTOR DATA
 ===================================================== */
 
-function buildSectorData(parsed){
+function buildSectorData(
+ parsed
+){
 
  const sectorData=[];
 
 
- RCH_SECTORS.forEach(sector=>{
+ RCH_SECTORS.forEach(
+  sector=>{
 
-  const rows=
-   parsed.facilityRows.filter(
-    r=>r.sector===sector
+   const rows =
+    parsed.facilityRows.filter(
+     r=>
+      r.sector===sector
+    );
+
+
+   if(
+    rows.length===0
+   ){
+
+    return;
+
+   }
+
+
+   let hmis=0;
+   let rch=0;
+   let temp=0;
+   let backlog=0;
+   let highRisk=0;
+
+
+   rows.forEach(
+    row=>{
+
+     hmis += row.hmis;
+
+     rch += row.rch;
+
+     temp += row.temp;
+
+     backlog += row.backlog;
+
+     highRisk += row.highRisk;
+
+    }
    );
 
 
-  if(rows.length===0){
-   return;
+   const percent =
+    hmis>0
+     ?Math.round(
+       (rch/hmis)*100
+      )
+     :0;
+
+
+   sectorData.push({
+
+    sector:
+     sector,
+
+    facility:
+     rows.length,
+
+    hmis:
+     hmis,
+
+    rch:
+     rch,
+
+    percent:
+     percent,
+
+    temp:
+     temp,
+
+    backlog:
+     backlog,
+
+    highRisk:
+     highRisk
+
+   });
+
   }
-
-
-  let hmis=0;
-  let rch=0;
-  let temp=0;
-  let backlog=0;
-  let highRisk=0;
-
-
-  rows.forEach(row=>{
-
-   hmis+=row.hmis;
-   rch+=row.rch;
-   temp+=row.temp;
-   backlog+=row.backlog;
-   highRisk+=row.highRisk;
-
-  });
-
-
-  const percent=
-   hmis>0
-    ?Math.round((rch/hmis)*100)
-    :0;
-
-
-  sectorData.push({
-
-   sector:sector,
-
-   facility:rows.length,
-
-   hmis:hmis,
-
-   rch:rch,
-
-   percent:percent,
-
-   temp:temp,
-
-   backlog:backlog,
-
-   highRisk:highRisk
-
-  });
-
- });
+ );
 
 
  return sectorData;
@@ -1775,47 +2264,79 @@ function buildSectorData(parsed){
    RCH TOTAL
 ===================================================== */
 
-function calculateRCHTotals(rows){
+function calculateRCHTotals(
+ sectorRows
+){
 
  let facility=0;
+
  let hmis=0;
+
  let rch=0;
+
  let temp=0;
+
  let backlog=0;
+
  let highRisk=0;
 
 
- rows.forEach(row=>{
+ sectorRows.forEach(
+  row=>{
 
-  facility+=row.facility;
+   facility +=
+    row.facility;
 
-  hmis+=row.hmis;
+   hmis +=
+    row.hmis;
 
-  rch+=row.rch;
+   rch +=
+    row.rch;
 
-  temp+=row.temp;
+   temp +=
+    row.temp;
 
-  backlog+=row.backlog;
+   backlog +=
+    row.backlog;
 
-  highRisk+=row.highRisk;
+   highRisk +=
+    row.highRisk;
 
- });
+  }
+ );
 
 
- const percent=
+ const percent =
   hmis>0
-   ?Math.round((rch/hmis)*100)
+   ?Math.round(
+     (rch/hmis)*100
+    )
    :0;
 
 
  return {
-  facility,
-  hmis,
-  rch,
-  percent,
-  temp,
-  backlog,
-  highRisk
+
+  facility:
+   facility,
+
+  hmis:
+   hmis,
+
+  rch:
+   rch,
+
+  percent:
+   percent,
+
+  temp:
+   temp,
+
+  backlog:
+   backlog,
+
+  highRisk:
+   highRisk
+
  };
 
 }
@@ -1825,32 +2346,68 @@ function calculateRCHTotals(rows){
    RCH SUMMARY
 ===================================================== */
 
-function updateRCHSummary(parsed){
+function updateRCHSummary(
+ parsed
+){
 
- const sectorRows=
-  buildSectorData(parsed);
+ const sectorRows =
+  buildSectorData(
+   parsed
+  );
 
- const total=
-  calculateRCHTotals(sectorRows);
+
+ const total =
+  calculateRCHTotals(
+   sectorRows
+  );
 
 
- document.getElementById("rchCardHMIS").innerText=
-  total.hmis || "-";
+ document
+  .getElementById(
+   "rchCardHMIS"
+  )
+  .innerText =
+   total.hmis || "-";
 
- document.getElementById("rchCardRCH").innerText=
-  total.rch || "-";
 
- document.getElementById("rchCardPercent").innerText=
-  total.percent+"%";
+ document
+  .getElementById(
+   "rchCardRCH"
+  )
+  .innerText =
+   total.rch || "-";
 
- document.getElementById("rchCardTemp").innerText=
-  total.temp || "-";
 
- document.getElementById("rchCardBacklog").innerText=
-  total.backlog || "-";
+ document
+  .getElementById(
+   "rchCardPercent"
+  )
+  .innerText =
+   total.percent+"%";
 
- document.getElementById("rchCardHighRisk").innerText=
-  total.highRisk || "-";
+
+ document
+  .getElementById(
+   "rchCardTemp"
+  )
+  .innerText =
+   total.temp || "-";
+
+
+ document
+  .getElementById(
+   "rchCardBacklog"
+  )
+  .innerText =
+   total.backlog || "-";
+
+
+ document
+  .getElementById(
+   "rchCardHighRisk"
+  )
+  .innerText =
+   total.highRisk || "-";
 
 }
 
@@ -1859,127 +2416,203 @@ function updateRCHSummary(parsed){
    RCH SECTOR TABLE
 ===================================================== */
 
-function buildRCHSectorTable(parsed){
+function buildRCHSectorTable(
+ parsed
+){
 
- const table=document.createElement("table");
+ const table =
+  document.createElement(
+   "table"
+  );
 
- table.className=
+
+ table.className =
   "rch-table rch-sector-table";
 
 
- const thead=document.createElement("thead");
+ const thead =
+  document.createElement(
+   "thead"
+  );
 
- const tr=document.createElement("tr");
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
 
 
  [
+
   "Sn",
   "Sector",
   "Health Facility",
   "HMIS PW Registration",
   "RCH 2.0 PW Registration",
   "%",
-  "Tem. Registration",
+  "Temporary Registration",
   "Backlog",
   "High Risk"
- ].forEach(text=>{
 
-  const th=document.createElement("th");
+ ].forEach(
+  text=>{
 
-  th.innerText=text;
+   const th =
+    document.createElement(
+     "th"
+    );
 
-  tr.appendChild(th);
+   th.innerText =
+    text;
 
- });
+   tr.appendChild(th);
+
+  }
+ );
 
 
  thead.appendChild(tr);
+
  table.appendChild(thead);
 
 
- const tbody=document.createElement("tbody");
-
-
- const sectorData=
-  buildSectorData(parsed);
-
-
- sectorData.forEach((row,index)=>{
-
-  const tr=document.createElement("tr");
-
-
-  tr.appendChild(
-   makeRCHCell(index+1)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.sector)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.facility)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.hmis)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.rch)
-  );
-
-  tr.appendChild(
-   makeRCHCell(
-    row.percent+"%",
-    true
-   )
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.temp)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.backlog)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.highRisk)
+ const tbody =
+  document.createElement(
+   "tbody"
   );
 
 
-  tbody.appendChild(tr);
-
- });
-
-
- const total=
-  calculateRCHTotals(sectorData);
+ const sectorData =
+  buildSectorData(
+   parsed
+  );
 
 
- const totalTr=document.createElement("tr");
+ sectorData.forEach(
+  (row,index)=>{
 
- totalTr.className="rch-total-row";
+   const tr =
+    document.createElement(
+     "tr"
+    );
 
 
- totalTr.appendChild(makeRCHCell(""));
+   tr.appendChild(
+    makeRCHCell(
+     index+1
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.sector
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.facility
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.hmis
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.rch
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.percent+"%",
+     true
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.temp
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.backlog
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.highRisk
+    )
+   );
+
+
+   tbody.appendChild(tr);
+
+  }
+ );
+
+
+ const total =
+  calculateRCHTotals(
+   sectorData
+  );
+
+
+ const totalTr =
+  document.createElement(
+   "tr"
+  );
+
+
+ totalTr.className =
+  "rch-total-row";
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
 
  totalTr.appendChild(
   makeRCHCell("Total")
  );
 
- totalTr.appendChild(
-  makeRCHCell(total.facility)
- );
 
  totalTr.appendChild(
-  makeRCHCell(total.hmis)
+  makeRCHCell(
+   total.facility
+  )
  );
 
+
  totalTr.appendChild(
-  makeRCHCell(total.rch)
+  makeRCHCell(
+   total.hmis
+  )
  );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.rch
+  )
+ );
+
 
  totalTr.appendChild(
   makeRCHCell(
@@ -1988,22 +2621,36 @@ function buildRCHSectorTable(parsed){
   )
  );
 
- totalTr.appendChild(
-  makeRCHCell(total.temp)
- );
 
  totalTr.appendChild(
-  makeRCHCell(total.backlog)
- );
-
- totalTr.appendChild(
-  makeRCHCell(total.highRisk)
+  makeRCHCell(
+   total.temp
+  )
  );
 
 
- tbody.appendChild(totalTr);
+ totalTr.appendChild(
+  makeRCHCell(
+   total.backlog
+  )
+ );
 
- table.appendChild(tbody);
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.highRisk
+  )
+ );
+
+
+ tbody.appendChild(
+  totalTr
+ );
+
+
+ table.appendChild(
+  tbody
+ );
 
 
  return table;
@@ -2015,150 +2662,229 @@ function buildRCHSectorTable(parsed){
    RCH FACILITY TABLE
 ===================================================== */
 
-function buildRCHFacilityTable(parsed){
+function buildRCHFacilityTable(
+ parsed
+){
 
- const table=document.createElement("table");
+ const table =
+  document.createElement(
+   "table"
+  );
 
- table.className=
+
+ table.className =
   "rch-table rch-facility-table";
 
 
- const thead=document.createElement("thead");
+ const thead =
+  document.createElement(
+   "thead"
+  );
 
- const tr=document.createElement("tr");
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
 
 
  [
+
   "Sn",
+  "Facility",
   "Sector",
   "HFR ID",
-  "Health Facility",
-  "Health Facility Type",
-  "HMIS PW Registration",
-  "RCH 2.0 PW Registration",
+  "Type",
+  "HMIS PW",
+  "RCH 2.0 PW",
   "%",
-  "Tem. Registration",
+  "Temporary",
   "Backlog",
   "High Risk"
- ].forEach(text=>{
 
-  const th=document.createElement("th");
+ ].forEach(
+  text=>{
 
-  th.innerText=text;
+   const th =
+    document.createElement(
+     "th"
+    );
 
-  tr.appendChild(th);
+   th.innerText =
+    text;
 
- });
+   tr.appendChild(th);
+
+  }
+ );
 
 
  thead.appendChild(tr);
+
  table.appendChild(thead);
 
 
- const tbody=document.createElement("tbody");
-
-
- parsed.facilityRows.forEach((row,index)=>{
-
-  const tr=document.createElement("tr");
-
-
-  tr.appendChild(
-   makeRCHCell(index+1)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.sector)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.hfr)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.facility)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.type)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.hmis)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.rch)
+ const tbody =
+  document.createElement(
+   "tbody"
   );
 
 
-  const calculatedPercent=
-   row.hmis>0
-    ?Math.round(
-     row.rch/row.hmis*100
-    )
-    :0;
+ parsed.facilityRows
+  .forEach(
+   (row,index)=>{
+
+    const tr =
+     document.createElement(
+      "tr"
+     );
 
 
-  tr.appendChild(
-   makeRCHCell(
-    calculatedPercent+"%",
-    true
-   )
+    tr.appendChild(
+     makeRCHCell(
+      index+1
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.facility
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.sector
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.hfr
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.type
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.hmis
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.rch
+     )
+    );
+
+
+    const calculatedPercent =
+     row.hmis>0
+      ?Math.round(
+       (row.rch/row.hmis)*100
+      )
+      :0;
+
+
+    tr.appendChild(
+     makeRCHCell(
+      calculatedPercent+"%",
+      true
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.temp
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.backlog
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.highRisk
+     )
+    );
+
+
+    tbody.appendChild(tr);
+
+   }
   );
 
-  tr.appendChild(
-   makeRCHCell(row.temp)
-  );
 
-  tr.appendChild(
-   makeRCHCell(row.backlog)
-  );
-
-  tr.appendChild(
-   makeRCHCell(row.highRisk)
-  );
-
-
-  tbody.appendChild(tr);
-
- });
-
-
- /*
-   Total
- */
+ /* FACILITY TOTAL */
 
  let hmis=0;
+
  let rch=0;
+
  let temp=0;
+
  let backlog=0;
+
  let highRisk=0;
 
 
- parsed.facilityRows.forEach(row=>{
+ parsed.facilityRows
+  .forEach(
+   row=>{
 
-  hmis+=row.hmis;
-  rch+=row.rch;
-  temp+=row.temp;
-  backlog+=row.backlog;
-  highRisk+=row.highRisk;
+    hmis += row.hmis;
 
- });
+    rch += row.rch;
+
+    temp += row.temp;
+
+    backlog += row.backlog;
+
+    highRisk += row.highRisk;
+
+   }
+  );
 
 
- const percent=
+ const percent =
   hmis>0
-   ?Math.round(rch/hmis*100)
+   ?Math.round(
+     (rch/hmis)*100
+    )
    :0;
 
 
- const totalTr=document.createElement("tr");
+ const totalTr =
+  document.createElement(
+   "tr"
+  );
 
- totalTr.className="rch-total-row";
+
+ totalTr.className =
+  "rch-total-row";
 
 
- totalTr.appendChild(makeRCHCell(""));
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
 
  totalTr.appendChild(
   makeRCHCell(
@@ -2168,19 +2894,35 @@ function buildRCHFacilityTable(parsed){
   )
  );
 
- totalTr.appendChild(makeRCHCell(""));
-
- totalTr.appendChild(makeRCHCell(""));
-
- totalTr.appendChild(makeRCHCell(""));
 
  totalTr.appendChild(
-  makeRCHCell(hmis)
+  makeRCHCell("")
  );
 
+
  totalTr.appendChild(
-  makeRCHCell(rch)
+  makeRCHCell("")
  );
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   hmis
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   rch
+  )
+ );
+
 
  totalTr.appendChild(
   makeRCHCell(
@@ -2189,22 +2931,36 @@ function buildRCHFacilityTable(parsed){
   )
  );
 
- totalTr.appendChild(
-  makeRCHCell(temp)
- );
 
  totalTr.appendChild(
-  makeRCHCell(backlog)
- );
-
- totalTr.appendChild(
-  makeRCHCell(highRisk)
+  makeRCHCell(
+   temp
+  )
  );
 
 
- tbody.appendChild(totalTr);
+ totalTr.appendChild(
+  makeRCHCell(
+   backlog
+  )
+ );
 
- table.appendChild(tbody);
+
+ totalTr.appendChild(
+  makeRCHCell(
+   highRisk
+  )
+ );
+
+
+ tbody.appendChild(
+  totalTr
+ );
+
+
+ table.appendChild(
+  tbody
+ );
 
 
  return table;
@@ -2216,476 +2972,755 @@ function buildRCHFacilityTable(parsed){
    RCH RENDER
 ===================================================== */
 
-function renderRCHTable(data){
+function renderRCHTable(
+ data
+){
 
- const parsed=
-  parseRCHData(data);
-
-
- currentRCHData=parsed;
-
-
- updateRCHSummary(parsed);
+ const parsed =
+  parseRCHData(
+   data
+  );
 
 
- document
-  .querySelector(".table-box")
-  .style.display="none";
+ currentRCHData =
+  parsed;
 
 
- const container=
-  document.getElementById("rchContainer");
-
- container.style.display="block";
-
-
- const sectorPage=
-  document.getElementById("rchSectorPage");
-
- const facilityPage=
-  document.getElementById("rchFacilityPage");
-
-
- sectorPage.innerHTML="";
- facilityPage.innerHTML="";
-
-
- /* =================================================
-    PAGE 1 — SECTOR WISE
- ================================================= */
-
- const sectorTitle=document.createElement("div");
-
- sectorTitle.className="rch-page-title";
-
- sectorTitle.innerText=
-  "RCH 2.0 PW Registration Detail — Sector Wise";
-
-
- const sectorDate=document.createElement("div");
-
- sectorDate.className="rch-page-date";
-
- sectorDate.innerText=
-  "RCH 2.0 PW Registration Detail FY 2026-27 as on Date "
-  +parsed.asOnDate;
-
-
- sectorPage.appendChild(sectorTitle);
-
- sectorPage.appendChild(sectorDate);
-
- sectorPage.appendChild(
-  buildRCHSectorTable(parsed)
+ updateRCHSummary(
+  parsed
  );
 
 
- /* =================================================
-    PAGE 2 — FACILITY WISE
- ================================================= */
-
- const facilityTitle=document.createElement("div");
-
- facilityTitle.className="rch-page-title";
-
- facilityTitle.innerText=
-  "RCH 2.0 PW Registration Detail — Facility Wise";
+ document
+  .querySelector(
+   ".table-box"
+  )
+  .style.display="none";
 
 
- const facilityDate=document.createElement("div");
-
- facilityDate.className="rch-page-date";
-
- facilityDate.innerText=
-  "RCH 2.0 PW Registration Detail FY 2026-27 as on Date "
-  +parsed.asOnDate;
+ const container =
+  document.getElementById(
+   "rchContainer"
+  );
 
 
- facilityPage.appendChild(facilityTitle);
+ container.style.display =
+  "block";
 
- facilityPage.appendChild(facilityDate);
+
+ const sectorPage =
+  document.getElementById(
+   "rchSectorPage"
+  );
+
+
+ const facilityPage =
+  document.getElementById(
+   "rchFacilityPage"
+  );
+
+
+ sectorPage.innerHTML="";
+
+ facilityPage.innerHTML="";
+
+
+ /* PAGE 1 - SECTOR WISE */
+
+ const sectorTitle =
+  document.createElement(
+   "div"
+  );
+
+
+ sectorTitle.className =
+  "rch-page-title";
+
+
+ sectorTitle.innerText =
+  "RCH 2.0 — Sector Wise";
+
+
+ const sectorDate =
+  document.createElement(
+   "div"
+  );
+
+
+ sectorDate.className =
+  "rch-page-date";
+
+
+ sectorDate.innerText =
+  "RCH 2.0 PW Registration Detail FY 2026-27 | As On Date : "+
+  parsed.asOnDate;
+
+
+ sectorPage.appendChild(
+  sectorTitle
+ );
+
+
+ sectorPage.appendChild(
+  sectorDate
+ );
+
+
+ sectorPage.appendChild(
+  buildRCHSectorTable(
+   parsed
+  )
+ );
+
+
+ /* PAGE 2 - FACILITY WISE */
+
+ const facilityTitle =
+  document.createElement(
+   "div"
+  );
+
+
+ facilityTitle.className =
+  "rch-page-title";
+
+
+ facilityTitle.innerText =
+  "RCH 2.0 — Facility Wise";
+
+
+ const facilityDate =
+  document.createElement(
+   "div"
+  );
+
+
+ facilityDate.className =
+  "rch-page-date";
+
+
+ facilityDate.innerText =
+  "RCH 2.0 PW Registration Detail FY 2026-27 | As On Date : "+
+  parsed.asOnDate;
+
 
  facilityPage.appendChild(
-  buildRCHFacilityTable(parsed)
+  facilityTitle
+ );
+
+
+ facilityPage.appendChild(
+  facilityDate
+ );
+
+
+ facilityPage.appendChild(
+  buildRCHFacilityTable(
+   parsed
+  )
  );
 
 }
 
 
 /* =====================================================
-   AYUSHMAN CARD
-   EXACT USER LAYOUT
+   AYUSHMAN DATA PARSER
 ===================================================== */
 
-function renderAyushmanTable(data){
+function parseAyushmanData(data){
 
- clearTable();
+ const rows=[];
 
 
- const container=
-  document.getElementById(
-   "ayushmanContainer"
+ for(
+  let r=0;
+  r<data.getNumberOfRows();
+  r++
+ ){
+
+  rows.push(
+   getSheetRow(
+    data,
+    r
+   )
   );
 
- container.innerHTML="";
+ }
 
 
- const wrapper=
-  document.createElement("div");
-
- wrapper.className="ayushman-wrapper";
-
-
- const table=
-  document.createElement("table");
-
- table.className="ayushman-table";
-
-
- /* =================================================
-    COLUMN WIDTH
- ================================================= */
-
- const colgroup=
-  document.createElement("colgroup");
-
-
- const widths=[
-  "8%",
-  "13%",
-  "13%",
-  "13%",
-  "13%",
-  "13%",
-  "13%",
-  "8%"
- ];
-
-
- widths.forEach(width=>{
-
-  const col=document.createElement("col");
-
-  col.style.width=width;
-
-  colgroup.appendChild(col);
-
- });
-
-
- table.appendChild(colgroup);
-
-
- /* =================================================
-    TITLE
- ================================================= */
-
- const titleRow=
-  document.createElement("tr");
-
- titleRow.className=
-  "ayushman-title";
-
-
- const titleCell=
-  document.createElement("td");
-
- titleCell.colSpan=8;
-
- titleCell.innerText=
+ let ayushmanTitle =
   "आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में";
 
 
- titleRow.appendChild(titleCell);
-
- table.appendChild(titleRow);
-
-
- /* blank */
-
- const blank1=
-  document.createElement("tr");
-
- blank1.className=
-  "ayushman-blank";
-
- blank1.innerHTML="<td colspan='8'></td>";
-
- table.appendChild(blank1);
-
-
- /* =================================================
-    HEADER
- ================================================= */
-
- const header1=
-  document.createElement("tr");
-
- header1.className=
-  "ayushman-header";
-
-
- [
-  "क्र",
-  "लक्ष्य",
-  "",
-  "",
-  "उपलब्धि",
-  "",
-  "",
-  "प्रतिशत"
- ].forEach(text=>{
-
-  const td=document.createElement("td");
-
-  td.innerText=text;
-
-  header1.appendChild(td);
-
- });
-
-
- table.appendChild(header1);
-
-
- const header2=
-  document.createElement("tr");
-
- header2.className=
-  "ayushman-subheader";
-
-
- [
-  "",
-  "ग्रामीण",
-  "अर्बन",
-  "योग",
-  "ग्रामीण",
-  "अर्बन",
-  "योग",
-  ""
- ].forEach(text=>{
-
-  const td=document.createElement("td");
-
-  td.innerText=text;
-
-  header2.appendChild(td);
-
- });
-
-
- table.appendChild(header2);
-
-
- /* =================================================
-    DATA
- ================================================= */
-
- const ayushmanRow=
-  document.createElement("tr");
-
- ayushmanRow.className=
-  "ayushman-data";
-
-
- const ayushmanValues=[
-  "1",
-  "134488",
-  "17572",
-  "152060",
-  "126274",
-  "16271",
-  "142545",
-  "93.7"
- ];
-
-
- ayushmanValues.forEach((value,index)=>{
-
-  const td=
-   document.createElement("td");
-
-  td.innerText=value;
-
-  if(index===7){
-   td.classList.add("ayushman-percent");
-
-   const n=parseFloat(value);
-
-   if(n>=100){
-    td.classList.add("ayushman-good");
-   }
-   else if(n>=80){
-    td.classList.add("ayushman-warning");
-   }
-   else{
-    td.classList.add("ayushman-bad");
-   }
-  }
-
-  ayushmanRow.appendChild(td);
-
- });
-
-
- table.appendChild(ayushmanRow);
-
-
- /* =================================================
-    BLANK
- ================================================= */
-
- const blank2=
-  document.createElement("tr");
-
- blank2.className=
-  "ayushman-blank";
-
- blank2.innerHTML="<td colspan='8'></td>";
-
- table.appendChild(blank2);
-
-
- /* =================================================
-    VAY VANDAN TITLE
- ================================================= */
-
- const vayTitle=
-  document.createElement("tr");
-
- vayTitle.className=
-  "ayushman-subtitle";
-
-
- const vayTitleCell=
-  document.createElement("td");
-
- vayTitleCell.colSpan=8;
-
- vayTitleCell.innerText=
+ let vayTitle =
   "वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में";
 
 
- vayTitle.appendChild(vayTitleCell);
+ let ayushmanData=null;
 
- table.appendChild(vayTitle);
+ let vayData=null;
+
+ let section="";
 
 
- /* =================================================
-    VAY HEADER
- ================================================= */
+ rows.forEach(
+  row=>{
 
- const vayHeader1=
-  document.createElement("tr");
+   const text =
+    row.join(" ")
+     .replace(/\s+/g," ")
+     .trim();
 
- vayHeader1.className=
-  "ayushman-header";
+
+   const lower =
+    text.toLowerCase();
+
+
+   /* AYUSHMAN TITLE */
+
+   if(
+    lower.includes(
+     "आयुष्मान कार्ड"
+    )
+   ){
+
+    section="ayushman";
+
+    if(text){
+
+     ayushmanTitle =
+      text;
+
+    }
+
+   }
+
+
+   /* VAY VANDAN TITLE */
+
+   if(
+    lower.includes(
+     "वय वंदन कार्ड"
+    )
+   ){
+
+    section="vay";
+
+    if(text){
+
+     vayTitle =
+      text;
+
+    }
+
+   }
+
+
+   /*
+    DATA ROW
+    First cell numeric
+    Total 8 columns
+   */
+
+   if(
+    isNumberLike(row[0]) &&
+    row.length>=8
+   ){
+
+    const values =
+     row.slice(0,8);
+
+
+    const useful =
+     values.slice(1)
+      .some(
+       v=>
+        String(v||"").trim()!==""
+      );
+
+
+    if(useful){
+
+     if(
+      section==="ayushman" &&
+      !ayushmanData
+     ){
+
+      ayushmanData =
+       values;
+
+     }
+
+
+     else if(
+      section==="vay" &&
+      !vayData
+     ){
+
+      vayData =
+       values;
+
+     }
+
+    }
+
+   }
+
+  }
+ );
+
+
+ /*
+   अगर sheet में data नहीं मिला,
+   तो default values रखेंगे।
+ */
+
+ if(!ayushmanData){
+
+  ayushmanData=[
+   "1",
+   "134488",
+   "17572",
+   "152060",
+   "126274",
+   "16271",
+   "142545",
+   "93.7"
+  ];
+
+ }
+
+
+ if(!vayData){
+
+  vayData=[
+   "1",
+   "3737",
+   "257",
+   "3994",
+   "3740",
+   "257",
+   "3997",
+   "100.1"
+  ];
+
+ }
+
+
+ return {
+
+  ayushmanTitle:
+   ayushmanTitle,
+
+  ayushmanData:
+   ayushmanData,
+
+  vayTitle:
+   vayTitle,
+
+  vayData:
+   vayData
+
+ };
+
+}
+
+
+/* =====================================================
+   AYUSHMAN TITLE
+===================================================== */
+
+function createAyushmanTitle(
+ text,
+ className
+){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.colSpan=8;
+
+ td.className =
+  className;
+
+
+ td.innerText =
+  text;
+
+
+ tr.appendChild(td);
+
+
+ return tr;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN BLANK
+===================================================== */
+
+function createAyushmanBlank(){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.colSpan=8;
+
+ td.className =
+  "ayushman-blank-cell";
+
+
+ td.innerHTML =
+  "&nbsp;";
+
+
+ tr.appendChild(td);
+
+
+ return tr;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN HEADER
+===================================================== */
+
+function createAyushmanHeader(){
+
+ const rows=[];
+
+
+ /* HEADER ROW 1 */
+
+ const tr1 =
+  document.createElement(
+   "tr"
+  );
+
+
+ const sn =
+  document.createElement(
+   "td"
+  );
+
+
+ sn.innerHTML =
+  "<b>क्र</b>";
+
+ sn.rowSpan=2;
+
+ sn.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(sn);
+
+
+ const target =
+  document.createElement(
+   "td"
+  );
+
+
+ target.innerHTML =
+  "<b>लक्ष्य</b>";
+
+ target.colSpan=3;
+
+ target.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(target);
+
+
+ const achievement =
+  document.createElement(
+   "td"
+  );
+
+
+ achievement.innerHTML =
+  "<b>उपलब्धि</b>";
+
+ achievement.colSpan=3;
+
+ achievement.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(
+  achievement
+ );
+
+
+ const percent =
+  document.createElement(
+   "td"
+  );
+
+
+ percent.innerHTML =
+  "<b>प्रतिशत</b>";
+
+ percent.rowSpan=2;
+
+ percent.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(
+  percent
+ );
+
+
+ rows.push(tr1);
+
+
+ /* HEADER ROW 2 */
+
+ const tr2 =
+  document.createElement(
+   "tr"
+  );
 
 
  [
-  "क्र",
-  "लक्ष्य",
-  "",
-  "",
-  "उपलब्धि",
-  "",
-  "",
-  "प्रतिशत"
- ].forEach(text=>{
 
-  const td=document.createElement("td");
-
-  td.innerText=text;
-
-  vayHeader1.appendChild(td);
-
- });
-
-
- table.appendChild(vayHeader1);
-
-
- const vayHeader2=
-  document.createElement("tr");
-
- vayHeader2.className=
-  "ayushman-subheader";
-
-
- [
-  "",
   "ग्रामीण",
   "अर्बन",
   "योग",
   "ग्रामीण",
   "अर्बन",
-  "योग",
-  ""
- ].forEach(text=>{
+  "योग"
 
-  const td=document.createElement("td");
+ ].forEach(
+  text=>{
 
-  td.innerText=text;
-
-  vayHeader2.appendChild(td);
-
- });
+   const td =
+    document.createElement(
+     "td"
+    );
 
 
- table.appendChild(vayHeader2);
+   td.innerHTML =
+    "<b>"+
+    text+
+    "</b>";
 
 
- /* =================================================
-    VAY DATA
- ================================================= */
-
- const vayRow=
-  document.createElement("tr");
-
- vayRow.className=
-  "ayushman-data";
+   td.className =
+    "ayushman-sub-header";
 
 
- const vayValues=[
-  "1",
-  "3737",
-  "257",
-  "3994",
-  "3740",
-  "257",
-  "3997",
-  "100.1"
- ];
+   tr2.appendChild(td);
+
+  }
+ );
 
 
- vayValues.forEach((value,index)=>{
+ rows.push(tr2);
 
-  const td=
-   document.createElement("td");
 
-  td.innerText=value;
+ return rows;
 
-  if(index===7){
+}
+
+
+/* =====================================================
+   AYUSHMAN DATA ROW
+===================================================== */
+
+function createAyushmanDataRow(
+ values
+){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let i=0;
+  i<8;
+  i++
+ ){
+
+  const td =
+   document.createElement(
+    "td"
+   );
+
+
+  td.innerText =
+   values[i]!==undefined
+    ?values[i]
+    :"";
+
+
+  td.className =
+   "ayushman-data-cell";
+
+
+  if(i===7){
 
    td.classList.add(
-    "ayushman-percent",
-    "ayushman-good"
+    "ayushman-percent"
    );
 
   }
 
-  vayRow.appendChild(td);
 
- });
+  tr.appendChild(td);
 
-
- table.appendChild(vayRow);
+ }
 
 
- wrapper.appendChild(table);
+ return tr;
 
- container.appendChild(wrapper);
+}
+
+
+/* =====================================================
+   AYUSHMAN CARD
+===================================================== */
+
+function renderAyushmanTable(
+ data
+){
+
+ clearTable();
+
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ table.className =
+  "ayushman-table";
+
+
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
+
+
+ tbody.innerHTML="";
+
+
+ /*
+   Google Sheet से data पढ़ेंगे
+ */
+
+ const parsed =
+  parseAyushmanData(
+   data
+  );
+
+
+ /*
+   =====================================================
+   AYUSHMAN CARD SECTION
+   =====================================================
+ */
+
+ tbody.appendChild(
+  createAyushmanTitle(
+   parsed.ayushmanTitle,
+   "ayushman-title-cell"
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ const ayushmanHeaders =
+  createAyushmanHeader();
+
+
+ ayushmanHeaders.forEach(
+  row=>{
+   tbody.appendChild(row);
+  }
+ );
+
+
+ tbody.appendChild(
+  createAyushmanDataRow(
+   parsed.ayushmanData
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ /*
+   =====================================================
+   VAY VANDAN SECTION
+   =====================================================
+ */
+
+ tbody.appendChild(
+  createAyushmanTitle(
+   parsed.vayTitle,
+   "ayushman-vay-title-cell"
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ const vayHeaders =
+  createAyushmanHeader();
+
+
+ vayHeaders.forEach(
+  row=>{
+
+   tbody.appendChild(row);
+
+  }
+ );
+
+
+ tbody.appendChild(
+  createAyushmanDataRow(
+   parsed.vayData
+  )
+ );
 
 }
 
@@ -2694,76 +3729,123 @@ function renderAyushmanTable(data){
    NORMAL TABLE
 ===================================================== */
 
-function renderNormalTable(data){
+function renderNormalTable(
+ data
+){
 
  clearTable();
 
 
- const table=
-  document.getElementById("reportTable");
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
 
  table.className="";
 
 
- const cols=
+ const cols =
   data.getNumberOfColumns();
 
- const rows=
+
+ const rows =
   data.getNumberOfRows();
 
 
- const thead=
-  table.querySelector("thead");
-
- const tbody=
-  table.querySelector("tbody");
-
-
- const headerRow=
-  document.createElement("tr");
+ const thead =
+  table.querySelector(
+   "thead"
+  );
 
 
- for(let c=0;c<cols;c++){
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
 
-  const th=
-   document.createElement("th");
 
-  th.innerText=
+ const headerRow =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let c=0;
+  c<cols;
+  c++
+ ){
+
+  const th =
+   document.createElement(
+    "th"
+   );
+
+
+  th.innerText =
    data.getColumnLabel(c)
    ||
-   "Column "+(c+1);
+   "Column "+(
+    c+1
+   );
+
 
   headerRow.appendChild(th);
 
  }
 
 
- thead.appendChild(headerRow);
+ thead.appendChild(
+  headerRow
+ );
 
 
- for(let r=0;r<rows;r++){
+ for(
+  let r=0;
+  r<rows;
+  r++
+ ){
 
-  const tr=
-   document.createElement("tr");
+  const tr =
+   document.createElement(
+    "tr"
+   );
 
 
-  for(let c=0;c<cols;c++){
+  for(
+   let c=0;
+   c<cols;
+   c++
+  ){
 
-   const td=
-    document.createElement("td");
+   const td =
+    document.createElement(
+     "td"
+    );
 
-   td.innerText=
-    formatted(data,r,c);
+
+   td.innerText =
+    formatted(
+     data,
+     r,
+     c
+    );
+
 
    tr.appendChild(td);
 
   }
 
 
-  const first=
-   formatted(data,r,0)
-    .toLowerCase()
-    .trim();
+  const first =
+   formatted(
+    data,
+    r,
+    0
+   )
+   .toLowerCase()
+   .trim();
 
 
   if(
@@ -2772,7 +3854,9 @@ function renderNormalTable(data){
    first==="कुल"
   ){
 
-   tr.classList.add("total-row");
+   tr.classList.add(
+    "total-row"
+   );
 
   }
 
@@ -2788,69 +3872,114 @@ function renderNormalTable(data){
    NCD
 ===================================================== */
 
-function renderNCDTable(data){
+function renderNCDTable(
+ data
+){
 
  clearTable();
 
 
- const table=
-  document.getElementById("reportTable");
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
 
- table.className="ncd-table";
+
+ table.className =
+  "ncd-table";
 
 
- const cols=
+ const cols =
   data.getNumberOfColumns();
 
- const rows=
+
+ const rows =
   data.getNumberOfRows();
 
 
- const thead=
-  table.querySelector("thead");
-
- const tbody=
-  table.querySelector("tbody");
-
-
- const header=
-  document.createElement("tr");
+ const thead =
+  table.querySelector(
+   "thead"
+  );
 
 
- for(let c=0;c<cols;c++){
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
 
-  const th=
-   document.createElement("th");
 
-  th.innerText=
+ const header =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let c=0;
+  c<cols;
+  c++
+ ){
+
+  const th =
+   document.createElement(
+    "th"
+   );
+
+
+  th.innerText =
    data.getColumnLabel(c)
    ||
-   "Column "+(c+1);
+   "Column "+(
+    c+1
+   );
+
 
   header.appendChild(th);
 
  }
 
 
- thead.appendChild(header);
+ thead.appendChild(
+  header
+ );
 
 
- for(let r=0;r<rows;r++){
+ for(
+  let r=0;
+  r<rows;
+  r++
+ ){
 
-  const tr=
-   document.createElement("tr");
+  const tr =
+   document.createElement(
+    "tr"
+   );
 
-  tr.className=
+
+  tr.className =
    "ncd-data-row";
 
 
-  for(let c=0;c<cols;c++){
+  for(
+   let c=0;
+   c<cols;
+   c++
+  ){
 
-   const td=
-    document.createElement("td");
+   const td =
+    document.createElement(
+     "td"
+    );
 
-   td.innerText=
-    formatted(data,r,c);
+
+   td.innerText =
+    formatted(
+     data,
+     r,
+     c
+    );
+
 
    tr.appendChild(td);
 
@@ -2870,16 +3999,28 @@ function renderNCDTable(data){
 
 function clearTable(){
 
- const table=
-  document.getElementById("reportTable");
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
 
 
  table.className="";
 
 
- table.querySelector("colgroup").innerHTML="";
- table.querySelector("thead").innerHTML="";
- table.querySelector("tbody").innerHTML="";
+ table.querySelector(
+  "colgroup"
+ ).innerHTML="";
+
+
+ table.querySelector(
+  "thead"
+ ).innerHTML="";
+
+
+ table.querySelector(
+  "tbody"
+ ).innerHTML="";
 
 }
 
@@ -2890,11 +4031,13 @@ function clearTable(){
 
 function filterTable(){
 
- const search=
-  document.getElementById("searchBox")
-   .value
-   .toLowerCase()
-   .trim();
+ const search =
+  document.getElementById(
+   "searchBox"
+  )
+  .value
+  .toLowerCase()
+  .trim();
 
 
  /*
@@ -2903,23 +4046,28 @@ function filterTable(){
 
  if(
   currentReportIndex!==null &&
-  REPORTS[currentReportIndex].name==="RCH 2.0"
+  REPORTS[
+   currentReportIndex
+  ].name==="RCH 2.0"
  ){
 
   document
    .querySelectorAll(
     "#rchContainer tbody tr"
    )
-   .forEach(row=>{
+   .forEach(
+    row=>{
 
-    row.style.display=
-     row.innerText
-      .toLowerCase()
-      .includes(search)
+     row.style.display =
+      row.innerText
+       .toLowerCase()
+       .includes(search)
        ?""
        :"none";
 
-   });
+    }
+   );
+
 
   return;
 
@@ -2927,48 +4075,25 @@ function filterTable(){
 
 
  /*
-   Ayushman
+   Other reports
  */
-
- if(
-  currentReportIndex!==null &&
-  REPORTS[currentReportIndex].name==="Ayushman Card"
- ){
-
-  document
-   .querySelectorAll(
-    "#ayushmanContainer tr"
-   )
-   .forEach(row=>{
-
-    row.style.display=
-     row.innerText
-      .toLowerCase()
-      .includes(search)
-       ?""
-       :"none";
-
-   });
-
-  return;
-
- }
-
 
  document
   .querySelectorAll(
    "#reportTable tbody tr"
   )
-  .forEach(row=>{
+  .forEach(
+   row=>{
 
-   row.style.display=
-    row.innerText
-     .toLowerCase()
-     .includes(search)
+    row.style.display =
+     row.innerText
+      .toLowerCase()
+      .includes(search)
       ?""
       :"none";
 
-  });
+   }
+  );
 
 }
 
@@ -2979,17 +4104,23 @@ function filterTable(){
 
 function downloadExcel(){
 
- if(currentReportIndex===null){
+ if(
+  currentReportIndex===null
+ ){
+
   return;
+
  }
 
 
- const report=
-  REPORTS[currentReportIndex];
+ const report =
+  REPORTS[
+   currentReportIndex
+  ];
 
 
  /* =================================================
-    RCH
+    RCH EXCEL
  ================================================= */
 
  if(
@@ -2997,13 +4128,13 @@ function downloadExcel(){
   currentRCHData
  ){
 
-  const sectorRows=
+  const sectorRows =
    buildSectorData(
     currentRCHData
    );
 
 
-  const total=
+  const total =
    calculateRCHTotals(
     sectorRows
    );
@@ -3018,7 +4149,7 @@ function downloadExcel(){
     "HMIS PW Registration",
     "RCH 2.0 PW Registration",
     "%",
-    "Tem. Registration",
+    "Temporary Registration",
     "Backlog",
     "High Risk"
    ]
@@ -3026,35 +4157,53 @@ function downloadExcel(){
   ];
 
 
-  sectorRows.forEach((row,index)=>{
+  sectorRows.forEach(
+   (row,index)=>{
 
-   sectorSheet.push([
+    sectorSheet.push([
 
-    index+1,
-    row.sector,
-    row.facility,
-    row.hmis,
-    row.rch,
-    row.percent+"%",
-    row.temp,
-    row.backlog,
-    row.highRisk
+     index+1,
 
-   ]);
+     row.sector,
 
-  });
+     row.facility,
+
+     row.hmis,
+
+     row.rch,
+
+     row.percent+"%",
+
+     row.temp,
+
+     row.backlog,
+
+     row.highRisk
+
+    ]);
+
+   }
+  );
 
 
   sectorSheet.push([
 
    "",
+
    "Total",
+
    total.facility,
+
    total.hmis,
+
    total.rch,
+
    total.percent+"%",
+
    total.temp,
+
    total.backlog,
+
    total.highRisk
 
   ]);
@@ -3064,14 +4213,14 @@ function downloadExcel(){
 
    [
     "Sn",
+    "Facility",
     "Sector",
     "HFR ID",
-    "Health Facility",
-    "Health Facility Type",
-    "HMIS PW Registration",
-    "RCH 2.0 PW Registration",
+    "Type",
+    "HMIS PW",
+    "RCH 2.0 PW",
     "%",
-    "Tem. Registration",
+    "Temporary",
     "Backlog",
     "High Risk"
    ]
@@ -3080,68 +4229,124 @@ function downloadExcel(){
 
 
   currentRCHData.facilityRows
-   .forEach((row,index)=>{
+   .forEach(
+    (row,index)=>{
 
-    const percent=
-     row.hmis>0
-      ?Math.round(
-       row.rch/row.hmis*100
-      )
-      :0;
+     const percent =
+      row.hmis>0
+       ?Math.round(
+        row.rch/
+        row.hmis*
+        100
+       )
+       :0;
 
 
-    facilitySheet.push([
+     facilitySheet.push([
 
-     index+1,
-     row.sector,
-     row.hfr,
-     row.facility,
-     row.type,
-     row.hmis,
-     row.rch,
-     percent+"%",
-     row.temp,
-     row.backlog,
-     row.highRisk
+      index+1,
 
-    ]);
+      row.facility,
 
-   });
+      row.sector,
+
+      row.hfr,
+
+      row.type,
+
+      row.hmis,
+
+      row.rch,
+
+      percent+"%",
+
+      row.temp,
+
+      row.backlog,
+
+      row.highRisk
+
+     ]);
+
+    }
+   );
 
 
   facilitySheet.push([
 
    "",
+
    "Total ("+
    currentRCHData.facilityRows.length+
    " Facilities)",
+
    "",
+
    "",
+
    "",
+
    total.hmis,
+
    total.rch,
+
    total.percent+"%",
+
    total.temp,
+
    total.backlog,
+
    total.highRisk
 
   ]);
 
 
-  const wb=
+  const wb =
    XLSX.utils.book_new();
 
 
-  const ws1=
+  const ws1 =
    XLSX.utils.aoa_to_sheet(
     sectorSheet
    );
 
 
-  const ws2=
+  const ws2 =
    XLSX.utils.aoa_to_sheet(
     facilitySheet
    );
+
+
+  ws1["!cols"]=[
+
+   {wch:6},
+   {wch:18},
+   {wch:16},
+   {wch:20},
+   {wch:22},
+   {wch:10},
+   {wch:20},
+   {wch:12},
+   {wch:12}
+
+  ];
+
+
+  ws2["!cols"]=[
+
+   {wch:6},
+   {wch:25},
+   {wch:18},
+   {wch:16},
+   {wch:16},
+   {wch:12},
+   {wch:14},
+   {wch:10},
+   {wch:12},
+   {wch:12},
+   {wch:12}
+
+  ];
 
 
   XLSX.utils.book_append_sheet(
@@ -3170,118 +4375,29 @@ function downloadExcel(){
 
 
  /* =================================================
-    AYUSHMAN
+    OTHER REPORTS
  ================================================= */
 
- if(report.name==="Ayushman Card"){
-
-  const rows=[
-
-   [
-    "आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में"
-   ],
-
-   [
-    "क्र",
-    "लक्ष्य ग्रामीण",
-    "लक्ष्य अर्बन",
-    "लक्ष्य योग",
-    "उपलब्धि ग्रामीण",
-    "उपलब्धि अर्बन",
-    "उपलब्धि योग",
-    "प्रतिशत"
-   ],
-
-   [
-    1,
-    134488,
-    17572,
-    152060,
-    126274,
-    16271,
-    142545,
-    93.7
-   ],
-
-   [],
-
-   [
-    "वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में"
-   ],
-
-   [
-    "क्र",
-    "लक्ष्य ग्रामीण",
-    "लक्ष्य अर्बन",
-    "लक्ष्य योग",
-    "उपलब्धि ग्रामीण",
-    "उपलब्धि अर्बन",
-    "उपलब्धि योग",
-    "प्रतिशत"
-   ],
-
-   [
-    1,
-    3737,
-    257,
-    3994,
-    3740,
-    257,
-    3997,
-    100.1
-   ]
-
-  ];
-
-
-  const ws=
-   XLSX.utils.aoa_to_sheet(rows);
-
-
-  const wb=
-   XLSX.utils.book_new();
-
-
-  XLSX.utils.book_append_sheet(
-   wb,
-   ws,
-   "Ayushman"
-  );
-
-
-  XLSX.writeFile(
-   wb,
-   "Ayushman_Card_Kharsia.xlsx"
-  );
-
-
-  return;
-
- }
-
-
- /* =================================================
-    OTHER
- ================================================= */
-
- const table=
+ const table =
   document.getElementById(
    "reportTable"
   );
 
 
- const wb=
+ const wb =
   XLSX.utils.table_to_book(
    table,
-   {sheet:"Report"}
+   {
+    sheet:"Report"
+   }
   );
 
 
  XLSX.writeFile(
   wb,
   report.name
-   .replace(/\s+/g,"_")
-   +"_Kharsia.xlsx"
+   .replace(/\s+/g,"_")+
+   "_Kharsia.xlsx"
  );
 
 }
@@ -3293,33 +4409,44 @@ function downloadExcel(){
 
 function downloadPDF(){
 
- if(currentReportIndex===null){
+ if(
+  currentReportIndex===null
+ ){
+
   return;
+
  }
 
 
- const report=
-  REPORTS[currentReportIndex];
+ const report =
+  REPORTS[
+   currentReportIndex
+  ];
 
 
- const area=
-  document.getElementById("pdfArea");
+ const area =
+  document.getElementById(
+   "pdfArea"
+  );
 
 
- area.classList.add("pdf-mode");
+ area.classList.add(
+  "pdf-mode"
+ );
 
 
- const filename=
+ const filename =
   report.name
-   .replace(/\s+/g,"_")
-   +"_Kharsia.pdf";
+   .replace(/\s+/g,"_")+
+   "_Kharsia.pdf";
 
 
  const options={
 
   margin:5,
 
-  filename:filename,
+  filename:
+   filename,
 
   image:{
    type:"jpeg",
@@ -3351,13 +4478,15 @@ function downloadPDF(){
   .set(options)
   .from(area)
   .save()
-  .then(()=>{
+  .then(
+   ()=>{
 
-   area.classList.remove(
-    "pdf-mode"
-   );
+    area.classList.remove(
+     "pdf-mode"
+    );
 
-  });
+   }
+  );
 
 }
 
@@ -3374,14 +4503,18 @@ function printReport(){
 
 
 /* =====================================================
-   HIDE RCH
+   HIDE RCH SUMMARY
 ===================================================== */
 
 function hideRCHSummary(){
 
  document
-  .getElementById("rchSummaryCards")
-  .classList.remove("show");
+  .getElementById(
+   "rchSummaryCards"
+  )
+  .classList.remove(
+   "show"
+  );
 
 }
 
@@ -3390,15 +4523,24 @@ function hideRCHSummary(){
    STATUS
 ===================================================== */
 
-function setStatus(text,type=""){
+function setStatus(
+ text,
+ type=""
+){
 
- const status=
-  document.getElementById("status");
+ const status =
+  document.getElementById(
+   "status"
+  );
 
- status.className=
-  "status "+type;
 
- status.innerText=text;
+ status.className =
+  "status "+
+  type;
+
+
+ status.innerText =
+  text;
 
 }
 
@@ -3416,6 +4558,7 @@ google.charts.load(
   ]
  }
 );
+
 
 google.charts.setOnLoadCallback(
  function(){
