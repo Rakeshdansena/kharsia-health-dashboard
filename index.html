@@ -3,1478 +3,386 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Kharsia Health Dashboard</title>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans",sans-serif;background:#f3f6fa;color:#1f2937}
+.header{min-height:70px;background:linear-gradient(135deg,#075985,#0f766e);color:#fff;display:flex;align-items:center;padding:14px 25px;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.header h1{margin:0;font-size:24px}.header small{margin-left:15px;opacity:.9}
+.container{display:flex;min-height:calc(100vh - 70px)}
+.sidebar{width:255px;background:#0f2942;padding:15px 12px;overflow-y:auto}
+.sidebar-title{color:#b9d7ec;font-size:13px;padding:8px 12px;text-transform:uppercase;letter-spacing:.5px}
+.menu-btn{width:100%;border:0;background:transparent;color:#e5eef5;padding:11px 13px;margin:3px 0;border-radius:8px;text-align:left;font-size:14px;cursor:pointer;transition:.2s}
+.menu-btn:hover{background:#174d78}.menu-btn.active{background:#0ea5a4;color:#fff}
+.content{flex:1;padding:25px;min-width:0}.page{display:none}.page.active{display:block}
+.welcome,.report-header,.table-box{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.welcome{padding:25px;margin-bottom:20px}.welcome h2,.report-header h2{margin-top:0;color:#075985}.welcome p,.report-header p{color:#64748b}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(0,0,0,.07);cursor:pointer;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 7px 20px rgba(0,0,0,.12)}
+.card-icon{font-size:30px}.card h3{margin:12px 0 5px;font-size:16px}.card p{margin:0;color:#64748b;font-size:13px}
+.report-header{padding:20px;margin-bottom:15px}.report-header h2{margin:0 0 6px}.report-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.search{padding:10px 13px;border:1px solid #cbd5e1;border-radius:8px;min-width:250px;font-size:14px;outline:none}.search:focus{border-color:#0ea5a4}
+.action-btn{border:0;color:#fff;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.back-btn{background:#475569}.refresh-btn{background:#0f766e}.pdf-btn{background:#b91c1c}.print-btn{background:#334155}
+.action-btn:hover{opacity:.88}
+.status{padding:12px 15px;border-radius:9px;background:#e0f2fe;color:#075985;margin-bottom:15px;font-size:14px}
+.status.success{background:#dcfce7;color:#166534}.status.error{background:#fee2e2;color:#991b1b}
+.table-box{padding:12px;overflow:auto}
+#reportTable{border-collapse:collapse;width:100%;min-width:900px;font-size:13px;table-layout:auto}
+#reportTable th{background:#075985;color:#fff;padding:9px 7px;border:1px solid #d1d5db;white-space:normal;position:sticky;top:0;z-index:2;text-align:center;vertical-align:middle}
+#reportTable td{padding:7px;border:1px solid #d1d5db;white-space:nowrap;vertical-align:middle}
+#reportTable tbody tr:nth-child(even){background:#f8fafc}
+#reportTable tbody tr:hover{background:#e0f2fe}
+#reportTable tbody tr.total-row{font-weight:700;background:#dbeafe}
+.report-title-pdf{display:none}
+.footer{text-align:center;color:#64748b;padding:20px;font-size:12px}
 
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:#f3f6fa;
-  color:#222;
-}
+/* NCD: exact 25-column report width ratios from the supplied workbook */
+.ncd-table{table-layout:fixed!important;min-width:0!important;width:100%!important}
+.ncd-table col:nth-child(1){width:9.5%}
+.ncd-table col:nth-child(2){width:5.5%}
+.ncd-table col:nth-child(3){width:7.4%}
+.ncd-table col:nth-child(4){width:4.1%}
+.ncd-table col:nth-child(5){width:6.2%}
+.ncd-table col:nth-child(6){width:6.2%}
+.ncd-table col:nth-child(7){width:6.2%}
+.ncd-table col:nth-child(n+8):nth-child(-n+24){width:5.8%}
+.ncd-table col:nth-child(25){width:3.8%}
+.ncd-table .ncd-main-title{background:#075985;color:#fff;font-size:16px;font-weight:700;height:48px}
+.ncd-table .ncd-group{background:#075985;color:#fff;font-weight:700;font-size:13px}
+.ncd-table .ncd-sub{background:#0f766e;color:#fff;font-weight:700;font-size:12px}
+.ncd-table .ncd-percent{font-weight:700}
+.ncd-table .ncd-pink{background:#f3d1df!important}
+.ncd-table .ncd-cyan{background:#00ffff!important;color:#111}
+.ncd-table .ncd-summary-title{background:#075985;color:#fff;font-size:15px;font-weight:700;height:42px}
+.ncd-table .ncd-summary-head{background:#0f766e;color:#fff;font-weight:700}
+.ncd-table td{text-align:center;white-space:normal;word-break:break-word}
+.ncd-table td:first-child{text-align:left;font-weight:600}
+.ncd-table tr.ncd-data-row:nth-child(even){background:#f8fafc}
 
-.header{
-  background:linear-gradient(135deg,#0d47a1,#1976d2);
-  color:white;
-  padding:18px 20px;
-  text-align:center;
-}
+/* PDF/print */
+.pdf-mode{background:#fff!important;padding:6px!important}
+.pdf-mode .table-box{box-shadow:none;border-radius:0}
+.pdf-mode #reportTable{min-width:0!important;width:100%!important;font-size:7px}
+.pdf-mode #reportTable th{position:static;padding:4px 3px;white-space:normal}
+.pdf-mode #reportTable td{padding:3px 2px;white-space:normal}
+.pdf-mode .report-title-pdf{display:block;text-align:center;font-size:17px;font-weight:700;margin:0 0 8px;color:#075985}
+.pdf-mode .status,.pdf-mode .report-actions,.pdf-mode .footer{display:none}
 
-.header h1{
-  margin:0;
-  font-size:28px;
-}
-
-.header p{
-  margin:7px 0 0;
-  font-size:15px;
-}
-
-.container{
-  width:96%;
-  max-width:1600px;
-  margin:20px auto;
-}
-
-.toolbar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:15px;
-}
-
-button{
-  border:none;
-  padding:10px 16px;
-  border-radius:6px;
-  background:#1976d2;
-  color:white;
-  cursor:pointer;
-  font-size:14px;
-}
-
-button:hover{
-  background:#0d47a1;
-}
-
-.section{
-  background:white;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.10);
-  padding:15px;
-  margin-bottom:25px;
-}
-
-.section-title{
-  background:#0d47a1;
-  color:white;
-  padding:12px 15px;
-  border-radius:7px;
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:5px;
-}
-
-.date-line{
-  text-align:right;
-  font-size:14px;
-  color:#555;
-  margin:8px 2px 12px;
-}
-
-.table-wrap{
-  overflow-x:auto;
-  width:100%;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:1100px;
-  background:white;
-}
-
-th{
-  background:#1976d2;
-  color:white;
-  font-weight:bold;
-  text-align:center;
-  padding:9px 7px;
-  border:1px solid #d0d7de;
-  white-space:nowrap;
-}
-
-td{
-  padding:8px 7px;
-  border:1px solid #d0d7de;
-  text-align:center;
-  white-space:nowrap;
-}
-
-/* Normal alternate rows only */
-tbody tr:nth-child(even){
-  background:#f8fbff;
-}
-
-/* किसी भी row को अलग highlight नहीं किया जाएगा */
-tbody tr.highlight,
-tbody tr.highlight td{
-  background:inherit !important;
-  color:inherit !important;
-  font-weight:normal !important;
-}
-
-/* Sector column */
-td.sector{
-  font-weight:bold;
-  background:#eef5ff !important;
-  color:#0d47a1;
-}
-
-/* TOTAL */
-.total-row td{
-  background:#e3f2fd !important;
-  font-weight:bold;
-  color:#0d47a1;
-}
-
-/* Summary */
-.summary-section{
-  margin-top:30px;
-}
-
-.summary-title{
-  background:#1565c0;
-  color:white;
-  padding:12px 15px;
-  border-radius:7px;
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:5px;
-}
-
-.summary-table th{
-  background:#455a64;
-}
-
-.summary-table td.sector{
-  background:#f1f8ff !important;
-}
-
-.note{
-  margin-top:12px;
-  color:#666;
-  font-size:13px;
-}
-
-.status{
-  margin:10px 0;
-  padding:8px 12px;
-  border-radius:6px;
-  background:#e8f5e9;
-  color:#2e7d32;
-  font-size:13px;
-}
-
-@media(max-width:768px){
-
-  .header h1{
-    font-size:21px;
-  }
-
-  .section-title,
-  .summary-title{
-    font-size:17px;
-  }
-
-  button{
-    font-size:12px;
-    padding:8px 12px;
-  }
+@media(max-width:800px){
+.header{flex-direction:column;align-items:flex-start;gap:4px}.header h1{font-size:19px}.header small{margin-left:0}
+.container{flex-direction:column}.sidebar{width:100%;display:flex;overflow-x:auto;gap:5px;padding:8px}.sidebar-title{display:none}
+.menu-btn{min-width:150px;white-space:nowrap}.content{padding:12px}.search{width:100%;min-width:0}
+.ncd-table{min-width:1050px!important}
 }
 
 @media print{
-
-  body{
-    background:white;
-  }
-
-  .toolbar,
-  .status{
-    display:none;
-  }
-
-  .section{
-    box-shadow:none;
-  }
-
-  tr{
-    page-break-inside:avoid;
-  }
+@page{size:A4 landscape;margin:6mm}
+body{background:#fff}
+.header,.sidebar,.welcome,.report-actions,.status,.footer{display:none!important}
+.container,.content{display:block;padding:0}
+.page{display:none}.page.active{display:block}
+.report-header{box-shadow:none;padding:0;margin:0 0 5px}
+.report-title-pdf{display:block;text-align:center;font-size:16px;font-weight:700}
+.table-box{box-shadow:none;padding:0;overflow:visible}
+#reportTable{min-width:0;width:100%;font-size:7px}
+#reportTable th{position:static;white-space:normal}
+#reportTable td{white-space:normal}
+.ncd-table{width:100%!important;table-layout:fixed!important}
+.ncd-table .ncd-main-title{height:34px;font-size:12px}
+.ncd-table .ncd-group{font-size:8px}
+.ncd-table .ncd-sub{font-size:7px}
+.ncd-table td{padding:2px 1px;font-size:7px}
 }
 </style>
 </head>
 
 <body>
-
 <div class="header">
-
-  <h1>Kharsia Health Dashboard</h1>
-
-  <p>
-    RCH 2.0 PW Registration — FY 2026-27
-  </p>
-
+  <h1>🏥 Kharsia Health Dashboard</h1>
+  <small>Block Kharsia · District Raigarh · Chhattisgarh</small>
 </div>
 
+<div class="container">
+<aside class="sidebar">
+  <div class="sidebar-title">Health Programmes</div>
+  <button class="menu-btn active" id="dashboardBtn" onclick="showDashboard()">🏠 Dashboard</button>
+  <div id="menuButtons"></div>
+</aside>
 
-<div class="container" id="report">
-
-
-  <!-- BUTTONS -->
-
-  <div class="toolbar">
-
-    <button onclick="loadSheetData()">
-      🔄 Refresh Data
-    </button>
-
-    <button onclick="downloadPDF()">
-      📄 Download PDF
-    </button>
-
-    <button onclick="window.print()">
-      🖨️ Print
-    </button>
-
+<main class="content">
+<section id="dashboardPage" class="page active">
+  <div class="welcome">
+    <h2>Kharsia Health Programme Dashboard</h2>
+    <p>विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए programme पर क्लिक करें।</p>
   </div>
+  <div id="dashboardCards" class="cards"></div>
+</section>
 
-
-  <div id="status" class="status">
-    Dashboard Ready
+<section id="reportPage" class="page">
+  <div class="report-header">
+    <div id="pdfTitle" class="report-title-pdf"></div>
+    <h2 id="reportTitle">Report</h2>
+    <p id="reportDescription">Google Sheet से live data</p>
+    <div class="report-actions">
+      <button class="action-btn back-btn" onclick="showDashboard()">← Dashboard</button>
+      <button class="action-btn refresh-btn" onclick="refreshReport()">🔄 Refresh</button>
+      <button class="action-btn pdf-btn" onclick="downloadPDF()">📄 Download PDF</button>
+      <button class="action-btn print-btn" onclick="printReport()">🖨️ Print</button>
+      <input id="searchBox" class="search" type="text" placeholder="🔎 Table में search करें..." oninput="filterTable()">
+    </div>
   </div>
-
-
-  <!-- =================================================
-       PAGE 1 : 42 FACILITIES
-       ================================================= -->
-
-  <div class="section">
-
-    <div class="section-title" id="mainHeading">
-      RCH 2.0 PW Registration Detail FY 2026-27
+  <div id="status" class="status">Google Sheet से data load हो रहा है...</div>
+  <div id="pdfArea">
+    <div class="table-box">
+      <table id="reportTable"><colgroup></colgroup><thead></thead><tbody></tbody></table>
     </div>
-
-    <div class="date-line" id="mainDate">
-      As on Date: 01-08-2026
-    </div>
-
-
-    <div class="table-wrap">
-
-      <table id="mainTable">
-
-        <thead>
-
-          <tr>
-
-            <th>Sn</th>
-            <th>Sector</th>
-            <th>HFR ID</th>
-            <th>Health Facility</th>
-            <th>Health Facility Type</th>
-            <th>HMIS PW Registration</th>
-            <th>RCH 2.0 PW Registration</th>
-            <th>%</th>
-            <th>Tem.<br>Registration</th>
-            <th>Backlog</th>
-            <th>High Risk</th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-
-          <tr>
-            <td>1</td>
-            <td class="sector">Barra</td>
-            <td>IN2210002161</td>
-            <td>BARRA</td>
-            <td>AAM-SHC</td>
-            <td>21</td>
-            <td>20</td>
-            <td>95</td>
-            <td>2</td>
-            <td>-1</td>
-            <td>1</td>
-          </tr>
-
-
-          <tr>
-            <td>2</td>
-            <td class="sector">Barra</td>
-            <td>IN2210002145</td>
-            <td>DEHJARI</td>
-            <td>AAM-SHC</td>
-            <td>6</td>
-            <td>11</td>
-            <td>183</td>
-            <td>6</td>
-            <td>5</td>
-            <td>7</td>
-          </tr>
-
-
-          <tr>
-            <td>3</td>
-            <td class="sector">Barra</td>
-            <td>IN2210002154</td>
-            <td>FARKANARA</td>
-            <td>AAM-SHC</td>
-            <td>13</td>
-            <td>23</td>
-            <td>177</td>
-            <td>3</td>
-            <td>10</td>
-            <td>4</td>
-          </tr>
-
-
-          <tr>
-            <td>4</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002274</td>
-            <td>BADE DUMARPALI</td>
-            <td>AAM-SHC</td>
-            <td>6</td>
-            <td>8</td>
-            <td>133</td>
-            <td>2</td>
-            <td>2</td>
-            <td>1</td>
-          </tr>
-
-
-          <tr>
-            <td>5</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002296</td>
-            <td>BARBHAUNA</td>
-            <td>AAM-SHC</td>
-            <td>12</td>
-            <td>13</td>
-            <td>108</td>
-            <td>4</td>
-            <td>1</td>
-            <td>7</td>
-          </tr>
-
-
-          <tr>
-            <td>6</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002316</td>
-            <td>BHUPDEOPUR</td>
-            <td>AAM-SHC</td>
-            <td>10</td>
-            <td>18</td>
-            <td>180</td>
-            <td>6</td>
-            <td>8</td>
-            <td>9</td>
-          </tr>
-
-
-          <tr>
-            <td>7</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002373</td>
-            <td>BINJKOT</td>
-            <td>AAM-SHC</td>
-            <td>10</td>
-            <td>1</td>
-            <td>10</td>
-            <td>1</td>
-            <td>-9</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>8</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002428</td>
-            <td>GURDA</td>
-            <td>AAM-SHC</td>
-            <td>6</td>
-            <td>8</td>
-            <td>133</td>
-            <td>2</td>
-            <td>2</td>
-            <td>5</td>
-          </tr>
-
-
-          <tr>
-            <td>9</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002357</td>
-            <td>LODHAJHAR</td>
-            <td>AAM-SHC</td>
-            <td>17</td>
-            <td>27</td>
-            <td>159</td>
-            <td>6</td>
-            <td>10</td>
-            <td>14</td>
-          </tr>
-
-
-          <tr>
-            <td>10</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002344</td>
-            <td>MURA</td>
-            <td>AAM-SHC</td>
-            <td>15</td>
-            <td>16</td>
-            <td>107</td>
-            <td>3</td>
-            <td>1</td>
-            <td>13</td>
-          </tr>
-
-
-          <tr>
-            <td>11</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002389</td>
-            <td>NAHARPALI</td>
-            <td>AAM-SHC</td>
-            <td>12</td>
-            <td>19</td>
-            <td>158</td>
-            <td>2</td>
-            <td>7</td>
-            <td>12</td>
-          </tr>
-
-
-          <tr>
-            <td>12</td>
-            <td class="sector">Binjkot</td>
-            <td>IN2210002259</td>
-            <td>PAMGARH</td>
-            <td>AAM-SHC</td>
-            <td>10</td>
-            <td>11</td>
-            <td>110</td>
-            <td>5</td>
-            <td>1</td>
-            <td>6</td>
-          </tr>
-
-
-          <tr>
-            <td>13</td>
-            <td class="sector">Gorpar</td>
-            <td>IN2210002269</td>
-            <td>GANDAPALI</td>
-            <td>AAM-SHC</td>
-            <td>14</td>
-            <td>10</td>
-            <td>71</td>
-            <td>0</td>
-            <td>-4</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>14</td>
-            <td class="sector">Gorpar</td>
-            <td>IN2210002239</td>
-            <td>GORPAR</td>
-            <td>AAM-SHC</td>
-            <td>23</td>
-            <td>28</td>
-            <td>122</td>
-            <td>3</td>
-            <td>5</td>
-            <td>2</td>
-          </tr>
-
-
-          <tr>
-            <td>15</td>
-            <td class="sector">Gorpar</td>
-            <td>IN2210002256</td>
-            <td>KHADGAON</td>
-            <td>AAM-SHC</td>
-            <td>13</td>
-            <td>17</td>
-            <td>131</td>
-            <td>5</td>
-            <td>4</td>
-            <td>3</td>
-          </tr>
-
-
-          <tr>
-            <td>16</td>
-            <td class="sector">Jobi</td>
-            <td>IN2210002127</td>
-            <td>KHAMHAR</td>
-            <td>AAM-SHC</td>
-            <td>15</td>
-            <td>17</td>
-            <td>113</td>
-            <td>0</td>
-            <td>2</td>
-            <td>2</td>
-          </tr>
-
-
-          <tr>
-            <td>17</td>
-            <td class="sector">Jobi</td>
-            <td>IN2210002543</td>
-            <td>NAGOI</td>
-            <td>AAM-SHC</td>
-            <td>7</td>
-            <td>13</td>
-            <td>186</td>
-            <td>7</td>
-            <td>6</td>
-            <td>4</td>
-          </tr>
-
-
-          <tr>
-            <td>18</td>
-            <td class="sector">Jobi</td>
-            <td>IN2210002119</td>
-            <td>NANDGAON</td>
-            <td>AAM-SHC</td>
-            <td>7</td>
-            <td>10</td>
-            <td>143</td>
-            <td>8</td>
-            <td>3</td>
-            <td>2</td>
-          </tr>
-
-
-          <tr>
-            <td>19</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003173</td>
-            <td>AURDA</td>
-            <td>AAM-SHC</td>
-            <td>10</td>
-            <td>11</td>
-            <td>110</td>
-            <td>0</td>
-            <td>1</td>
-            <td>1</td>
-          </tr>
-
-
-          <tr>
-            <td>20</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003325</td>
-            <td>BARGARH</td>
-            <td>AAM-SHC</td>
-            <td>7</td>
-            <td>17</td>
-            <td>243</td>
-            <td>2</td>
-            <td>10</td>
-            <td>5</td>
-          </tr>
-
-
-          <tr>
-            <td>21</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003254</td>
-            <td>BOTALDA</td>
-            <td>AAM-SHC</td>
-            <td>24</td>
-            <td>28</td>
-            <td>117</td>
-            <td>2</td>
-            <td>4</td>
-            <td>8</td>
-          </tr>
-
-
-          <tr>
-            <td>22</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003239</td>
-            <td>CHHOTE DEOGAON</td>
-            <td>AAM-SHC</td>
-            <td>9</td>
-            <td>14</td>
-            <td>156</td>
-            <td>3</td>
-            <td>5</td>
-            <td>3</td>
-          </tr>
-
-
-          <tr>
-            <td>23</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003307</td>
-            <td>MADANPUR</td>
-            <td>AAM-SHC</td>
-            <td>30</td>
-            <td>54</td>
-            <td>180</td>
-            <td>12</td>
-            <td>24</td>
-            <td>15</td>
-          </tr>
-
-
-          <tr>
-            <td>24</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210002417</td>
-            <td>PARASKOL</td>
-            <td>AAM-SHC</td>
-            <td>13</td>
-            <td>13</td>
-            <td>100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>9</td>
-          </tr>
-
-
-          <tr>
-            <td>25</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003214</td>
-            <td>SARWANI</td>
-            <td>AAM-SHC</td>
-            <td>16</td>
-            <td>23</td>
-            <td>144</td>
-            <td>3</td>
-            <td>7</td>
-            <td>1</td>
-          </tr>
-
-
-          <tr>
-            <td>26</td>
-            <td class="sector">Sarwani</td>
-            <td>IN2210003203</td>
-            <td>TIUR</td>
-            <td>AAM-SHC</td>
-            <td>9</td>
-            <td>7</td>
-            <td>78</td>
-            <td>5</td>
-            <td>-2</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>27</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210002521</td>
-            <td>BANIPATHAR</td>
-            <td>AAM-SHC</td>
-            <td>7</td>
-            <td>12</td>
-            <td>171</td>
-            <td>1</td>
-            <td>5</td>
-            <td>2</td>
-          </tr>
-
-
-          <tr>
-            <td>28</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210003092</td>
-            <td>BASNAJHAR</td>
-            <td>AAM-SHC</td>
-            <td>19</td>
-            <td>31</td>
-            <td>163</td>
-            <td>5</td>
-            <td>12</td>
-            <td>17</td>
-          </tr>
-
-
-          <tr>
-            <td>29</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210002507</td>
-            <td>GIDHA</td>
-            <td>AAM-SHC</td>
-            <td>11</td>
-            <td>16</td>
-            <td>145</td>
-            <td>2</td>
-            <td>5</td>
-            <td>7</td>
-          </tr>
-
-
-          <tr>
-            <td>30</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210002539</td>
-            <td>JAIMURA</td>
-            <td>AAM-SHC</td>
-            <td>9</td>
-            <td>12</td>
-            <td>133</td>
-            <td>0</td>
-            <td>3</td>
-            <td>1</td>
-          </tr>
-
-
-          <tr>
-            <td>31</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210003101</td>
-            <td>KUNKUNI</td>
-            <td>AAM-SHC</td>
-            <td>26</td>
-            <td>23</td>
-            <td>88</td>
-            <td>12</td>
-            <td>-3</td>
-            <td>4</td>
-          </tr>
-
-
-          <tr>
-            <td>32</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210002531</td>
-            <td>SONBARSA</td>
-            <td>AAM-SHC</td>
-            <td>8</td>
-            <td>6</td>
-            <td>75</td>
-            <td>0</td>
-            <td>-2</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>33</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210003123</td>
-            <td>SONDKA</td>
-            <td>AAM-SHC</td>
-            <td>5</td>
-            <td>5</td>
-            <td>100</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>34</td>
-            <td class="sector">Sondka</td>
-            <td>IN2210002545</td>
-            <td>TEMTEMA</td>
-            <td>AAM-SHC</td>
-            <td>8</td>
-            <td>14</td>
-            <td>175</td>
-            <td>0</td>
-            <td>6</td>
-            <td>2</td>
-          </tr>
-
-
-          <tr>
-            <td>35</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002178</td>
-            <td>BAKELI</td>
-            <td>AAM-SHC</td>
-            <td>7</td>
-            <td>10</td>
-            <td>143</td>
-            <td>0</td>
-            <td>3</td>
-            <td>6</td>
-          </tr>
-
-
-          <tr>
-            <td>36</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002190</td>
-            <td>DUMARBHANTHA</td>
-            <td>AAM-SHC</td>
-            <td>21</td>
-            <td>21</td>
-            <td>100</td>
-            <td>1</td>
-            <td>0</td>
-            <td>16</td>
-          </tr>
-
-
-          <tr>
-            <td>37</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002213</td>
-            <td>HALAHULI</td>
-            <td>AAM-SHC</td>
-            <td>12</td>
-            <td>16</td>
-            <td>133</td>
-            <td>3</td>
-            <td>4</td>
-            <td>4</td>
-          </tr>
-
-
-          <tr>
-            <td>38</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002199</td>
-            <td>MAHUAPALI</td>
-            <td>AAM-SHC</td>
-            <td>19</td>
-            <td>38</td>
-            <td>200</td>
-            <td>0</td>
-            <td>19</td>
-            <td>12</td>
-          </tr>
-
-
-          <tr>
-            <td>39</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002224</td>
-            <td>MAKRI</td>
-            <td>AAM-SHC</td>
-            <td>11</td>
-            <td>17</td>
-            <td>155</td>
-            <td>5</td>
-            <td>6</td>
-            <td>6</td>
-          </tr>
-
-
-          <tr>
-            <td>40</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002236</td>
-            <td>TELIKOT</td>
-            <td>AAM-SHC</td>
-            <td>17</td>
-            <td>30</td>
-            <td>176</td>
-            <td>3</td>
-            <td>13</td>
-            <td>7</td>
-          </tr>
-
-
-          <tr>
-            <td>41</td>
-            <td class="sector">Turekela</td>
-            <td>IN2210002207</td>
-            <td>TUREKELA</td>
-            <td>AAM-SHC</td>
-            <td>9</td>
-            <td>14</td>
-            <td>156</td>
-            <td>5</td>
-            <td>5</td>
-            <td>0</td>
-          </tr>
-
-
-          <tr>
-            <td>42</td>
-            <td class="sector">Urban Kharsia</td>
-            <td>IN2210000364</td>
-            <td>Urban Kharsia</td>
-            <td>SDH</td>
-            <td>64</td>
-            <td>85</td>
-            <td>133</td>
-            <td>64</td>
-            <td>21</td>
-            <td>8</td>
-          </tr>
-
-
-          <tr class="total-row">
-
-            <td colspan="5">
-              TOTAL
-            </td>
-
-            <td>588</td>
-            <td>787</td>
-            <td>134</td>
-            <td>193</td>
-            <td>199</td>
-            <td>226</td>
-
-          </tr>
-
-
-        </tbody>
-
-      </table>
-
-    </div>
-
   </div>
-
-
-
-  <!-- =================================================
-       PAGE 2 : SECTOR SUMMARY
-       ================================================= -->
-
-  <div class="section summary-section">
-
-    <div class="summary-title">
-
-      RCH 2.0 PW Registration Detail FY 2026-27 — Sector Wise Summary
-
-    </div>
-
-
-    <div class="date-line" id="summaryDate">
-      As on Date: 01-08-2026
-    </div>
-
-
-    <div class="table-wrap">
-
-      <table class="summary-table">
-
-        <thead>
-
-          <tr>
-
-            <th>Sn</th>
-            <th>Sector</th>
-            <th>HFR ID</th>
-            <th>Health Facility</th>
-            <th>Health Facility Type</th>
-            <th>HMIS PW Registration</th>
-            <th>RCH 2.0 PW Registration</th>
-            <th>%</th>
-            <th>Tem.<br>Registration</th>
-            <th>Backlog</th>
-            <th>High Risk</th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-
-          <tr>
-            <td>1</td>
-            <td class="sector">Barra</td>
-            <td>-</td>
-            <td>3</td>
-            <td>SHC</td>
-            <td>40</td>
-            <td>54</td>
-            <td>135</td>
-            <td>11</td>
-            <td>-14</td>
-            <td>12</td>
-          </tr>
-
-
-          <tr>
-            <td>2</td>
-            <td class="sector">Binjkot</td>
-            <td>-</td>
-            <td>9</td>
-            <td>SHC</td>
-            <td>98</td>
-            <td>121</td>
-            <td>123</td>
-            <td>31</td>
-            <td>-23</td>
-            <td>67</td>
-          </tr>
-
-
-          <tr>
-            <td>3</td>
-            <td class="sector">Gorpar</td>
-            <td>-</td>
-            <td>3</td>
-            <td>SHC</td>
-            <td>50</td>
-            <td>55</td>
-            <td>110</td>
-            <td>8</td>
-            <td>-5</td>
-            <td>5</td>
-          </tr>
-
-
-          <tr>
-            <td>4</td>
-            <td class="sector">Jobi</td>
-            <td>-</td>
-            <td>3</td>
-            <td>SHC</td>
-            <td>29</td>
-            <td>40</td>
-            <td>138</td>
-            <td>15</td>
-            <td>-11</td>
-            <td>8</td>
-          </tr>
-
-
-          <tr>
-            <td>5</td>
-            <td class="sector">Sarwani</td>
-            <td>-</td>
-            <td>8</td>
-            <td>SHC</td>
-            <td>118</td>
-            <td>167</td>
-            <td>142</td>
-            <td>27</td>
-            <td>-49</td>
-            <td>42</td>
-          </tr>
-
-
-          <tr>
-            <td>6</td>
-            <td class="sector">Sondka</td>
-            <td>-</td>
-            <td>8</td>
-            <td>SHC</td>
-            <td>93</td>
-            <td>119</td>
-            <td>128</td>
-            <td>20</td>
-            <td>-26</td>
-            <td>33</td>
-          </tr>
-
-
-          <tr>
-            <td>7</td>
-            <td class="sector">Turekela</td>
-            <td>-</td>
-            <td>7</td>
-            <td>SHC</td>
-            <td>96</td>
-            <td>146</td>
-            <td>152</td>
-            <td>17</td>
-            <td>-50</td>
-            <td>51</td>
-          </tr>
-
-
-          <tr>
-            <td>8</td>
-            <td class="sector">Urban Kharsia</td>
-            <td>-</td>
-            <td>-</td>
-            <td>SDH</td>
-            <td>64</td>
-            <td>85</td>
-            <td>133</td>
-            <td>64</td>
-            <td>21</td>
-            <td>8</td>
-          </tr>
-
-
-          <tr class="total-row">
-
-            <td colspan="5">
-              TOTAL
-            </td>
-
-            <td>588</td>
-            <td>787</td>
-            <td>134</td>
-            <td>193</td>
-            <td>199</td>
-            <td>226</td>
-
-          </tr>
-
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-
-    <div class="note">
-      Data Source: Google Sheet — RCH 2.0 PW Registration
-    </div>
-
-  </div>
-
-
+  <div class="footer">Data source: Google Sheet · Kharsia Health Dashboard</div>
+</section>
+</main>
 </div>
-
-
 
 <script>
+const SPREADSHEET_ID="1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0";
 
-/* =====================================================
-   GOOGLE SHEET
-   ===================================================== */
+const REPORTS=[
+{name:"Ayushman Card",icon:"💳",gid:"925649620",description:"आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"},
+{name:"RCH 2.0",icon:"👩‍🍼",gid:"1044088930",description:"RCH 2.0 PW Registration Detail"},
+{name:"NCD",icon:"❤️",gid:"1254412412",description:"NCD Status 2026-27"},
+{name:"JAS Meeting",icon:"🤝",gid:"1018164338",description:"JAS Meeting Reporting"},
+{name:"Health & Wellness Center",icon:"🏥",gid:"0",description:"Health Wellness Center - Block Kharsia"},
+{name:"Ayushman Shivir",icon:"🏕️",gid:"1262815420",description:"Ayushman Shivir Reporting FY 2026-27"},
+{name:"Wellness Activity",icon:"🩺",gid:"447031017",description:"Ayushman Arogya Mandir Wellness Activity"},
+{name:"RBSK",icon:"👶",gid:"1502752823",description:"राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"},
+{name:"NRC Kharsia",icon:"🏥",gid:"1010102020",description:"NRC Kharsia Reporting"},
+{name:"Blindness Control",icon:"👁️",gid:"1002009767",description:"National Blindness Control Programme"},
+{name:"NQAS Certification",icon:"🏅",gid:"728123647",description:"NQAS Certification Detail Kharsia"},
+{name:"Dialysis",icon:"💧",gid:"781496964",description:"प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"},
+{name:"NLEP",icon:"🦠",gid:"1536656599",description:"National Leprosy Eradication Programme"}
+];
 
-const SHEET_ID =
-"1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0";
+let currentReportIndex=null;
+let currentData=null;
 
-const SHEET_GID =
-"1044088930";
+function createMenu(){
+  const menu=document.getElementById("menuButtons");
+  const cards=document.getElementById("dashboardCards");
+  menu.innerHTML=""; cards.innerHTML="";
+  REPORTS.forEach((report,index)=>{
+    const button=document.createElement("button");
+    button.className="menu-btn";
+    button.innerHTML=report.icon+" "+report.name;
+    button.onclick=()=>openReport(index);
+    menu.appendChild(button);
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`<div class="card-icon">${report.icon}</div><h3>${report.name}</h3><p>${report.description}</p>`;
+    card.onclick=()=>openReport(index);
+    cards.appendChild(card);
+  });
+}
 
+function showDashboard(){
+  document.getElementById("dashboardPage").classList.add("active");
+  document.getElementById("reportPage").classList.remove("active");
+  document.querySelectorAll(".menu-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("dashboardBtn").classList.add("active");
+}
 
-/* =====================================================
-   GOOGLE SHEET CSV URL
-   ===================================================== */
+function setStatus(text,type=""){
+  const s=document.getElementById("status");
+  s.className="status "+type;
+  s.innerText=text;
+}
 
-const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/" +
-SHEET_ID +
-"/export?format=csv&gid=" +
-SHEET_GID;
+function openReport(index){
+  currentReportIndex=index;
+  const report=REPORTS[index];
+  document.getElementById("dashboardPage").classList.remove("active");
+  document.getElementById("reportPage").classList.add("active");
+  document.getElementById("reportTitle").innerText=report.icon+" "+report.name;
+  document.getElementById("pdfTitle").innerText="Kharsia Health Dashboard — "+report.name;
+  document.getElementById("reportDescription").innerText=report.description;
+  document.getElementById("searchBox").value="";
+  document.querySelectorAll(".menu-btn").forEach(b=>b.classList.remove("active"));
+  const menuButtons=document.querySelectorAll("#menuButtons .menu-btn");
+  if(menuButtons[index]) menuButtons[index].classList.add("active");
+  document.querySelector("#reportTable colgroup").innerHTML="";
+  document.querySelector("#reportTable thead").innerHTML="";
+  document.querySelector("#reportTable tbody").innerHTML="";
+  setStatus("Google Sheet से data load हो रहा है...");
+  loadGoogleSheet(report.gid);
+}
 
+function refreshReport(){ if(currentReportIndex!==null) openReport(currentReportIndex); }
 
-/* =====================================================
-   PDF
-   ===================================================== */
-
-function downloadPDF(){
-
-  const element =
-    document.getElementById("report");
-
-  const options = {
-
-    margin:5,
-
-    filename:
-      "Kharsia_RCH_2.0_PW_Registration_FY_2026-27.pdf",
-
-    image:{
-      type:"jpeg",
-      quality:0.98
-    },
-
-    html2canvas:{
-      scale:2,
-      useCORS:true
-    },
-
-    jsPDF:{
-      unit:"mm",
-      format:"a4",
-      orientation:"landscape"
-    },
-
-    pagebreak:{
-      mode:["avoid-all","css","legacy"]
+function loadGoogleSheet(gid){
+  const url="https://docs.google.com/spreadsheets/d/"+SPREADSHEET_ID+"/gviz/tq?gid="+encodeURIComponent(gid)+"&headers=0";
+  const query=new google.visualization.Query(url);
+  query.setQuery("select *");
+  query.send(response=>{
+    if(response.isError()){
+      setStatus("Google Sheet से data load नहीं हो पाया: "+response.getMessage(),"error");
+      return;
     }
-
-  };
-
-
-  html2pdf()
-    .set(options)
-    .from(element)
-    .save();
-
+    currentData=response.getDataTable();
+    if(REPORTS[currentReportIndex].name==="NCD") renderNCDTable(currentData);
+    else renderNormalTable(currentData);
+    setStatus("✓ Google Sheet से data successfully loaded","success");
+  });
 }
 
-
-/* =====================================================
-   DATE FORMAT
-   ===================================================== */
-
-function formatDate(value){
-
-  if(!value){
-    return "";
+function setupColGroup(count, ncd=false){
+  const cg=document.querySelector("#reportTable colgroup");
+  cg.innerHTML="";
+  for(let i=0;i<count;i++){
+    const col=document.createElement("col");
+    cg.appendChild(col);
   }
-
-  value = String(value).trim();
-
-  /* Already DD-MM-YYYY */
-
-  if(
-    /^\d{2}-\d{2}-\d{4}$/.test(value)
-  ){
-
-    return value;
-
-  }
-
-
-  /* YYYY-MM-DD */
-
-  if(
-    /^\d{4}-\d{2}-\d{2}$/.test(value)
-  ){
-
-    const p =
-      value.split("-");
-
-    return (
-      p[2] + "-" +
-      p[1] + "-" +
-      p[0]
-    );
-
-  }
-
-
-  return value;
-
 }
 
-
-/* =====================================================
-   UPDATE DATE
-   ===================================================== */
-
-function updateDate(dateValue){
-
-  if(!dateValue){
-    return;
-  }
-
-  const date =
-    formatDate(dateValue);
-
-  document.getElementById(
-    "mainDate"
-  ).innerHTML =
-    "As on Date: " + date;
-
-
-  document.getElementById(
-    "summaryDate"
-  ).innerHTML =
-    "As on Date: " + date;
-
+function formatted(data,r,c){
+  try{return data.getFormattedValue(r,c)||"";}catch(e){return "";}
 }
 
+function renderNormalTable(data){
+  const table=document.getElementById("reportTable");
+  table.className="";
+  setupColGroup(data.getNumberOfColumns());
+  const thead=table.querySelector("thead"), tbody=table.querySelector("tbody");
+  thead.innerHTML=""; tbody.innerHTML="";
+  const hr=document.createElement("tr");
+  for(let c=0;c<data.getNumberOfColumns();c++){
+    const th=document.createElement("th");
+    th.innerText=formatted(data,0,c)||("Column "+(c+1));
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  for(let r=1;r<data.getNumberOfRows();r++){
+    const tr=document.createElement("tr"); let rowText="";
+    for(let c=0;c<data.getNumberOfColumns();c++){
+      const td=document.createElement("td"), value=formatted(data,r,c);
+      td.innerText=value; rowText+=" "+value; tr.appendChild(td);
+    }
+    if(/total|योग|कुल/i.test(rowText)) tr.classList.add("total-row");
+    tbody.appendChild(tr);
+  }
+}
 
-/* =====================================================
-   TRY TO READ GOOGLE SHEET DATE
-   ===================================================== */
+/* NCD layout based on TL Meeting Information workbook:
+   A1:Y2 title, A3:G4 vertical headers, H3:P3 HTN, Q3:Y3 DM,
+   row 4 sub-headings. The workbook also repeats a summary section
+   at A50:Y53; data continues below it. */
+function renderNCDTable(data){
+  const table=document.getElementById("reportTable");
+  table.className="ncd-table";
+  setupColGroup(25,true);
+  const thead=table.querySelector("thead"), tbody=table.querySelector("tbody");
+  thead.innerHTML=""; tbody.innerHTML="";
 
-async function loadSheetData(){
+  const title=formatted(data,0,0);
+  const t1=document.createElement("tr"), titleCell=document.createElement("th");
+  titleCell.colSpan=25; titleCell.className="ncd-main-title";
+  titleCell.innerText=title || "NCD status 2026-27";
+  t1.appendChild(titleCell); thead.appendChild(t1);
 
-  const status =
-    document.getElementById("status");
+  const g=document.createElement("tr");
+  const groups=[
+    ["Subcenter",1],["Total Population",1],["Screening Target\n(47.8% of Total Population)",1],
+    ["Enrollment 30+(Progressive)",1],["%",1],["ABHA Link(Progressive)",1],["ABHA Link %",1],
+    ["HTN",9],["DM",9]
+  ];
+  groups.forEach(([txt,span])=>{
+    const th=document.createElement("th"); th.innerText=txt; th.colSpan=span; th.rowSpan=(span===1&&["Subcenter","Total Population","Screening Target\n(47.8% of Total Population)","Enrollment 30+(Progressive)","%","ABHA Link(Progressive)","ABHA Link %"].includes(txt))?2:1;
+    th.className=span>1?"ncd-group":"ncd-sub"; g.appendChild(th);
+  });
+  thead.appendChild(g);
 
+  const sub=document.createElement("tr");
+  ["Screening","%","Estimated Hypertensive Patient\n(NFHS - 29%)","Under Treatment","%","Followup","%","Under Control","%",
+   "Screening","%","Estimated Diabetes Patients (NFHS - 10.8%)","Under Treatment","%","Followup","%","Under Control","%"]
+   .forEach((txt,i)=>{const th=document.createElement("th");th.innerText=txt;th.className=(i===3||i===12)?"ncd-pink":((i===0||i===5||i===7||i===9||i===14||i===16)?"ncd-cyan":"ncd-sub");sub.appendChild(th);});
+  thead.appendChild(sub);
 
-  status.innerHTML =
-    "⏳ Google Sheet से date पढ़ी जा रही है...";
+  // Data rows 5 onward in the workbook correspond to rows 5..49.
+  // The gviz table is zero-based here, so workbook row 5 = data index 4.
+  const totalRows=data.getNumberOfRows();
+  const start=Math.min(4,totalRows);
+  const end=Math.min(49,totalRows);
+  for(let r=start;r<end;r++) appendNCDDataRow(data,r,tbody);
 
+  // Repeated summary section around workbook rows 50-53.
+  if(totalRows>49){
+    const st=document.createElement("tr"), sc=document.createElement("th");
+    sc.colSpan=25; sc.className="ncd-summary-title";
+    sc.innerText=formatted(data,49,0)||"Summary";
+    st.appendChild(sc); thead.appendChild(st);
 
+    const sg=document.createElement("tr");
+    [["Sector",1],["Total Population",1],["Screening Target\n(47.8% of Total Population)",1],
+     ["Enrollment 30+(Progressive)",1],["%",1],["ABHA Link(Progressive)",1],["ABHA Link %",1],["HTN",9],["DM",9]]
+     .forEach(([txt,span])=>{const th=document.createElement("th");th.innerText=txt;th.colSpan=span;th.rowSpan=span===1?2:1;th.className=span>1?"ncd-group":"ncd-summary-head";sg.appendChild(th);});
+    thead.appendChild(sg);
+    const ss=document.createElement("tr");
+    ["Screening","%","Estimated Hypertensive Patient\n(NFHS - 29%)","Under Treatment","%","Followup","%","Under Control","%",
+     "Screening","%","Estimated Diabetes Patients (NFHS - 10.8%)","Under Treatment","%","Followup","%","Under Control","%"]
+      .forEach(txt=>{const th=document.createElement("th");th.innerText=txt;th.className="ncd-summary-head";ss.appendChild(th);});
+    thead.appendChild(ss);
+
+    for(let r=53;r<totalRows;r++) appendNCDDataRow(data,r,tbody);
+  }
+}
+
+function appendNCDDataRow(data,r,tbody){
+  const tr=document.createElement("tr"); tr.className="ncd-data-row";
+  let rowText="";
+  for(let c=0;c<25;c++){
+    const td=document.createElement("td"), value=formatted(data,r,c);
+    td.innerText=value; rowText+=" "+value;
+    if(c===4||c===6||c===8||c===11||c===13||c===15||c===17||c===20||c===22||c===24) td.classList.add("ncd-percent");
+    tr.appendChild(td);
+  }
+  if(/total|योग|कुल/i.test(rowText)) tr.classList.add("total-row");
+  tbody.appendChild(tr);
+}
+
+function filterTable(){
+  const filter=document.getElementById("searchBox").value.toLowerCase().trim();
+  document.querySelectorAll("#reportTable tbody tr").forEach(row=>{
+    row.style.display=row.innerText.toLowerCase().includes(filter)?"":"none";
+  });
+}
+
+async function downloadPDF(){
+  if(!currentData){alert("पहले report का data load होने दें।");return;}
+  const area=document.getElementById("pdfArea"); area.classList.add("pdf-mode");
+  const report=REPORTS[currentReportIndex];
+  const filename=report.name.replace(/[\\/:*?"<>|]/g,"_")+"_Kharsia_Health.pdf";
   try{
-
-    const response =
-      await fetch(SHEET_URL);
-
-
-    if(!response.ok){
-
-      throw new Error(
-        "Google Sheet access failed"
-      );
-
-    }
-
-
-    const csv =
-      await response.text();
-
-
-    /*
-       पहली कुछ lines में date खोजेंगे।
-       इससे Sheet की heading में
-       01-08-2026 / 01/08/2026 जैसी date
-       मिल सके तो dashboard में दिखाई जाएगी।
-    */
-
-    const lines =
-      csv.split(/\r?\n/);
-
-
-    let foundDate = "";
-
-
-    for(
-      let i = 0;
-      i < Math.min(lines.length,10);
-      i++
-    ){
-
-      const line =
-        lines[i];
-
-
-      let match =
-        line.match(
-          /\b(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})\b/
-        );
-
-
-      if(match){
-
-        foundDate =
-          match[1];
-
-        break;
-
-      }
-
-
-      match =
-        line.match(
-          /\b(\d{4}[-\/]\d{1,2}[-\/]\d{1,2})\b/
-        );
-
-
-      if(match){
-
-        foundDate =
-          match[1];
-
-        break;
-
-      }
-
-    }
-
-
-    if(foundDate){
-
-      foundDate =
-        foundDate.replaceAll(
-          "/",
-          "-"
-        );
-
-      updateDate(foundDate);
-
-      status.innerHTML =
-        "✅ Google Sheet से date update हो गई";
-
-    }
-    else{
-
-      status.innerHTML =
-        "✅ Dashboard Ready — Date: 01-08-2026";
-
-    }
-
-
-  }
-  catch(error){
-
-    /*
-       Google Sheet private होने पर भी
-       dashboard बंद नहीं होगा।
-    */
-
-    console.log(
-      "Google Sheet fetch error:",
-      error
-    );
-
-
-    status.innerHTML =
-      "✅ Dashboard Ready — Google Sheet data access के लिए Sheet को Anyone with the link / published रखना होगा";
-
-  }
-
+    await html2pdf().set({
+      margin:[5,4,5,4],filename,
+      image:{type:"jpeg",quality:.95},
+      html2canvas:{scale:1.5,useCORS:true,backgroundColor:"#fff"},
+      jsPDF:{unit:"mm",format:"a4",orientation:"landscape"},
+      pagebreak:{mode:["css","legacy"]}
+    }).from(area).save();
+  }catch(e){alert("PDF बनाने में समस्या हुई।");console.error(e)}
+  finally{area.classList.remove("pdf-mode")}
 }
 
+function printReport(){
+  if(!currentData){alert("पहले report का data load होने दें।");return}
+  window.print();
+}
 
-/* =====================================================
-   GOOGLE CHARTS
-   ===================================================== */
-
-google.charts.load(
-  "current",
-  {
-    packages:[
-      "corechart",
-      "bar",
-      "table"
-    ]
-  }
-);
-
-
-/* =====================================================
-   PAGE LOAD
-   ===================================================== */
-
-window.addEventListener(
-  "load",
-  function(){
-
-    updateDate(
-      "01-08-2026"
-    );
-
-    loadSheetData();
-
-  }
-);
-
+google.charts.load("current",{packages:["table"]});
+google.charts.setOnLoadCallback(createMenu);
 </script>
-
 </body>
 </html>
