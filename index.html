@@ -9,10 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-
-*{
-  box-sizing:border-box
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -43,14 +40,12 @@ body{
   opacity:.9
 }
 
-/* ================= CONTAINER ================= */
+/* ================= LAYOUT ================= */
 
 .container{
   display:flex;
   min-height:calc(100vh - 70px)
 }
-
-/* ================= SIDEBAR ================= */
 
 .sidebar{
   width:255px;
@@ -90,8 +85,6 @@ body{
   color:#fff
 }
 
-/* ================= CONTENT ================= */
-
 .content{
   flex:1;
   padding:25px;
@@ -106,7 +99,7 @@ body{
   display:block
 }
 
-/* ================= CARDS ================= */
+/* ================= DASHBOARD ================= */
 
 .welcome,
 .report-header,
@@ -167,7 +160,7 @@ body{
   font-size:13px
 }
 
-/* ================= REPORT ================= */
+/* ================= REPORT HEADER ================= */
 
 .report-header{
   padding:20px;
@@ -207,21 +200,10 @@ body{
   font-size:14px
 }
 
-.back-btn{
-  background:#475569
-}
-
-.refresh-btn{
-  background:#0f766e
-}
-
-.pdf-btn{
-  background:#b91c1c
-}
-
-.print-btn{
-  background:#334155
-}
+.back-btn{background:#475569}
+.refresh-btn{background:#0f766e}
+.pdf-btn{background:#b91c1c}
+.print-btn{background:#334155}
 
 .action-btn:hover{
   opacity:.88
@@ -296,29 +278,36 @@ body{
   background:#dbeafe
 }
 
-/* ================= AYUSHMAN CARD ================= */
+/* =========================================================
+   AYUSHMAN CARD SPECIAL LAYOUT
+   ========================================================= */
 
 .ayushman-report{
   background:#fff;
   border-radius:14px;
   padding:18px;
-  box-shadow:0 3px 12px rgba(0,0,0,.07);
-  margin-bottom:20px
+  box-shadow:0 3px 12px rgba(0,0,0,.07)
 }
 
 .ayushman-section{
-  margin-bottom:30px
+  margin-bottom:32px
 }
 
+/* MAIN MERGED TITLE */
+
 .ayushman-title{
+  width:100%;
   background:#075985;
   color:#fff;
   text-align:center;
   font-size:17px;
   font-weight:700;
   padding:13px 10px;
-  border-radius:8px 8px 0 0
+  border-radius:8px 8px 0 0;
+  line-height:1.5
 }
+
+/* AYUSHMAN TABLE */
 
 .ayushman-table{
   width:100%;
@@ -329,56 +318,92 @@ body{
 
 .ayushman-table th,
 .ayushman-table td{
-  border:1px solid #cbd5e1;
+  border:1px solid #9ca3af;
   text-align:center;
   vertical-align:middle;
-  padding:9px 6px
+  padding:10px 7px
 }
+
+/*
+  FIRST HEADER ROW
+
+  क्र        rowspan 2
+  लक्ष्य    colspan 3
+  उपलब्धि  colspan 3
+  प्रतिशत  rowspan 2
+*/
 
 .ayushman-table thead tr:first-child th{
   background:#0f766e;
   color:#fff;
   font-weight:700;
-  font-size:14px
+  font-size:14px;
+  height:42px
 }
+
+/*
+  SECOND HEADER ROW
+
+  ग्रामीण / अर्बन / योग
+*/
 
 .ayushman-table thead tr:nth-child(2) th{
   background:#e0f2fe;
   color:#075985;
-  font-weight:700
+  font-weight:700;
+  font-size:13px;
+  height:38px
 }
 
 .ayushman-table tbody td{
-  background:#fff
+  background:#fff;
+  height:42px
 }
 
 .ayushman-table tbody tr:hover td{
   background:#f0fdfa
 }
 
+/* COLUMN WIDTH */
+
+.ayushman-table th:nth-child(1),
+.ayushman-table td:nth-child(1){
+  width:8%
+}
+
+.ayushman-table th:nth-child(2),
+.ayushman-table td:nth-child(2),
+.ayushman-table th:nth-child(3),
+.ayushman-table td:nth-child(3),
+.ayushman-table th:nth-child(4),
+.ayushman-table td:nth-child(4),
+.ayushman-table th:nth-child(5),
+.ayushman-table td:nth-child(5),
+.ayushman-table th:nth-child(6),
+.ayushman-table td:nth-child(6),
+.ayushman-table th:nth-child(7),
+.ayushman-table td:nth-child(7){
+  width:12%
+}
+
+.ayushman-table th:nth-child(8),
+.ayushman-table td:nth-child(8){
+  width:10%
+}
+
 .ayushman-table .number{
-  font-weight:600
+  font-weight:700
+}
+
+.ayushman-table .total{
+  font-weight:700;
+  background:#dbeafe!important
 }
 
 .ayushman-table .percentage{
   font-weight:700;
   color:#075985;
-  background:#ecfeff
-}
-
-.ayushman-table .total{
-  font-weight:700;
-  background:#dbeafe
-}
-
-.ayushman-table th:first-child,
-.ayushman-table td:first-child{
-  width:8%
-}
-
-.ayushman-table th:last-child,
-.ayushman-table td:last-child{
-  width:11%
+  background:#ecfeff!important
 }
 
 /* ================= PDF ================= */
@@ -506,9 +531,8 @@ body{
   }
 
   .ayushman-table{
-    min-width:760px
+    min-width:800px
   }
-
 }
 
 /* ================= PRINT ================= */
@@ -577,20 +601,62 @@ body{
   }
 
   .ayushman-table{
-    font-size:9px
+    font-size:9px;
   }
 
   .ayushman-table th,
   .ayushman-table td{
     padding:4px 3px
   }
-
 }
 
-/* Hide standard table for special report */
+/* NCD */
 
-.special-report #reportTable{
-  display:none
+.ncd-table{
+  table-layout:fixed!important;
+  min-width:0!important;
+  width:100%!important
+}
+
+.ncd-table td{
+  text-align:center;
+  white-space:normal;
+  word-break:break-word
+}
+
+.ncd-table td:first-child{
+  text-align:left;
+  font-weight:600
+}
+
+.ncd-main-title{
+  background:#075985!important;
+  color:#fff!important;
+  font-size:16px;
+  font-weight:700
+}
+
+.ncd-group{
+  background:#075985!important;
+  color:#fff!important
+}
+
+.ncd-sub{
+  background:#0f766e!important;
+  color:#fff!important
+}
+
+.ncd-pink{
+  background:#f3d1df!important
+}
+
+.ncd-cyan{
+  background:#00ffff!important;
+  color:#111!important
+}
+
+.ncd-data-row:nth-child(even){
+  background:#f8fafc
 }
 
 </style>
@@ -602,9 +668,7 @@ body{
 
 <div class="header">
 
-  <h1>
-    🏥 Kharsia Health Dashboard
-  </h1>
+  <h1>🏥 Kharsia Health Dashboard</h1>
 
   <small>
     Block Kharsia · District Raigarh · Chhattisgarh
@@ -641,8 +705,7 @@ body{
 
 <main class="content">
 
-
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 
 <section
   id="dashboardPage"
@@ -669,7 +732,7 @@ body{
 </section>
 
 
-<!-- ================= REPORT ================= -->
+<!-- REPORT -->
 
 <section
   id="reportPage"
@@ -747,7 +810,7 @@ body{
 
   <div id="pdfArea">
 
-    <!-- SPECIAL AYUSHMAN REPORT -->
+    <!-- AYUSHMAN SPECIAL REPORT -->
 
     <div
       id="ayushmanReport"
@@ -779,9 +842,7 @@ body{
 
 
   <div class="footer">
-
     Data source: Google Sheet · Kharsia Health Dashboard
-
   </div>
 
 </section>
@@ -914,12 +975,12 @@ const REPORTS = [
 ];
 
 
-let currentReportIndex = null;
-let currentData = null;
+let currentReportIndex=null;
+let currentData=null;
 
 
 /* =========================================================
-   MENU
+   CREATE MENU
    ========================================================= */
 
 function createMenu(){
@@ -946,13 +1007,10 @@ function createMenu(){
           "button"
         );
 
-      button.className =
-        "menu-btn";
+      button.className="menu-btn";
 
       button.innerHTML =
-        report.icon +
-        " " +
-        report.name;
+        report.icon+" "+report.name;
 
       button.onclick =
         ()=>openReport(index);
@@ -965,10 +1023,9 @@ function createMenu(){
           "div"
         );
 
-      card.className =
-        "card";
+      card.className="card";
 
-      card.innerHTML = `
+      card.innerHTML=`
 
         <div class="card-icon">
           ${report.icon}
@@ -1002,38 +1059,22 @@ function createMenu(){
 function showDashboard(){
 
   document
-    .getElementById(
-      "dashboardPage"
-    )
+    .getElementById("dashboardPage")
     .classList.add("active");
 
-
   document
-    .getElementById(
-      "reportPage"
-    )
+    .getElementById("reportPage")
     .classList.remove("active");
 
-
   document
-    .querySelectorAll(
-      ".menu-btn"
-    )
+    .querySelectorAll(".menu-btn")
     .forEach(
-      b=>b.classList.remove(
-        "active"
-      )
+      b=>b.classList.remove("active")
     );
-
 
   document
-    .getElementById(
-      "dashboardBtn"
-    )
-    .classList.add(
-      "active"
-    );
-
+    .getElementById("dashboardBtn")
+    .classList.add("active");
 }
 
 
@@ -1041,22 +1082,14 @@ function showDashboard(){
    STATUS
    ========================================================= */
 
-function setStatus(
-  text,
-  type=""
-){
+function setStatus(text,type=""){
 
   const s =
-    document.getElementById(
-      "status"
-    );
+    document.getElementById("status");
 
-  s.className =
-    "status " + type;
+  s.className="status "+type;
 
-  s.innerText =
-    text;
-
+  s.innerText=text;
 }
 
 
@@ -1066,149 +1099,105 @@ function setStatus(
 
 function openReport(index){
 
-  currentReportIndex =
-    index;
+  currentReportIndex=index;
 
   const report =
     REPORTS[index];
 
 
   document
-    .getElementById(
-      "dashboardPage"
-    )
-    .classList.remove(
-      "active"
-    );
+    .getElementById("dashboardPage")
+    .classList.remove("active");
+
+  document
+    .getElementById("reportPage")
+    .classList.add("active");
 
 
   document
-    .getElementById(
-      "reportPage"
-    )
-    .classList.add(
-      "active"
-    );
-
-
-  document
-    .getElementById(
-      "reportTitle"
-    )
+    .getElementById("reportTitle")
     .innerText =
-      report.icon +
-      " " +
+      report.icon+" "+report.name;
+
+
+  document
+    .getElementById("pdfTitle")
+    .innerText =
+      "Kharsia Health Dashboard — "+
       report.name;
 
 
   document
-    .getElementById(
-      "pdfTitle"
-    )
-    .innerText =
-      "Kharsia Health Dashboard — " +
-      report.name;
-
-
-  document
-    .getElementById(
-      "reportDescription"
-    )
+    .getElementById("reportDescription")
     .innerText =
       report.description;
 
 
   document
-    .getElementById(
-      "searchBox"
-    )
-    .value = "";
+    .getElementById("searchBox")
+    .value="";
 
 
   document
-    .querySelectorAll(
-      ".menu-btn"
-    )
+    .querySelectorAll(".menu-btn")
     .forEach(
-      b=>b.classList.remove(
-        "active"
-      )
+      b=>b.classList.remove("active")
     );
 
 
-  const menuButtons =
+  const buttons =
     document.querySelectorAll(
       "#menuButtons .menu-btn"
     );
 
 
-  if(menuButtons[index]){
-
-    menuButtons[index]
-      .classList.add(
-        "active"
-      );
-
+  if(buttons[index]){
+    buttons[index]
+      .classList.add("active");
   }
 
 
   document
-    .getElementById(
-      "ayushmanReport"
-    )
-    .style.display =
-      "none";
+    .getElementById("ayushmanReport")
+    .style.display="none";
 
 
   document
-    .getElementById(
-      "ayushmanSections"
-    )
-    .innerHTML = "";
+    .getElementById("ayushmanSections")
+    .innerHTML="";
 
 
   document
-    .getElementById(
-      "reportTable"
-    )
-    .style.display =
-      "";
+    .getElementById("reportTable")
+    .style.display="";
 
 
   document
-    .querySelector(
-      "#reportTable colgroup"
-    )
-    .innerHTML = "";
+    .querySelector("#reportTable colgroup")
+    .innerHTML="";
 
 
   document
-    .querySelector(
-      "#reportTable thead"
-    )
-    .innerHTML = "";
+    .querySelector("#reportTable thead")
+    .innerHTML="";
 
 
   document
-    .querySelector(
-      "#reportTable tbody"
-    )
-    .innerHTML = "";
+    .querySelector("#reportTable tbody")
+    .innerHTML="";
 
 
-  currentData = null;
+  currentData=null;
 
 
   setStatus(
-    "Google Sheet से data load हो रहा है...",
-    ""
+    "Google Sheet से data load हो रहा है..."
   );
 
 
   loadGoogleSheet(
     report.gid
   );
-
 }
 
 
@@ -1218,9 +1207,7 @@ function openReport(index){
 
 function refreshReport(){
 
-  if(
-    currentReportIndex !== null
-  ){
+  if(currentReportIndex!==null){
 
     openReport(
       currentReportIndex
@@ -1238,22 +1225,20 @@ function refreshReport(){
 function loadGoogleSheet(gid){
 
   const callbackName =
-    "googleSheetCallback_" +
-    Date.now() +
-    "_" +
+    "googleSheetCallback_"+
+    Date.now()+"_"+
     Math.floor(
       Math.random()*100000
     );
 
 
   const url =
-    "https://docs.google.com/spreadsheets/d/" +
-    SPREADSHEET_ID +
-    "/gviz/tq" +
-    "?gid=" +
-    encodeURIComponent(gid) +
-    "&headers=0" +
-    "&tqx=responseHandler:" +
+    "https://docs.google.com/spreadsheets/d/"+
+    SPREADSHEET_ID+
+    "/gviz/tq?gid="+
+    encodeURIComponent(gid)+
+    "&headers=0"+
+    "&tqx=responseHandler:"+
     callbackName;
 
 
@@ -1261,23 +1246,18 @@ function loadGoogleSheet(gid){
 
 
   const script =
-    document.createElement(
-      "script"
-    );
+    document.createElement("script");
 
 
   const timeout =
     setTimeout(
       ()=>{
 
-        if(finished)
-          return;
-
+        if(finished)return;
 
         finished=true;
 
         cleanup();
-
 
         setStatus(
           "❌ Google Sheet से response नहीं मिला।",
@@ -1289,18 +1269,14 @@ function loadGoogleSheet(gid){
     );
 
 
-  window[callbackName] =
+  window[callbackName]=
     function(response){
 
-      if(finished)
-        return;
-
+      if(finished)return;
 
       finished=true;
 
-      clearTimeout(
-        timeout
-      );
+      clearTimeout(timeout);
 
       cleanup();
 
@@ -1309,7 +1285,7 @@ function loadGoogleSheet(gid){
 
         if(
           !response ||
-          response.status !== "ok"
+          response.status!=="ok"
         ){
 
           setStatus(
@@ -1348,11 +1324,14 @@ function loadGoogleSheet(gid){
           );
 
 
-        if(
+        const report =
           REPORTS[
             currentReportIndex
-          ].name ===
-          "Ayushman Card"
+          ];
+
+
+        if(
+          report.name==="Ayushman Card"
         ){
 
           renderAyushmanCard(
@@ -1362,10 +1341,7 @@ function loadGoogleSheet(gid){
         }
 
         else if(
-          REPORTS[
-            currentReportIndex
-          ].name ===
-          "NCD"
+          report.name==="NCD"
         ){
 
           renderNCDTable(
@@ -1391,12 +1367,10 @@ function loadGoogleSheet(gid){
 
       }catch(error){
 
-        console.error(
-          error
-        );
+        console.error(error);
 
         setStatus(
-          "❌ Data display करने में समस्या: " +
+          "❌ Data display करने में समस्या: "+
           error.message,
           "error"
         );
@@ -1406,54 +1380,38 @@ function loadGoogleSheet(gid){
     };
 
 
-  script.onerror =
-    function(){
+  script.onerror=function(){
 
-      if(finished)
-        return;
+    if(finished)return;
 
+    finished=true;
 
-      finished=true;
+    clearTimeout(timeout);
 
-      clearTimeout(
-        timeout
-      );
+    cleanup();
 
-      cleanup();
+    setStatus(
+      "❌ Google Sheet connection failed.",
+      "error"
+    );
 
-
-      setStatus(
-        "❌ Google Sheet connection failed.",
-        "error"
-      );
-
-    };
+  };
 
 
-  script.src =
-    url;
+  script.src=url;
 
-
-  document.head.appendChild(
-    script
-  );
+  document.head.appendChild(script);
 
 
   function cleanup(){
 
-    delete window[
-      callbackName
-    ];
+    delete window[callbackName];
 
+    if(script.parentNode){
 
-    if(
-      script.parentNode
-    ){
-
-      script.parentNode
-        .removeChild(
-          script
-        );
+      script.parentNode.removeChild(
+        script
+      );
 
     }
 
@@ -1463,12 +1421,10 @@ function loadGoogleSheet(gid){
 
 
 /* =========================================================
-   CONVERT GVIZ
+   CONVERT GVIZ DATA
    ========================================================= */
 
-function convertGVizTable(
-  table
-){
+function convertGVizTable(table){
 
   const columns =
     table.cols.map(
@@ -1476,8 +1432,7 @@ function convertGVizTable(
 
         label:
           col.label ||
-          "Column " +
-          (index+1),
+          "Column "+(index+1),
 
         type:
           col.type ||
@@ -1505,28 +1460,22 @@ function convertGVizTable(
 
 
             const value =
-              cell.v !== undefined &&
-              cell.v !== null
-                ? cell.v
-                : "";
+              cell.v!==undefined &&
+              cell.v!==null
+              ? cell.v
+              : "";
 
 
             const formatted =
-              cell.f !== undefined &&
-              cell.f !== null
-                ? cell.f
-                : value;
+              cell.f!==undefined &&
+              cell.f!==null
+              ? cell.f
+              : value;
 
 
             return {
-
               value:value,
-
-              formatted:
-                String(
-                  formatted
-                )
-
+              formatted:String(formatted)
             };
 
           }
@@ -1536,7 +1485,7 @@ function convertGVizTable(
     );
 
 
-  return {
+  return{
     columns:columns,
     rows:rows
   };
@@ -1545,14 +1494,10 @@ function convertGVizTable(
 
 
 /* =========================================================
-   CELL
+   GET CELL
    ========================================================= */
 
-function getCell(
-  data,
-  r,
-  c
-){
+function getCell(data,r,c){
 
   if(
     !data ||
@@ -1566,9 +1511,7 @@ function getCell(
   }
 
 
-  return data.rows[r][c]
-    .formatted || "";
-
+  return data.rows[r][c].formatted || "";
 }
 
 
@@ -1576,9 +1519,7 @@ function getCell(
    NORMAL TABLE
    ========================================================= */
 
-function renderNormalTable(
-  data
-){
+function renderNormalTable(data){
 
   const table =
     document.getElementById(
@@ -1588,21 +1529,16 @@ function renderNormalTable(
 
   table.className="";
 
-
   setupColGroup(
     data.columns.length
   );
 
 
   const thead =
-    table.querySelector(
-      "thead"
-    );
+    table.querySelector("thead");
 
   const tbody =
-    table.querySelector(
-      "tbody"
-    );
+    table.querySelector("tbody");
 
 
   thead.innerHTML="";
@@ -1610,9 +1546,7 @@ function renderNormalTable(
 
 
   const header =
-    document.createElement(
-      "tr"
-    );
+    document.createElement("tr");
 
 
   for(
@@ -1622,28 +1556,21 @@ function renderNormalTable(
   ){
 
     const th =
-      document.createElement(
-        "th"
-      );
+      document.createElement("th");
 
 
     th.innerText =
       getCell(data,0,c) ||
       data.columns[c].label ||
-      "Column " +
-      (c+1);
+      "Column "+(c+1);
 
 
-    header.appendChild(
-      th
-    );
+    header.appendChild(th);
 
   }
 
 
-  thead.appendChild(
-    header
-  );
+  thead.appendChild(header);
 
 
   for(
@@ -1653,10 +1580,7 @@ function renderNormalTable(
   ){
 
     const tr =
-      document.createElement(
-        "tr"
-      );
-
+      document.createElement("tr");
 
     let rowText="";
 
@@ -1668,38 +1592,24 @@ function renderNormalTable(
     ){
 
       const td =
-        document.createElement(
-          "td"
-        );
+        document.createElement("td");
 
 
       const value =
-        getCell(
-          data,
-          r,
-          c
-        );
+        getCell(data,r,c);
 
 
-      td.innerText =
-        value;
+      td.innerText=value;
 
+      rowText+=" "+value;
 
-      rowText +=
-        " " + value;
-
-
-      tr.appendChild(
-        td
-      );
+      tr.appendChild(td);
 
     }
 
 
     if(
-      /total|योग|कुल/i.test(
-        rowText
-      )
+      /total|योग|कुल/i.test(rowText)
     ){
 
       tr.classList.add(
@@ -1709,9 +1619,7 @@ function renderNormalTable(
     }
 
 
-    tbody.appendChild(
-      tr
-    );
+    tbody.appendChild(tr);
 
   }
 
@@ -1719,24 +1627,20 @@ function renderNormalTable(
 
 
 /* =========================================================
-   AYUSHMAN CARD SPECIAL RENDERER
+   AYUSHMAN CARD
    ========================================================= */
 
-function renderAyushmanCard(
-  data
-){
+function renderAyushmanCard(data){
 
   const special =
     document.getElementById(
       "ayushmanReport"
     );
 
-
   const sections =
     document.getElementById(
       "ayushmanSections"
     );
-
 
   const normalTable =
     document.getElementById(
@@ -1744,97 +1648,51 @@ function renderAyushmanCard(
     );
 
 
-  special.style.display =
-    "block";
+  special.style.display="block";
 
-
-  normalTable.style.display =
-    "none";
-
+  normalTable.style.display="none";
 
   sections.innerHTML="";
 
 
   /*
-     Google Sheet structure:
-
-     Row 1:
-     आयुष्मान कार्ड की जानकारी...
-
-     Row 2:
-     blank
-
-     Row 3:
-     क्र / लक्ष्य / उपलब्धि / प्रतिशत
-
-     Row 4:
-     ग्रामीण / अर्बन / योग / ग्रामीण / अर्बन / योग
-
-     Row 5:
-     Data
-
-     Row 6:
-     blank
-
-     Row 7:
-     वय वंदन...
-
-     Row 8:
-     blank
-
-     Row 9:
-     क्र / लक्ष्य / उपलब्धि / प्रतिशत
-
-     Row 10:
-     ग्रामीण / अर्बन / योग / ग्रामीण / अर्बन / योग
-
-     Row 11:
-     Data
+     पहले section की heading
   */
 
+  const ayushmanTitle =
+    findTextRow(
+      data,
+      "आयुष्मान कार्ड"
+    );
 
-  createAyushmanSection(
-    data,
-    0,
-    2,
-    4,
-    "ayushman"
-  );
+
+  if(ayushmanTitle!==-1){
+
+    createAyushmanSection(
+      data,
+      ayushmanTitle,
+      "ayushman"
+    );
+
+  }
 
 
   /*
-     Vay Vandana section
+     दूसरा section
   */
 
-  let secondTitle =
+  const vayTitle =
     findTextRow(
       data,
       "वय वंदन"
     );
 
 
-  if(
-    secondTitle === -1
-  ){
-
-    secondTitle =
-      findTextRow(
-        data,
-        "वय वंदन कार्ड"
-      );
-
-  }
-
-
-  if(
-    secondTitle !== -1
-  ){
+  if(vayTitle!==-1){
 
     createAyushmanSection(
       data,
-      secondTitle,
-      secondTitle+2,
-      secondTitle+4,
+      vayTitle,
       "vayvandan"
     );
 
@@ -1844,13 +1702,10 @@ function renderAyushmanCard(
 
 
 /* =========================================================
-   FIND ROW
+   FIND TITLE ROW
    ========================================================= */
 
-function findTextRow(
-  data,
-  search
-){
+function findTextRow(data,search){
 
   for(
     let r=0;
@@ -1865,11 +1720,7 @@ function findTextRow(
     ){
 
       const value =
-        getCell(
-          data,
-          r,
-          c
-        );
+        getCell(data,r,c);
 
 
       if(
@@ -1890,7 +1741,6 @@ function findTextRow(
 
 
   return -1;
-
 }
 
 
@@ -1901,8 +1751,6 @@ function findTextRow(
 function createAyushmanSection(
   data,
   titleRow,
-  headerRow,
-  subHeaderRow,
   type
 ){
 
@@ -1917,24 +1765,24 @@ function createAyushmanSection(
       "div"
     );
 
-
-  section.className =
+  section.className=
     "ayushman-section";
 
 
-  /*
-     TITLE
-  */
+  /* ================= TITLE ================= */
 
   const title =
     document.createElement(
       "div"
     );
 
-
-  title.className =
+  title.className=
     "ayushman-title";
 
+
+  /*
+     पूरी 8 columns की merged heading
+  */
 
   title.innerText =
     getCell(
@@ -1944,28 +1792,21 @@ function createAyushmanSection(
     );
 
 
-  section.appendChild(
-    title
-  );
+  section.appendChild(title);
 
 
-  /*
-     TABLE
-  */
+  /* ================= TABLE ================= */
 
   const table =
     document.createElement(
       "table"
     );
 
-
-  table.className =
+  table.className=
     "ayushman-table";
 
 
-  /*
-     HEADER 1
-  */
+  /* ================= HEADER ================= */
 
   const thead =
     document.createElement(
@@ -1973,82 +1814,93 @@ function createAyushmanSection(
     );
 
 
+  /*
+     ROW 1
+  */
+
   const row1 =
     document.createElement(
       "tr"
     );
 
 
-  const cr =
+  /*
+     क्र
+  */
+
+  const thCr =
     document.createElement(
       "th"
     );
 
+  thCr.rowSpan=2;
 
-  cr.rowSpan=2;
+  thCr.innerText="क्र";
 
-  cr.innerText="क्र";
-
-  row1.appendChild(
-    cr
-  );
+  row1.appendChild(thCr);
 
 
-  const target =
+  /*
+     लक्ष्य
+     Column 2 + 3 + 4 merged
+  */
+
+  const thTarget =
     document.createElement(
       "th"
     );
 
+  thTarget.colSpan=3;
 
-  target.colSpan=3;
+  thTarget.innerText="लक्ष्य";
 
-  target.innerText=
-    "लक्ष्य";
-
-  row1.appendChild(
-    target
-  );
+  row1.appendChild(thTarget);
 
 
-  const achievement =
+  /*
+     उपलब्धि
+     Column 5 + 6 + 7 merged
+  */
+
+  const thAchievement =
     document.createElement(
       "th"
     );
 
+  thAchievement.colSpan=3;
 
-  achievement.colSpan=3;
-
-  achievement.innerText=
+  thAchievement.innerText=
     "उपलब्धि";
 
   row1.appendChild(
-    achievement
-  );
-
-
-  const percentage =
-    document.createElement(
-      "th"
-    );
-
-
-  percentage.rowSpan=2;
-
-  percentage.innerText=
-    "प्रतिशत";
-
-  row1.appendChild(
-    percentage
-  );
-
-
-  thead.appendChild(
-    row1
+    thAchievement
   );
 
 
   /*
-     HEADER 2
+     प्रतिशत
+  */
+
+  const thPercent =
+    document.createElement(
+      "th"
+    );
+
+  thPercent.rowSpan=2;
+
+  thPercent.innerText=
+    "प्रतिशत";
+
+  row1.appendChild(
+    thPercent
+  );
+
+
+  thead.appendChild(row1);
+
+
+  /*
+     ROW 2
   */
 
   const row2 =
@@ -2058,14 +1910,12 @@ function createAyushmanSection(
 
 
   [
-
     "ग्रामीण",
     "अर्बन",
     "योग",
     "ग्रामीण",
     "अर्बन",
     "योग"
-
   ].forEach(
     text=>{
 
@@ -2074,32 +1924,21 @@ function createAyushmanSection(
           "th"
         );
 
+      th.innerText=text;
 
-      th.innerText =
-        text;
-
-
-      row2.appendChild(
-        th
-      );
+      row2.appendChild(th);
 
     }
   );
 
 
-  thead.appendChild(
-    row2
-  );
+  thead.appendChild(row2);
 
 
-  table.appendChild(
-    thead
-  );
+  table.appendChild(thead);
 
 
-  /*
-     DATA
-  */
+  /* ================= DATA ================= */
 
   const tbody =
     document.createElement(
@@ -2108,16 +1947,75 @@ function createAyushmanSection(
 
 
   /*
-     Data is normally 2 rows below title.
+     Header खोजें।
+     Google Sheet में:
+     
+     Title
+     Blank
+     क्र / लक्ष्य / उपलब्धि / प्रतिशत
+     ग्रामीण / अर्बन / योग...
+     Data
   */
 
-  let dataRow =
-    headerRow + 2;
+  let dataRow=-1;
+
+
+  for(
+    let r=titleRow+1;
+    r<data.rows.length;
+    r++
+  ){
+
+    let text="";
+
+
+    for(
+      let c=0;
+      c<8;
+      c++
+    ){
+
+      text +=
+        " "+
+        getCell(data,r,c);
+
+    }
+
+
+    /*
+       Header row को पहचानना
+    */
+
+    if(
+      /क्र/.test(text) &&
+      /लक्ष्य/.test(text) &&
+      /उपलब्धि/.test(text)
+    ){
+
+      dataRow=r+2;
+
+      break;
+
+    }
+
+  }
 
 
   /*
-     Find first row after headers
-     containing numeric information.
+     अगर header pattern नहीं मिला,
+     तो title के बाद 4th row
+  */
+
+  if(dataRow===-1){
+
+    dataRow=
+      titleRow+4;
+
+  }
+
+
+  /*
+     Data rows
   */
 
   for(
@@ -2128,7 +2026,6 @@ function createAyushmanSection(
 
     const values=[];
 
-
     for(
       let c=0;
       c<8;
@@ -2136,50 +2033,37 @@ function createAyushmanSection(
     ){
 
       values.push(
-        getCell(
-          data,
-          r,
-          c
-        )
+        getCell(data,r,c)
       );
 
     }
 
 
-    const combined =
+    const rowText =
       values.join(" ").trim();
 
 
-    if(!combined){
+    /*
+       Blank row = section समाप्त
+    */
 
-      /*
-         Blank row after section.
-      */
+    if(!rowText){
 
-      if(
-        r > dataRow
-      ){
-
-        break;
-
-      }
-
-      continue;
+      break;
 
     }
 
 
     /*
-       Stop if another section title
-       has started.
+       अगली heading आ गई
     */
 
     if(
-      /आयुष्मान कार्ड|वय वंदन कार्ड/i
-        .test(
-          combined
-        ) &&
-      r !== dataRow
+      r!==dataRow &&
+      (
+        /आयुष्मान कार्ड/i.test(rowText) ||
+        /वय वंदन/i.test(rowText)
+      )
     ){
 
       break;
@@ -2188,13 +2072,14 @@ function createAyushmanSection(
 
 
     /*
-       Ignore header-like rows.
+       Header को skip करें
     */
 
     if(
-      /ग्रामीण|अर्बन|लक्ष्य|उपलब्धि|प्रतिशत/i
-        .test(combined) &&
-      !/[0-9]/.test(combined)
+      /ग्रामीण|अर्बन|लक्ष्य|उपलब्धि|प्रतिशत/.test(
+        rowText
+      ) &&
+      !/\d/.test(rowText)
     ){
 
       continue;
@@ -2220,12 +2105,8 @@ function createAyushmanSection(
         );
 
 
-      const value =
-        values[c] || "";
-
-
       td.innerText =
-        value;
+        values[c] || "";
 
 
       if(c===0){
@@ -2236,6 +2117,11 @@ function createAyushmanSection(
 
       }
 
+
+      /*
+         Column 4 = लक्ष्य योग
+         Column 7 = उपलब्धि योग
+      */
 
       if(
         c===3 ||
@@ -2249,6 +2135,10 @@ function createAyushmanSection(
       }
 
 
+      /*
+         Column 8 = प्रतिशत
+      */
+
       if(c===7){
 
         td.classList.add(
@@ -2258,87 +2148,65 @@ function createAyushmanSection(
       }
 
 
-      tr.appendChild(
-        td
-      );
+      tr.appendChild(td);
 
     }
 
 
-    tbody.appendChild(
-      tr
-    );
+    tbody.appendChild(tr);
 
 
     /*
-       For the current structure,
-       normally only one data row.
+       यदि अगली row में कोई number नहीं,
+       तो current section समाप्त
     */
 
-    if(
-      type==="ayushman" ||
-      type==="vayvandan"
+    let nextNumeric=false;
+
+
+    for(
+      let nr=r+1;
+      nr<Math.min(
+        r+4,
+        data.rows.length
+      );
+      nr++
     ){
 
-      /*
-         Continue only if more
-         actual numeric rows exist.
-      */
-
-      let nextHasNumber=false;
-
-
-      for(
-        let nr=r+1;
-        nr<Math.min(
-          r+5,
-          data.rows.length
+      const nextText =
+        getCell(
+          data,
+          nr,
+          0
         );
-        nr++
+
+
+      if(
+        nextText &&
+        /\d/.test(nextText)
       ){
 
-        const nextText =
-          getCell(data,nr,0);
-
-
-        if(
-          nextText &&
-          /\d/.test(
-            nextText
-          )
-        ){
-
-          nextHasNumber=true;
-
-        }
+        nextNumeric=true;
 
       }
 
+    }
 
-      if(!nextHasNumber){
 
-        break;
+    if(!nextNumeric){
 
-      }
+      break;
 
     }
 
   }
 
 
-  table.appendChild(
-    tbody
-  );
+  table.appendChild(tbody);
 
+  section.appendChild(table);
 
-  section.appendChild(
-    table
-  );
-
-
-  sections.appendChild(
-    section
-  );
+  sections.appendChild(section);
 
 }
 
@@ -2347,15 +2215,12 @@ function createAyushmanSection(
    COLUMN GROUP
    ========================================================= */
 
-function setupColGroup(
-  count
-){
+function setupColGroup(count){
 
   const cg =
     document.querySelector(
       "#reportTable colgroup"
     );
-
 
   cg.innerHTML="";
 
@@ -2367,14 +2232,9 @@ function setupColGroup(
   ){
 
     const col =
-      document.createElement(
-        "col"
-      );
+      document.createElement("col");
 
-
-    cg.appendChild(
-      col
-    );
+    cg.appendChild(col);
 
   }
 
@@ -2385,15 +2245,12 @@ function setupColGroup(
    NCD
    ========================================================= */
 
-function renderNCDTable(
-  data
-){
+function renderNCDTable(data){
 
   const table =
     document.getElementById(
       "reportTable"
     );
-
 
   table.style.display="";
 
@@ -2405,14 +2262,10 @@ function renderNCDTable(
 
 
   const thead =
-    table.querySelector(
-      "thead"
-    );
+    table.querySelector("thead");
 
   const tbody =
-    table.querySelector(
-      "tbody"
-    );
+    table.querySelector("tbody");
 
 
   thead.innerHTML="";
@@ -2420,23 +2273,15 @@ function renderNCDTable(
 
 
   const title =
-    getCell(
-      data,
-      0,
-      0
-    );
+    getCell(data,0,0);
 
 
-  const t1 =
-    document.createElement(
-      "tr"
-    );
+  const titleRow =
+    document.createElement("tr");
 
 
   const titleCell =
-    document.createElement(
-      "th"
-    );
+    document.createElement("th");
 
 
   titleCell.colSpan=25;
@@ -2449,27 +2294,24 @@ function renderNCDTable(
     "NCD status 2026-27";
 
 
-  t1.appendChild(
+  titleRow.appendChild(
     titleCell
   );
 
-
   thead.appendChild(
-    t1
+    titleRow
   );
 
 
-  const g =
-    document.createElement(
-      "tr"
-    );
+  const groupRow =
+    document.createElement("tr");
 
 
   const groups=[
 
     ["Subcenter",1],
     ["Total Population",1],
-    ["Screening Target\n(47.8% of Total Population)",1],
+    ["Screening Target",1],
     ["Enrollment 30+(Progressive)",1],
     ["%",1],
     ["ABHA Link(Progressive)",1],
@@ -2488,11 +2330,9 @@ function renderNCDTable(
           "th"
         );
 
-
       th.innerText=txt;
 
       th.colSpan=span;
-
 
       if(span===1){
 
@@ -2508,31 +2348,24 @@ function renderNCDTable(
 
       }
 
-
-      g.appendChild(
-        th
-      );
+      groupRow.appendChild(th);
 
     }
   );
 
 
-  thead.appendChild(
-    g
-  );
+  thead.appendChild(groupRow);
 
 
-  const sub =
-    document.createElement(
-      "tr"
-    );
+  const subRow =
+    document.createElement("tr");
 
 
   [
 
     "Screening",
     "%",
-    "Estimated Hypertensive Patient\n(NFHS - 29%)",
+    "Estimated Hypertensive Patient",
     "Under Treatment",
     "%",
     "Followup",
@@ -2542,7 +2375,7 @@ function renderNCDTable(
 
     "Screening",
     "%",
-    "Estimated Diabetes Patients (NFHS - 10.8%)",
+    "Estimated Diabetes Patients",
     "Under Treatment",
     "%",
     "Followup",
@@ -2551,65 +2384,34 @@ function renderNCDTable(
     "%"
 
   ].forEach(
-    (txt,i)=>{
+    text=>{
 
       const th =
-        document.createElement(
-          "th"
-        );
+        document.createElement("th");
 
+      th.innerText=text;
 
-      th.innerText=txt;
+      th.className="ncd-sub";
 
-
-      th.className=
-        (
-          i===3 ||
-          i===12
-        )
-        ? "ncd-pink"
-        :
-        (
-          i===0 ||
-          i===5 ||
-          i===7 ||
-          i===9 ||
-          i===14 ||
-          i===16
-        )
-        ? "ncd-cyan"
-        : "ncd-sub";
-
-
-      sub.appendChild(
-        th
-      );
+      subRow.appendChild(th);
 
     }
   );
 
 
-  thead.appendChild(
-    sub
-  );
+  thead.appendChild(subRow);
 
 
   const totalRows =
     data.rows.length;
 
 
-  const start =
-    Math.min(
-      4,
-      totalRows
-    );
+  const start=
+    Math.min(4,totalRows);
 
 
-  const end =
-    Math.min(
-      49,
-      totalRows
-    );
+  const end=
+    Math.min(49,totalRows);
 
 
   for(
@@ -2649,7 +2451,7 @@ function renderNCDTable(
 
 
 /* =========================================================
-   NCD ROW
+   NCD DATA ROW
    ========================================================= */
 
 function appendNCDDataRow(
@@ -2662,7 +2464,6 @@ function appendNCDDataRow(
     document.createElement(
       "tr"
     );
-
 
   let rowText="";
 
@@ -2680,31 +2481,20 @@ function appendNCDDataRow(
 
 
     const value =
-      getCell(
-        data,
-        r,
-        c
-      );
+      getCell(data,r,c);
 
 
     td.innerText=value;
 
+    rowText+=" "+value;
 
-    rowText +=
-      " " + value;
-
-
-    tr.appendChild(
-      td
-    );
+    tr.appendChild(td);
 
   }
 
 
   if(
-    /total|योग|कुल/i.test(
-      rowText
-    )
+    /total|योग|कुल/i.test(rowText)
   ){
 
     tr.classList.add(
@@ -2714,9 +2504,7 @@ function appendNCDDataRow(
   }
 
 
-  tbody.appendChild(
-    tr
-  );
+  tbody.appendChild(tr);
 
 }
 
@@ -2737,10 +2525,6 @@ function filterTable(){
       .trim();
 
 
-  /*
-     Normal table
-  */
-
   document
     .querySelectorAll(
       "#reportTable tbody tr"
@@ -2751,19 +2535,13 @@ function filterTable(){
         row.style.display =
           row.innerText
             .toLowerCase()
-            .includes(
-              filter
-            )
+            .includes(filter)
             ? ""
             : "none";
 
       }
     );
 
-
-  /*
-     Ayushman tables
-  */
 
   document
     .querySelectorAll(
@@ -2775,9 +2553,7 @@ function filterTable(){
         row.style.display =
           row.innerText
             .toLowerCase()
-            .includes(
-              filter
-            )
+            .includes(filter)
             ? ""
             : "none";
 
@@ -2825,7 +2601,7 @@ async function downloadPDF(){
     report.name.replace(
       /[\\/:*?"<>|]/g,
       "_"
-    ) +
+    )+
     "_Kharsia_Health.pdf";
 
 
@@ -2835,14 +2611,10 @@ async function downloadPDF(){
       .set({
 
         margin:[
-          5,
-          4,
-          5,
-          4
+          5,4,5,4
         ],
 
-        filename:
-          filename,
+        filename:filename,
 
         image:{
           type:"jpeg",
@@ -2875,9 +2647,7 @@ async function downloadPDF(){
 
   }catch(error){
 
-    console.error(
-      error
-    );
+    console.error(error);
 
     alert(
       "PDF बनाने में समस्या हुई।"
@@ -2909,7 +2679,6 @@ function printReport(){
     return;
 
   }
-
 
   window.print();
 
