@@ -28,8 +28,15 @@ body{
   box-shadow:0 3px 10px rgba(0,0,0,.15)
 }
 
-.header h1{margin:0;font-size:24px}
-.header small{margin-left:15px;opacity:.9}
+.header h1{
+  margin:0;
+  font-size:24px
+}
+
+.header small{
+  margin-left:15px;
+  opacity:.9
+}
 
 .container{
   display:flex;
@@ -65,8 +72,14 @@ body{
   transition:.2s
 }
 
-.menu-btn:hover{background:#174d78}
-.menu-btn.active{background:#0ea5a4;color:#fff}
+.menu-btn:hover{
+  background:#174d78
+}
+
+.menu-btn.active{
+  background:#0ea5a4;
+  color:#fff
+}
 
 .content{
   flex:1;
@@ -74,8 +87,13 @@ body{
   min-width:0
 }
 
-.page{display:none}
-.page.active{display:block}
+.page{
+  display:none
+}
+
+.page.active{
+  display:block
+}
 
 .welcome,
 .report-header,
@@ -121,9 +139,20 @@ body{
   box-shadow:0 7px 20px rgba(0,0,0,.12)
 }
 
-.card-icon{font-size:30px}
-.card h3{margin:12px 0 5px;font-size:16px}
-.card p{margin:0;color:#64748b;font-size:13px}
+.card-icon{
+  font-size:30px
+}
+
+.card h3{
+  margin:12px 0 5px;
+  font-size:16px
+}
+
+.card p{
+  margin:0;
+  color:#64748b;
+  font-size:13px
+}
 
 .report-header{
   padding:20px;
@@ -150,7 +179,9 @@ body{
   outline:none
 }
 
-.search:focus{border-color:#0ea5a4}
+.search:focus{
+  border-color:#0ea5a4
+}
 
 .action-btn{
   border:0;
@@ -166,7 +197,9 @@ body{
 .pdf-btn{background:#b91c1c}
 .print-btn{background:#334155}
 
-.action-btn:hover{opacity:.88}
+.action-btn:hover{
+  opacity:.88
+}
 
 .status{
   padding:12px 15px;
@@ -235,7 +268,7 @@ body{
 
 
 /* =========================================================
-   AYUSHMAN CARD
+   AYUSHMAN CARD - SPECIAL LAYOUT
    ========================================================= */
 
 #ayushmanReport{
@@ -250,17 +283,10 @@ body{
   overflow:hidden
 }
 
-.ayushman-title{
-  width:100%;
-  background:#075985;
-  color:#fff;
-  text-align:center;
-  font-size:17px;
-  font-weight:700;
-  padding:14px 10px;
-  line-height:1.5;
-  border:1px solid #075985
-}
+/*
+   पूरा heading table के अंदर रहेगी।
+   इसलिए heading वास्तविक merged A:H cell होगी।
+*/
 
 .ayushman-table{
   width:100%;
@@ -269,70 +295,112 @@ body{
   font-size:14px
 }
 
-.ayushman-table th,
-.ayushman-table td{
-  border:1px solid #9ca3af;
-  text-align:center;
-  vertical-align:middle;
-  padding:9px 6px
+.ayushman-table col:nth-child(1){
+  width:8%
 }
-
-/* First header row */
-
-.ayushman-table thead tr:first-child th{
-  background:#0f766e;
-  color:#fff;
-  font-weight:700;
-  font-size:14px;
-  height:42px
-}
-
-/* Second header row */
-
-.ayushman-table thead tr:nth-child(2) th{
-  background:#dff5f2;
-  color:#075985;
-  font-weight:700;
-  font-size:13px;
-  height:38px
-}
-
-.ayushman-table tbody td{
-  height:44px;
-  background:#fff
-}
-
-.ayushman-table tbody tr:hover td{
-  background:#ecfeff
-}
-
-.ayushman-table td:first-child{
-  font-weight:700
-}
-
-.ayushman-table .total-cell{
-  font-weight:700;
-  background:#dbeafe!important
-}
-
-.ayushman-table .percent-cell{
-  font-weight:700;
-  color:#075985;
-  background:#ecfeff!important
-}
-
-/* 8 columns */
-
-.ayushman-table col:nth-child(1){width:8%}
 
 .ayushman-table col:nth-child(2),
 .ayushman-table col:nth-child(3),
 .ayushman-table col:nth-child(4),
 .ayushman-table col:nth-child(5),
 .ayushman-table col:nth-child(6),
-.ayushman-table col:nth-child(7){width:12%}
+.ayushman-table col:nth-child(7){
+  width:12%
+}
 
-.ayushman-table col:nth-child(8){width:10%}
+.ayushman-table col:nth-child(8){
+  width:10%
+}
+
+
+/* Main merged heading */
+
+.ayushman-table .main-title{
+  background:#075985;
+  color:#fff;
+  text-align:center;
+  font-size:17px;
+  font-weight:700;
+  line-height:1.5;
+  padding:14px 10px;
+  border:1px solid #075985;
+}
+
+
+/* Blank spacer row */
+
+.ayushman-table .spacer-row td{
+  height:12px;
+  padding:0;
+  border-left:1px solid #fff;
+  border-right:1px solid #fff;
+  background:#fff;
+}
+
+
+/* Main header */
+
+.ayushman-table .main-header th{
+  background:#0f766e;
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+  height:42px;
+  border:1px solid #9ca3af;
+  text-align:center;
+  vertical-align:middle
+}
+
+
+/* Sub header */
+
+.ayushman-table .sub-header th{
+  background:#dff5f2;
+  color:#075985;
+  font-weight:700;
+  font-size:13px;
+  height:38px;
+  border:1px solid #9ca3af;
+  text-align:center;
+  vertical-align:middle
+}
+
+
+/* Data */
+
+.ayushman-table tbody td{
+  height:44px;
+  background:#fff;
+  border:1px solid #9ca3af;
+  text-align:center;
+  vertical-align:middle;
+  padding:9px 6px
+}
+
+.ayushman-table tbody tr:hover td{
+  background:#ecfeff
+}
+
+.ayushman-table tbody td:first-child{
+  font-weight:700
+}
+
+
+/* Total columns */
+
+.ayushman-table .total-cell{
+  font-weight:700;
+  background:#dbeafe!important
+}
+
+
+/* Percentage */
+
+.ayushman-table .percent-cell{
+  font-weight:700;
+  color:#075985;
+  background:#ecfeff!important
+}
 
 
 /* =========================================================
@@ -407,13 +475,17 @@ body{
   margin-bottom:15px
 }
 
-.pdf-mode .ayushman-title{
+.pdf-mode .ayushman-table{
+  font-size:9px
+}
+
+.pdf-mode .ayushman-table .main-title{
   font-size:13px;
   padding:7px
 }
 
-.pdf-mode .ayushman-table{
-  font-size:9px
+.pdf-mode .ayushman-table .spacer-row td{
+  height:5px
 }
 
 .pdf-mode .ayushman-table th,
@@ -446,10 +518,17 @@ body{
     gap:4px
   }
 
-  .header h1{font-size:19px}
-  .header small{margin-left:0}
+  .header h1{
+    font-size:19px
+  }
 
-  .container{flex-direction:column}
+  .header small{
+    margin-left:0
+  }
+
+  .container{
+    flex-direction:column
+  }
 
   .sidebar{
     width:100%;
@@ -459,14 +538,18 @@ body{
     padding:8px
   }
 
-  .sidebar-title{display:none}
+  .sidebar-title{
+    display:none
+  }
 
   .menu-btn{
     min-width:150px;
     white-space:nowrap
   }
 
-  .content{padding:12px}
+  .content{
+    padding:12px
+  }
 
   .search{
     width:100%;
@@ -490,7 +573,9 @@ body{
     margin:6mm
   }
 
-  body{background:#fff}
+  body{
+    background:#fff
+  }
 
   .header,
   .sidebar,
@@ -507,9 +592,13 @@ body{
     padding:0
   }
 
-  .page{display:none}
+  .page{
+    display:none
+  }
 
-  .page.active{display:block}
+  .page.active{
+    display:block
+  }
 
   .report-header{
     box-shadow:none;
@@ -535,13 +624,17 @@ body{
     margin-bottom:12px
   }
 
-  .ayushman-title{
+  .ayushman-table{
+    font-size:8px
+  }
+
+  .ayushman-table .main-title{
     font-size:12px;
     padding:6px
   }
 
-  .ayushman-table{
-    font-size:8px
+  .ayushman-table .spacer-row td{
+    height:4px
   }
 
   .ayushman-table th,
@@ -556,10 +649,6 @@ body{
 
 <body>
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
 <div class="header">
 
   <h1>🏥 Kharsia Health Dashboard</h1>
@@ -573,10 +662,6 @@ body{
 
 <div class="container">
 
-<!-- =====================================================
-     SIDEBAR
-===================================================== -->
-
 <aside class="sidebar">
 
   <div class="sidebar-title">
@@ -587,9 +672,7 @@ body{
     class="menu-btn active"
     id="dashboardBtn"
     onclick="showDashboard()">
-
     🏠 Dashboard
-
   </button>
 
   <div id="menuButtons"></div>
@@ -597,14 +680,8 @@ body{
 </aside>
 
 
-<!-- =====================================================
-     CONTENT
-===================================================== -->
-
 <main class="content">
 
-
-<!-- DASHBOARD -->
 
 <section
   id="dashboardPage"
@@ -630,8 +707,6 @@ body{
 
 </section>
 
-
-<!-- REPORT -->
 
 <section
   id="reportPage"
@@ -699,16 +774,12 @@ body{
 
   <div id="pdfArea">
 
-    <!-- AYUSHMAN SPECIAL -->
-
     <div id="ayushmanReport">
 
       <div id="ayushmanSections"></div>
 
     </div>
 
-
-    <!-- OTHER REPORTS -->
 
     <div class="table-box">
 
@@ -740,109 +811,110 @@ body{
 
 <script>
 
-/* =====================================================
+
+/* =========================================================
    GOOGLE SHEET
-===================================================== */
+   ========================================================= */
 
 const SPREADSHEET_ID =
 "1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0";
 
 
-/* =====================================================
-   REPORT LIST
-===================================================== */
+/* =========================================================
+   REPORTS
+   ========================================================= */
 
 const REPORTS=[
 
 {
- name:"Ayushman Card",
- icon:"💳",
- gid:"925649620",
- description:"आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
+  name:"Ayushman Card",
+  icon:"💳",
+  gid:"925649620",
+  description:"आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
 },
 
 {
- name:"RCH 2.0",
- icon:"👩‍🍼",
- gid:"1044088930",
- description:"RCH 2.0 PW Registration Detail"
+  name:"RCH 2.0",
+  icon:"👩‍🍼",
+  gid:"1044088930",
+  description:"RCH 2.0 PW Registration Detail"
 },
 
 {
- name:"NCD",
- icon:"❤️",
- gid:"1254412412",
- description:"NCD Status 2026-27"
+  name:"NCD",
+  icon:"❤️",
+  gid:"1254412412",
+  description:"NCD Status 2026-27"
 },
 
 {
- name:"JAS Meeting",
- icon:"🤝",
- gid:"1018164338",
- description:"JAS Meeting Reporting"
+  name:"JAS Meeting",
+  icon:"🤝",
+  gid:"1018164338",
+  description:"JAS Meeting Reporting"
 },
 
 {
- name:"Health & Wellness Center",
- icon:"🏥",
- gid:"0",
- description:"Health Wellness Center - Block Kharsia"
+  name:"Health & Wellness Center",
+  icon:"🏥",
+  gid:"0",
+  description:"Health Wellness Center - Block Kharsia"
 },
 
 {
- name:"Ayushman Shivir",
- icon:"🏕️",
- gid:"1262815420",
- description:"Ayushman Shivir Reporting FY 2026-27"
+  name:"Ayushman Shivir",
+  icon:"🏕️",
+  gid:"1262815420",
+  description:"Ayushman Shivir Reporting FY 2026-27"
 },
 
 {
- name:"Wellness Activity",
- icon:"🩺",
- gid:"447031017",
- description:"Ayushman Arogya Mandir Wellness Activity"
+  name:"Wellness Activity",
+  icon:"🩺",
+  gid:"447031017",
+  description:"Ayushman Arogya Mandir Wellness Activity"
 },
 
 {
- name:"RBSK",
- icon:"👶",
- gid:"1502752823",
- description:"राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
+  name:"RBSK",
+  icon:"👶",
+  gid:"1502752823",
+  description:"राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
 },
 
 {
- name:"NRC Kharsia",
- icon:"🏥",
- gid:"1010102020",
- description:"NRC Kharsia Reporting"
+  name:"NRC Kharsia",
+  icon:"🏥",
+  gid:"1010102020",
+  description:"NRC Kharsia Reporting"
 },
 
 {
- name:"Blindness Control",
- icon:"👁️",
- gid:"1002009767",
- description:"National Blindness Control Programme"
+  name:"Blindness Control",
+  icon:"👁️",
+  gid:"1002009767",
+  description:"National Blindness Control Programme"
 },
 
 {
- name:"NQAS Certification",
- icon:"🏅",
- gid:"728123647",
- description:"NQAS Certification Detail Kharsia"
+  name:"NQAS Certification",
+  icon:"🏅",
+  gid:"728123647",
+  description:"NQAS Certification Detail Kharsia"
 },
 
 {
- name:"Dialysis",
- icon:"💧",
- gid:"781496964",
- description:"प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
+  name:"Dialysis",
+  icon:"💧",
+  gid:"781496964",
+  description:"प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
 },
 
 {
- name:"NLEP",
- icon:"🦠",
- gid:"1536656599",
- description:"National Leprosy Eradication Programme"
+  name:"NLEP",
+  icon:"🦠",
+  gid:"1536656599",
+  description:"National Leprosy Eradication Programme"
 }
 
 ];
@@ -852,9 +924,9 @@ let currentReportIndex=null;
 let currentData=null;
 
 
-/* =====================================================
+/* =========================================================
    MENU
-===================================================== */
+   ========================================================= */
 
 function createMenu(){
 
@@ -893,9 +965,7 @@ function createMenu(){
       <div class="card-icon">
         ${report.icon}
       </div>
-
       <h3>${report.name}</h3>
-
       <p>${report.description}</p>
     `;
 
@@ -909,9 +979,9 @@ function createMenu(){
 }
 
 
-/* =====================================================
+/* =========================================================
    DASHBOARD
-===================================================== */
+   ========================================================= */
 
 function showDashboard(){
 
@@ -936,9 +1006,9 @@ function showDashboard(){
 }
 
 
-/* =====================================================
+/* =========================================================
    STATUS
-===================================================== */
+   ========================================================= */
 
 function setStatus(text,type=""){
 
@@ -953,9 +1023,9 @@ function setStatus(text,type=""){
 }
 
 
-/* =====================================================
+/* =========================================================
    OPEN REPORT
-===================================================== */
+   ========================================================= */
 
 function openReport(index){
 
@@ -1051,29 +1121,28 @@ function openReport(index){
 }
 
 
-/* =====================================================
+/* =========================================================
    REFRESH
-===================================================== */
+   ========================================================= */
 
 function refreshReport(){
 
   if(currentReportIndex!==null){
-
     openReport(currentReportIndex);
-
   }
 
 }
 
 
-/* =====================================================
+/* =========================================================
    GOOGLE SHEET JSONP
-===================================================== */
+   ========================================================= */
 
 function loadGoogleSheet(gid){
 
   const callbackName=
     "sheetCallback_"+Date.now();
+
 
   const url=
     "https://docs.google.com/spreadsheets/d/"+
@@ -1193,9 +1262,9 @@ function loadGoogleSheet(gid){
 }
 
 
-/* =====================================================
+/* =========================================================
    CONVERT DATA
-===================================================== */
+   ========================================================= */
 
 function convertTable(table){
 
@@ -1205,24 +1274,38 @@ function convertTable(table){
       c=>c.label||""
     ),
 
-    rows:table.rows.map(
-      row=>
-        row.c.map(
-          cell=>({
+    rows:table.rows.map(row=>{
 
-            value:
-              cell && cell.v!=null
-              ? cell.v
-              :"",
+      const result=[];
 
-            formatted:
-              cell && cell.f!=null
-              ? String(cell.f)
-              :""
+      for(let c=0;c<8;c++){
 
-          })
-        )
-    )
+        const cellData=
+          row.c && row.c[c]
+          ? row.c[c]
+          : null;
+
+        result.push({
+
+          value:
+            cellData &&
+            cellData.v!=null
+            ? cellData.v
+            :"",
+
+          formatted:
+            cellData &&
+            cellData.f!=null
+            ? String(cellData.f)
+            :""
+
+        });
+
+      }
+
+      return result;
+
+    })
 
   };
 
@@ -1232,20 +1315,97 @@ function convertTable(table){
 function cell(data,r,c){
 
   if(
+    !data ||
+    !data.rows ||
     !data.rows[r] ||
     !data.rows[r][c]
   ){
+
     return "";
+
   }
 
-  return data.rows[r][c].formatted;
+  const item=data.rows[r][c];
+
+  if(item.formatted!==""){
+    return item.formatted;
+  }
+
+  if(item.value!=null){
+    return String(item.value);
+  }
+
+  return "";
 
 }
 
 
-/* =====================================================
-   AYUSHMAN CARD — EXACT LAYOUT
-===================================================== */
+/* =========================================================
+   TEXT NORMALIZATION
+   ========================================================= */
+
+function cleanText(text){
+
+  return String(text||"")
+    .replace(/\s+/g," ")
+    .trim();
+
+}
+
+
+function rowText(data,r){
+
+  let text="";
+
+  for(let c=0;c<8;c++){
+
+    text+=" "+cell(data,r,c);
+
+  }
+
+  return cleanText(text);
+
+}
+
+
+function isAyushmanTitle(text){
+
+  const t=cleanText(text);
+
+  return (
+    t.includes("आयुष्मान कार्ड की जानकारी") ||
+    t.includes("आयुष्मान कार्ड")
+  );
+
+}
+
+
+function isVayVandanTitle(text){
+
+  const t=cleanText(text);
+
+  return (
+    t.includes("वय वंदन कार्ड की प्रगति") ||
+    t.includes("वय वंदन कार्ड") ||
+    t.includes("वय वंदन")
+  );
+
+}
+
+
+function isAnyAyushmanTitle(text){
+
+  return (
+    isAyushmanTitle(text) ||
+    isVayVandanTitle(text)
+  );
+
+}
+
+
+/* =========================================================
+   AYUSHMAN CARD
+   ========================================================= */
 
 function renderAyushmanCard(data){
 
@@ -1255,76 +1415,43 @@ function renderAyushmanCard(data){
 
 
   const report=
-    document.getElementById(
-      "ayushmanReport"
-    );
+    document.getElementById("ayushmanReport");
 
   report.style.display="block";
 
 
   const container=
-    document.getElementById(
-      "ayushmanSections"
-    );
+    document.getElementById("ayushmanSections");
 
   container.innerHTML="";
 
 
   /*
-     हम Sheet की हर row को check करेंगे।
-
-     जिस row में:
-       आयुष्मान कार्ड
-     या
-       वय वंदन कार्ड
-
-     मिलेगा, वही नई merged heading होगी।
+     पहले सभी heading rows खोजेंगे।
   */
 
-
-  let sections=[];
-
-
-  for(
-    let r=0;
-    r<data.rows.length;
-    r++
-  ){
-
-    let rowText="";
-
-    for(
-      let c=0;
-      c<8;
-      c++
-    ){
-
-      rowText+=
-        " "+
-        cell(data,r,c);
-
-    }
+  const sections=[];
 
 
-    if(
-      rowText.includes("आयुष्मान कार्ड")
-    ){
+  for(let r=0;r<data.rows.length;r++){
+
+    const text=rowText(data,r);
+
+
+    if(isAyushmanTitle(text)){
 
       sections.push({
-        titleRow:r,
-        title:rowText.trim()
+        row:r,
+        title:extractTitle(data,r,"आयुष्मान कार्ड")
       });
 
     }
 
-
-    else if(
-      rowText.includes("वय वंदन")
-    ){
+    else if(isVayVandanTitle(text)){
 
       sections.push({
-        titleRow:r,
-        title:rowText.trim()
+        row:r,
+        title:extractTitle(data,r,"वय वंदन कार्ड")
       });
 
     }
@@ -1333,31 +1460,44 @@ function renderAyushmanCard(data){
 
 
   /*
-     अगर sections मिल गए
+     यदि दो headings मिल गईं,
+     तो दोनों अलग-अलग sections बनेंगे।
   */
 
-  sections.forEach(
-    (section,index)=>{
+  if(sections.length>0){
+
+    for(let i=0;i<sections.length;i++){
+
+      const current=sections[i];
+
+      const nextRow=
+        i+1<sections.length
+        ? sections[i+1].row
+        : data.rows.length;
+
 
       createAyushmanSection(
         data,
-        section.titleRow,
-        section.title
+        current.row,
+        nextRow,
+        current.title
       );
 
     }
-  );
 
+  }
 
-  /*
-     अगर किसी कारण से heading नहीं मिली,
-     तब भी normal fallback।
-  */
+  else{
 
-  if(sections.length===0){
+    /*
+       Safety fallback
+    */
 
-    createFallbackAyushman(
-      data
+    createAyushmanSection(
+      data,
+      0,
+      data.rows.length,
+      "आयुष्मान कार्ड"
     );
 
   }
@@ -1365,13 +1505,52 @@ function renderAyushmanCard(data){
 }
 
 
-/* =====================================================
+/* =========================================================
+   TITLE EXTRACTION
+   ========================================================= */
+
+function extractTitle(data,r,defaultTitle){
+
+  /*
+     सबसे पहले A cell देखें।
+     क्योंकि आपकी Google Sheet में heading
+     मुख्यतः पहले cell में है।
+  */
+
+  const first=
+    cleanText(cell(data,r,0));
+
+
+  if(first!==""){
+    return first;
+  }
+
+
+  /*
+     अगर A blank हो तो पूरी row से heading लें।
+  */
+
+  const full=rowText(data,r);
+
+
+  if(full!==""){
+    return full;
+  }
+
+
+  return defaultTitle;
+
+}
+
+
+/* =========================================================
    CREATE AYUSHMAN SECTION
-===================================================== */
+   ========================================================= */
 
 function createAyushmanSection(
   data,
   titleRow,
+  endRow,
   titleText
 ){
 
@@ -1382,33 +1561,16 @@ function createAyushmanSection(
     "ayushman-section";
 
 
-  /* ================= TITLE ================= */
-
-  const title=
-    document.createElement("div");
-
-  title.className=
-    "ayushman-title";
-
-  title.innerText=
-    titleText;
-
-
-  /*
-     यही आपकी पूरी merged A:H heading है।
-  */
-
-  wrapper.appendChild(title);
-
-
-  /* ================= TABLE ================= */
-
   const table=
     document.createElement("table");
 
   table.className=
     "ayushman-table";
 
+
+  /* =====================================================
+     COLUMN GROUP
+     ===================================================== */
 
   const colgroup=
     document.createElement("colgroup");
@@ -1426,7 +1588,9 @@ function createAyushmanSection(
   table.appendChild(colgroup);
 
 
-  /* ================= HEADER ================= */
+  /* =====================================================
+     THEAD
+     ===================================================== */
 
   const thead=
     document.createElement("thead");
@@ -1434,57 +1598,110 @@ function createAyushmanSection(
 
   /*
      ROW 1
+     पूरी heading A:H merged
   */
 
-  const r1=
+  const titleRowElement=
     document.createElement("tr");
+
+
+  const titleCell=
+    document.createElement("th");
+
+  titleCell.colSpan=8;
+
+  titleCell.className="main-title";
+
+  titleCell.innerText=
+    titleText;
+
+
+  titleRowElement.appendChild(titleCell);
+
+  thead.appendChild(titleRowElement);
+
+
+  /*
+     Blank row
+  */
+
+  const spacer=
+    document.createElement("tr");
+
+  spacer.className="spacer-row";
+
+
+  const spacerCell=
+    document.createElement("td");
+
+  spacerCell.colSpan=8;
+
+  spacer.appendChild(spacerCell);
+
+  thead.appendChild(spacer);
+
+
+  /*
+     Main header
+  */
+
+  const header1=
+    document.createElement("tr");
+
+  header1.className="main-header";
 
 
   const cr=
     document.createElement("th");
 
   cr.rowSpan=2;
+
   cr.innerText="क्र";
 
-  r1.appendChild(cr);
+  header1.appendChild(cr);
 
 
   const target=
     document.createElement("th");
 
   target.colSpan=3;
+
   target.innerText="लक्ष्य";
 
-  r1.appendChild(target);
+  header1.appendChild(target);
 
 
   const achievement=
     document.createElement("th");
 
   achievement.colSpan=3;
+
   achievement.innerText="उपलब्धि";
 
-  r1.appendChild(achievement);
+  header1.appendChild(achievement);
 
 
   const percentage=
     document.createElement("th");
 
   percentage.rowSpan=2;
+
   percentage.innerText="प्रतिशत";
 
-  r1.appendChild(percentage);
+  header1.appendChild(percentage);
 
 
-  thead.appendChild(r1);
+  thead.appendChild(header1);
 
 
   /*
-     ROW 2
+     Sub header
   */
 
-  const r2=
+  const header2=
     document.createElement("tr");
+
+  header2.className="sub-header";
 
 
   [
@@ -1501,51 +1718,41 @@ function createAyushmanSection(
 
     th.innerText=text;
 
-    r2.appendChild(th);
+    header2.appendChild(th);
 
   });
 
 
-  thead.appendChild(r2);
+  thead.appendChild(header2);
 
 
   table.appendChild(thead);
 
 
-  /* ================= DATA ================= */
+  /* =====================================================
+     DATA
+     ===================================================== */
 
   const tbody=
     document.createElement("tbody");
 
 
-  /*
-     IMPORTANT:
-     Title के बाद आने वाली rows में
-     header और फिर data है।
-
-     हम अगले section तक data लेते हैं।
-  */
-
-
-  let headerFound=false;
+  let headerStarted=false;
 
 
   for(
     let r=titleRow+1;
-    r<data.rows.length;
+    r<endRow;
     r++
   ){
 
-    let values=[];
+    const values=[];
 
-    for(
-      let c=0;
-      c<8;
-      c++
-    ){
+
+    for(let c=0;c<8;c++){
 
       values.push(
-        cell(data,r,c)
+        cleanText(cell(data,r,c))
       );
 
     }
@@ -1556,35 +1763,27 @@ function createAyushmanSection(
 
 
     /*
-       अगली section heading मिल गई
+       Empty row
     */
 
-    if(
-      r>titleRow &&
-      (
-        text.includes("आयुष्मान कार्ड") ||
-        text.includes("वय वंदन")
-      )
-    ){
-
-      break;
-
+    if(text===""){
+      continue;
     }
 
 
     /*
-       Header row पहचानें
+       Header row: क्र / लक्ष्य / उपलब्धि
     */
 
     if(
-      text.includes("क्र") ||
+      values[0]==="क्र" ||
       (
         text.includes("लक्ष्य") &&
         text.includes("उपलब्धि")
       )
     ){
 
-      headerFound=true;
+      headerStarted=true;
 
       continue;
 
@@ -1592,7 +1791,8 @@ function createAyushmanSection(
 
 
     /*
-       ग्रामीण / अर्बन वाली header row
+       Second header row:
+       ग्रामीण / अर्बन / योग
     */
 
     if(
@@ -1601,23 +1801,20 @@ function createAyushmanSection(
       text.includes("योग")
     ){
 
+      headerStarted=true;
+
       continue;
 
     }
 
 
     /*
-       Blank row
+       अगर header अभी तक नहीं मिला
+       तो आगे बढ़ें।
     */
 
-    if(text===""){
-
-      if(headerFound){
-        continue;
-      }
-
+    if(!headerStarted){
       continue;
-
     }
 
 
@@ -1625,167 +1822,76 @@ function createAyushmanSection(
        वास्तविक data row
     */
 
-    if(headerFound){
-
-      const tr=
-        document.createElement("tr");
+    const tr=
+      document.createElement("tr");
 
 
-      for(
-        let c=0;
-        c<8;
-        c++
-      ){
+    for(let c=0;c<8;c++){
 
-        const td=
-          document.createElement("td");
+      const td=
+        document.createElement("td");
 
 
-        td.innerText=
-          values[c]||"";
-
-
-        /*
-           क्र
-        */
-
-        if(c===0){
-
-          td.style.fontWeight="700";
-
-        }
-
-
-        /*
-           लक्ष्य योग
-        */
-
-        if(c===3){
-
-          td.classList.add(
-            "total-cell"
-          );
-
-        }
-
-
-        /*
-           उपलब्धि योग
-        */
-
-        if(c===6){
-
-          td.classList.add(
-            "total-cell"
-          );
-
-        }
-
-
-        /*
-           प्रतिशत
-        */
-
-        if(c===7){
-
-          td.classList.add(
-            "percent-cell"
-          );
-
-        }
-
-
-        tr.appendChild(td);
-
-      }
-
-
-      tbody.appendChild(tr);
+      td.innerText=
+        values[c] || "";
 
 
       /*
-         अगर अगली meaningful row blank है
-         तो current section का data समाप्त।
+         पहला column - क्रम
       */
 
-      let nextNonEmpty=-1;
+      if(c===0){
 
-
-      for(
-        let nr=r+1;
-        nr<data.rows.length;
-        nr++
-      ){
-
-        let next="";
-
-        for(
-          let c=0;
-          c<8;
-          c++
-        ){
-
-          next+=
-            " "+
-            cell(data,nr,c);
-
-        }
-
-
-        if(next.trim()!==""){
-
-          nextNonEmpty=nr;
-
-          break;
-
-        }
+        td.style.fontWeight="700";
 
       }
 
 
       /*
-         अगली section heading है
+         लक्ष्य का योग
       */
 
-      if(
-        nextNonEmpty!==-1
-      ){
+      if(c===3){
 
-        let nextText="";
-
-        for(
-          let c=0;
-          c<8;
-          c++
-        ){
-
-          nextText+=
-            " "+
-            cell(
-              data,
-              nextNonEmpty,
-              c
-            );
-
-        }
-
-
-        if(
-          nextText.includes(
-            "आयुष्मान कार्ड"
-          ) ||
-          nextText.includes(
-            "वय वंदन"
-          )
-        ){
-
-          break;
-
-        }
+        td.classList.add(
+          "total-cell"
+        );
 
       }
+
+
+      /*
+         उपलब्धि का योग
+      */
+
+      if(c===6){
+
+        td.classList.add(
+          "total-cell"
+        );
+
+      }
+
+
+      /*
+         प्रतिशत
+      */
+
+      if(c===7){
+
+        td.classList.add(
+          "percent-cell"
+        );
+
+      }
+
+
+      tr.appendChild(td);
 
     }
+
+
+    tbody.appendChild(tr);
 
   }
 
@@ -1796,156 +1902,20 @@ function createAyushmanSection(
 
 
   document
-    .getElementById(
-      "ayushmanSections"
-    )
+    .getElementById("ayushmanSections")
     .appendChild(wrapper);
 
 }
 
 
-/* =====================================================
-   FALLBACK
-===================================================== */
-
-function createFallbackAyushman(data){
-
-  const wrapper=
-    document.createElement("div");
-
-  wrapper.className=
-    "ayushman-section";
-
-
-  const title=
-    document.createElement("div");
-
-  title.className=
-    "ayushman-title";
-
-  title.innerText=
-    "आयुष्मान कार्ड";
-
-  wrapper.appendChild(title);
-
-
-  const table=
-    document.createElement("table");
-
-  table.className=
-    "ayushman-table";
-
-
-  table.innerHTML=`
-
-    <thead>
-
-      <tr>
-
-        <th rowspan="2">क्र</th>
-
-        <th colspan="3">लक्ष्य</th>
-
-        <th colspan="3">उपलब्धि</th>
-
-        <th rowspan="2">प्रतिशत</th>
-
-      </tr>
-
-      <tr>
-
-        <th>ग्रामीण</th>
-        <th>अर्बन</th>
-        <th>योग</th>
-
-        <th>ग्रामीण</th>
-        <th>अर्बन</th>
-        <th>योग</th>
-
-      </tr>
-
-    </thead>
-
-  `;
-
-
-  const tbody=
-    document.createElement("tbody");
-
-
-  for(
-    let r=0;
-    r<data.rows.length;
-    r++
-  ){
-
-    const values=[];
-
-    for(
-      let c=0;
-      c<8;
-      c++
-    ){
-
-      values.push(
-        cell(data,r,c)
-      );
-
-    }
-
-
-    if(
-      values.some(v=>v!=="")
-    ){
-
-      const tr=
-        document.createElement("tr");
-
-
-      values.forEach(
-        value=>{
-
-          const td=
-            document.createElement("td");
-
-          td.innerText=value;
-
-          tr.appendChild(td);
-
-        }
-      );
-
-
-      tbody.appendChild(tr);
-
-    }
-
-  }
-
-
-  table.appendChild(tbody);
-
-  wrapper.appendChild(table);
-
-  document
-    .getElementById(
-      "ayushmanSections"
-    )
-    .appendChild(wrapper);
-
-}
-
-
-/* =====================================================
+/* =========================================================
    NORMAL TABLE
-===================================================== */
+   ========================================================= */
 
 function renderNormalTable(data){
 
   const table=
-    document.getElementById(
-      "reportTable"
-    );
+    document.getElementById("reportTable");
 
   table.style.display="table";
 
@@ -2042,16 +2012,14 @@ function renderNormalTable(data){
 }
 
 
-/* =====================================================
+/* =========================================================
    NCD
-===================================================== */
+   ========================================================= */
 
 function renderNCDTable(data){
 
   const table=
-    document.getElementById(
-      "reportTable"
-    );
+    document.getElementById("reportTable");
 
   table.style.display="table";
 
@@ -2126,10 +2094,14 @@ function renderNCDTable(data){
       th.colSpan=span;
 
       if(span===1){
+
         th.rowSpan=2;
         th.className="ncd-sub";
+
       }else{
+
         th.className="ncd-group";
+
       }
 
       gr.appendChild(th);
@@ -2214,9 +2186,9 @@ function renderNCDTable(data){
 }
 
 
-/* =====================================================
+/* =========================================================
    SEARCH
-===================================================== */
+   ========================================================= */
 
 function filterTable(){
 
@@ -2262,9 +2234,9 @@ function filterTable(){
 }
 
 
-/* =====================================================
+/* =========================================================
    PDF
-===================================================== */
+   ========================================================= */
 
 async function downloadPDF(){
 
@@ -2345,16 +2317,14 @@ async function downloadPDF(){
   }
 
 
-  area.classList.remove(
-    "pdf-mode"
-  );
+  area.classList.remove("pdf-mode");
 
 }
 
 
-/* =====================================================
+/* =========================================================
    PRINT
-===================================================== */
+   ========================================================= */
 
 function printReport(){
 
@@ -2373,9 +2343,9 @@ function printReport(){
 }
 
 
-/* =====================================================
+/* =========================================================
    START
-===================================================== */
+   ========================================================= */
 
 createMenu();
 
