@@ -16,199 +16,196 @@
 
 body{
   margin:0;
-  padding:20px;
-  font-family:Arial, sans-serif;
-  background:#f2f4f7;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#f3f6fa;
   color:#222;
 }
 
-.container{
-  max-width:1500px;
-  margin:auto;
+.header{
+  background:linear-gradient(135deg,#0d47a1,#1976d2);
+  color:white;
+  padding:18px 20px;
+  text-align:center;
 }
 
-.top-buttons{
+.header h1{
+  margin:0;
+  font-size:28px;
+}
+
+.header p{
+  margin:7px 0 0;
+  font-size:15px;
+}
+
+.container{
+  width:96%;
+  max-width:1600px;
+  margin:20px auto;
+}
+
+.toolbar{
   display:flex;
   gap:10px;
-  justify-content:center;
-  margin-bottom:20px;
   flex-wrap:wrap;
+  margin-bottom:15px;
 }
 
 button{
-  border:0;
-  padding:10px 18px;
+  border:none;
+  padding:10px 16px;
   border-radius:6px;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:bold;
-}
-
-.btn-print{
   background:#1976d2;
   color:white;
-}
-
-.btn-pdf{
-  background:#388e3c;
-  color:white;
-}
-
-.page{
-  background:white;
-  padding:18px;
-  margin-bottom:25px;
-  box-shadow:0 2px 10px rgba(0,0,0,.12);
-  page-break-after:always;
-}
-
-.page:last-child{
-  page-break-after:auto;
-}
-
-.heading{
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-  margin:5px 0 4px;
-}
-
-.sub-heading{
-  text-align:center;
+  cursor:pointer;
   font-size:14px;
-  margin-bottom:15px;
+}
+
+button:hover{
+  background:#0d47a1;
+}
+
+.section{
+  background:white;
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+  padding:15px;
+  margin-bottom:25px;
+}
+
+.section-title{
+  background:#0d47a1;
+  color:white;
+  padding:12px 15px;
+  border-radius:7px;
+  font-size:20px;
   font-weight:bold;
+  margin-bottom:12px;
+}
+
+.date-line{
+  text-align:right;
+  font-size:14px;
+  color:#555;
+  margin-bottom:10px;
 }
 
 .table-wrap{
-  width:100%;
   overflow-x:auto;
+  width:100%;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  table-layout:auto;
-  font-size:13px;
+  min-width:1100px;
+  background:white;
 }
 
 th{
-  background:#d9eaf7;
-  border:1px solid #555;
-  padding:8px 5px;
-  text-align:center;
+  background:#1976d2;
+  color:white;
   font-weight:bold;
-  white-space:normal;
+  text-align:center;
+  padding:9px 7px;
+  border:1px solid #d0d7de;
+  white-space:nowrap;
 }
 
 td{
-  border:1px solid #777;
-  padding:6px 5px;
+  padding:8px 7px;
+  border:1px solid #d0d7de;
   text-align:center;
   white-space:nowrap;
 }
 
-/* Sector column */
+tbody tr:nth-child(even){
+  background:#f8fbff;
+}
+
+/* कोई अलग highlighted row नहीं */
+tbody tr.highlight,
+tbody tr.highlight td{
+  background:inherit !important;
+  color:inherit !important;
+  font-weight:normal !important;
+}
+
+/* Sector को स्पष्ट दिखाने के लिए */
 td.sector{
   font-weight:bold;
-  text-align:left;
+  background:#eef5ff;
+  color:#0d47a1;
 }
 
-/* Facility column */
-td.facility{
-  text-align:left;
-  font-weight:500;
-}
-
-/* TOTAL */
+/* Total row */
 .total-row td{
+  background:#e3f2fd !important;
   font-weight:bold;
-  background:#eeeeee;
-  border-top:2px solid #333;
+  color:#0d47a1;
 }
 
-/* No special highlighted rows */
-.normal-row{
-  background:white !important;
+/* दूसरी table */
+.summary-section{
+  margin-top:30px;
 }
 
-.date-line{
-  text-align:center;
-  font-size:13px;
+.summary-title{
+  background:#1565c0;
+  color:white;
+  padding:12px 15px;
+  border-radius:7px;
+  font-size:20px;
+  font-weight:bold;
   margin-bottom:12px;
 }
 
-.loading{
-  text-align:center;
-  padding:30px;
-  font-weight:bold;
+.summary-table th{
+  background:#455a64;
 }
 
-.error{
-  color:#c62828;
-  text-align:center;
-  padding:20px;
-  font-weight:bold;
+.summary-table td.sector{
+  background:#f1f8ff;
 }
 
-/* Page 2 */
-.page2 table{
-  font-size:14px;
+.note{
+  margin-top:12px;
+  color:#666;
+  font-size:13px;
 }
 
-.page2 th{
-  background:#d9eaf7;
-}
-
-/* Print */
-@media print{
-
-  body{
-    background:white;
-    padding:0;
+@media(max-width:768px){
+  .header h1{
+    font-size:21px;
   }
 
-  .top-buttons{
+  .section-title,
+  .summary-title{
+    font-size:17px;
+  }
+
+  button{
+    font-size:12px;
+    padding:8px 12px;
+  }
+}
+
+@media print{
+  body{
+    background:white;
+  }
+
+  .toolbar{
     display:none;
   }
 
-  .page{
+  .section{
     box-shadow:none;
-    margin:0;
-    padding:8px;
-    page-break-after:always;
+    page-break-inside:auto;
   }
 
-  table{
-    font-size:10px;
-  }
-
-  th,td{
-    padding:4px 3px;
-  }
-
-  .heading{
-    font-size:18px;
-  }
-}
-
-/* Mobile */
-@media(max-width:800px){
-
-  body{
-    padding:8px;
-  }
-
-  .page{
-    padding:8px;
-  }
-
-  .heading{
-    font-size:18px;
-  }
-
-  table{
-    font-size:11px;
+  tr{
+    page-break-inside:avoid;
   }
 }
 </style>
@@ -216,759 +213,275 @@ td.facility{
 
 <body>
 
-<div class="container">
+<div class="header">
+  <h1>Kharsia Health Dashboard</h1>
+  <p>RCH 2.0 PW Registration — FY 2026-27</p>
+</div>
 
-  <div class="top-buttons">
-    <button class="btn-print" onclick="window.print()">
-      🖨️ Print
-    </button>
+<div class="container" id="report">
 
-    <button class="btn-pdf" onclick="makePDF()">
-      📄 PDF
-    </button>
+  <div class="toolbar">
+    <button onclick="location.reload()">🔄 Refresh Data</button>
+    <button onclick="downloadPDF()">📄 Download PDF</button>
+    <button onclick="window.print()">🖨️ Print</button>
   </div>
 
+  <!-- =========================
+       PAGE / SECTION 1
+       42 FACILITIES
+       ========================= -->
 
-  <!-- =====================================================
-       PAGE 1 : FY 2026-27
-       ===================================================== -->
+  <div class="section">
 
-  <section class="page" id="page2026">
-
-    <div class="heading" id="heading2026">
+    <div class="section-title" id="mainHeading">
       RCH 2.0 PW Registration Detail FY 2026-27
     </div>
 
-    <div class="date-line" id="date2026">
-      As on Date: -
+    <div class="date-line" id="mainDate">
+      As on Date: 01-08-2026
     </div>
 
-    <div id="table2026">
-      <div class="loading">
-        2026-27 का data load हो रहा है...
-      </div>
+    <div class="table-wrap">
+
+      <table id="mainTable">
+
+        <thead>
+          <tr>
+            <th>Sn</th>
+            <th>Sector</th>
+            <th>HFR ID</th>
+            <th>Health Facility</th>
+            <th>Health Facility Type</th>
+            <th>HMIS PW Registration</th>
+            <th>RCH 2.0 PW Registration</th>
+            <th>%</th>
+            <th>Tem.<br>Registration</th>
+            <th>Backlog</th>
+            <th>High Risk</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr><td>1</td><td class="sector">Barra</td><td>IN2210002161</td><td>BARRA</td><td>AAM-SHC</td><td>21</td><td>20</td><td>95</td><td>2</td><td>-1</td><td>1</td></tr>
+
+          <tr><td>2</td><td class="sector">Barra</td><td>IN2210002145</td><td>DEHJARI</td><td>AAM-SHC</td><td>6</td><td>11</td><td>183</td><td>6</td><td>5</td><td>7</td></tr>
+
+          <tr><td>3</td><td class="sector">Barra</td><td>IN2210002154</td><td>FARKANARA</td><td>AAM-SHC</td><td>13</td><td>23</td><td>177</td><td>3</td><td>10</td><td>4</td></tr>
+
+          <tr><td>4</td><td class="sector">Binjkot</td><td>IN2210002274</td><td>BADE DUMARPALI</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>1</td></tr>
+
+          <tr><td>5</td><td class="sector">Binjkot</td><td>IN2210002296</td><td>BARBHAUNA</td><td>AAM-SHC</td><td>12</td><td>13</td><td>108</td><td>4</td><td>1</td><td>7</td></tr>
+
+          <tr><td>6</td><td class="sector">Binjkot</td><td>IN2210002316</td><td>BHUPDEOPUR</td><td>AAM-SHC</td><td>10</td><td>18</td><td>180</td><td>6</td><td>8</td><td>9</td></tr>
+
+          <tr><td>7</td><td class="sector">Binjkot</td><td>IN2210002373</td><td>BINJKOT</td><td>AAM-SHC</td><td>10</td><td>1</td><td>10</td><td>1</td><td>-9</td><td>0</td></tr>
+
+          <tr><td>8</td><td class="sector">Binjkot</td><td>IN2210002428</td><td>GURDA</td><td>AAM-SHC</td><td>6</td><td>8</td><td>133</td><td>2</td><td>2</td><td>5</td></tr>
+
+          <tr><td>9</td><td class="sector">Binjkot</td><td>IN2210002357</td><td>LODHAJHAR</td><td>AAM-SHC</td><td>17</td><td>27</td><td>159</td><td>6</td><td>10</td><td>14</td></tr>
+
+          <tr><td>10</td><td class="sector">Binjkot</td><td>IN2210002344</td><td>MURA</td><td>AAM-SHC</td><td>15</td><td>16</td><td>107</td><td>3</td><td>1</td><td>13</td></tr>
+
+          <tr><td>11</td><td class="sector">Binjkot</td><td>IN2210002389</td><td>NAHARPALI</td><td>AAM-SHC</td><td>12</td><td>19</td><td>158</td><td>2</td><td>7</td><td>12</td></tr>
+
+          <tr><td>12</td><td class="sector">Binjkot</td><td>IN2210002259</td><td>PAMGARH</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>5</td><td>1</td><td>6</td></tr>
+
+          <tr><td>13</td><td class="sector">Gorpar</td><td>IN2210002269</td><td>GANDAPALI</td><td>AAM-SHC</td><td>14</td><td>10</td><td>71</td><td>0</td><td>-4</td><td>0</td></tr>
+
+          <tr><td>14</td><td class="sector">Gorpar</td><td>IN2210002239</td><td>GORPAR</td><td>AAM-SHC</td><td>23</td><td>28</td><td>122</td><td>3</td><td>5</td><td>2</td></tr>
+
+          <tr><td>15</td><td class="sector">Gorpar</td><td>IN2210002256</td><td>KHADGAON</td><td>AAM-SHC</td><td>13</td><td>17</td><td>131</td><td>5</td><td>4</td><td>3</td></tr>
+
+          <tr><td>16</td><td class="sector">Jobi</td><td>IN2210002127</td><td>KHAMHAR</td><td>AAM-SHC</td><td>15</td><td>17</td><td>113</td><td>0</td><td>2</td><td>2</td></tr>
+
+          <tr><td>17</td><td class="sector">Jobi</td><td>IN2210002543</td><td>NAGOI</td><td>AAM-SHC</td><td>7</td><td>13</td><td>186</td><td>7</td><td>6</td><td>4</td></tr>
+
+          <tr><td>18</td><td class="sector">Jobi</td><td>IN2210002119</td><td>NANDGAON</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>8</td><td>3</td><td>2</td></tr>
+
+          <tr><td>19</td><td class="sector">Sarwani</td><td>IN2210003173</td><td>AURDA</td><td>AAM-SHC</td><td>10</td><td>11</td><td>110</td><td>0</td><td>1</td><td>1</td></tr>
+
+          <tr><td>20</td><td class="sector">Sarwani</td><td>IN2210003325</td><td>BARGARH</td><td>AAM-SHC</td><td>7</td><td>17</td><td>243</td><td>2</td><td>10</td><td>5</td></tr>
+
+          <tr><td>21</td><td class="sector">Sarwani</td><td>IN2210003254</td><td>BOTALDA</td><td>AAM-SHC</td><td>24</td><td>28</td><td>117</td><td>2</td><td>4</td><td>8</td></tr>
+
+          <tr><td>22</td><td class="sector">Sarwani</td><td>IN2210003239</td><td>CHHOTE DEOGAON</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>3</td><td>5</td><td>3</td></tr>
+
+          <tr><td>23</td><td class="sector">Sarwani</td><td>IN2210003307</td><td>MADANPUR</td><td>AAM-SHC</td><td>30</td><td>54</td><td>180</td><td>12</td><td>24</td><td>15</td></tr>
+
+          <tr><td>24</td><td class="sector">Sarwani</td><td>IN2210002417</td><td>PARASKOL</td><td>AAM-SHC</td><td>13</td><td>13</td><td>100</td><td>0</td><td>0</td><td>9</td></tr>
+
+          <tr><td>25</td><td class="sector">Sarwani</td><td>IN2210003214</td><td>SARWANI</td><td>AAM-SHC</td><td>16</td><td>23</td><td>144</td><td>3</td><td>7</td><td>1</td></tr>
+
+          <tr><td>26</td><td class="sector">Sarwani</td><td>IN2210003203</td><td>TIUR</td><td>AAM-SHC</td><td>9</td><td>7</td><td>78</td><td>5</td><td>-2</td><td>0</td></tr>
+
+          <tr><td>27</td><td class="sector">Sondka</td><td>IN2210002521</td><td>BANIPATHAR</td><td>AAM-SHC</td><td>7</td><td>12</td><td>171</td><td>1</td><td>5</td><td>2</td></tr>
+
+          <tr><td>28</td><td class="sector">Sondka</td><td>IN2210003092</td><td>BASNAJHAR</td><td>AAM-SHC</td><td>19</td><td>31</td><td>163</td><td>5</td><td>12</td><td>17</td></tr>
+
+          <tr><td>29</td><td class="sector">Sondka</td><td>IN2210002507</td><td>GIDHA</td><td>AAM-SHC</td><td>11</td><td>16</td><td>145</td><td>2</td><td>5</td><td>7</td></tr>
+
+          <tr><td>30</td><td class="sector">Sondka</td><td>IN2210002539</td><td>JAIMURA</td><td>AAM-SHC</td><td>9</td><td>12</td><td>133</td><td>0</td><td>3</td><td>1</td></tr>
+
+          <tr><td>31</td><td class="sector">Sondka</td><td>IN2210003101</td><td>KUNKUNI</td><td>AAM-SHC</td><td>26</td><td>23</td><td>88</td><td>12</td><td>-3</td><td>4</td></tr>
+
+          <tr><td>32</td><td class="sector">Sondka</td><td>IN2210002531</td><td>SONBARSA</td><td>AAM-SHC</td><td>8</td><td>6</td><td>75</td><td>0</td><td>-2</td><td>0</td></tr>
+
+          <tr><td>33</td><td class="sector">Sondka</td><td>IN2210003123</td><td>SONDKA</td><td>AAM-SHC</td><td>5</td><td>5</td><td>100</td><td>0</td><td>0</td><td>0</td></tr>
+
+          <tr><td>34</td><td class="sector">Sondka</td><td>IN2210002545</td><td>TEMTEMA</td><td>AAM-SHC</td><td>8</td><td>14</td><td>175</td><td>0</td><td>6</td><td>2</td></tr>
+
+          <tr><td>35</td><td class="sector">Turekela</td><td>IN2210002178</td><td>BAKELI</td><td>AAM-SHC</td><td>7</td><td>10</td><td>143</td><td>0</td><td>3</td><td>6</td></tr>
+
+          <tr><td>36</td><td class="sector">Turekela</td><td>IN2210002190</td><td>DUMARBHANTHA</td><td>AAM-SHC</td><td>21</td><td>21</td><td>100</td><td>1</td><td>0</td><td>16</td></tr>
+
+          <tr><td>37</td><td class="sector">Turekela</td><td>IN2210002213</td><td>HALAHULI</td><td>AAM-SHC</td><td>12</td><td>16</td><td>133</td><td>3</td><td>4</td><td>4</td></tr>
+
+          <tr><td>38</td><td class="sector">Turekela</td><td>IN2210002199</td><td>MAHUAPALI</td><td>AAM-SHC</td><td>19</td><td>38</td><td>200</td><td>0</td><td>19</td><td>12</td></tr>
+
+          <tr><td>39</td><td class="sector">Turekela</td><td>IN2210002224</td><td>MAKRI</td><td>AAM-SHC</td><td>11</td><td>17</td><td>155</td><td>5</td><td>6</td><td>6</td></tr>
+
+          <tr><td>40</td><td class="sector">Turekela</td><td>IN2210002236</td><td>TELIKOT</td><td>AAM-SHC</td><td>17</td><td>30</td><td>176</td><td>3</td><td>13</td><td>7</td></tr>
+
+          <tr><td>41</td><td class="sector">Turekela</td><td>IN2210002207</td><td>TUREKELA</td><td>AAM-SHC</td><td>9</td><td>14</td><td>156</td><td>5</td><td>5</td><td>0</td></tr>
+
+          <tr><td>42</td><td class="sector">Urban Kharsia</td><td>IN2210000364</td><td>Urban Kharsia</td><td>SDH</td><td>64</td><td>85</td><td>133</td><td>64</td><td>21</td><td>8</td></tr>
+
+          <tr class="total-row">
+            <td colspan="5">TOTAL</td>
+            <td>588</td>
+            <td>787</td>
+            <td>134</td>
+            <td>193</td>
+            <td>199</td>
+            <td>226</td>
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+
+  <!-- =========================
+       SECTION 2
+       SECTOR SUMMARY 1-8
+       ========================= -->
+
+  <div class="section summary-section">
+
+    <div class="summary-title">
+      RCH 2.0 PW Registration Detail FY 2026-27 — Sector Wise Summary
     </div>
 
-  </section>
+    <div class="table-wrap">
 
+      <table class="summary-table">
 
-  <!-- =====================================================
-       PAGE 2 : FY 2025-26
-       ===================================================== -->
+        <thead>
+          <tr>
+            <th>Sn</th>
+            <th>Sector</th>
+            <th>HFR ID</th>
+            <th>Health Facility</th>
+            <th>Health Facility Type</th>
+            <th>HMIS PW Registration</th>
+            <th>RCH 2.0 PW Registration</th>
+            <th>%</th>
+            <th>Tem.<br>Registration</th>
+            <th>Backlog</th>
+            <th>High Risk</th>
+          </tr>
+        </thead>
 
-  <section class="page page2" id="page2025">
+        <tbody>
 
-    <div class="heading" id="heading2025">
-      RCH 2.0 PW Registration Detail FY 2025-26
+          <tr><td>1</td><td class="sector">Barra</td><td>-</td><td>3</td><td>SHC</td><td>40</td><td>54</td><td>135</td><td>11</td><td>-14</td><td>12</td></tr>
+
+          <tr><td>2</td><td class="sector">Binjkot</td><td>-</td><td>9</td><td>SHC</td><td>98</td><td>121</td><td>123</td><td>31</td><td>-23</td><td>67</td></tr>
+
+          <tr><td>3</td><td class="sector">Gorpar</td><td>-</td><td>3</td><td>SHC</td><td>50</td><td>55</td><td>110</td><td>8</td><td>-5</td><td>5</td></tr>
+
+          <tr><td>4</td><td class="sector">Jobi</td><td>-</td><td>3</td><td>SHC</td><td>29</td><td>40</td><td>138</td><td>15</td><td>-11</td><td>8</td></tr>
+
+          <tr><td>5</td><td class="sector">Sarwani</td><td>-</td><td>8</td><td>SHC</td><td>118</td><td>167</td><td>142</td><td>27</td><td>-49</td><td>42</td></tr>
+
+          <tr><td>6</td><td class="sector">Sondka</td><td>-</td><td>8</td><td>SHC</td><td>93</td><td>119</td><td>128</td><td>20</td><td>-26</td><td>33</td></tr>
+
+          <tr><td>7</td><td class="sector">Turekela</td><td>-</td><td>7</td><td>SHC</td><td>96</td><td>146</td><td>152</td><td>17</td><td>-50</td><td>51</td></tr>
+
+          <tr><td>8</td><td class="sector">Urban Kharsia</td><td>-</td><td>-</td><td>SDH</td><td>64</td><td>85</td><td>133</td><td>64</td><td>21</td><td>8</td></tr>
+
+          <tr class="total-row">
+            <td colspan="5">TOTAL</td>
+            <td>588</td>
+            <td>787</td>
+            <td>134</td>
+            <td>193</td>
+            <td>199</td>
+            <td>226</td>
+          </tr>
+
+        </tbody>
+      </table>
+
     </div>
 
-    <div class="date-line" id="date2025">
-      As on Date: -
+    <div class="note">
+      Data Source: Google Sheet — RCH 2.0 PW Registration
     </div>
 
-    <div id="table2025">
-      <div class="loading">
-        2025-26 का data load हो रहा है...
-      </div>
-    </div>
-
-  </section>
+  </div>
 
 </div>
 
 
 <script>
 
-/* ==========================================================
-   GOOGLE SHEET URL
-   ==========================================================
+/* ===============================
+   GOOGLE SHEET INFORMATION
+   =============================== */
 
-   नीचे अपनी Google Sheet की Published CSV URL डालें।
+const SHEET_ID =
+"1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0";
 
-   Example:
+const SHEET_GID =
+"1044088930";
 
-   https://docs.google.com/spreadsheets/d/XXXXX/gviz/tq?tqx=out:csv&gid=0
 
-   यदि दोनों data एक ही sheet में हैं तो अलग-अलग gid
-   या अलग sheet/tab की URL इस्तेमाल करें।
-   ========================================================== */
+/* ===============================
+   PDF DOWNLOAD
+   =============================== */
 
-const SHEET_URL_2026 =
-"https://docs.google.com/spreadsheets/d/XXXXXXXXXXXX/gviz/tq?tqx=out:csv&gid=0";
+function downloadPDF(){
 
-const SHEET_URL_2025 =
-"https://docs.google.com/spreadsheets/d/XXXXXXXXXXXX/gviz/tq?tqx=out:csv&gid=1";
+  const element =
+    document.getElementById("report");
 
+  const options = {
+    margin: 5,
+    filename:
+      "Kharsia_RCH_2.0_PW_Registration_FY_2026-27.pdf",
 
-/* ==========================================================
-   CSV READER
-   ========================================================== */
-
-function parseCSV(text){
-
-  const rows=[];
-  let row=[];
-  let cell="";
-  let insideQuotes=false;
-
-  for(let i=0;i<text.length;i++){
-
-    const char=text[i];
-    const next=text[i+1];
-
-    if(char === '"' && insideQuotes && next === '"'){
-      cell+='"';
-      i++;
-      continue;
-    }
-
-    if(char === '"'){
-      insideQuotes=!insideQuotes;
-      continue;
-    }
-
-    if(char === ',' && !insideQuotes){
-      row.push(cell.trim());
-      cell="";
-      continue;
-    }
-
-    if((char === '\n' || char === '\r') && !insideQuotes){
-
-      if(char === '\r' && next === '\n'){
-        i++;
-      }
-
-      row.push(cell.trim());
-      cell="";
-
-      if(row.some(x=>x!=="")){
-        rows.push(row);
-      }
-
-      row=[];
-      continue;
-    }
-
-    cell+=char;
-  }
-
-  if(cell!=="" || row.length){
-    row.push(cell.trim());
-    if(row.some(x=>x!=="")){
-      rows.push(row);
-    }
-  }
-
-  return rows;
-}
-
-
-/* ==========================================================
-   CLEAN TEXT
-   ========================================================== */
-
-function clean(value){
-
-  if(value===undefined || value===null){
-    return "";
-  }
-
-  return String(value)
-    .replace(/\*\*/g,"")
-    .replace(/<br\s*\/?>/gi," ")
-    .trim();
-}
-
-
-/* ==========================================================
-   NUMBER
-   ========================================================== */
-
-function num(value){
-
-  const v=clean(value)
-    .replace(/,/g,"")
-    .replace("%","");
-
-  if(v==="") return "";
-
-  const n=Number(v);
-
-  if(Number.isNaN(n)){
-    return clean(value);
-  }
-
-  return n;
-}
-
-
-/* ==========================================================
-   FIND HEADER ROW
-   ========================================================== */
-
-function findHeader(rows){
-
-  for(let i=0;i<rows.length;i++){
-
-    const line=rows[i]
-      .map(x=>clean(x).toLowerCase())
-      .join(" | ");
-
-    if(
-      line.includes("sn") &&
-      line.includes("sector") &&
-      line.includes("hfr")
-    ){
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-
-/* ==========================================================
-   FIND TITLE / DATE
-   ========================================================== */
-
-function findTitle(rows, defaultTitle){
-
-  for(let i=0;i<Math.min(rows.length,10);i++){
-
-    const text=rows[i]
-      .map(clean)
-      .join(" ")
-      .trim();
-
-    if(
-      text.toLowerCase().includes("rch 2.0") &&
-      text.toLowerCase().includes("registration")
-    ){
-      return text;
-    }
-  }
-
-  return defaultTitle;
-}
-
-
-function findDate(rows){
-
-  for(let i=0;i<Math.min(rows.length,10);i++){
-
-    const text=rows[i]
-      .map(clean)
-      .join(" ");
-
-    const match=text.match(
-      /(?:as on date|date)\s*[:\-]?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i
-    );
-
-    if(match){
-      return match[1];
-    }
-  }
-
-  return "";
-}
-
-
-/* ==========================================================
-   MAKE TABLE 2026
-   ========================================================== */
-
-function makeTable2026(rows){
-
-  const headerIndex=findHeader(rows);
-
-  if(headerIndex===-1){
-    throw new Error("2026-27 में table heading नहीं मिली।");
-  }
-
-  const headers=[
-    "Sn",
-    "Sector",
-    "HFR ID",
-    "Health Facility",
-    "Health Facility Type",
-    "HMIS PW Registration",
-    "RCH 2.0 PW Registration",
-    "%",
-    "Tem. Registration",
-    "Backlog",
-    "High Risk"
-  ];
-
-  let html=`
-    <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-  `;
-
-  headers.forEach(h=>{
-    html+=`<th>${h}</th>`;
-  });
-
-  html+=`
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-
-  /*
-    IMPORTANT:
-
-    केवल पहली 42 rows ली जाएंगी।
-
-    इसके बाद अगर Google Sheet में 1-8
-    वाली FY 2025-26 table है तो उसे IGNORE किया जाएगा।
-  */
-
-  let count=0;
-  let total=[0,0,0,0,0,0];
-
-
-  for(let i=headerIndex+1;i<rows.length && count<42;i++){
-
-    const r=rows[i];
-
-    if(!r || r.length<5) continue;
-
-    const sn=clean(r[0]);
-
-    /*
-      केवल 1 से 42 तक numeric Sn
-    */
-    if(!/^\d+$/.test(sn)) continue;
-
-    const snNumber=Number(sn);
-
-    if(snNumber<1 || snNumber>42) continue;
-
-
-    /*
-      Total row को skip
-    */
-    if(
-      clean(r[0]).toLowerCase()==="total" ||
-      clean(r[0]).toLowerCase()==="totals"
-    ){
-      continue;
-    }
-
-
-    const sector=clean(r[1]);
-    const hfr=clean(r[2]);
-    const facility=clean(r[3]);
-    const type=clean(r[4]);
-
-    const hmis=num(r[5]);
-    const rch=num(r[6]);
-    const percent=num(r[7]);
-    const temp=num(r[8]);
-    const backlog=num(r[9]);
-    const highRisk=num(r[10]);
-
-
-    /*
-      Total calculation
-    */
-    total[0]+=Number(hmis)||0;
-    total[1]+=Number(rch)||0;
-    total[2]+=Number(percent)||0;
-    total[3]+=Number(temp)||0;
-    total[4]+=Number(backlog)||0;
-    total[5]+=Number(highRisk)||0;
-
-
-    /*
-      सभी rows normal हैं।
-      कोई special highlight नहीं।
-    */
-
-    html+=`
-      <tr class="normal-row">
-
-        <td>${snNumber}</td>
-
-        <td class="sector">
-          ${sector}
-        </td>
-
-        <td>${hfr}</td>
-
-        <td class="facility">
-          ${facility}
-        </td>
-
-        <td>${type}</td>
-
-        <td>${hmis}</td>
-
-        <td>${rch}</td>
-
-        <td>${percent}</td>
-
-        <td>${temp}</td>
-
-        <td>${backlog}</td>
-
-        <td>${highRisk}</td>
-
-      </tr>
-    `;
-
-    count++;
-  }
-
-
-  /*
-    Total row
-  */
-
-  html+=`
-      <tr class="total-row">
-
-        <td>Total</td>
-
-        <td></td>
-
-        <td></td>
-
-        <td></td>
-
-        <td></td>
-
-        <td>${total[0]}</td>
-
-        <td>${total[1]}</td>
-
-        <td>${count ? Math.round((total[1]/total[0])*100) : ""}</td>
-
-        <td>${total[3]}</td>
-
-        <td>${total[4]}</td>
-
-        <td>${total[5]}</td>
-
-      </tr>
-  `;
-
-
-  html+=`
-      </tbody>
-    </table>
-    </div>
-  `;
-
-  return html;
-}
-
-
-/* ==========================================================
-   MAKE TABLE 2025
-   ========================================================== */
-
-function makeTable2025(rows){
-
-  const headerIndex=findHeader(rows);
-
-  if(headerIndex===-1){
-    throw new Error("2025-26 में table heading नहीं मिली।");
-  }
-
-
-  const headers=[
-    "Sn",
-    "Sector",
-    "HFR ID",
-    "Health Facility",
-    "Health Facility Type",
-    "HMIS PW Registration",
-    "RCH 2.0 PW Registration",
-    "%",
-    "Tem. Registration",
-    "Backlog",
-    "High Risk"
-  ];
-
-
-  let html=`
-    <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-  `;
-
-  headers.forEach(h=>{
-    html+=`<th>${h}</th>`;
-  });
-
-  html+=`
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-
-  let count=0;
-
-  let totalHMIS=0;
-  let totalRCH=0;
-  let totalTemp=0;
-  let totalBacklog=0;
-  let totalHighRisk=0;
-
-
-  /*
-    FY 2025-26 में केवल 1 से 8
-  */
-
-  for(let i=headerIndex+1;i<rows.length && count<8;i++){
-
-    const r=rows[i];
-
-    if(!r || r.length<5) continue;
-
-    const sn=clean(r[0]);
-
-    if(!/^\d+$/.test(sn)) continue;
-
-    const snNumber=Number(sn);
-
-    if(snNumber<1 || snNumber>8) continue;
-
-
-    const sector=clean(r[1]);
-    const hfr=clean(r[2]);
-    const facility=clean(r[3]);
-    const type=clean(r[4]);
-
-    const hmis=num(r[5]);
-    const rch=num(r[6]);
-    const percent=num(r[7]);
-    const temp=num(r[8]);
-    const backlog=num(r[9]);
-    const highRisk=num(r[10]);
-
-
-    totalHMIS+=Number(hmis)||0;
-    totalRCH+=Number(rch)||0;
-    totalTemp+=Number(temp)||0;
-    totalBacklog+=Number(backlog)||0;
-    totalHighRisk+=Number(highRisk)||0;
-
-
-    html+=`
-      <tr class="normal-row">
-
-        <td>${snNumber}</td>
-
-        <td class="sector">
-          ${sector}
-        </td>
-
-        <td>${hfr}</td>
-
-        <td class="facility">
-          ${facility}
-        </td>
-
-        <td>${type}</td>
-
-        <td>${hmis}</td>
-
-        <td>${rch}</td>
-
-        <td>${percent}</td>
-
-        <td>${temp}</td>
-
-        <td>${backlog}</td>
-
-        <td>${highRisk}</td>
-
-      </tr>
-    `;
-
-    count++;
-  }
-
-
-  html+=`
-      <tr class="total-row">
-
-        <td>Total</td>
-
-        <td></td>
-
-        <td></td>
-
-        <td></td>
-
-        <td></td>
-
-        <td>${totalHMIS}</td>
-
-        <td>${totalRCH}</td>
-
-        <td>${totalHMIS ? Math.round((totalRCH/totalHMIS)*100) : ""}</td>
-
-        <td>${totalTemp}</td>
-
-        <td>${totalBacklog}</td>
-
-        <td>${totalHighRisk}</td>
-
-      </tr>
-  `;
-
-
-  html+=`
-      </tbody>
-    </table>
-    </div>
-  `;
-
-  return html;
-}
-
-
-/* ==========================================================
-   LOAD 2026
-   ========================================================== */
-
-async function load2026(){
-
-  try{
-
-    const response=await fetch(
-      SHEET_URL_2026 + "&t=" + Date.now()
-    );
-
-    if(!response.ok){
-      throw new Error("Google Sheet open नहीं हो रही है।");
-    }
-
-    const text=await response.text();
-
-    const rows=parseCSV(text);
-
-    const title=findTitle(
-      rows,
-      "RCH 2.0 PW Registration Detail FY 2026-27"
-    );
-
-    const date=findDate(rows);
-
-
-    document.getElementById("heading2026").innerText=
-      title || "RCH 2.0 PW Registration Detail FY 2026-27";
-
-
-    document.getElementById("date2026").innerText=
-      date ? "As on Date: " + date : "";
-
-
-    document.getElementById("table2026").innerHTML=
-      makeTable2026(rows);
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    document.getElementById("table2026").innerHTML=
-      `<div class="error">
-        2026-27 का data load नहीं हो पाया।<br>
-        Google Sheet URL check करें।
-      </div>`;
-  }
-}
-
-
-/* ==========================================================
-   LOAD 2025
-   ========================================================== */
-
-async function load2025(){
-
-  try{
-
-    const response=await fetch(
-      SHEET_URL_2025 + "&t=" + Date.now()
-    );
-
-    if(!response.ok){
-      throw new Error("Google Sheet open नहीं हो रही है।");
-    }
-
-    const text=await response.text();
-
-    const rows=parseCSV(text);
-
-    const title=findTitle(
-      rows,
-      "RCH 2.0 PW Registration Detail FY 2025-26"
-    );
-
-    const date=findDate(rows);
-
-
-    document.getElementById("heading2025").innerText=
-      title || "RCH 2.0 PW Registration Detail FY 2025-26";
-
-
-    document.getElementById("date2025").innerText=
-      date ? "As on Date: " + date : "";
-
-
-    document.getElementById("table2025").innerHTML=
-      makeTable2025(rows);
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    document.getElementById("table2025").innerHTML=
-      `<div class="error">
-        2025-26 का data load नहीं हो पाया।<br>
-        Google Sheet URL check करें।
-      </div>`;
-  }
-}
-
-
-/* ==========================================================
-   PDF
-   ========================================================== */
-
-function makePDF(){
-
-  const element=document.querySelector(".container");
-
-  const options={
-    margin:5,
-    filename:"Kharsia_Health_RCH_Report.pdf",
     image:{
       type:"jpeg",
       quality:0.98
     },
+
     html2canvas:{
       scale:2,
       useCORS:true
     },
+
     jsPDF:{
       unit:"mm",
       format:"a4",
       orientation:"landscape"
     },
+
     pagebreak:{
-      mode:["css","legacy"]
+      mode:["avoid-all","css","legacy"]
     }
   };
 
@@ -979,12 +492,37 @@ function makePDF(){
 }
 
 
-/* ==========================================================
-   START
-   ========================================================== */
+/* ===============================
+   SHEET DATE / HEADING
+   =============================== */
 
-load2026();
-load2025();
+/*
+   फिलहाल heading में वही date दिखाई जाएगी
+   जो आपने दिया है।
+
+   जब Google Sheet में date बदलनी हो,
+   तो नीचे DATE TEXT बदल सकते हैं।
+*/
+
+const sheetDate = "01-08-2026";
+
+document.getElementById("mainHeading").innerHTML =
+  "RCH 2.0 PW Registration Detail FY 2026-27";
+
+document.getElementById("mainDate").innerHTML =
+  "As on Date: " + sheetDate;
+
+
+/* ===============================
+   GOOGLE CHARTS LOAD
+   =============================== */
+
+google.charts.load(
+  "current",
+  {
+    packages:["corechart","bar","table"]
+  }
+);
 
 </script>
 
