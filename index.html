@@ -436,6 +436,11 @@ body{
  font-weight:800;
 }
 
+
+/* =====================================================
+   RCH PERCENT COLORS
+===================================================== */
+
 .rch-low-red{
  background:#fecaca!important;
  color:#991b1b!important;
@@ -453,6 +458,34 @@ body{
  color:#166534!important;
  font-weight:800;
 }
+
+
+/* =====================================================
+   RCH BACKLOG COLORS
+===================================================== */
+
+.rch-backlog-red{
+ background:#fecaca!important;
+ color:#991b1b!important;
+ font-weight:800!important;
+}
+
+.rch-backlog-yellow{
+ background:#fef3c7!important;
+ color:#92400e!important;
+ font-weight:800!important;
+}
+
+.rch-backlog-green{
+ background:#dcfce7!important;
+ color:#166534!important;
+ font-weight:800!important;
+}
+
+
+/* =====================================================
+   RCH WIDTH
+===================================================== */
 
 .rch-sector-table th:nth-child(1){
  width:5%;
@@ -565,9 +598,6 @@ body{
  white-space:normal!important;
 }
 
-
-/* Title */
-
 .ayushman-title-cell{
  background:#075985!important;
  color:white!important;
@@ -576,18 +606,12 @@ body{
  height:48px!important;
 }
 
-
-/* First header */
-
 .ayushman-main-header{
  background:#0f766e!important;
  color:white!important;
  font-weight:800!important;
  font-size:14px!important;
 }
-
-
-/* Second header */
 
 .ayushman-sub-header{
  background:#dbeafe!important;
@@ -596,26 +620,17 @@ body{
  font-size:13px!important;
 }
 
-
-/* Data */
-
 .ayushman-data-cell{
  background:white!important;
  font-weight:700!important;
  font-size:14px!important;
 }
 
-
-/* Percentage */
-
 .ayushman-percent{
  background:#dcfce7!important;
  color:#166534!important;
  font-weight:900!important;
 }
-
-
-/* Blank */
 
 .ayushman-blank-cell{
  height:10px!important;
@@ -624,9 +639,6 @@ body{
  border:0!important;
 }
 
-
-/* Vay Vandan title */
-
 .ayushman-vay-title-cell{
  background:#075985!important;
  color:white!important;
@@ -634,9 +646,6 @@ body{
  font-weight:800!important;
  height:46px!important;
 }
-
-
-/* Hover */
 
 .ayushman-table tr:hover td{
  background:#e0f2fe!important;
@@ -1050,7 +1059,7 @@ body{
 
 
 <!-- =====================================================
-     REPORT PAGE
+   REPORT PAGE
 ===================================================== -->
 
 <section
@@ -1980,6 +1989,69 @@ function applyRCHPercentColor(
 
 
 /* =====================================================
+   RCH BACKLOG COLOR
+===================================================== */
+
+function applyRCHBacklogColor(
+ td,
+ value,
+ average
+){
+
+ const n =
+  numericValue(value);
+
+
+ td.classList.remove(
+  "rch-backlog-red",
+  "rch-backlog-yellow",
+  "rch-backlog-green"
+ );
+
+
+ /*
+   0 = Yellow
+   Average से ज्यादा = Green
+   Average से कम = Red
+   Average के बराबर = Yellow
+ */
+
+ if(n===0){
+
+  td.classList.add(
+   "rch-backlog-yellow"
+  );
+
+ }
+
+ else if(n>average){
+
+  td.classList.add(
+   "rch-backlog-green"
+  );
+
+ }
+
+ else if(n<average){
+
+  td.classList.add(
+   "rch-backlog-red"
+  );
+
+ }
+
+ else{
+
+  td.classList.add(
+   "rch-backlog-yellow"
+  );
+
+ }
+
+}
+
+
+/* =====================================================
    RCH CELL
 ===================================================== */
 
@@ -2009,6 +2081,40 @@ function makeRCHCell(
   );
 
  }
+
+
+ return td;
+
+}
+
+
+/* =====================================================
+   RCH BACKLOG CELL
+===================================================== */
+
+function makeRCHBacklogCell(
+ value,
+ average
+){
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.innerText =
+  value===null ||
+  value===undefined
+   ?""
+   :value;
+
+
+ applyRCHBacklogColor(
+  td,
+  value,
+  average
+ );
 
 
  return td;
@@ -2488,6 +2594,20 @@ function buildRCHSectorTable(
   );
 
 
+ /*
+   Sector Wise Backlog Average
+ */
+
+ const sectorBacklogAverage =
+  sectorData.length>0
+   ?sectorData.reduce(
+     (sum,row)=>
+      sum+row.backlog,
+     0
+    )/sectorData.length
+   :0;
+
+
  sectorData.forEach(
   (row,index)=>{
 
@@ -2547,9 +2667,14 @@ function buildRCHSectorTable(
    );
 
 
+   /*
+      BACKLOG COLOR
+   */
+
    tr.appendChild(
-    makeRCHCell(
-     row.backlog
+    makeRCHBacklogCell(
+     row.backlog,
+     sectorBacklogAverage
     )
    );
 
@@ -2628,6 +2753,12 @@ function buildRCHSectorTable(
   )
  );
 
+
+ /*
+    TOTAL BACKLOG
+    Total row का original blue
+    रखा गया है।
+ */
 
  totalTr.appendChild(
   makeRCHCell(
@@ -2730,6 +2861,20 @@ function buildRCHFacilityTable(
   );
 
 
+ /*
+   Facility Wise Backlog Average
+ */
+
+ const facilityBacklogAverage =
+  parsed.facilityRows.length>0
+   ?parsed.facilityRows.reduce(
+     (sum,row)=>
+      sum+row.backlog,
+     0
+    )/parsed.facilityRows.length
+   :0;
+
+
  parsed.facilityRows
   .forEach(
    (row,index)=>{
@@ -2812,9 +2957,14 @@ function buildRCHFacilityTable(
     );
 
 
+    /*
+       BACKLOG COLOR
+    */
+
     tr.appendChild(
-     makeRCHCell(
-      row.backlog
+     makeRCHBacklogCell(
+      row.backlog,
+      facilityBacklogAverage
      )
     );
 
@@ -2938,6 +3088,12 @@ function buildRCHFacilityTable(
   )
  );
 
+
+ /*
+    TOTAL BACKLOG
+    Original total-row color
+    रखा गया है।
+ */
 
  totalTr.appendChild(
   makeRCHCell(
@@ -3176,8 +3332,6 @@ function parseAyushmanData(data){
     text.toLowerCase();
 
 
-   /* AYUSHMAN TITLE */
-
    if(
     lower.includes(
      "आयुष्मान कार्ड"
@@ -3196,8 +3350,6 @@ function parseAyushmanData(data){
    }
 
 
-   /* VAY VANDAN TITLE */
-
    if(
     lower.includes(
      "वय वंदन कार्ड"
@@ -3215,12 +3367,6 @@ function parseAyushmanData(data){
 
    }
 
-
-   /*
-    DATA ROW
-    First cell numeric
-    Total 8 columns
-   */
 
    if(
     isNumberLike(row[0]) &&
@@ -3269,11 +3415,6 @@ function parseAyushmanData(data){
   }
  );
 
-
- /*
-   अगर sheet में data नहीं मिला,
-   तो default values रखेंगे।
- */
 
  if(!ayushmanData){
 
@@ -3410,8 +3551,6 @@ function createAyushmanHeader(){
  const rows=[];
 
 
- /* HEADER ROW 1 */
-
  const tr1 =
   document.createElement(
    "tr"
@@ -3496,8 +3635,6 @@ function createAyushmanHeader(){
 
  rows.push(tr1);
 
-
- /* HEADER ROW 2 */
 
  const tr2 =
   document.createElement(
@@ -3632,21 +3769,11 @@ function renderAyushmanTable(
  tbody.innerHTML="";
 
 
- /*
-   Google Sheet से data पढ़ेंगे
- */
-
  const parsed =
   parseAyushmanData(
    data
   );
 
-
- /*
-   =====================================================
-   AYUSHMAN CARD SECTION
-   =====================================================
- */
 
  tbody.appendChild(
   createAyushmanTitle(
@@ -3683,12 +3810,6 @@ function renderAyushmanTable(
   createAyushmanBlank()
  );
 
-
- /*
-   =====================================================
-   VAY VANDAN SECTION
-   =====================================================
- */
 
  tbody.appendChild(
   createAyushmanTitle(
@@ -3786,9 +3907,8 @@ function renderNormalTable(
   th.innerText =
    data.getColumnLabel(c)
    ||
-   "Column "+(
-    c+1
-   );
+   "Column "+
+   (c+1);
 
 
   headerRow.appendChild(th);
@@ -3930,9 +4050,8 @@ function renderNCDTable(
   th.innerText =
    data.getColumnLabel(c)
    ||
-   "Column "+(
-    c+1
-   );
+   "Column "+
+   (c+1);
 
 
   header.appendChild(th);
@@ -4040,10 +4159,6 @@ function filterTable(){
   .trim();
 
 
- /*
-   RCH
- */
-
  if(
   currentReportIndex!==null &&
   REPORTS[
@@ -4073,10 +4188,6 @@ function filterTable(){
 
  }
 
-
- /*
-   Other reports
- */
 
  document
   .querySelectorAll(
@@ -4397,7 +4508,7 @@ function downloadExcel(){
   wb,
   report.name
    .replace(/\s+/g,"_")+
-   "_Kharsia.xlsx"
+  "_Kharsia.xlsx"
  );
 
 }
@@ -4438,7 +4549,7 @@ function downloadPDF(){
  const filename =
   report.name
    .replace(/\s+/g,"_")+
-   "_Kharsia.pdf";
+  "_Kharsia.pdf";
 
 
  const options={
