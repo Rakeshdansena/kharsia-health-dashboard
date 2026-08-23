@@ -1,200 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard & Modules</title>
+  <title>Kharsia Health Dashboard</title>
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    body { display: flex; height: 100vh; background-color: #f4f6f9; }
-
-    /* Sidebar Navigation */
-    .sidebar { width: 220px; background: #2c3e50; color: #fff; padding: 20px; }
-    .sidebar h2 { margin-bottom: 20px; font-size: 20px; }
-    .sidebar button {
-      width: 100%; padding: 12px; margin-bottom: 8px; border: none;
-      background: #34495e; color: white; text-align: left;
-      cursor: pointer; border-radius: 4px; font-size: 14px;
-    }
-    .sidebar button:hover, .sidebar button.active { background: #1abc9c; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { display: flex; background-color: #f4f6f9; min-height: 100vh; overflow: hidden; }
+    
+    /* Sidebar */
+    .sidebar { width: 250px; background-color: #0b253a; color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px; font-size: 11px; color: #94a3b8; font-weight: bold; border-bottom: 1px solid #1e3a5f; letter-spacing: 1px; }
+    .sidebar-menu { list-style: none; padding: 10px 0; }
+    .sidebar-menu li a { display: block; padding: 12px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .sidebar-menu li.active a, .sidebar-menu li a:hover { background-color: #0f766e; color: #fff; font-weight: bold; }
+    
     /* Main Content Area */
-    .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-    .module-section { display: none; } /* Default sab hidden rahenge */
-    .module-section.active { display: block; } /* Sirf active section dikhega */
-
-    /* Dashboard Summary Grid Cards */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #1abc9c; }
-    .card h3 { font-size: 16px; color: #7f8c8d; margin-bottom: 8px; }
-    .card p { font-size: 24px; font-weight: bold; color: #2c3e50; }
-
-    /* Forms & Tables */
-    form { margin-bottom: 20px; display: flex; gap: 10px; }
-    input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    button.btn-add { padding: 8px 15px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #ecf0f1; }
+    .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; }
+    .top-header { background-color: #0f766e; color: #fff; padding: 20px 30px; }
+    .top-header h1 { font-size: 22px; font-weight: 600; }
+    .top-header p { font-size: 13px; opacity: 0.9; }
+    
+    /* Frame Styling with full download permissions */
+    #content-frame { width: 100%; height: 100%; border: none; flex: 1; background-color: #f4f6f9; }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar Nav -->
+  <!-- Sidebar Menu -->
   <div class="sidebar">
-    <h2>My System</h2>
-    <button class="nav-btn active" onclick="showModule('dashboard')">Dashboard</button>
-    <button class="nav-btn" onclick="showModule('users')">Users Module</button>
-    <button class="nav-btn" onclick="showModule('sales')">Sales Module</button>
-    <button class="nav-btn" onclick="showModule('inventory')">Inventory Module</button>
+    <div class="sidebar-header">HEALTH PROGRAMMES</div>
+    <ul class="sidebar-menu">
+      <li id="m-dashboard"><a onclick="loadModule('dashboard.html', 'm-dashboard')">🏠 Dashboard</a></li>
+      <li id="m-ayushman" class="active"><a onclick="loadModule('ayushman.html', 'm-ayushman')">💳 Ayushman Card</a></li>
+      <li id="m-rch"><a onclick="loadModule('rch.html', 'm-rch')">👶 RCH 2.0</a></li>
+      <li id="m-ncd"><a onclick="loadModule('ncd.html', 'm-ncd')">❤️ NCD Status</a></li>
+    </ul>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main Area -->
   <div class="main-content">
-
-    <!-- 1. DASHBOARD MODULE (Default Active) -->
-    <div id="dashboard" class="module-section active">
-      <h1>Dashboard Summary</h1>
-      <p style="margin-top: 5px; color: #666;">Sabhi modules ki live summary yahan dikh rahi hai:</p>
-
-      <div class="cards-grid">
-        <div class="card">
-          <h3>Total Users</h3>
-          <p id="total-users-count">0</p>
-        </div>
-        <div class="card">
-          <h3>Total Revenue</h3>
-          <p id="total-sales-amount">₹0</p>
-        </div>
-        <div class="card">
-          <h3>Total Stock Items</h3>
-          <p id="total-inventory-count">0</p>
-        </div>
-      </div>
+    <div class="top-header">
+      <h1>Kharsia Health Dashboard</h1>
+      <p>Block Kharsia · District Raigarh · Chhattisgarh</p>
     </div>
-
-    <!-- 2. USERS MODULE -->
-    <div id="users" class="module-section">
-      <h1>Users Module</h1>
-      <br>
-      <form onsubmit="addUser(event)">
-        <input type="text" id="userName" placeholder="User Name" required>
-        <button type="submit" class="btn-add">Add User</button>
-      </form>
-      <table>
-        <thead><tr><th>#</th><th>Name</th></tr></thead>
-        <tbody id="users-table"></tbody>
-      </table>
-    </div>
-
-    <!-- 3. SALES MODULE -->
-    <div id="sales" class="module-section">
-      <h1>Sales Module</h1>
-      <br>
-      <form onsubmit="addSale(event)">
-        <input type="number" id="saleAmount" placeholder="Amount (₹)" required>
-        <button type="submit" class="btn-add">Add Sale</button>
-      </form>
-      <table>
-        <thead><tr><th>#</th><th>Amount</th></tr></thead>
-        <tbody id="sales-table"></tbody>
-      </table>
-    </div>
-
-    <!-- 4. INVENTORY MODULE -->
-    <div id="inventory" class="module-section">
-      <h1>Inventory Module</h1>
-      <br>
-      <form onsubmit="addInventory(event)">
-        <input type="text" id="itemName" placeholder="Item Name" required>
-        <button type="submit" class="btn-add">Add Item</button>
-      </form>
-      <table>
-        <thead><tr><th>#</th><th>Item Name</th></tr></thead>
-        <tbody id="inventory-table"></tbody>
-      </table>
-    </div>
-
+    
+    <!-- Updated Sandbox Attributes for Download Support -->
+    <iframe id="content-frame" src="./ayushman.html" sandbox="allow-scripts allow-same-origin allow-downloads allow-modals allow-popups"></iframe>
   </div>
 
   <script>
-    // System Data Store
-    let data = {
-      users: ['Rahul Sharma', 'Priya Verma'],
-      sales: [1500, 2500, 1000],
-      inventory: ['Laptop', 'Mouse', 'Keyboard']
-    };
-
-    // Page Load hote hi Dashboard dikhana & Summary update karna
-    window.onload = function() {
-      showModule('dashboard');
-      renderAllTables();
-      updateDashboardSummary();
-    };
-
-    // Module Switch Function
-    function showModule(moduleId) {
-      document.querySelectorAll('.module-section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-
-      document.getElementById(moduleId).classList.add('active');
-      
-      // Button active highlight
-      const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
-        btn.getAttribute('onclick').includes(moduleId)
-      );
-      if(activeBtn) activeBtn.classList.add('active');
-
-      // Dashboard open hote hi data recalculate ho
-      if(moduleId === 'dashboard') {
-        updateDashboardSummary();
-      }
-    }
-
-    // Dashboard Summary Update Logic
-    function updateDashboardSummary() {
-      document.getElementById('total-users-count').innerText = data.users.length;
-      
-      let totalSales = data.sales.reduce((sum, amt) => sum + Number(amt), 0);
-      document.getElementById('total-sales-amount').innerText = '₹' + totalSales;
-
-      document.getElementById('total-inventory-count').innerText = data.inventory.length;
-    }
-
-    // Data Adders
-    function addUser(e) {
-      e.preventDefault();
-      const val = document.getElementById('userName').value;
-      data.users.push(val);
-      document.getElementById('userName').value = '';
-      renderAllTables();
-      updateDashboardSummary();
-    }
-
-    function addSale(e) {
-      e.preventDefault();
-      const val = document.getElementById('saleAmount').value;
-      data.sales.push(Number(val));
-      document.getElementById('saleAmount').value = '';
-      renderAllTables();
-      updateDashboardSummary();
-    }
-
-    function addInventory(e) {
-      e.preventDefault();
-      const val = document.getElementById('itemName').value;
-      data.inventory.push(val);
-      document.getElementById('itemName').value = '';
-      renderAllTables();
-      updateDashboardSummary();
-    }
-
-    // Render Tables
-    function renderAllTables() {
-      document.getElementById('users-table').innerHTML = data.users.map((u, i) => `<tr><td>${i+1}</td><td>${u}</td></tr>`).join('');
-      document.getElementById('sales-table').innerHTML = data.sales.map((s, i) => `<tr><td>${i+1}</td><td>₹${s}</td></tr>`).join('');
-      document.getElementById('inventory-table').innerHTML = data.inventory.map((inv, i) => `<tr><td>${i+1}</td><td>${inv}</td></tr>`).join('');
+    function loadModule(pageUrl, menuId) {
+      document.getElementById('content-frame').src = './' + pageUrl;
+      document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+      document.getElementById(menuId).classList.add('active');
     }
   </script>
+
 </body>
 </html>
