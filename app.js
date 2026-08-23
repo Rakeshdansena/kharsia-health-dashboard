@@ -1,11 +1,10 @@
 function showDashboardView() {
-  // एक्टिव मेनू बदलें
   updateActiveMenu('dashboard-menu');
 
   const content = document.getElementById('main-content');
   content.innerHTML = `
     <h2 class="dashboard-title">Kharsia Health Programme Dashboard</h2>
-    <p class="dashboard-subtitle">विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए कार्ड या साइडबार पर क्लिक करें।</p>
+    <p class="dashboard-subtitle">विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए नीचे दिए कार्ड या साइडबार पर क्लिक करें।</p>
     
     <div class="cards-grid">
       <div class="card" onclick="loadReportView('ayushman')">
@@ -18,13 +17,38 @@ function showDashboardView() {
         <h3>RCH 2.0</h3>
         <p>RCH 2.0 PW Registration Detail</p>
       </div>
+      <div class="card" onclick="loadReportView('ncd')">
+        <div class="card-icon">❤️</div>
+        <h3>NCD Status</h3>
+        <p>NCD Status 2026-27 Reporting</p>
+      </div>
+      <div class="card" onclick="loadReportView('jas')">
+        <div class="card-icon">🤝</div>
+        <h3>JAS Meeting</h3>
+        <p>JAS Meeting Progress</p>
+      </div>
+      <div class="card" onclick="loadReportView('hwc')">
+        <div class="card-icon">🏥</div>
+        <h3>Health & Wellness Center</h3>
+        <p>Block Kharsia HWC Progress</p>
+      </div>
+      <div class="card" onclick="loadReportView('shivir')">
+        <div class="card-icon">🏕️</div>
+        <h3>Ayushman Shivir</h3>
+        <p>Shivir Reporting FY 2026-27</p>
+      </div>
+      <div class="card" onclick="loadReportView('activity')">
+        <div class="card-icon">🩺</div>
+        <h3>Wellness Activity</h3>
+        <p>Arogya Mandir Wellness Activity</p>
+      </div>
       <div class="card" onclick="loadReportView('rbsk')">
         <div class="card-icon">👶</div>
         <h3>RBSK</h3>
         <p>राष्ट्रीय बाल स्वास्थ्य कार्यक्रम</p>
       </div>
       <div class="card" onclick="loadReportView('nrc')">
-        <div class="card-icon">🏥</div>
+        <div class="card-icon">🏢</div>
         <h3>NRC Kharsia</h3>
         <p>पोषण पुनर्वास केंद्र रिपोर्ट</p>
       </div>
@@ -70,21 +94,21 @@ function loadReportView(reportKey) {
     </div>
   `;
 
-  if (!config.csvUrl || config.csvUrl.startsWith("YOUR_PUBLISHED")) {
-    document.getElementById('data-container').innerHTML = `
-      <div style="color: #DC2626;">
-        ⚠️ कृपया <b>config.js</b> फ़ाइल में <b>${config.title}</b> का Publish to Web (CSV) लिंक सेट करें।
-      </div>`;
-    return;
-  }
-
-  // Allorigins Proxy से गूगल शीट डेटा लोड करें
   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(config.csvUrl)}`;
 
   fetch(proxyUrl)
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) throw new Error('Network response error');
+      return res.text();
+    })
     .then(csvText => {
-      const rows = csvText.trim().split('\n').map(row => row.split(','));
+      const rows = csvText.trim().split('\n').map(row => row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(','));
+      
+      if(rows.length === 0 || (rows.length === 1 && rows[0][0] === "")) {
+        document.getElementById('data-container').innerHTML = '<div style="padding: 20px;">कोई डेटा उपलब्ध नहीं है।</div>';
+        return;
+      }
+
       let html = '<table>';
       rows.forEach((row, rIdx) => {
         html += '<tr>';
@@ -99,8 +123,8 @@ function loadReportView(reportKey) {
     })
     .catch(() => {
       document.getElementById('data-container').innerHTML = `
-        <div style="color: #DC2626;">
-          ❌ डेटा लोड करने में समस्या आई। गूगल शीट की Publish setting जांचें।
+        <div style="color: #DC2626; padding: 20px;">
+          ❌ डेटा लोड करने में समस्या आई। कृपया Google Sheet की Publish setting या CSV URL जांचें।
         </div>`;
     });
 }
@@ -111,5 +135,4 @@ function updateActiveMenu(activeId) {
   if (el) el.classList.add('active');
 }
 
-// शुरुआत में Dashboard दिखाएं
 window.onload = showDashboardView;
