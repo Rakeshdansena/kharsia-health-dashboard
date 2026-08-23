@@ -1,62 +1,222 @@
-/* Container Box */
-.report-container {
-  width: 100%;
-  overflow-x: auto;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* ==========================================
+   RESET & BASE STYLES
+   ========================================== */
+* {
+  box-sizing: border-box !important;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
-/* Table Design */
-.custom-report-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 14px;
-  color: #333333;
+body {
+  display: flex !important;
+  background-color: #f4f6f9 !important;
+  color: #333333 !important;
+  min-height: 100vh !important;
 }
 
-/* Main Headers Styling */
-.custom-report-table thead tr:first-child th {
-  background-color: #0f766e; /* Dashboard Theme Matching Teal Color */
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 15px;
-  padding: 10px;
-  border: 1px solid #0d615b;
+/* ==========================================
+   SIDEBAR STYLING
+   ========================================== */
+.sidebar {
+  width: 250px !important;
+  background-color: #0b253a !important;
+  color: #ffffff !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-/* Sub-Headers Styling */
-.custom-report-table thead tr:nth-child(2) th {
-  background-color: #14b8a6;
-  color: #ffffff;
-  font-weight: 500;
-  padding: 8px;
-  border: 1px solid #0d615b;
+.sidebar-header {
+  padding: 20px !important;
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+  color: #94a3b8 !important;
+  font-weight: bold !important;
+  border-bottom: 1px solid #1e3a5f !important;
 }
 
-/* Table Cells & Borders */
-.custom-report-table td {
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1; /* Clean Visible Border */
+.sidebar-menu {
+  list-style: none !important;
+  padding: 10px 0 !important;
 }
 
-/* Row Hover Effect */
-.custom-report-table tbody tr:hover {
-  background-color: #f1f5f9;
+.sidebar-menu li a {
+  display: block !important;
+  padding: 12px 20px !important;
+  color: #cbd5e1 !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
 }
 
-/* Column Highlighting & Alignments */
-.align-center { text-align: center; }
-.align-right { text-align: right; }
-
-.highlight-col {
-  background-color: #f8fafc;
-  font-weight: 600;
+.sidebar-menu li a:hover,
+.sidebar-menu li.active a {
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
 }
 
-.badge-cell {
-  font-weight: bold;
-  color: #0f766e;
+/* ==========================================
+   MAIN CONTENT & HEADER
+   ========================================== */
+.main-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+}
+
+.top-header {
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+  padding: 20px 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+}
+
+.top-header h1 {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+}
+
+.top-header p {
+  font-size: 13px !important;
+  opacity: 0.9 !important;
+}
+
+.content-body {
+  padding: 25px !important;
+}
+
+/* ==========================================
+   CARD & CONTROLS
+   ========================================== */
+.card {
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.toolbar-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 15px !important;
+  margin-bottom: 20px !important;
+}
+
+.toolbar-title {
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: #1e293b !important;
+}
+
+.action-group {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+.search-input {
+  padding: 8px 14px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  width: 200px !important;
+}
+
+.btn {
+  padding: 8px 16px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.btn-excel {
+  background-color: #10b981 !important;
+}
+
+.btn-pdf {
+  background-color: #ef4444 !important;
+}
+
+.btn:hover {
+  opacity: 0.9 !important;
+}
+
+/* ==========================================
+   REPORT TABLE STYLING
+   ========================================== */
+.table-responsive {
+  width: 100% !important;
+  overflow-x: auto !important;
+}
+
+table.custom-report-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  font-size: 14px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+table.custom-report-table th {
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 10px 8px !important;
+  font-weight: bold !important;
+}
+
+/* Main Header Row */
+table.custom-report-table thead tr:first-child th {
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  border: 1px solid #0b5751 !important;
+}
+
+/* Sub Header Row */
+table.custom-report-table thead tr:nth-child(2) th {
+  background-color: #14b8a6 !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  border: 1px solid #0b5751 !important;
+}
+
+/* Table Data Cells */
+table.custom-report-table td {
+  padding: 10px 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #333333 !important;
+  font-size: 13.5px !important;
+  vertical-align: middle !important;
+}
+
+table.custom-report-table tbody tr:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+.total-col {
+  background-color: #f8fafc !important;
+  font-weight: bold !important;
+}
+
+.percent-badge {
+  font-weight: bold !important;
+  color: #0f766e !important;
 }
