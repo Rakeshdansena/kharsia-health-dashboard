@@ -88,31 +88,33 @@ function loadReportView(reportKey) {
       <div class="table-header">${config.title}</div>
       <div class="table-responsive">
         <div id="data-container" style="padding: 40px; text-align: center;">
-          डेटा लोड हो रहा है...
+          ⏳ डेटा लोड हो रहा है, कृपया प्रतीक्षा करें...
         </div>
       </div>
     </div>
   `;
 
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(config.csvUrl)}`;
+  // Corsproxy सर्विस का उपयोग करके डेटा लोड करना
+  const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(config.csvUrl);
 
   fetch(proxyUrl)
     .then(res => {
-      if (!res.ok) throw new Error('Network response error');
+      if (!res.ok) throw new Error('Network error');
       return res.text();
     })
     .then(csvText => {
-      const rows = csvText.trim().split('\n').map(row => row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(','));
-      
-      if(rows.length === 0 || (rows.length === 1 && rows[0][0] === "")) {
+      const lines = csvText.trim().split('\n');
+      if (lines.length === 0 || lines[0].trim() === '') {
         document.getElementById('data-container').innerHTML = '<div style="padding: 20px;">कोई डेटा उपलब्ध नहीं है।</div>';
         return;
       }
 
       let html = '<table>';
-      rows.forEach((row, rIdx) => {
+      lines.forEach((line, rIdx) => {
+        // CSV Parsing logic
+        const cells = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
         html += '<tr>';
-        row.forEach(cell => {
+        cells.forEach(cell => {
           let clean = cell ? cell.replace(/^"|"$/g, '').trim() : '';
           html += rIdx === 0 ? `<th>${clean}</th>` : `<td>${clean}</td>`;
         });
@@ -121,11 +123,31 @@ function loadReportView(reportKey) {
       html += '</table>';
       document.getElementById('data-container').innerHTML = html;
     })
-    .catch(() => {
-      document.getElementById('data-container').innerHTML = `
-        <div style="color: #DC2626; padding: 20px;">
-          ❌ डेटा लोड करने में समस्या आई। कृपया Google Sheet की Publish setting या CSV URL जांचें।
-        </div>`;
+    .catch(error => {
+      // Fallback API Try
+      fetch(`https://api.allorigins.win/raw?url=` + encodeURIComponent(config.csvUrl))
+        .then(res => res.text())
+        .then(csvText => {
+          const lines = csvText.trim().split('\n');
+          let html = '<table>';
+          lines.forEach((line, rIdx) => {
+            const cells = line.split(',');
+            html += '<tr>';
+            cells.forEach(cell => {
+              let clean = cell ? cell.replace(/^"|"$/g, '').trim() : '';
+              html += rIdx === 0 ? `<th>${clean}</th>` : `<td>${clean}</td>`;
+            });
+            html += '</tr>';
+          });
+          html += '</table>';
+          document.getElementById('data-container').innerHTML = html;
+        })
+        .catch(() => {
+          document.getElementById('data-container').innerHTML = `
+            <div style="color: #DC2626; padding: 20px;">
+              ❌ डेटा लोड नहीं हो सका। कृपया जांचें कि Google Sheet "Publish to Web" (CSV) सेट है या नहीं।
+            </div>`;
+        });
     });
 }
 
