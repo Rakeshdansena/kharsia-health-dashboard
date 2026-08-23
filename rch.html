@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 Google Sheets View</title>
+  <title>RCH 2.0 Facility & Sector Wise Report</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
     body { padding: 15px; background-color: #f8f9fa; color: #202124; }
@@ -37,7 +37,7 @@
       border-radius: 4px;
       font-size: 13px;
       outline: none;
-      width: 180px;
+      width: 200px;
     }
     .search-input:focus { border-color: #1a73e8; }
 
@@ -53,24 +53,32 @@
     .btn-excel { background-color: #1e8e3e; }
     .btn-pdf { background-color: #d93025; }
 
-    /* Google Sheets Formula Bar Mock */
-    .formula-bar {
+    /* Google Sheets Tabs Navigation (Bottom/Top) */
+    .sheet-tabs {
       display: flex;
-      align-items: center;
       background-color: #f1f3f4;
       border-bottom: 1px solid #dadce0;
-      padding: 4px 10px;
-      font-size: 12px;
-      color: #5f6368;
+      padding: 6px 12px 0 12px;
+      gap: 4px;
+      overflow-x: auto;
     }
-    .fx-symbol { font-weight: bold; color: #70757a; font-style: italic; margin-right: 10px; }
-    .formula-input {
-      background: #fff;
+
+    .tab-btn {
+      padding: 8px 16px;
+      background-color: #e8eaed;
       border: 1px solid #dadce0;
-      padding: 2px 8px;
-      width: 100%;
-      font-family: monospace;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
       font-size: 13px;
+      font-weight: 600;
+      color: #5f6368;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background-color: #ffffff;
+      color: #1a73e8;
+      border-top: 3px solid #1a73e8;
     }
 
     /* Google Sheet Grid Styling */
@@ -83,7 +91,6 @@
       background-color: #ffffff;
     }
 
-    /* Column Headers (A, B, C...) */
     table.google-sheet-table th.sheet-col-head {
       background-color: #f8f9fa;
       color: #5f6368;
@@ -94,15 +101,13 @@
       font-size: 11px;
     }
 
-    /* Main Cells Design */
     table.google-sheet-table th, table.google-sheet-table td {
-      border: 1px solid #e0e0e0; /* Sheet style light gridline */
+      border: 1px solid #e0e0e0;
       padding: 6px 10px;
       vertical-align: middle;
       white-space: nowrap;
     }
 
-    /* Row Number Column Design */
     td.row-num-cell {
       background-color: #f8f9fa;
       color: #5f6368;
@@ -113,11 +118,10 @@
       font-weight: bold;
     }
 
-    /* Sheet Title Header Row */
     .sheet-title-header {
       background-color: #e8f0fe !important;
       color: #174ea6 !important;
-      font-size: 15px !important;
+      font-size: 14px !important;
       font-weight: bold !important;
       text-align: center !important;
     }
@@ -129,13 +133,21 @@
       text-align: center !important;
     }
 
+    .total-row {
+      background-color: #fce8e6;
+      font-weight: bold;
+    }
+
     .text-center { text-align: center !important; }
     .text-right { text-align: right !important; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     @media print {
-      .toolbar-header, .formula-bar { display: none !important; }
+      .toolbar-header, .sheet-tabs { display: none !important; }
       body { padding: 0; background-color: #fff; }
       .sheet-card { box-shadow: none; border: none; }
+      .tab-content { display: block !important; margin-bottom: 30px; }
     }
   </style>
 </head>
@@ -146,109 +158,185 @@
     <!-- Top Bar -->
     <div class="toolbar-header">
       <div class="toolbar-title">
-        📊 RCH_2.0_Data_Sheet.xlsx
+        📊 RCH_2.0_Sector_Facility_Report.xlsx
       </div>
       <div class="action-group">
-        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 डेटा खोजें...">
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 संस्था/सेक्टर खोजें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
         <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
       </div>
     </div>
 
-    <!-- Formula Bar Mock -->
-    <div class="formula-bar">
-      <span class="fx-symbol">fx</span>
-      <input type="text" class="formula-input" value="=SUM(E5:E10)" readonly>
+    <!-- Google Sheet Tabs -->
+    <div class="sheet-tabs">
+      <button class="tab-btn active" onclick="openTab('sector-tab', this)">📁 Sector Wise Progress</button>
+      <button class="tab-btn" onclick="openTab('facility-tab', this)">🏥 Facility Wise Progress</button>
     </div>
 
-    <div class="table-responsive">
-      
-      <table class="google-sheet-table" id="table-rch">
-        <thead>
-          <!-- Column Alphabets (A, B, C...) Header -->
-          <tr>
-            <th class="sheet-col-head"></th>
-            <th class="sheet-col-head">A</th>
-            <th class="sheet-col-head">B</th>
-            <th class="sheet-col-head">C</th>
-            <th class="sheet-col-head">D</th>
-            <th class="sheet-col-head">E</th>
-            <th class="sheet-col-head">F</th>
-            <th class="sheet-col-head">G</th>
-          </tr>
+    <!-- TAB 1: SECTOR WISE -->
+    <div id="sector-tab" class="tab-content active">
+      <div class="table-responsive">
+        <table class="google-sheet-table" id="table-sector">
+          <thead>
+            <tr>
+              <th class="sheet-col-head"></th>
+              <th class="sheet-col-head">A</th>
+              <th class="sheet-col-head">B</th>
+              <th class="sheet-col-head">C</th>
+              <th class="sheet-col-head">D</th>
+              <th class="sheet-col-head">E</th>
+              <th class="sheet-col-head">F</th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">1</td>
+              <th colspan="6" class="sheet-title-header">
+                RCH 2.0 - सेक्टर अनुसार प्रगति रिपोर्ट (Block Kharsia)
+              </th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">2</td>
+              <th class="column-header text-center" style="width: 50px;">क्र</th>
+              <th class="column-header">सेक्टर का नाम (Sector Name)</th>
+              <th class="column-header text-center">ANC पंजीयन</th>
+              <th class="column-header text-center">संस्थागत प्रसव</th>
+              <th class="column-header text-center">पूर्ण टीकाकरण</th>
+              <th class="column-header text-center">उपलब्धि (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-num-cell">3</td>
+              <td class="text-center">1</td>
+              <td>Kharsia Urban</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">4</td>
+              <td class="text-center">2</td>
+              <td>Chaple Sector</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">5</td>
+              <td class="text-center">3</td>
+              <td>Masaura Sector</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+            <tr class="total-row">
+              <td class="row-num-cell">6</td>
+              <td class="text-center">-</td>
+              <td>कुल योग (Block Total)</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-          <!-- Title Banner Row -->
-          <tr>
-            <td class="row-num-cell">1</td>
-            <th colspan="7" class="sheet-title-header">
-              RCH 2.0 पंजीयन एवं सेवाएं (माह अगस्त 2026 की स्थिति में)
-            </th>
-          </tr>
-
-          <!-- Table Headers -->
-          <tr>
-            <td class="row-num-cell">2</td>
-            <th class="column-header text-center" style="width: 50px;">क्र</th>
-            <th class="column-header text-center">सेवा का नाम</th>
-            <th class="column-header text-center">वार्षिक लक्ष्य</th>
-            <th class="column-header text-center">मासिक लक्ष्य</th>
-            <th class="column-header text-center">मासिक उपलब्धि</th>
-            <th class="column-header text-center">कुल प्रगति (YoY)</th>
-            <th class="column-header text-center" style="width: 80px;">प्रतिशत</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="row-num-cell">3</td>
-            <td class="text-center">1</td>
-            <td>गर्भवती महिला पंजीयन (ANC)</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-center">0%</td>
-          </tr>
-          <tr>
-            <td class="row-num-cell">4</td>
-            <td class="text-center">2</td>
-            <td>संस्थागत प्रसव (Institutional Delivery)</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-center">0%</td>
-          </tr>
-          <tr>
-            <td class="row-num-cell">5</td>
-            <td class="text-center">3</td>
-            <td>पूर्ण टीकाकरण (Full Immunization)</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
-            <td class="text-center">0%</td>
-          </tr>
-        </tbody>
-      </table>
-
+    <!-- TAB 2: FACILITY WISE -->
+    <div id="facility-tab" class="tab-content">
+      <div class="table-responsive">
+        <table class="google-sheet-table" id="table-facility">
+          <thead>
+            <tr>
+              <th class="sheet-col-head"></th>
+              <th class="sheet-col-head">A</th>
+              <th class="sheet-col-head">B</th>
+              <th class="sheet-col-head">C</th>
+              <th class="sheet-col-head">D</th>
+              <th class="sheet-col-head">E</th>
+              <th class="sheet-col-head">F</th>
+              <th class="sheet-col-head">G</th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">1</td>
+              <th colspan="7" class="sheet-title-header">
+                RCH 2.0 - संस्था अनुसार प्रगति रिपोर्ट (PHC/SHC/CHC Wise)
+              </th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">2</td>
+              <th class="column-header text-center" style="width: 50px;">क्र</th>
+              <th class="column-header">सेक्टर</th>
+              <th class="column-header">स्वास्थ्य संस्था का नाम (Facility)</th>
+              <th class="column-header text-center">ANC पंजीयन</th>
+              <th class="column-header text-center">प्रसव</th>
+              <th class="column-header text-center">टीकाकरण</th>
+              <th class="column-header text-center">प्रगति (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-num-cell">3</td>
+              <td class="text-center">1</td>
+              <td>Kharsia</td>
+              <td>CHC Kharsia</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">4</td>
+              <td class="text-center">2</td>
+              <td>Chaple</td>
+              <td>PHC Chaple</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">5</td>
+              <td class="text-center">3</td>
+              <td>Masaura</td>
+              <td>SHC Masaura</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-right">0</td>
+              <td class="text-center">0%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 
   <script>
+    // Tab Switch Function
+    function openTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
     // Excel Download
     function exportToExcel() {
-      let tableData = document.getElementById('table-rch').outerHTML;
+      let activeTab = document.querySelector('.tab-content.active table').outerHTML;
       let htmlData = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
         <head><meta charset="UTF-8"></head>
-        <body>${tableData}</body>
+        <body>${activeTab}</body>
         </html>`;
 
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'RCH_2.0_GoogleSheet.xls';
+      link.download = 'RCH_2.0_Report.xls';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -259,12 +347,12 @@
       window.print();
     }
 
-    // Live Search
+    // Search Filter
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
-      const rows = document.querySelectorAll('tbody tr');
+      const activeTabRows = document.querySelectorAll('.tab-content.active tbody tr');
       
-      rows.forEach(row => {
+      activeTabRows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
       });
