@@ -15,13 +15,13 @@
     .sidebar-menu li a { display: block; padding: 12px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; cursor: pointer; transition: all 0.2s; }
     .sidebar-menu li.active a, .sidebar-menu li a:hover { background-color: #0f766e; color: #fff; font-weight: bold; }
     
-    /* Main Layout Area */
+    /* Main Content Area */
     .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; }
     .top-header { background-color: #0f766e; color: #fff; padding: 20px 30px; }
     .top-header h1 { font-size: 22px; font-weight: 600; }
     .top-header p { font-size: 13px; opacity: 0.9; }
     
-    /* Frame Styling */
+    /* Frame Styling with full download permissions */
     #content-frame { width: 100%; height: 100%; border: none; flex: 1; background-color: #f4f6f9; }
   </style>
 </head>
@@ -38,15 +38,15 @@
     </ul>
   </div>
 
-  <!-- Main Display Window -->
+  <!-- Main Area -->
   <div class="main-content">
     <div class="top-header">
       <h1>Kharsia Health Dashboard</h1>
       <p>Block Kharsia · District Raigarh · Chhattisgarh</p>
     </div>
     
-    <!-- Relativized Iframe Path -->
-    <iframe id="content-frame" src="./ayushman.html"></iframe>
+    <!-- Updated Sandbox Attributes for Download Support -->
+    <iframe id="content-frame" src="./ayushman.html" sandbox="allow-scripts allow-same-origin allow-downloads allow-modals allow-popups"></iframe>
   </div>
 
   <script>
