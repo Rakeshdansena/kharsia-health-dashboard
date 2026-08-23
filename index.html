@@ -1,14 +1,87 @@
-<div class="report-container">
+<!-- COMPLETE SINGLE CODE BLOCK (HTML + CSS) -->
+<style>
+  /* Base Container */
+  .custom-report-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 15px 0 !important;
+    padding: 0 !important;
+    overflow-x: auto !important;
+  }
+
+  /* Table Reset & Layout */
+  table.custom-report-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 14px !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Header Cell Base */
+  table.custom-report-table th {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
+    font-weight: bold !important;
+  }
+
+  /* Primary Header Row */
+  table.custom-report-table thead tr:first-child th {
+    background-color: #0f766e !important; /* Theme Dark Teal */
+    color: #ffffff !important;
+    font-size: 15px !important;
+    border: 1px solid #0b5751 !important;
+  }
+
+  /* Sub Header Row */
+  table.custom-report-table thead tr:nth-child(2) th {
+    background-color: #14b8a6 !important; /* Teal Accent */
+    color: #ffffff !important;
+    font-size: 13px !important;
+    border: 1px solid #0b5751 !important;
+  }
+
+  /* Table Body Data Cells */
+  table.custom-report-table td {
+    padding: 8px 12px !important;
+    border: 1px solid #cbd5e1 !important; /* Crisp Grid Lines */
+    color: #333333 !important;
+    font-size: 13.5px !important;
+    vertical-align: middle !important;
+  }
+
+  /* Hover & Column Styles */
+  table.custom-report-table tbody tr:hover {
+    background-color: #f1f5f9 !important;
+  }
+
+  .text-center { text-align: center !important; }
+  .text-right { text-align: right !important; }
+  
+  .total-col {
+    background-color: #f8fafc !important;
+    font-weight: bold !important;
+  }
+
+  .percent-badge {
+    font-weight: bold !important;
+    color: #0f766e !important;
+  }
+</style>
+
+<div class="custom-report-wrapper">
   <table class="custom-report-table">
     <thead>
-      <!-- First Header Row -->
       <tr>
-        <th rowspan="2" class="align-center">क्र.</th>
-        <th colspan="3" class="align-center">लक्ष्य (Target)</th>
-        <th colspan="3" class="align-center">उपलब्धि (Achievement)</th>
-        <th rowspan="2" class="align-center">प्रतिशत (%)</th>
+        <th rowspan="2" class="text-center">क्र.</th>
+        <th colspan="3" class="text-center">लक्ष्य (Target)</th>
+        <th colspan="3" class="text-center">उपलब्धि (Achievement)</th>
+        <th rowspan="2" class="text-center">प्रतिशत (%)</th>
       </tr>
-      <!-- Second Header Row -->
       <tr>
         <th>ग्रामीण</th>
         <th>अर्बन</th>
@@ -20,24 +93,24 @@
     </thead>
     <tbody>
       <tr>
-        <td class="align-center">1</td>
-        <td class="align-right">1,34,488</td>
-        <td class="align-right">17,572</td>
-        <td class="align-right highlight-col">1,52,060</td>
-        <td class="align-right">1,26,274</td>
-        <td class="align-right">16,271</td>
-        <td class="align-right highlight-col">1,42,545</td>
-        <td class="align-center badge-cell">93.7%</td>
+        <td class="text-center">1</td>
+        <td class="text-right">1,34,488</td>
+        <td class="text-right">17,572</td>
+        <td class="text-right total-col">1,52,060</td>
+        <td class="text-right">1,26,274</td>
+        <td class="text-right">16,271</td>
+        <td class="text-right total-col">1,42,545</td>
+        <td class="text-center percent-badge">93.7%</td>
       </tr>
       <tr>
-        <td class="align-center">2</td>
-        <td class="align-right">3,737</td>
-        <td class="align-right">257</td>
-        <td class="align-right highlight-col">3,994</td>
-        <td class="align-right">3,740</td>
-        <td class="align-right">257</td>
-        <td class="align-right highlight-col">3,997</td>
-        <td class="align-center badge-cell">100.1%</td>
+        <td class="text-center">2</td>
+        <td class="text-right">3,737</td>
+        <td class="text-right">257</td>
+        <td class="text-right total-col">3,994</td>
+        <td class="text-right">3,740</td>
+        <td class="text-right">257</td>
+        <td class="text-right total-col">3,997</td>
+        <td class="text-center percent-badge">100.1%</td>
       </tr>
     </tbody>
   </table>
