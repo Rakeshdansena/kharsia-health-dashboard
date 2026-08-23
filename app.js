@@ -1,3 +1,5 @@
+let currentReportTitle = "";
+
 function showDashboardView() {
   updateActiveMenu('dashboard-menu');
 
@@ -80,75 +82,118 @@ function loadReportView(reportKey) {
   const config = REPORT_CONFIG[reportKey];
   if (!config) return;
 
+  currentReportTitle = config.title;
   updateActiveMenu(`menu-${reportKey}`);
 
   const content = document.getElementById('main-content');
   content.innerHTML = `
     <div class="table-card">
-      <div class="table-header">${config.title}</div>
+      <div class="table-toolbar">
+        <div class="table-title">${config.title}</div>
+        <div class="table-actions">
+          <input type="text" id="tableSearch" class="search-input" onkeyup="filterTable()" placeholder="🔍 डेटा खोजें...">
+          <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
+          <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
+        </div>
+      </div>
       <div class="table-responsive">
-        <div id="data-container" style="padding: 40px; text-align: center;">
-          ⏳ डेटा लोड हो रहा है, कृपया प्रतीक्षा करें...
+        <div id="data-container" style="padding: 40px; text-align: center; color: #64748B;">
+          ⏳ गूगल शीट से लाइव डेटा लोड हो रहा है...
         </div>
       </div>
     </div>
   `;
 
-  // Corsproxy सर्विस का उपयोग करके डेटा लोड करना
   const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(config.csvUrl);
 
   fetch(proxyUrl)
-    .then(res => {
-      if (!res.ok) throw new Error('Network error');
-      return res.text();
-    })
-    .then(csvText => {
-      const lines = csvText.trim().split('\n');
-      if (lines.length === 0 || lines[0].trim() === '') {
-        document.getElementById('data-container').innerHTML = '<div style="padding: 20px;">कोई डेटा उपलब्ध नहीं है।</div>';
-        return;
-      }
-
-      let html = '<table>';
-      lines.forEach((line, rIdx) => {
-        // CSV Parsing logic
-        const cells = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-        html += '<tr>';
-        cells.forEach(cell => {
-          let clean = cell ? cell.replace(/^"|"$/g, '').trim() : '';
-          html += rIdx === 0 ? `<th>${clean}</th>` : `<td>${clean}</td>`;
-        });
-        html += '</tr>';
-      });
-      html += '</table>';
-      document.getElementById('data-container').innerHTML = html;
-    })
-    .catch(error => {
-      // Fallback API Try
+    .then(res => res.text())
+    .then(csvText => renderTable(csvText))
+    .catch(() => {
       fetch(`https://api.allorigins.win/raw?url=` + encodeURIComponent(config.csvUrl))
         .then(res => res.text())
-        .then(csvText => {
-          const lines = csvText.trim().split('\n');
-          let html = '<table>';
-          lines.forEach((line, rIdx) => {
-            const cells = line.split(',');
-            html += '<tr>';
-            cells.forEach(cell => {
-              let clean = cell ? cell.replace(/^"|"$/g, '').trim() : '';
-              html += rIdx === 0 ? `<th>${clean}</th>` : `<td>${clean}</td>`;
-            });
-            html += '</tr>';
-          });
-          html += '</table>';
-          document.getElementById('data-container').innerHTML = html;
-        })
+        .then(csvText => renderTable(csvText))
         .catch(() => {
           document.getElementById('data-container').innerHTML = `
             <div style="color: #DC2626; padding: 20px;">
-              ❌ डेटा लोड नहीं हो सका। कृपया जांचें कि Google Sheet "Publish to Web" (CSV) सेट है या नहीं।
+              ❌ डेटा लोड करने में समस्या आई। गूगल शीट Publish to Web सेट है या नहीं यह जांचें।
             </div>`;
         });
     });
+}
+
+function renderTable(csvText) {
+  const lines = csvText.trim().split('\n');
+  if (lines.length === 0 || lines[0].trim() === '') {
+    document.getElementById('data-container').innerHTML = '<div style="padding: 20px;">कोई डेटा उपलब्ध नहीं है।</div>';
+    return;
+  }
+
+  let html = '<table id="reportTable">';
+  lines.forEach((line, rIdx) => {
+    const cells = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+    html += '<tr>';
+    cells.forEach(cell => {
+      let clean = cell ? cell.replace(/^"|"$/g, '').trim() : '';
+      if (rIdx === 0) {
+        html += `<th>${clean}</th>`;
+      } else {
+        html += `<td>${clean}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</table>';
+  document.getElementById('data-container').innerHTML = html;
+}
+
+// 🔍 लाइव सर्च फ़ंक्शन
+function filterTable() {
+  const input = document.getElementById("tableSearch");
+  const filter = input.value.toUpperCase();
+  const table = document.getElementById("reportTable");
+  if (!table) return;
+
+  const tr = table.getElementsByTagName("tr");
+  for (let i = 1; i < tr.length; i++) {
+    let visible = false;
+    const td = tr[i].getElementsByTagName("td");
+    for (let j = 0; j < td.length; j++) {
+      if (td[j]) {
+        if (td[j].textContent.toUpperCase().indexOf(filter) > -1) {
+          visible = true;
+          break;
+        }
+      }
+    }
+    tr[i].style.display = visible ? "" : "none";
+  }
+}
+
+// 📊 Excel डाउनलोड फ़ंक्शन
+function exportToExcel() {
+  const table = document.getElementById("reportTable");
+  if (!table) return;
+  const wb = XLSX.utils.table_to_book(table, { sheet: "Report" });
+  XLSX.writeFile(wb, `${currentReportTitle}.xlsx`);
+}
+
+// 📄 PDF डाउनलोड फ़ंक्शन
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('l', 'pt', 'a4');
+  
+  doc.setFontSize(14);
+  doc.text(currentReportTitle, 40, 30);
+
+  doc.autoTable({
+    html: '#reportTable',
+    startY: 45,
+    styles: { fontSize: 8, cellPadding: 4 },
+    headStyles: { fillColor: [30, 41, 59] }
+  });
+
+  doc.save(`${currentReportTitle}.pdf`);
 }
 
 function updateActiveMenu(activeId) {
