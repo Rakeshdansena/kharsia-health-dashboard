@@ -3,62 +3,191 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 Report</title>
+  <title>RCH 2.0 Google Sheets View</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { padding: 25px; background-color: #f4f6f9; color: #333; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+    body { padding: 15px; background-color: #f8f9fa; color: #202124; }
     
-    .card { background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    
-    .toolbar-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-    .toolbar-title { font-size: 18px; font-weight: bold; color: #1e293b; }
-    .action-group { display: flex; gap: 10px; align-items: center; }
-    
-    .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; width: 200px; }
-    .btn { padding: 8px 16px; border: none; border-radius: 6px; color: #ffffff; font-size: 13px; font-weight: bold; cursor: pointer; }
-    .btn-excel { background-color: #10b981; }
-    .btn-pdf { background-color: #ef4444; }
+    .sheet-card {
+      background-color: #ffffff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(60,64,67,0.15);
+      overflow: hidden;
+    }
 
+    /* Toolbar Header */
+    .toolbar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #dadce0;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .toolbar-title { font-size: 16px; font-weight: 600; color: #1a73e8; display: flex; align-items: center; gap: 8px; }
+    .action-group { display: flex; gap: 10px; align-items: center; }
+
+    .search-input {
+      padding: 6px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+      width: 180px;
+    }
+    .search-input:focus { border-color: #1a73e8; }
+
+    .btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 4px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-excel { background-color: #1e8e3e; }
+    .btn-pdf { background-color: #d93025; }
+
+    /* Google Sheets Formula Bar Mock */
+    .formula-bar {
+      display: flex;
+      align-items: center;
+      background-color: #f1f3f4;
+      border-bottom: 1px solid #dadce0;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #5f6368;
+    }
+    .fx-symbol { font-weight: bold; color: #70757a; font-style: italic; margin-right: 10px; }
+    .formula-input {
+      background: #fff;
+      border: 1px solid #dadce0;
+      padding: 2px 8px;
+      width: 100%;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    /* Google Sheet Grid Styling */
     .table-responsive { width: 100%; overflow-x: auto; }
 
-    table.excel-style-table { width: 100%; border-collapse: collapse; font-size: 14px; background-color: #ffffff; margin-bottom: 25px; }
-    table.excel-style-table th, table.excel-style-table td { border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; }
-    
-    .section-title-header { background-color: #d9e1f2; color: #000; font-size: 16px; font-weight: bold; text-align: center; padding: 8px; }
-    .column-header { background-color: #ffffff; color: #000; font-weight: normal; text-align: center; font-size: 15px; }
-    .text-center { text-align: center; }
+    table.google-sheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background-color: #ffffff;
+    }
+
+    /* Column Headers (A, B, C...) */
+    table.google-sheet-table th.sheet-col-head {
+      background-color: #f8f9fa;
+      color: #5f6368;
+      border: 1px solid #c0c0c0;
+      font-weight: 500;
+      text-align: center;
+      padding: 4px;
+      font-size: 11px;
+    }
+
+    /* Main Cells Design */
+    table.google-sheet-table th, table.google-sheet-table td {
+      border: 1px solid #e0e0e0; /* Sheet style light gridline */
+      padding: 6px 10px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    /* Row Number Column Design */
+    td.row-num-cell {
+      background-color: #f8f9fa;
+      color: #5f6368;
+      text-align: center;
+      font-size: 11px;
+      border: 1px solid #c0c0c0;
+      width: 35px;
+      font-weight: bold;
+    }
+
+    /* Sheet Title Header Row */
+    .sheet-title-header {
+      background-color: #e8f0fe !important;
+      color: #174ea6 !important;
+      font-size: 15px !important;
+      font-weight: bold !important;
+      text-align: center !important;
+    }
+
+    .column-header {
+      background-color: #f1f3f4 !important;
+      font-weight: 600 !important;
+      color: #3c4043 !important;
+      text-align: center !important;
+    }
+
+    .text-center { text-align: center !important; }
+    .text-right { text-align: right !important; }
 
     @media print {
-      .toolbar-header { display: none !important; }
+      .toolbar-header, .formula-bar { display: none !important; }
       body { padding: 0; background-color: #fff; }
-      .card { box-shadow: none; padding: 0; }
+      .sheet-card { box-shadow: none; border: none; }
     }
   </style>
 </head>
 <body>
 
-  <div class="card" id="report-area">
+  <div class="sheet-card">
     
+    <!-- Top Bar -->
     <div class="toolbar-header">
-      <div class="toolbar-title">RCH 2.0 Progress Report</div>
+      <div class="toolbar-title">
+        📊 RCH_2.0_Data_Sheet.xlsx
+      </div>
       <div class="action-group">
-        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="डेटा खोजें...">
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 डेटा खोजें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
         <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
       </div>
     </div>
 
+    <!-- Formula Bar Mock -->
+    <div class="formula-bar">
+      <span class="fx-symbol">fx</span>
+      <input type="text" class="formula-input" value="=SUM(E5:E10)" readonly>
+    </div>
+
     <div class="table-responsive">
       
-      <!-- TABLE: RCH 2.0 STATUS -->
-      <table class="excel-style-table" id="table-rch">
+      <table class="google-sheet-table" id="table-rch">
         <thead>
+          <!-- Column Alphabets (A, B, C...) Header -->
           <tr>
-            <th colspan="7" class="section-title-header">
+            <th class="sheet-col-head"></th>
+            <th class="sheet-col-head">A</th>
+            <th class="sheet-col-head">B</th>
+            <th class="sheet-col-head">C</th>
+            <th class="sheet-col-head">D</th>
+            <th class="sheet-col-head">E</th>
+            <th class="sheet-col-head">F</th>
+            <th class="sheet-col-head">G</th>
+          </tr>
+
+          <!-- Title Banner Row -->
+          <tr>
+            <td class="row-num-cell">1</td>
+            <th colspan="7" class="sheet-title-header">
               RCH 2.0 पंजीयन एवं सेवाएं (माह अगस्त 2026 की स्थिति में)
             </th>
           </tr>
+
+          <!-- Table Headers -->
           <tr>
+            <td class="row-num-cell">2</td>
             <th class="column-header text-center" style="width: 50px;">क्र</th>
             <th class="column-header text-center">सेवा का नाम</th>
             <th class="column-header text-center">वार्षिक लक्ष्य</th>
@@ -70,30 +199,33 @@
         </thead>
         <tbody>
           <tr>
+            <td class="row-num-cell">3</td>
             <td class="text-center">1</td>
-            <td class="text-center">गर्भवती महिला पंजीयन (ANC)</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
+            <td>गर्भवती महिला पंजीयन (ANC)</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
             <td class="text-center">0%</td>
           </tr>
           <tr>
+            <td class="row-num-cell">4</td>
             <td class="text-center">2</td>
-            <td class="text-center">संस्थागत प्रसव (Institutional Delivery)</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
+            <td>संस्थागत प्रसव (Institutional Delivery)</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
             <td class="text-center">0%</td>
           </tr>
           <tr>
+            <td class="row-num-cell">5</td>
             <td class="text-center">3</td>
-            <td class="text-center">पूर्ण टीकाकरण (Full Immunization)</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
-            <td class="text-center">0</td>
+            <td>पूर्ण टीकाकरण (Full Immunization)</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
             <td class="text-center">0%</td>
           </tr>
         </tbody>
@@ -104,10 +236,9 @@
   </div>
 
   <script>
-    // Native Excel Export Function
+    // Excel Download
     function exportToExcel() {
       let tableData = document.getElementById('table-rch').outerHTML;
-      
       let htmlData = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
         <head><meta charset="UTF-8"></head>
@@ -117,18 +248,18 @@
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'RCH_2.0_Report.xls';
+      link.download = 'RCH_2.0_GoogleSheet.xls';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // PDF/Print Export Function
+    // PDF / Print
     function exportToPDF() {
       window.print();
     }
 
-    // Search Filter
+    // Live Search
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
       const rows = document.querySelectorAll('tbody tr');
