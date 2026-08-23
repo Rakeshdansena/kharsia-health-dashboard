@@ -1,79 +1,55 @@
-<script>
-    // ⚠️ अपनी गूगल शीट के CSV लिंक्स यहाँ पेस्ट करें
-    const googleSheetUrls = {
-      NQAS: "YOUR_PUBLISHED_NQAS_CSV_URL",
-      DIALYSIS: "YOUR_PUBLISHED_DIALYSIS_CSV_URL",
-      RBSK: "YOUR_PUBLISHED_RBSK_CSV_URL",
-      NLEP: "YOUR_PUBLISHED_NLEP_CSV_URL",
-      NRC: "YOUR_PUBLISHED_NRC_CSV_URL",
-      NBCP: "YOUR_PUBLISHED_NBCP_CSV_URL"
-    };
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kharsia Health Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    function loadReportData() {
-      const selectElement = document.getElementById('report-select');
-      const selectedKey = selectElement.value;
-      const selectedText = selectElement.options[selectElement.selectedIndex].text;
-      const rawCsvUrl = googleSheetUrls[selectedKey];
-      const container = document.getElementById('table-container');
+  <div class="app-container">
+    
+    <!-- SIDEBAR MENU -->
+    <div class="sidebar">
+      <div class="sidebar-header">HEALTH PROGRAMMES</div>
+      <ul class="nav-menu">
+        <li class="nav-item active" id="dashboard-menu" onclick="showDashboardView()">🏠 Dashboard</li>
+        <li class="nav-item" id="menu-ayushman" onclick="loadReportView('ayushman')">💳 Ayushman Card</li>
+        <li class="nav-item" id="menu-rch" onclick="loadReportView('rch')">🤱 RCH 2.0</li>
+        <li class="nav-item" id="menu-rbsk" onclick="loadReportView('rbsk')">👶 RBSK</li>
+        <li class="nav-item" id="menu-nrc" onclick="loadReportView('nrc')">🏥 NRC Kharsia</li>
+        <li class="nav-item" id="menu-blindness" onclick="loadReportView('blindness')">👁️ Blindness Control</li>
+        <li class="nav-item" id="menu-nqas" onclick="loadReportView('nqas')">🏅 NQAS Certification</li>
+        <li class="nav-item" id="menu-dialysis" onclick="loadReportView('dialysis')">💧 Dialysis</li>
+        <li class="nav-item" id="menu-nlep" onclick="loadReportView('nlep')">🩺 NLEP</li>
+      </ul>
+    </div>
 
-      document.getElementById('report-title-display').innerText = selectedText;
-      container.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> डेटा लोड हो रहा है...';
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      
+      <!-- TOP HEADER -->
+      <header>
+        <span style="font-size: 24px;">🏥</span>
+        <div>
+          <h1>Kharsia Health Dashboard</h1>
+          <p>Block Kharsia · District Raigarh · Chhattisgarh</p>
+        </div>
+      </header>
 
-      if (!rawCsvUrl || rawCsvUrl.startsWith("YOUR_PUBLISHED")) {
-        container.innerHTML = `
-          <div style="color: #DC2626; padding: 24px;">
-            <i class="fa-solid fa-triangle-exclamation" style="font-size: 28px; margin-bottom: 8px;"></i><br>
-            कृपया <b>${selectedText}</b> के लिए अपनी Google Sheet का Publish CSV URL सेट करें।
-          </div>`;
-        return;
-      }
+      <!-- DYNAMIC CONTENT AREA -->
+      <div class="content-area" id="main-content">
+        <!-- जावास्क्रिप्ट द्वारा डेटा यहाँ लोड होगा -->
+      </div>
 
-      // CORS ब्लॉक से बचने के लिए Allorigins Proxy का उपयोग
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rawCsvUrl)}`;
+    </div>
 
-      fetch(proxyUrl)
-        .then(response => {
-          if (!response.ok) throw new Error('Network error');
-          return response.text();
-        })
-        .then(csvText => {
-          // CSV टेक्स्ट को पंक्तियों (Rows) में तोड़ें
-          const rows = csvText.trim().split('\n').map(row => {
-            // Regex से CSV की वैल्यूज सही तरीके से अलग करें
-            return row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(',');
-          });
+  </div>
 
-          if(rows.length === 0 || (rows.length === 1 && rows[0][0] === "")) {
-            container.innerHTML = '<div style="padding: 20px;">कोई डेटा उपलब्ध नहीं है।</div>';
-            return;
-          }
+  <!-- SCRIPT FILES LOAD -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 
-          let html = '<table>';
-          rows.forEach((row, rowIndex) => {
-            html += '<tr>';
-            row.forEach(cell => {
-              let cleanCell = cell ? cell.replace(/^"|"$/g, '').trim() : '';
-              if (rowIndex === 0) {
-                html += `<th>${cleanCell}</th>`;
-              } else {
-                html += `<td>${cleanCell}</td>`;
-              }
-            });
-            html += '</tr>';
-          });
-          html += '</table>';
-          
-          container.innerHTML = html;
-        })
-        .catch(error => {
-          container.innerHTML = `
-            <div style="color: #DC2626; padding: 24px;">
-              <i class="fa-solid fa-circle-xmark" style="font-size: 28px; margin-bottom: 8px;"></i><br>
-              डेटा लोड करने में असमर्थ। कृपया जांचें कि गूगल शीट 'Publish to web' (CSV) के रूप में पब्लिश है या नहीं।
-            </div>`;
-        });
-    }
-
-    // पेज लोड पर पहला डेटा लोड करें
-    window.onload = loadReportData;
-  </script>
+</body>
+</html>
