@@ -3,152 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 Sector & Facility Wise PW Registration</title>
+  <title>RCH 2.0 PW Registration Detail</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
-    body { padding: 15px; background-color: #f8f9fa; color: #202124; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { padding: 10px; background-color: #f8f9fa; color: #000; }
     
     .sheet-card {
       background-color: #ffffff;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(60,64,67,0.15);
+      border: 1px solid #c0c0c0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       overflow: hidden;
     }
 
-    /* Toolbar Header */
+    /* Top Bar */
     .toolbar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
+      padding: 8px 12px;
       background-color: #ffffff;
       border-bottom: 1px solid #dadce0;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .toolbar-title { font-size: 16px; font-weight: 600; color: #1a73e8; display: flex; align-items: center; gap: 8px; }
-    .action-group { display: flex; gap: 10px; align-items: center; }
+    .toolbar-title { font-size: 15px; font-weight: bold; color: #1a73e8; }
+    .action-group { display: flex; gap: 8px; align-items: center; }
 
     .search-input {
-      padding: 6px 12px;
-      border: 1px solid #dadce0;
+      padding: 5px 10px;
+      border: 1px solid #cbd5e1;
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       outline: none;
-      width: 200px;
+      width: 180px;
     }
-    .search-input:focus { border-color: #1a73e8; }
 
     .btn {
-      padding: 6px 14px;
+      padding: 5px 12px;
       border: none;
       border-radius: 4px;
       color: #ffffff;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: bold;
       cursor: pointer;
     }
     .btn-excel { background-color: #1e8e3e; }
     .btn-pdf { background-color: #d93025; }
 
-    /* Google Sheets Navigation Tabs */
-    .sheet-tabs {
-      display: flex;
-      background-color: #f1f3f4;
-      border-bottom: 1px solid #dadce0;
-      padding: 6px 12px 0 12px;
-      gap: 4px;
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      padding: 8px 16px;
-      background-color: #e8eaed;
-      border: 1px solid #dadce0;
-      border-bottom: none;
-      border-radius: 6px 6px 0 0;
-      font-size: 13px;
-      font-weight: 600;
-      color: #5f6368;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background-color: #ffffff;
-      color: #1a73e8;
-      border-top: 3px solid #1a73e8;
-    }
-
     /* Google Sheet Grid Styling */
     .table-responsive { width: 100%; overflow-x: auto; }
 
-    table.google-sheet-table {
+    table.sheet-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
       background-color: #ffffff;
     }
 
-    table.google-sheet-table th.sheet-col-head {
-      background-color: #f8f9fa;
-      color: #5f6368;
-      border: 1px solid #c0c0c0;
-      font-weight: 500;
-      text-align: center;
-      padding: 4px;
-      font-size: 11px;
-    }
-
-    table.google-sheet-table th, table.google-sheet-table td {
-      border: 1px solid #e0e0e0;
-      padding: 6px 10px;
+    table.sheet-table th, table.sheet-table td {
+      border: 1px solid #000000;
+      padding: 4px 6px;
       vertical-align: middle;
       white-space: nowrap;
     }
 
-    td.row-num-cell {
-      background-color: #f8f9fa;
-      color: #5f6368;
+    /* Title Row */
+    .sheet-main-title {
+      font-size: 16px;
+      font-weight: normal;
       text-align: center;
-      font-size: 11px;
-      border: 1px solid #c0c0c0;
-      width: 35px;
-      font-weight: bold;
+      padding: 8px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #000;
     }
 
-    .sheet-title-header {
-      background-color: #e8f0fe !important;
-      color: #174ea6 !important;
-      font-size: 14px !important;
-      font-weight: bold !important;
-      text-align: center !important;
-    }
-
+    /* Column Headers with Filter Icons */
     .column-header {
-      background-color: #f1f3f4 !important;
-      font-weight: 600 !important;
-      color: #3c4043 !important;
-      text-align: center !important;
-    }
-
-    .total-row {
-      background-color: #fce8e6;
+      background-color: #ffffff;
       font-weight: bold;
+      text-align: center;
+      font-size: 12px;
+      position: relative;
     }
 
+    .filter-icon {
+      font-size: 10px;
+      margin-left: 4px;
+      color: #107c41;
+      display: inline-block;
+    }
+
+    /* Colors for Backlog column based on Image */
+    .bg-green {
+      background-color: #00b050 !important;
+      color: #000000 !important;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .bg-red {
+      background-color: #ff0000 !important;
+      color: #000000 !important;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* Alignment Utils */
     .text-center { text-align: center !important; }
     .text-right { text-align: right !important; }
-    
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .text-left { text-align: left !important; }
 
     @media print {
-      .toolbar-header, .sheet-tabs { display: none !important; }
+      .toolbar-header { display: none !important; }
       body { padding: 0; background-color: #fff; }
       .sheet-card { box-shadow: none; border: none; }
-      .tab-content { display: block !important; margin-bottom: 30px; }
     }
   </style>
 </head>
@@ -156,253 +125,195 @@
 
   <div class="sheet-card">
     
-    <!-- Top Bar -->
+    <!-- Header Tools -->
     <div class="toolbar-header">
-      <div class="toolbar-title">
-        📊 RCH 2.0 PW Registration FY 2026-27 (As on 01-08-2026)
-      </div>
+      <div class="toolbar-title">RCH 2.0 Report View</div>
       <div class="action-group">
-        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 सर्च करें...">
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 डेटा खोजें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
-        <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
+        <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF / Print</button>
       </div>
     </div>
 
-    <!-- Sheet Tabs -->
-    <div class="sheet-tabs">
-      <button class="tab-btn active" onclick="openTab('facility-tab', this)">🏥 Facility Wise View</button>
-      <button class="tab-btn" onclick="openTab('sector-tab', this)">📁 Sector Wise Summary</button>
-    </div>
+    <div class="table-responsive">
+      <table class="sheet-table" id="table-rch">
+        <thead>
+          <!-- Title Banner -->
+          <tr>
+            <th colspan="11" class="sheet-main-title">
+              RCH 2.0 PW Registration Detail FY 2026-27 as on Date 01-08-2026
+            </th>
+          </tr>
 
-    <!-- TAB 1: FACILITY WISE -->
-    <div id="facility-tab" class="tab-content active">
-      <div class="table-responsive">
-        <table class="google-sheet-table" id="table-facility">
-          <thead>
-            <tr>
-              <th class="sheet-col-head"></th>
-              <th class="sheet-col-head">A</th>
-              <th class="sheet-col-head">B</th>
-              <th class="sheet-col-head">C</th>
-              <th class="sheet-col-head">D</th>
-              <th class="sheet-col-head">E</th>
-              <th class="sheet-col-head">F</th>
-              <th class="sheet-col-head">G</th>
-              <th class="sheet-col-head">H</th>
-              <th class="sheet-col-head">I</th>
-              <th class="sheet-col-head">J</th>
-              <th class="sheet-col-head">K</th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">1</td>
-              <th colspan="11" class="sheet-title-header">
-                RCH 2.0 Facility Wise PW Registration Detail FY 2026-27 as on Date 01-08-2026
-              </th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">2</td>
-              <th class="column-header text-center">Sn</th>
-              <th class="column-header">Sector</th>
-              <th class="column-header">HFR ID</th>
-              <th class="column-header">Health Facility</th>
-              <th class="column-header text-center">Health Facility Type</th>
-              <th class="column-header text-center">HMIS PW Reg.</th>
-              <th class="column-header text-center">RCH 2.0 PW Reg.</th>
-              <th class="column-header text-center">%</th>
-              <th class="column-header text-center">Tem. Reg.</th>
-              <th class="column-header text-center">Backlog</th>
-              <th class="column-header text-center">High Risk</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="row-num-cell">3</td>
-              <td class="text-center">1</td>
-              <td>Barra</td>
-              <td>IN2210002161</td>
-              <td>BARRA</td>
-              <td class="text-center">AAM-SHC</td>
-              <td class="text-right">21</td>
-              <td class="text-right">20</td>
-              <td class="text-center">95%</td>
-              <td class="text-right">2</td>
-              <td class="text-right">-1</td>
-              <td class="text-right">12</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">4</td>
-              <td class="text-center">2</td>
-              <td>Barra</td>
-              <td>IN2210002145</td>
-              <td>DEHVARI</td>
-              <td class="text-center">AAM-SHC</td>
-              <td class="text-right">6</td>
-              <td class="text-right">11</td>
-              <td class="text-center">183%</td>
-              <td class="text-right">6</td>
-              <td class="text-right">5</td>
-              <td class="text-right">7</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">5</td>
-              <td class="text-center">3</td>
-              <td>Barra</td>
-              <td>IN2210002154</td>
-              <td>FARKANARA</td>
-              <td class="text-center">AAM-SHC</td>
-              <td class="text-right">13</td>
-              <td class="text-right">23</td>
-              <td class="text-center">177%</td>
-              <td class="text-right">3</td>
-              <td class="text-right">10</td>
-              <td class="text-right">4</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">6</td>
-              <td class="text-center">4</td>
-              <td>Binjkot</td>
-              <td>IN2210002274</td>
-              <td>BADE DUMARPALI</td>
-              <td class="text-center">AAM-SHC</td>
-              <td class="text-right">6</td>
-              <td class="text-right">8</td>
-              <td class="text-center">133%</td>
-              <td class="text-right">2</td>
-              <td class="text-right">2</td>
-              <td class="text-right">15</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">7</td>
-              <td class="text-center">5</td>
-              <td>Binjkot</td>
-              <td>IN2210002296</td>
-              <td>BARBHAUNA</td>
-              <td class="text-center">AAM-SHC</td>
-              <td class="text-right">12</td>
-              <td class="text-right">13</td>
-              <td class="text-center">108%</td>
-              <td class="text-right">4</td>
-              <td class="text-right">1</td>
-              <td class="text-right">7</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TAB 2: SECTOR WISE -->
-    <div id="sector-tab" class="tab-content">
-      <div class="table-responsive">
-        <table class="google-sheet-table" id="table-sector">
-          <thead>
-            <tr>
-              <th class="sheet-col-head"></th>
-              <th class="sheet-col-head">A</th>
-              <th class="sheet-col-head">B</th>
-              <th class="sheet-col-head">C</th>
-              <th class="sheet-col-head">D</th>
-              <th class="sheet-col-head">E</th>
-              <th class="sheet-col-head">F</th>
-              <th class="sheet-col-head">G</th>
-              <th class="sheet-col-head">H</th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">1</td>
-              <th colspan="8" class="sheet-title-header">
-                RCH 2.0 Sector Wise Summary Report FY 2026-27 as on Date 01-08-2026
-              </th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">2</td>
-              <th class="column-header text-center">Sn</th>
-              <th class="column-header">Sector</th>
-              <th class="column-header text-center">HMIS PW Reg.</th>
-              <th class="column-header text-center">RCH 2.0 PW Reg.</th>
-              <th class="column-header text-center">%</th>
-              <th class="column-header text-center">Tem. Reg.</th>
-              <th class="column-header text-center">Backlog</th>
-              <th class="column-header text-center">High Risk</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="row-num-cell">3</td>
-              <td class="text-center">1</td>
-              <td>Barra Sector</td>
-              <td class="text-right">40</td>
-              <td class="text-right">54</td>
-              <td class="text-center">135%</td>
-              <td class="text-right">11</td>
-              <td class="text-right">14</td>
-              <td class="text-right">23</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">4</td>
-              <td class="text-center">2</td>
-              <td>Binjkot Sector</td>
-              <td class="text-right">18</td>
-              <td class="text-right">21</td>
-              <td class="text-center">117%</td>
-              <td class="text-right">6</td>
-              <td class="text-right">3</td>
-              <td class="text-right">22</td>
-            </tr>
-            <tr class="total-row">
-              <td class="row-num-cell">5</td>
-              <td class="text-center">-</td>
-              <td>Total (Kharsia Block)</td>
-              <td class="text-right">58</td>
-              <td class="text-right">75</td>
-              <td class="text-center">129%</td>
-              <td class="text-right">17</td>
-              <td class="text-right">17</td>
-              <td class="text-right">45</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          <!-- Table Header Rows -->
+          <tr>
+            <th class="column-header">Sn <span class="filter-icon">🔻</span></th>
+            <th class="column-header">Sector <span class="filter-icon">🔻</span></th>
+            <th class="column-header">HFR ID <span class="filter-icon">🔻</span></th>
+            <th class="column-header">Health Facility <span class="filter-icon">🔻</span></th>
+            <th class="column-header">Health Facility Type <span class="filter-icon">🔻</span></th>
+            <th class="column-header">HMIS PW Registration <span class="filter-icon">🔻</span></th>
+            <th class="column-header">RCH 2.0 PW Registration <span class="filter-icon">🔻</span></th>
+            <th class="column-header">% <span class="filter-icon">🔻</span></th>
+            <th class="column-header">Tem. Registration <span class="filter-icon">🔻</span></th>
+            <th class="column-header">Backlog <span class="filter-icon">🔻</span></th>
+            <th class="column-header">High Risk <span class="filter-icon">🔻</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">1</td>
+            <td class="text-left">Barra</td>
+            <td class="text-center">IN2210002161</td>
+            <td class="text-center">BARRA</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">21</td>
+            <td class="text-center">20</td>
+            <td class="text-center">95</td>
+            <td class="text-center">2</td>
+            <td class="bg-red">-1</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">2</td>
+            <td class="text-left">Barra</td>
+            <td class="text-center">IN2210002145</td>
+            <td class="text-center">DEHJARI</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">6</td>
+            <td class="text-center">11</td>
+            <td class="text-center">183</td>
+            <td class="text-center">6</td>
+            <td class="bg-green">5</td>
+            <td class="text-center">7</td>
+          </tr>
+          <tr>
+            <td class="text-center">3</td>
+            <td class="text-left">Barra</td>
+            <td class="text-center">IN2210002154</td>
+            <td class="text-center">FARKANARA</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">13</td>
+            <td class="text-center">23</td>
+            <td class="text-center">177</td>
+            <td class="text-center">3</td>
+            <td class="bg-green">10</td>
+            <td class="text-center">4</td>
+          </tr>
+          <tr>
+            <td class="text-center">4</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002274</td>
+            <td class="text-center">BADE DUMARPALI</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">6</td>
+            <td class="text-center">8</td>
+            <td class="text-center">133</td>
+            <td class="text-center">2</td>
+            <td class="bg-green">2</td>
+            <td class="text-center">1</td>
+          </tr>
+          <tr>
+            <td class="text-center">5</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002296</td>
+            <td class="text-center">BARBHAUNA</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">12</td>
+            <td class="text-center">13</td>
+            <td class="text-center">108</td>
+            <td class="text-center">4</td>
+            <td class="bg-green">1</td>
+            <td class="text-center">7</td>
+          </tr>
+          <tr>
+            <td class="text-center">6</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002316</td>
+            <td class="text-center">BHUPDEOPUR</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">10</td>
+            <td class="text-center">18</td>
+            <td class="text-center">180</td>
+            <td class="text-center">6</td>
+            <td class="bg-green">8</td>
+            <td class="text-center">9</td>
+          </tr>
+          <tr>
+            <td class="text-center">7</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002373</td>
+            <td class="text-center">BINJKOT</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">10</td>
+            <td class="text-center">1</td>
+            <td class="text-center">10</td>
+            <td class="text-center">1</td>
+            <td class="bg-red">-9</td>
+            <td class="text-center">0</td>
+          </tr>
+          <tr>
+            <td class="text-center">8</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002428</td>
+            <td class="text-center">GURDA</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">6</td>
+            <td class="text-center">8</td>
+            <td class="text-center">133</td>
+            <td class="text-center">2</td>
+            <td class="bg-green">2</td>
+            <td class="text-center">5</td>
+          </tr>
+          <tr>
+            <td class="text-center">9</td>
+            <td class="text-left">Binjkot</td>
+            <td class="text-center">IN2210002357</td>
+            <td class="text-center">LODHAJHAR</td>
+            <td class="text-center">AAM-SHC</td>
+            <td class="text-center">17</td>
+            <td class="text-center">27</td>
+            <td class="text-center">159</td>
+            <td class="text-center">6</td>
+            <td class="bg-green">10</td>
+            <td class="text-center">14</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
   </div>
 
   <script>
-    // Tab Switch Function
-    function openTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    // Excel Download
+    // Direct Excel Export Function
     function exportToExcel() {
-      let activeTable = document.querySelector('.tab-content.active table').outerHTML;
+      let tableData = document.getElementById('table-rch').outerHTML;
       let htmlData = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
         <head><meta charset="UTF-8"></head>
-        <body>${activeTable}</body>
+        <body>${tableData}</body>
         </html>`;
 
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'RCH_2.0_PW_Registration.xls';
+      link.download = 'RCH_2.0_PW_Registration_Report.xls';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // PDF / Print
+    // PDF / Print Export Function
     function exportToPDF() {
       window.print();
     }
 
-    // Search Filter
+    // Live Search Filter
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
-      const activeRows = document.querySelectorAll('.tab-content.active tbody tr');
+      const rows = document.querySelectorAll('tbody tr');
       
-      activeRows.forEach(row => {
+      rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
       });
