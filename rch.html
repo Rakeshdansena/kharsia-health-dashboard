@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 Combined Data Report</title>
+  <title>RCH 2.0 PW Registration Detail FY 2026-27</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { padding: 12px; background-color: #f8f9fa; color: #000; }
@@ -13,20 +13,22 @@
       border: 1px solid #c0c0c0;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       overflow: hidden;
+      padding: 12px;
     }
 
+    /* Toolbar Header */
     .toolbar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 12px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #dadce0;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #dadce0;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .toolbar-title { font-size: 15px; font-weight: bold; color: #1a73e8; }
+    .toolbar-title { font-size: 16px; font-weight: bold; color: #1a73e8; }
     .action-group { display: flex; gap: 8px; align-items: center; }
 
     .search-input {
@@ -50,33 +52,18 @@
     .btn-excel { background-color: #1e8e3e; }
     .btn-pdf { background-color: #d93025; }
 
-    .sheet-tabs {
-      display: flex;
-      background-color: #f1f3f4;
-      border-bottom: 1px solid #dadce0;
-      padding: 6px 12px 0 12px;
-      gap: 4px;
-    }
-
-    .tab-btn {
-      padding: 8px 16px;
-      background-color: #e8eaed;
-      border: 1px solid #dadce0;
-      border-bottom: none;
-      border-radius: 4px 4px 0 0;
-      font-size: 13px;
+    .section-title {
+      font-size: 14px;
       font-weight: bold;
-      color: #5f6368;
-      cursor: pointer;
+      color: #202124;
+      margin: 16px 0 8px 0;
+      padding: 6px 10px;
+      background-color: #e8f0fe;
+      border-left: 4px solid #1a73e8;
     }
 
-    .tab-btn.active {
-      background-color: #ffffff;
-      color: #1a73e8;
-      border-top: 3px solid #1a73e8;
-    }
-
-    .table-responsive { width: 100%; overflow-x: auto; min-height: 250px; }
+    /* Table Grid Styling */
+    .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 16px; }
 
     table.sheet-table {
       width: 100%;
@@ -93,14 +80,22 @@
     }
 
     .column-header {
-      background-color: #ffffff;
+      background-color: #f1f3f4;
       font-weight: bold;
       text-align: center;
       font-size: 12px;
     }
 
+    /* Color Classes */
     .bg-green {
       background-color: #00b050 !important;
+      color: #ffffff !important;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .bg-light-green {
+      background-color: #92d050 !important;
       color: #000000 !important;
       font-weight: bold;
       text-align: center;
@@ -108,35 +103,32 @@
 
     .bg-red {
       background-color: #ff0000 !important;
-      color: #000000 !important;
+      color: #ffffff !important;
       font-weight: bold;
       text-align: center;
+    }
+
+    .total-row {
+      font-weight: bold;
+      background-color: #e2e8f0;
     }
 
     .text-center { text-align: center !important; }
-    .text-left { text-align: left !important; }
-
-    .loading-text {
-      text-align: center;
-      padding: 30px;
-      font-weight: bold;
-      color: #1a73e8;
-      font-size: 14px;
-    }
 
     @media print {
-      .toolbar-header, .sheet-tabs { display: none !important; }
+      .toolbar-header { display: none !important; }
       body { padding: 0; background-color: #fff; }
-      .sheet-card { box-shadow: none; border: none; }
+      .sheet-card { box-shadow: none; border: none; padding: 0; }
     }
   </style>
 </head>
 <body>
 
-  <div class="sheet-card">
+  <div class="sheet-card" id="printArea">
     
+    <!-- Top Action Bar -->
     <div class="toolbar-header">
-      <div class="toolbar-title">📊 RCH 2.0 Live Combined Data</div>
+      <div class="toolbar-title">📊 RCH 2.0 PW Registration Detail FY 2026-27 (as on 01-08-2026)</div>
       <div class="action-group">
         <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 डेटा खोजें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
@@ -144,147 +136,169 @@
       </div>
     </div>
 
-    <div class="sheet-tabs">
-      <button class="tab-btn active" id="btn-facility" onclick="switchView('facility')">🏥 Facility Wise</button>
-      <button class="tab-btn" id="btn-sector" onclick="switchView('sector')">📁 Sector Wise</button>
-      <button class="tab-btn" id="btn-all" onclick="switchView('all')">📑 All Data</button>
+    <!-- 1. Sector Wise Table (Top) -->
+    <div class="section-title">📁 Sector Wise Summary</div>
+    <div class="table-responsive">
+      <table class="sheet-table" id="sectorTable">
+        <thead>
+          <tr>
+            <th class="column-header">Sn</th>
+            <th class="column-header">Sector</th>
+            <th class="column-header">Health Facility Type</th>
+            <th class="column-header">HMIS PW Reg.</th>
+            <th class="column-header">RCH 2.0 PW Reg.</th>
+            <th class="column-header">%</th>
+            <th class="column-header">Tem. Registration</th>
+            <th class="column-header">Backlog</th>
+            <th class="column-header">High Risk</th>
+          </tr>
+        </thead>
+        <tbody id="sectorTbody"></tbody>
+      </table>
     </div>
 
-    <div class="table-responsive" id="tableContainer">
-      <div class="loading-text">Google Sheet से RCH डेटा फ़ेच हो रहा है...</div>
+    <!-- 2. Facility Wise Table (Bottom) -->
+    <div class="section-title">🏥 Facility Wise Registration Details</div>
+    <div class="table-responsive">
+      <table class="sheet-table" id="facilityTable">
+        <thead>
+          <tr>
+            <th class="column-header">Sn</th>
+            <th class="column-header">Sector</th>
+            <th class="column-header">HFR ID</th>
+            <th class="column-header">Health Facility</th>
+            <th class="column-header">Health Facility Type</th>
+            <th class="column-header">HMIS PW Reg.</th>
+            <th class="column-header">RCH 2.0 PW Reg.</th>
+            <th class="column-header">%</th>
+            <th class="column-header">Tem. Registration</th>
+            <th class="column-header">Backlog</th>
+            <th class="column-header">High Risk</th>
+          </tr>
+        </thead>
+        <tbody id="facilityTbody"></tbody>
+      </table>
     </div>
 
   </div>
 
   <script>
-    const SHEET_ID = "1gLpt3wZ5-f09T4jK8221b0q3iA2AUn4DngWc6-pQ6Bw";
-    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=0&single=true&output=csv`;
+    // Sector Wise Data
+    const sectorData = [
+      ["1", "Barra", "3 SHC", "40", "54", "135", "11", "-14", "12"],
+      ["2", "Binjkot", "9 SHC", "98", "121", "123", "31", "-23", "67"],
+      ["3", "Gorpar", "3 SHC", "50", "55", "110", "8", "-5", "5"],
+      ["4", "Jobi", "3 SHC", "29", "40", "138", "15", "-11", "8"],
+      ["5", "Sarwani", "8 SHC", "118", "167", "142", "27", "-49", "42"],
+      ["6", "Sondka", "8 SHC", "93", "119", "128", "20", "-26", "33"],
+      ["7", "Turekela", "7 SHC", "96", "146", "152", "17", "-50", "51"],
+      ["8", "Urban Kharsia", "-", "64", "85", "133", "64", "21", "8"],
+      ["Total", "-", "-", "588", "787", "134", "193", "-199", "226"]
+    ];
 
-    let allRawRows = [];
-    let currentFilter = 'facility';
+    // Facility Wise Data
+    const facilityData = [
+      ["1", "Barra", "IN2210002161", "BARRA", "AAM-SHC", "21", "20", "95", "2", "-1", "12"],
+      ["2", "Barra", "IN2210002145", "DEHVARI", "AAM-SHC", "6", "11", "183", "6", "5", "7"],
+      ["3", "Barra", "IN2210002154", "FARKANARA", "AAM-SHC", "13", "23", "177", "3", "10", "4"],
+      ["4", "Binjkot", "IN2210002274", "BADE DUMARPALI", "AAM-SHC", "6", "8", "133", "2", "2", "15"],
+      ["5", "Binjkot", "IN2210002296", "BARBHAUNA", "AAM-SHC", "12", "13", "108", "4", "1", "7"],
+      ["6", "Binjkot", "IN2210002316", "BHUPDEOPUR", "AAM-SHC", "10", "18", "180", "6", "8", "9"],
+      ["7", "Binjkot", "IN2210002373", "BINJKOTA", "AAM-SHC", "10", "11", "110", "1", "-9", "0"],
+      ["8", "Binjkot", "IN2210002428", "GURDA", "AAM-SHC", "6", "8", "133", "2", "2", "5"],
+      ["9", "Binjkot", "IN2210002357", "LODHAJHARA", "AAM-SHC", "17", "27", "159", "6", "10", "14"],
+      ["10", "Binjkot", "IN2210002344", "MURA", "AAM-SHC", "15", "16", "107", "3", "1", "13"],
+      ["11", "Binjkot", "IN2210002389", "NAHARPALI", "AAM-SHC", "12", "19", "158", "2", "7", "12"],
+      ["12", "Binjkot", "IN2210002259", "PAMGARH", "AAM-SHC", "10", "11", "110", "5", "1", "6"],
+      ["13", "Gorpar", "IN2210002269", "GANDAPALI", "AAM-SHC", "14", "10", "71", "0", "-4", "0"],
+      ["14", "Gorpar", "IN2210002239", "GORPARA", "AAM-SHC", "23", "28", "122", "3", "5", "2"],
+      ["15", "Gorpar", "IN2210002256", "KHADGAON", "AAM-SHC", "13", "17", "131", "5", "4", "3"],
+      ["16", "Jobi", "IN2210002127", "KHAMHAR", "AAM-SHC", "15", "17", "113", "0", "2", "2"],
+      ["17", "Jobi", "IN2210002543", "NAGOI", "AAM-SHC", "7", "13", "186", "7", "6", "4"],
+      ["18", "Jobi", "IN2210002119", "NANDGAON", "AAM-SHC", "7", "10", "143", "8", "3", "2"],
+      ["19", "Sarwani", "IN2210003173", "AURDA", "AAM-SHC", "10", "11", "110", "0", "1", "1"],
+      ["20", "Sarwani", "IN2210003325", "BARGARH", "AAM-SHC", "7", "17", "243", "2", "10", "5"],
+      ["21", "Sarwani", "IN2210003254", "BOTALDA", "AAM-SHC", "24", "28", "117", "2", "4", "8"],
+      ["22", "Sarwani", "IN2210003239", "CHHOTE DEOGAON", "AAM-SHC", "9", "14", "156", "3", "5", "3"],
+      ["23", "Sarwani", "IN2210003307", "MADANPUR", "AAM-SHC", "30", "54", "180", "12", "24", "15"],
+      ["24", "Sarwani", "IN2210002417", "PARASKOL", "AAM-SHC", "13", "13", "100", "0", "0", "9"],
+      ["25", "Sarwani", "IN2210003214", "SARWANI", "AAM-SHC", "16", "23", "144", "3", "7", "1"],
+      ["26", "Sarwani", "IN2210003203", "TIURI", "AAM-SHC", "9", "7", "78", "5", "-2", "0"],
+      ["27", "Sondka", "IN2210002521", "BANIPATHAR", "AAM-SHC", "7", "12", "171", "1", "5", "2"],
+      ["28", "Sondka", "IN2210003092", "BASNAJHARA", "AAM-SHC", "19", "31", "163", "5", "12", "17"],
+      ["29", "Sondka", "IN2210002507", "GIDHA", "AAM-SHC", "11", "16", "145", "2", "5", "7"],
+      ["30", "Sondka", "IN2210002539", "JAIMURA", "AAM-SHC", "9", "12", "133", "0", "3", "1"],
+      ["31", "Sondka", "IN2210003101", "KUNKUNI", "AAM-SHC", "26", "23", "88", "12", "-3", "4"],
+      ["32", "Sondka", "IN2210002531", "SONBARSA", "AAM-SHC", "8", "6", "75", "0", "-2", "0"],
+      ["33", "Sondka", "IN2210003123", "SONDKA", "AAM-SHC", "5", "5", "100", "0", "0", "0"],
+      ["34", "Sondka", "IN2210002545", "TEMTEMA", "AAM-SHC", "8", "14", "175", "0", "6", "2"],
+      ["35", "Turekela", "IN2210002178", "BAKELI", "AAM-SHC", "7", "10", "143", "0", "3", "6"],
+      ["36", "Turekela", "IN2210002190", "DUMARBHANTHA", "AAM-SHC", "21", "21", "100", "10", "0", "16"],
+      ["37", "Turekela", "IN2210002213", "HALAHULI", "AAM-SHC", "12", "16", "133", "3", "4", "4"],
+      ["38", "Turekela", "IN2210002199", "MAHUAPALI", "AAM-SHC", "19", "38", "200", "0", "19", "12"],
+      ["39", "Turekela", "IN2210002224", "MAKRI", "AAM-SHC", "11", "17", "155", "5", "6", "6"],
+      ["40", "Turekela", "IN2210002236", "TELIKOT", "AAM-SHC", "17", "30", "176", "3", "13", "7"],
+      ["41", "Turekela", "IN2210002207", "TUREKELA", "AAM-SHC", "9", "14", "156", "5", "5", "0"],
+      ["42", "Urban Kharsia", "IN2210000364", "Urban Kharsia", "SDH", "64", "85", "133", "64", "21", "8"],
+      ["Total", "-", "-", "-", "-", "588", "787", "134", "193", "-199", "226"]
+    ];
 
-    function parseCSV(text) {
-      let lines = text.trim().split('\n');
-      return lines.map(line => {
-        let values = [];
-        let insideQuote = false;
-        let currentValue = '';
+    function buildRows(data, tbodyId, pctIndex, backlogIndex) {
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = '';
 
-        for (let char of line) {
-          if (char === '"' || char === "'") {
-            insideQuote = !insideQuote;
-          } else if (char === ',' && !insideQuote) {
-            values.push(currentValue.trim().replace(/^["']|["']$/g, ''));
-            currentValue = '';
-          } else {
-            currentValue += char;
-          }
-        }
-        values.push(currentValue.trim().replace(/^["']|["']$/g, ''));
-        return values;
-      });
-    }
+      data.forEach(row => {
+        let isTotal = row[0] === 'Total';
+        let tr = document.createElement('tr');
+        if (isTotal) tr.className = 'total-row';
 
-    async function fetchSheetData() {
-      const container = document.getElementById('tableContainer');
-      try {
-        const response = await fetch(CSV_URL);
-        if (!response.ok) throw new Error("डेटा फ़ेच नहीं हो सका।");
+        row.forEach((cell, idx) => {
+          let td = document.createElement('td');
+          td.className = 'text-center';
+          td.textContent = cell;
 
-        const csvText = await response.text();
-        allRawRows = parseCSV(csvText);
-
-        renderTable();
-      } catch (error) {
-        container.innerHTML = `<div class="loading-text" style="color:red;">एरर: ${error.message}</div>`;
-      }
-    }
-
-    function renderTable() {
-      const container = document.getElementById('tableContainer');
-      if (!allRawRows || allRawRows.length === 0) {
-        container.innerHTML = `<div class="loading-text" style="color:red;">कोई डेटा नहीं मिला।</div>`;
-        return;
-      }
-
-      let backlogIndex = -1;
-      let facilityTypeIndex = -1;
-
-      let tableHtml = `<table class="sheet-table" id="data-table"><thead><tr>`;
-
-      // Find Column Indexes & Build Headers
-      allRawRows[0].forEach((header, index) => {
-        if (header.toLowerCase().includes('backlog')) backlogIndex = index;
-        if (header.toLowerCase().includes('type') || header.toLowerCase().includes('facility')) facilityTypeIndex = index;
-        tableHtml += `<th class="column-header">${header} 🔻</th>`;
-      });
-      tableHtml += `</tr></thead><tbody>`;
-
-      for (let i = 1; i < allRawRows.length; i++) {
-        let row = allRawRows[i];
-        if (row.length <= 1 && row[0] === '') continue;
-
-        let rowText = row.join(' ').toLowerCase();
-
-        // Filtering logic based on active tab
-        if (currentFilter === 'sector') {
-          if (!rowText.includes('sector') && !rowText.includes('total') && !rowText.includes('sum')) {
-            if (facilityTypeIndex !== -1 && row[facilityTypeIndex] && row[facilityTypeIndex].includes('SHC')) continue;
-          }
-        } else if (currentFilter === 'facility') {
-          if (rowText.includes('sector total') || rowText.includes('block total')) continue;
-        }
-
-        tableHtml += `<tr>`;
-        row.forEach((cell, index) => {
-          let styleClass = 'text-center';
-
-          if (index === backlogIndex && cell !== '') {
+          // Color Percentage (%) Column
+          if (idx === pctIndex && cell !== '-' && !isTotal) {
             let val = parseFloat(cell);
             if (!isNaN(val)) {
-              if (val < 0) styleClass = 'bg-red';
-              else if (val > 0) styleClass = 'bg-green';
+              if (val >= 100) td.className += ' bg-green';
+              else if (val >= 80) td.className += ' bg-light-green';
+              else td.className += ' bg-red';
             }
           }
 
-          tableHtml += `<td class="${styleClass}">${cell}</td>`;
+          // Color Backlog Column
+          if (idx === backlogIndex && cell !== '-' && !isTotal) {
+            let val = parseFloat(cell);
+            if (!isNaN(val)) {
+              if (val < 0) td.className += ' bg-red';
+              else if (val > 0) td.className += ' bg-green';
+            }
+          }
+
+          tr.appendChild(td);
         });
-        tableHtml += `</tr>`;
-      }
-
-      tableHtml += `</tbody></table>`;
-      container.innerHTML = tableHtml;
-    }
-
-    function switchView(viewType) {
-      currentFilter = viewType;
-      document.getElementById('btn-facility').classList.toggle('active', viewType === 'facility');
-      document.getElementById('btn-sector').classList.toggle('active', viewType === 'sector');
-      document.getElementById('btn-all').classList.toggle('active', viewType === 'all');
-
-      renderTable();
+        tbody.appendChild(tr);
+      });
     }
 
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
-      const rows = document.querySelectorAll('#data-table tbody tr');
       
-      rows.forEach(row => {
+      document.querySelectorAll('tbody tr').forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
       });
     }
 
     function exportToExcel() {
-      let tableElement = document.getElementById('data-table');
-      if (!tableElement) return;
-
-      let htmlData = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>${tableElement.outerHTML}</body></html>`;
+      let printContent = document.getElementById('printArea').innerHTML;
+      let htmlData = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>${printContent}</body></html>`;
 
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `RCH_2.0_${currentFilter.toUpperCase()}_REPORT.xls`;
+      link.download = `RCH_2.0_Combined_Report.xls`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -294,7 +308,13 @@
       window.print();
     }
 
-    window.onload = fetchSheetData;
+    // Render Data on Load
+    window.onload = () => {
+      // Sector Wise: Percentage at index 5, Backlog at index 7
+      buildRows(sectorData, 'sectorTbody', 5, 7);
+      // Facility Wise: Percentage at index 7, Backlog at index 9
+      buildRows(facilityData, 'facilityTbody', 7, 9);
+    };
   </script>
 
 </body>
