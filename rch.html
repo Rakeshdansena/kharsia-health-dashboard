@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 PW Registration Detail FY 2026-27</title>
+  <title>RCH 2.0 PW Registration Detail FY 2026-27 (as on 01-08-2026)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { padding: 12px; background-color: #f8f9fa; color: #000; }
@@ -16,19 +16,34 @@
       padding: 12px;
     }
 
-    /* Header & Action Bar */
-    .toolbar-header {
+    /* Main Header Container */
+    .doc-header {
+      text-align: center;
+      background-color: #1a73e8;
+      color: #ffffff;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .doc-header h1 {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    /* Action Buttons Bar */
+    .toolbar-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
       border-bottom: 2px solid #dadce0;
       flex-wrap: wrap;
       gap: 10px;
     }
 
-    .toolbar-title { font-size: 16px; font-weight: bold; color: #1a73e8; }
     .action-group { display: flex; gap: 8px; align-items: center; }
 
     .search-input {
@@ -37,7 +52,7 @@
       border-radius: 4px;
       font-size: 12px;
       outline: none;
-      width: 200px;
+      width: 220px;
     }
 
     .btn {
@@ -55,7 +70,7 @@
     .section-title {
       font-size: 14px;
       font-weight: bold;
-      color: #202124;
+      color: #1a73e8;
       margin: 16px 0 8px 0;
       padding: 6px 10px;
       background-color: #e8f0fe;
@@ -68,7 +83,7 @@
     table.sheet-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 12px;
       background-color: #ffffff;
     }
 
@@ -86,7 +101,7 @@
       font-size: 12px;
     }
 
-    /* Color Rules */
+    /* 3-Step Color Rules */
     .bg-green {
       background-color: #00b050 !important;
       color: #ffffff !important;
@@ -94,8 +109,8 @@
       text-align: center;
     }
 
-    .bg-light-green {
-      background-color: #92d050 !important;
+    .bg-yellow {
+      background-color: #ffc000 !important;
       color: #000000 !important;
       font-weight: bold;
       text-align: center;
@@ -116,9 +131,10 @@
     .text-center { text-align: center !important; }
 
     @media print {
-      .toolbar-header { display: none !important; }
+      .toolbar-bar { display: none !important; }
       body { padding: 0; background-color: #fff; }
       .sheet-card { box-shadow: none; border: none; padding: 0; }
+      .doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -126,9 +142,14 @@
 
   <div class="sheet-card" id="printArea">
     
-    <!-- Top Action Bar -->
-    <div class="toolbar-header">
-      <div class="toolbar-title">📊 RCH 2.0 PW Registration Detail FY 2026-27 (as on 01-08-2026)</div>
+    <!-- Main Title Heading -->
+    <div class="doc-header">
+      <h1>RCH 2.0 PW Registration Detail FY 2026-27 (as on 01-08-2026)</h1>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="toolbar-bar">
+      <div></div>
       <div class="action-group">
         <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 डेटा खोजें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
@@ -136,7 +157,7 @@
       </div>
     </div>
 
-    <!-- 1. Sector Wise Table (Top) -->
+    <!-- 1. Sector Wise Table -->
     <div class="section-title">📁 Sector Wise Summary</div>
     <div class="table-responsive">
       <table class="sheet-table" id="sectorTable">
@@ -157,7 +178,7 @@
       </table>
     </div>
 
-    <!-- 2. Facility Wise Table (Bottom) -->
+    <!-- 2. Facility Wise Table -->
     <div class="section-title">🏥 Facility Wise Registration Details</div>
     <div class="table-responsive">
       <table class="sheet-table" id="facilityTable">
@@ -183,7 +204,6 @@
   </div>
 
   <script>
-    // Sector Wise Data
     const sectorData = [
       ["1", "Barra", "3 SHC", "40", "54", "135", "11", "-14", "12"],
       ["2", "Binjkot", "9 SHC", "98", "121", "123", "31", "-23", "67"],
@@ -196,7 +216,6 @@
       ["Total", "-", "-", "588", "787", "134", "193", "-199", "226"]
     ];
 
-    // Facility Wise Data
     const facilityData = [
       ["1", "Barra", "IN2210002161", "BARRA", "AAM-SHC", "21", "20", "95", "2", "-1", "12"],
       ["2", "Barra", "IN2210002145", "DEHVARI", "AAM-SHC", "6", "11", "183", "6", "5", "7"],
@@ -257,22 +276,21 @@
           td.className = 'text-center';
           td.textContent = cell;
 
-          // Color Percentage (%) Column
           if (idx === pctIndex && cell !== '-' && !isTotal) {
             let val = parseFloat(cell);
             if (!isNaN(val)) {
               if (val >= 100) td.className += ' bg-green';
-              else if (val >= 80) td.className += ' bg-light-green';
+              else if (val >= 80) td.className += ' bg-yellow';
               else td.className += ' bg-red';
             }
           }
 
-          // Color Backlog Column
           if (idx === backlogIndex && cell !== '-' && !isTotal) {
             let val = parseFloat(cell);
             if (!isNaN(val)) {
               if (val < 0) td.className += ' bg-red';
-              else if (val > 0) td.className += ' bg-green';
+              else if (val <= 10) td.className += ' bg-yellow';
+              else td.className += ' bg-green';
             }
           }
 
@@ -284,7 +302,6 @@
 
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
-      
       document.querySelectorAll('tbody tr').forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
@@ -294,11 +311,10 @@
     function exportToExcel() {
       let printContent = document.getElementById('printArea').innerHTML;
       let htmlData = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>${printContent}</body></html>`;
-
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `RCH_2.0_Combined_Report.xls`;
+      link.download = `RCH_2.0_Registration_Report.xls`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -308,11 +324,8 @@
       window.print();
     }
 
-    // Render Data on Load
     window.onload = () => {
-      // Sector Wise: Percentage at index 5, Backlog at index 7
       buildRows(sectorData, 'sectorTbody', 5, 7);
-      // Facility Wise: Percentage at index 7, Backlog at index 9
       buildRows(facilityData, 'facilityTbody', 7, 9);
     };
   </script>
