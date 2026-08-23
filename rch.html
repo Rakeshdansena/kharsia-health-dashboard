@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RCH 2.0 Report</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { padding: 25px; background-color: #f4f6f9; color: #333; }
+    
+    .card { background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    .toolbar-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+    .toolbar-title { font-size: 18px; font-weight: bold; color: #1e293b; }
+    .action-group { display: flex; gap: 10px; align-items: center; }
+    
+    .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; width: 200px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; color: #ffffff; font-size: 13px; font-weight: bold; cursor: pointer; }
+    .btn-excel { background-color: #10b981; }
+    .btn-pdf { background-color: #ef4444; }
+
+    .table-responsive { width: 100%; overflow-x: auto; }
+
+    table.excel-style-table { width: 100%; border-collapse: collapse; font-size: 14px; background-color: #ffffff; margin-bottom: 25px; }
+    table.excel-style-table th, table.excel-style-table td { border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; }
+    
+    .section-title-header { background-color: #d9e1f2; color: #000; font-size: 16px; font-weight: bold; text-align: center; padding: 8px; }
+    .column-header { background-color: #ffffff; color: #000; font-weight: normal; text-align: center; font-size: 15px; }
+    .text-center { text-align: center; }
+
+    @media print {
+      .toolbar-header { display: none !important; }
+      body { padding: 0; background-color: #fff; }
+      .card { box-shadow: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="report-area">
+    
+    <div class="toolbar-header">
+      <div class="toolbar-title">RCH 2.0 Progress Report</div>
+      <div class="action-group">
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="डेटा खोजें...">
+        <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
+        <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      
+      <!-- TABLE: RCH 2.0 STATUS -->
+      <table class="excel-style-table" id="table-rch">
+        <thead>
+          <tr>
+            <th colspan="7" class="section-title-header">
+              RCH 2.0 पंजीयन एवं सेवाएं (माह अगस्त 2026 की स्थिति में)
+            </th>
+          </tr>
+          <tr>
+            <th class="column-header text-center" style="width: 50px;">क्र</th>
+            <th class="column-header text-center">सेवा का नाम</th>
+            <th class="column-header text-center">वार्षिक लक्ष्य</th>
+            <th class="column-header text-center">मासिक लक्ष्य</th>
+            <th class="column-header text-center">मासिक उपलब्धि</th>
+            <th class="column-header text-center">कुल प्रगति (YoY)</th>
+            <th class="column-header text-center" style="width: 80px;">प्रतिशत</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">1</td>
+            <td class="text-center">गर्भवती महिला पंजीयन (ANC)</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0%</td>
+          </tr>
+          <tr>
+            <td class="text-center">2</td>
+            <td class="text-center">संस्थागत प्रसव (Institutional Delivery)</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0%</td>
+          </tr>
+          <tr>
+            <td class="text-center">3</td>
+            <td class="text-center">पूर्ण टीकाकरण (Full Immunization)</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0</td>
+            <td class="text-center">0%</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Native Excel Export Function
+    function exportToExcel() {
+      let tableData = document.getElementById('table-rch').outerHTML;
+      
+      let htmlData = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head><meta charset="UTF-8"></head>
+        <body>${tableData}</body>
+        </html>`;
+
+      let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
+      let link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'RCH_2.0_Report.xls';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // PDF/Print Export Function
+    function exportToPDF() {
+      window.print();
+    }
+
+    // Search Filter
+    function filterTables() {
+      const filter = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>
