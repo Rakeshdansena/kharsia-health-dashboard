@@ -6,28 +6,28 @@
   <title>Kharsia Health Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { display: flex; background-color: #f4f6f9; min-height: 100vh; }
+    body { display: flex; background-color: #f4f6f9; min-height: 100vh; overflow: hidden; }
     
     /* Sidebar */
-    .sidebar { width: 250px; background-color: #0b253a; color: #fff; flex-shrink: 0; }
-    .sidebar-header { padding: 20px; font-size: 11px; color: #94a3b8; font-weight: bold; border-bottom: 1px solid #1e3a5f; }
+    .sidebar { width: 250px; background-color: #0b253a; color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 20px; font-size: 11px; color: #94a3b8; font-weight: bold; border-bottom: 1px solid #1e3a5f; letter-spacing: 1px; }
     .sidebar-menu { list-style: none; padding: 10px 0; }
-    .sidebar-menu li a { display: block; padding: 12px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; cursor: pointer; }
+    .sidebar-menu li a { display: block; padding: 12px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; cursor: pointer; transition: all 0.2s; }
     .sidebar-menu li.active a, .sidebar-menu li a:hover { background-color: #0f766e; color: #fff; font-weight: bold; }
     
-    /* Main Content Area */
+    /* Main Layout Area */
     .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; }
     .top-header { background-color: #0f766e; color: #fff; padding: 20px 30px; }
     .top-header h1 { font-size: 22px; font-weight: 600; }
     .top-header p { font-size: 13px; opacity: 0.9; }
     
-    /* Iframe Styling */
-    #content-frame { width: 100%; height: 100%; border: none; flex: 1; }
+    /* Frame Styling */
+    #content-frame { width: 100%; height: 100%; border: none; flex: 1; background-color: #f4f6f9; }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!-- Sidebar Menu -->
   <div class="sidebar">
     <div class="sidebar-header">HEALTH PROGRAMMES</div>
     <ul class="sidebar-menu">
@@ -38,20 +38,20 @@
     </ul>
   </div>
 
-  <!-- Main Content Area -->
+  <!-- Main Display Window -->
   <div class="main-content">
     <div class="top-header">
       <h1>Kharsia Health Dashboard</h1>
       <p>Block Kharsia · District Raigarh · Chhattisgarh</p>
     </div>
     
-    <!-- Iframe Container -->
-    <iframe id="content-frame" src="ayushman.html"></iframe>
+    <!-- Relativized Iframe Path -->
+    <iframe id="content-frame" src="./ayushman.html"></iframe>
   </div>
 
   <script>
     function loadModule(pageUrl, menuId) {
-      document.getElementById('content-frame').src = pageUrl;
+      document.getElementById('content-frame').src = './' + pageUrl;
       document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
       document.getElementById(menuId).classList.add('active');
     }
