@@ -2,20 +2,27 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { padding: 20px; background-color: #f4f6f9; }
-    .card { background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-    .toolbar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    body { padding: 25px; background-color: #f4f6f9; color: #333; }
+    
+    .card { background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    
+    .toolbar-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
     .toolbar-title { font-size: 18px; font-weight: bold; color: #1e293b; }
-    .action-group { display: flex; gap: 10px; }
-    .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .action-group { display: flex; gap: 10px; align-items: center; }
+    
+    .search-input { padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; width: 200px; }
     .btn { padding: 8px 16px; border: none; border-radius: 6px; color: #ffffff; font-size: 13px; font-weight: bold; cursor: pointer; }
     .btn-excel { background-color: #10b981; }
     .btn-pdf { background-color: #ef4444; }
 
+    .table-responsive { width: 100%; overflow-x: auto; }
+
     table.excel-style-table { width: 100%; border-collapse: collapse; font-size: 14px; background-color: #ffffff; margin-bottom: 25px; }
     table.excel-style-table th, table.excel-style-table td { border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; }
+    
     .section-title-header { background-color: #d9e1f2; color: #000; font-size: 16px; font-weight: bold; text-align: center; padding: 8px; }
     .column-header { background-color: #ffffff; color: #000; font-weight: normal; text-align: center; font-size: 15px; }
     .text-center { text-align: center; }
@@ -24,6 +31,7 @@
 <body>
 
   <div class="card">
+    
     <div class="toolbar-header">
       <div class="toolbar-title">Ayushman Card & Vay Vandana Report</div>
       <div class="action-group">
@@ -33,71 +41,83 @@
       </div>
     </div>
 
-    <!-- TABLE 1 -->
-    <table class="excel-style-table">
-      <thead>
-        <tr><th colspan="8" class="section-title-header">आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में</th></tr>
-        <tr>
-          <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
-          <th colspan="3" class="column-header text-center">लक्ष्य</th>
-          <th colspan="3" class="column-header text-center">उपलब्धि</th>
-          <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
-        </tr>
-        <tr>
-          <th class="column-header text-center">ग्रामीण</th>
-          <th class="column-header text-center">अर्बन</th>
-          <th class="column-header text-center">योग</th>
-          <th class="column-header text-center">ग्रामीण</th>
-          <th class="column-header text-center">अर्बन</th>
-          <th class="column-header text-center">योग</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="text-center">1</td>
-          <td class="text-center">134488</td>
-          <td class="text-center">17572</td>
-          <td class="text-center">152060</td>
-          <td class="text-center">126274</td>
-          <td class="text-center">16271</td>
-          <td class="text-center">142545</td>
-          <td class="text-center">93.7</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      
+      <!-- TABLE 1: AYUSHMAN CARD -->
+      <table class="excel-style-table">
+        <thead>
+          <tr>
+            <th colspan="8" class="section-title-header">
+              आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में
+            </th>
+          </tr>
+          <tr>
+            <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
+            <th colspan="3" class="column-header text-center">लक्ष्य</th>
+            <th colspan="3" class="column-header text-center">उपलब्धि</th>
+            <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
+          </tr>
+          <tr>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">1</td>
+            <td class="text-center">134488</td>
+            <td class="text-center">17572</td>
+            <td class="text-center">152060</td>
+            <td class="text-center">126274</td>
+            <td class="text-center">16271</td>
+            <td class="text-center">142545</td>
+            <td class="text-center">93.7</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <!-- TABLE 2 -->
-    <table class="excel-style-table">
-      <thead>
-        <tr><th colspan="8" class="section-title-header">वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में</th></tr>
-        <tr>
-          <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
-          <th colspan="3" class="column-header text-center">लक्ष्य</th>
-          <th colspan="3" class="column-header text-center">उपलब्धि</th>
-          <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
-        </tr>
-        <tr>
-          <th class="column-header text-center">ग्रामीण</th>
-          <th class="column-header text-center">अर्बन</th>
-          <th class="column-header text-center">योग</th>
-          <th class="column-header text-center">ग्रामीण</th>
-          <th class="column-header text-center">अर्बन</th>
-          <th class="column-header text-center">योग</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="text-center">1</td>
-          <td class="text-center">3737</td>
-          <td class="text-center">257</td>
-          <td class="text-center">3994</td>
-          <td class="text-center">3740</td>
-          <td class="text-center">257</td>
-          <td class="text-center">3997</td>
-          <td class="text-center">100.1</td>
-        </tr>
-      </tbody>
-    </table>
+      <!-- TABLE 2: VAY VANDANA CARD -->
+      <table class="excel-style-table">
+        <thead>
+          <tr>
+            <th colspan="8" class="section-title-header">
+              वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में
+            </th>
+          </tr>
+          <tr>
+            <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
+            <th colspan="3" class="column-header text-center">लक्ष्य</th>
+            <th colspan="3" class="column-header text-center">उपलब्धि</th>
+            <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
+          </tr>
+          <tr>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-center">1</td>
+            <td class="text-center">3737</td>
+            <td class="text-center">257</td>
+            <td class="text-center">3994</td>
+            <td class="text-center">3740</td>
+            <td class="text-center">257</td>
+            <td class="text-center">3997</td>
+            <td class="text-center">100.1</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
 
   </div>
 
