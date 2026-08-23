@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayushman Card Report</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     body { padding: 25px; background-color: #f4f6f9; color: #333; }
@@ -26,25 +27,31 @@
     .section-title-header { background-color: #d9e1f2; color: #000; font-size: 16px; font-weight: bold; text-align: center; padding: 8px; }
     .column-header { background-color: #ffffff; color: #000; font-weight: normal; text-align: center; font-size: 15px; }
     .text-center { text-align: center; }
+
+    @media print {
+      .toolbar-header { display: none !important; }
+      body { padding: 0; background-color: #fff; }
+      .card { box-shadow: none; padding: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <div class="card" id="report-area">
     
     <div class="toolbar-header">
       <div class="toolbar-title">Ayushman Card & Vay Vandana Report</div>
       <div class="action-group">
-        <input type="text" class="search-input" placeholder="डेटा खोजें...">
-        <button class="btn btn-excel">📊 Excel डाउनलोड</button>
-        <button class="btn btn-pdf">📄 PDF डाउनलोड</button>
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="डेटा खोजें...">
+        <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
+        <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
       </div>
     </div>
 
     <div class="table-responsive">
       
       <!-- TABLE 1: AYUSHMAN CARD -->
-      <table class="excel-style-table">
+      <table class="excel-style-table" id="table-ayushman">
         <thead>
           <tr>
             <th colspan="8" class="section-title-header">
@@ -81,7 +88,7 @@
       </table>
 
       <!-- TABLE 2: VAY VANDANA CARD -->
-      <table class="excel-style-table">
+      <table class="excel-style-table" id="table-vayvandana">
         <thead>
           <tr>
             <th colspan="8" class="section-title-header">
@@ -120,6 +127,44 @@
     </div>
 
   </div>
+
+  <script>
+    // Native Excel Export Function (Works inside Iframe)
+    function exportToExcel() {
+      let table1 = document.getElementById('table-ayushman').outerHTML;
+      let table2 = document.getElementById('table-vayvandana').outerHTML;
+      
+      let htmlData = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head><meta charset="UTF-8"></head>
+        <body>${table1}<br/><br/>${table2}</body>
+        </html>`;
+
+      let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
+      let link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Ayushman_VayVandana_Report.xls';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // PDF/Print Export Function
+    function exportToPDF() {
+      window.print();
+    }
+
+    // Search Filter
+    function filterTables() {
+      const filter = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      });
+    }
+  </script>
 
 </body>
 </html>
