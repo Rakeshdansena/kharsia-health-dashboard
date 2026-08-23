@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 Facility & Sector Wise Report</title>
+  <title>RCH 2.0 Sector & Facility Wise PW Registration</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
     body { padding: 15px; background-color: #f8f9fa; color: #202124; }
@@ -53,7 +53,7 @@
     .btn-excel { background-color: #1e8e3e; }
     .btn-pdf { background-color: #d93025; }
 
-    /* Google Sheets Tabs Navigation (Bottom/Top) */
+    /* Google Sheets Navigation Tabs */
     .sheet-tabs {
       display: flex;
       background-color: #f1f3f4;
@@ -140,6 +140,7 @@
 
     .text-center { text-align: center !important; }
     .text-right { text-align: right !important; }
+    
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
@@ -158,95 +159,23 @@
     <!-- Top Bar -->
     <div class="toolbar-header">
       <div class="toolbar-title">
-        📊 RCH_2.0_Sector_Facility_Report.xlsx
+        📊 RCH 2.0 PW Registration FY 2026-27 (As on 01-08-2026)
       </div>
       <div class="action-group">
-        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 संस्था/सेक्टर खोजें...">
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="🔍 सर्च करें...">
         <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
         <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
       </div>
     </div>
 
-    <!-- Google Sheet Tabs -->
+    <!-- Sheet Tabs -->
     <div class="sheet-tabs">
-      <button class="tab-btn active" onclick="openTab('sector-tab', this)">📁 Sector Wise Progress</button>
-      <button class="tab-btn" onclick="openTab('facility-tab', this)">🏥 Facility Wise Progress</button>
+      <button class="tab-btn active" onclick="openTab('facility-tab', this)">🏥 Facility Wise View</button>
+      <button class="tab-btn" onclick="openTab('sector-tab', this)">📁 Sector Wise Summary</button>
     </div>
 
-    <!-- TAB 1: SECTOR WISE -->
-    <div id="sector-tab" class="tab-content active">
-      <div class="table-responsive">
-        <table class="google-sheet-table" id="table-sector">
-          <thead>
-            <tr>
-              <th class="sheet-col-head"></th>
-              <th class="sheet-col-head">A</th>
-              <th class="sheet-col-head">B</th>
-              <th class="sheet-col-head">C</th>
-              <th class="sheet-col-head">D</th>
-              <th class="sheet-col-head">E</th>
-              <th class="sheet-col-head">F</th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">1</td>
-              <th colspan="6" class="sheet-title-header">
-                RCH 2.0 - सेक्टर अनुसार प्रगति रिपोर्ट (Block Kharsia)
-              </th>
-            </tr>
-            <tr>
-              <td class="row-num-cell">2</td>
-              <th class="column-header text-center" style="width: 50px;">क्र</th>
-              <th class="column-header">सेक्टर का नाम (Sector Name)</th>
-              <th class="column-header text-center">ANC पंजीयन</th>
-              <th class="column-header text-center">संस्थागत प्रसव</th>
-              <th class="column-header text-center">पूर्ण टीकाकरण</th>
-              <th class="column-header text-center">उपलब्धि (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="row-num-cell">3</td>
-              <td class="text-center">1</td>
-              <td>Kharsia Urban</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">4</td>
-              <td class="text-center">2</td>
-              <td>Chaple Sector</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
-            </tr>
-            <tr>
-              <td class="row-num-cell">5</td>
-              <td class="text-center">3</td>
-              <td>Masaura Sector</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
-            </tr>
-            <tr class="total-row">
-              <td class="row-num-cell">6</td>
-              <td class="text-center">-</td>
-              <td>कुल योग (Block Total)</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TAB 2: FACILITY WISE -->
-    <div id="facility-tab" class="tab-content">
+    <!-- TAB 1: FACILITY WISE -->
+    <div id="facility-tab" class="tab-content active">
       <div class="table-responsive">
         <table class="google-sheet-table" id="table-facility">
           <thead>
@@ -259,54 +188,175 @@
               <th class="sheet-col-head">E</th>
               <th class="sheet-col-head">F</th>
               <th class="sheet-col-head">G</th>
+              <th class="sheet-col-head">H</th>
+              <th class="sheet-col-head">I</th>
+              <th class="sheet-col-head">J</th>
+              <th class="sheet-col-head">K</th>
             </tr>
             <tr>
               <td class="row-num-cell">1</td>
-              <th colspan="7" class="sheet-title-header">
-                RCH 2.0 - संस्था अनुसार प्रगति रिपोर्ट (PHC/SHC/CHC Wise)
+              <th colspan="11" class="sheet-title-header">
+                RCH 2.0 Facility Wise PW Registration Detail FY 2026-27 as on Date 01-08-2026
               </th>
             </tr>
             <tr>
               <td class="row-num-cell">2</td>
-              <th class="column-header text-center" style="width: 50px;">क्र</th>
-              <th class="column-header">सेक्टर</th>
-              <th class="column-header">स्वास्थ्य संस्था का नाम (Facility)</th>
-              <th class="column-header text-center">ANC पंजीयन</th>
-              <th class="column-header text-center">प्रसव</th>
-              <th class="column-header text-center">टीकाकरण</th>
-              <th class="column-header text-center">प्रगति (%)</th>
+              <th class="column-header text-center">Sn</th>
+              <th class="column-header">Sector</th>
+              <th class="column-header">HFR ID</th>
+              <th class="column-header">Health Facility</th>
+              <th class="column-header text-center">Health Facility Type</th>
+              <th class="column-header text-center">HMIS PW Reg.</th>
+              <th class="column-header text-center">RCH 2.0 PW Reg.</th>
+              <th class="column-header text-center">%</th>
+              <th class="column-header text-center">Tem. Reg.</th>
+              <th class="column-header text-center">Backlog</th>
+              <th class="column-header text-center">High Risk</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="row-num-cell">3</td>
               <td class="text-center">1</td>
-              <td>Kharsia</td>
-              <td>CHC Kharsia</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
+              <td>Barra</td>
+              <td>IN2210002161</td>
+              <td>BARRA</td>
+              <td class="text-center">AAM-SHC</td>
+              <td class="text-right">21</td>
+              <td class="text-right">20</td>
+              <td class="text-center">95%</td>
+              <td class="text-right">2</td>
+              <td class="text-right">-1</td>
+              <td class="text-right">12</td>
             </tr>
             <tr>
               <td class="row-num-cell">4</td>
               <td class="text-center">2</td>
-              <td>Chaple</td>
-              <td>PHC Chaple</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
+              <td>Barra</td>
+              <td>IN2210002145</td>
+              <td>DEHVARI</td>
+              <td class="text-center">AAM-SHC</td>
+              <td class="text-right">6</td>
+              <td class="text-right">11</td>
+              <td class="text-center">183%</td>
+              <td class="text-right">6</td>
+              <td class="text-right">5</td>
+              <td class="text-right">7</td>
             </tr>
             <tr>
               <td class="row-num-cell">5</td>
               <td class="text-center">3</td>
-              <td>Masaura</td>
-              <td>SHC Masaura</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-right">0</td>
-              <td class="text-center">0%</td>
+              <td>Barra</td>
+              <td>IN2210002154</td>
+              <td>FARKANARA</td>
+              <td class="text-center">AAM-SHC</td>
+              <td class="text-right">13</td>
+              <td class="text-right">23</td>
+              <td class="text-center">177%</td>
+              <td class="text-right">3</td>
+              <td class="text-right">10</td>
+              <td class="text-right">4</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">6</td>
+              <td class="text-center">4</td>
+              <td>Binjkot</td>
+              <td>IN2210002274</td>
+              <td>BADE DUMARPALI</td>
+              <td class="text-center">AAM-SHC</td>
+              <td class="text-right">6</td>
+              <td class="text-right">8</td>
+              <td class="text-center">133%</td>
+              <td class="text-right">2</td>
+              <td class="text-right">2</td>
+              <td class="text-right">15</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">7</td>
+              <td class="text-center">5</td>
+              <td>Binjkot</td>
+              <td>IN2210002296</td>
+              <td>BARBHAUNA</td>
+              <td class="text-center">AAM-SHC</td>
+              <td class="text-right">12</td>
+              <td class="text-right">13</td>
+              <td class="text-center">108%</td>
+              <td class="text-right">4</td>
+              <td class="text-right">1</td>
+              <td class="text-right">7</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: SECTOR WISE -->
+    <div id="sector-tab" class="tab-content">
+      <div class="table-responsive">
+        <table class="google-sheet-table" id="table-sector">
+          <thead>
+            <tr>
+              <th class="sheet-col-head"></th>
+              <th class="sheet-col-head">A</th>
+              <th class="sheet-col-head">B</th>
+              <th class="sheet-col-head">C</th>
+              <th class="sheet-col-head">D</th>
+              <th class="sheet-col-head">E</th>
+              <th class="sheet-col-head">F</th>
+              <th class="sheet-col-head">G</th>
+              <th class="sheet-col-head">H</th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">1</td>
+              <th colspan="8" class="sheet-title-header">
+                RCH 2.0 Sector Wise Summary Report FY 2026-27 as on Date 01-08-2026
+              </th>
+            </tr>
+            <tr>
+              <td class="row-num-cell">2</td>
+              <th class="column-header text-center">Sn</th>
+              <th class="column-header">Sector</th>
+              <th class="column-header text-center">HMIS PW Reg.</th>
+              <th class="column-header text-center">RCH 2.0 PW Reg.</th>
+              <th class="column-header text-center">%</th>
+              <th class="column-header text-center">Tem. Reg.</th>
+              <th class="column-header text-center">Backlog</th>
+              <th class="column-header text-center">High Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-num-cell">3</td>
+              <td class="text-center">1</td>
+              <td>Barra Sector</td>
+              <td class="text-right">40</td>
+              <td class="text-right">54</td>
+              <td class="text-center">135%</td>
+              <td class="text-right">11</td>
+              <td class="text-right">14</td>
+              <td class="text-right">23</td>
+            </tr>
+            <tr>
+              <td class="row-num-cell">4</td>
+              <td class="text-center">2</td>
+              <td>Binjkot Sector</td>
+              <td class="text-right">18</td>
+              <td class="text-right">21</td>
+              <td class="text-center">117%</td>
+              <td class="text-right">6</td>
+              <td class="text-right">3</td>
+              <td class="text-right">22</td>
+            </tr>
+            <tr class="total-row">
+              <td class="row-num-cell">5</td>
+              <td class="text-center">-</td>
+              <td>Total (Kharsia Block)</td>
+              <td class="text-right">58</td>
+              <td class="text-right">75</td>
+              <td class="text-center">129%</td>
+              <td class="text-right">17</td>
+              <td class="text-right">17</td>
+              <td class="text-right">45</td>
             </tr>
           </tbody>
         </table>
@@ -326,17 +376,17 @@
 
     // Excel Download
     function exportToExcel() {
-      let activeTab = document.querySelector('.tab-content.active table').outerHTML;
+      let activeTable = document.querySelector('.tab-content.active table').outerHTML;
       let htmlData = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
         <head><meta charset="UTF-8"></head>
-        <body>${activeTab}</body>
+        <body>${activeTable}</body>
         </html>`;
 
       let blob = new Blob([htmlData], { type: 'application/vnd.ms-excel' });
       let link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'RCH_2.0_Report.xls';
+      link.download = 'RCH_2.0_PW_Registration.xls';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -350,9 +400,9 @@
     // Search Filter
     function filterTables() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
-      const activeTabRows = document.querySelectorAll('.tab-content.active tbody tr');
+      const activeRows = document.querySelectorAll('.tab-content.active tbody tr');
       
-      activeTabRows.forEach(row => {
+      activeRows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
       });
