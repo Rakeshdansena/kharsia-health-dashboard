@@ -1,62 +1,44 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kharsia Health Dashboard</title>
-  
-  <!-- Style Sheet -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- PDF & Excel Generation Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-</head>
-<body>
-
-  <div class="app-container">
-    
-    <!-- SIDEBAR MENU -->
-    <div class="sidebar">
-      <div class="sidebar-header">HEALTH PROGRAMMES</div>
-      <ul class="nav-menu">
-        <li class="nav-item active" id="dashboard-menu" onclick="showDashboardView()">🏠 Dashboard</li>
-        <li class="nav-item" id="menu-ayushman" onclick="loadReportView('ayushman')">💳 Ayushman Card</li>
-        <li class="nav-item" id="menu-rch" onclick="loadReportView('rch')">🤱 RCH 2.0</li>
-        <li class="nav-item" id="menu-ncd" onclick="loadReportView('ncd')">❤️ NCD Status</li>
-        <li class="nav-item" id="menu-jas" onclick="loadReportView('jas')">🤝 JAS Meeting</li>
-        <li class="nav-item" id="menu-hwc" onclick="loadReportView('hwc')">🏥 Health & Wellness Center</li>
-        <li class="nav-item" id="menu-shivir" onclick="loadReportView('shivir')">🏕️ Ayushman Shivir</li>
-        <li class="nav-item" id="menu-activity" onclick="loadReportView('activity')">🩺 Wellness Activity</li>
-        <li class="nav-item" id="menu-rbsk" onclick="loadReportView('rbsk')">👶 RBSK</li>
-        <li class="nav-item" id="menu-nrc" onclick="loadReportView('nrc')">🏢 NRC Kharsia</li>
-        <li class="nav-item" id="menu-blindness" onclick="loadReportView('blindness')">👁️ Blindness Control</li>
-        <li class="nav-item" id="menu-nqas" onclick="loadReportView('nqas')">🏅 NQAS Certification</li>
-        <li class="nav-item" id="menu-dialysis" onclick="loadReportView('dialysis')">💧 Dialysis</li>
-        <li class="nav-item" id="menu-nlep" onclick="loadReportView('nlep')">🩺 NLEP</li>
-      </ul>
-    </div>
-
-    <!-- MAIN WRAPPER -->
-    <div class="main-wrapper">
-      <header>
-        <span style="font-size: 26px;">🏥</span>
-        <div>
-          <h1>Kharsia Health Dashboard</h1>
-          <p>Block Kharsia · District Raigarh · Chhattisgarh</p>
-        </div>
-      </header>
-
-      <div class="content-area" id="main-content">
-        <!-- Dynamic Content -->
-      </div>
-    </div>
-
-  </div>
-
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-
-</body>
-</html>
+<div class="report-container">
+  <table class="custom-report-table">
+    <thead>
+      <!-- First Header Row -->
+      <tr>
+        <th rowspan="2" class="align-center">क्र.</th>
+        <th colspan="3" class="align-center">लक्ष्य (Target)</th>
+        <th colspan="3" class="align-center">उपलब्धि (Achievement)</th>
+        <th rowspan="2" class="align-center">प्रतिशत (%)</th>
+      </tr>
+      <!-- Second Header Row -->
+      <tr>
+        <th>ग्रामीण</th>
+        <th>अर्बन</th>
+        <th>योग</th>
+        <th>ग्रामीण</th>
+        <th>अर्बन</th>
+        <th>योग</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="align-center">1</td>
+        <td class="align-right">1,34,488</td>
+        <td class="align-right">17,572</td>
+        <td class="align-right highlight-col">1,52,060</td>
+        <td class="align-right">1,26,274</td>
+        <td class="align-right">16,271</td>
+        <td class="align-right highlight-col">1,42,545</td>
+        <td class="align-center badge-cell">93.7%</td>
+      </tr>
+      <tr>
+        <td class="align-center">2</td>
+        <td class="align-right">3,737</td>
+        <td class="align-right">257</td>
+        <td class="align-right highlight-col">3,994</td>
+        <td class="align-right">3,740</td>
+        <td class="align-right">257</td>
+        <td class="align-right highlight-col">3,997</td>
+        <td class="align-center badge-cell">100.1%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
