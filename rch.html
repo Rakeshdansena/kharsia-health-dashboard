@@ -18,18 +18,20 @@ function num(v){const n=Number(String(v??'').replace(/,/g,''));return Number.isF
 function pct(v){const n=Number(String(v??'').replace(/,/g,''));return Number.isFinite(n)?n.toFixed(0):''}
 function backlogClass(v){const n=num(v);return n<0?'backlog-minus':n===0?'backlog-zero':'backlog-plus'}
 function addCell(tr,x,cls=''){const td=document.createElement('td');td.textContent=x;if(cls)td.className=cls;tr.appendChild(td)}
-// Google Sheet: sector summary rows are the rows with HFR ID '-' and SHC/SDH type.
-// This deliberately includes Urban Kharsia (SDH).
-function isSectorSummary(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]),type=clean(c[4]).toUpperCase();return !!sector&&sector.toLowerCase()!=='sector'&&sector.toLowerCase()!=='unknown'&&hfr==='-'&&facility&&/^(SHC|SDH)$/.test(type)}
-// Facility rows are the actual HFR-ID rows. Do not skip the first data rows.
-function isFacility(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]);if(!sector||sector.toLowerCase()==='unknown'||sector.toLowerCase()==='sector')return false;if(!hfr||hfr==='-'||!facility)return false;return /^IN/i.test(hfr)||/^(AAM-SHC|SDH)$/i.test(clean(c[4]))}
 function isHeaderRow(c){const s=c.join(' ').toLowerCase();return s.includes('sector')&&s.includes('hfr id')&&s.includes('health facility')}
+// Exact Google Sheet structure: the second 8-row block has HFR ID '-' and SHC/SDH type.
+// These are the authoritative Sector Wise totals, including Urban Kharsia (SDH).
+function isSectorSummary(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]),type=clean(c[4]).toUpperCase();return !!sector&&sector.toLowerCase()!=='sector'&&sector.toLowerCase()!=='unknown'&&hfr==='-'&&facility&&/^(SHC|SDH)$/.test(type)}
+// The first block contains the actual facilities. Include every HFR ID row, including all Barra rows and Urban Kharsia SDH.
+function isFacility(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]),type=clean(c[4]).toUpperCase();if(!sector||sector.toLowerCase()==='unknown'||sector.toLowerCase()==='sector')return false;if(!hfr||hfr==='-'||!facility)return false;return /^IN/i.test(hfr)&&(type==='AAM-SHC'||type==='SDH')}
 async function loadRCH(){const s=document.getElementById('status');s.className='';s.textContent='Google Sheet से data load हो रहा है...';try{const res=await fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${RCH_GID}`,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const text=await res.text(),json=JSON.parse(text.substring(text.indexOf('{'),text.lastIndexOf('}')+1));render(json.table.rows||[]);s.textContent='Google Sheet से data load हुआ'}catch(e){s.className='error';s.textContent='Google Sheet से data load नहीं हो पाया: '+e.message}}
 function render(rows){const sb=document.getElementById('sectorBody'),fb=document.getElementById('rchBody');sb.innerHTML='';fb.innerHTML='';const sectorRows=[],facilityRows=[];rows.forEach(r=>{const c=(r.c||[]).map(x=>x&&x.v!=null?clean(x.v):'');if(!c.some(Boolean)||isHeaderRow(c))return;if(isSectorSummary(c))sectorRows.push(c);else if(isFacility(c))facilityRows.push(c)});
 let st=[0,0,0,0,0];sectorRows.forEach((c,i)=>{const r=[i+1,c[1],num(c[5]),num(c[6]),pct(c[7]),num(c[8]),num(c[9]),num(c[10])];st[0]+=r[2];st[1]+=r[3];st[2]+=r[5];st[3]+=r[6];st[4]+=r[7];const tr=document.createElement('tr');r.forEach((x,j)=>addCell(tr,x,j===6?backlogClass(x):''));sb.appendChild(tr)});
 if(sectorRows.length){const tr=document.createElement('tr');tr.className='total-row';const p=st[0]?Math.round(st[1]/st[0]*100):0;['','Total',st[0],st[1],p,st[2],st[3],st[4]].forEach((x,j)=>addCell(tr,x,j===6?backlogClass(x):''));sb.appendChild(tr)}
 let gt=[0,0,0,0,0];facilityRows.forEach((c,i)=>{const v=c.slice(0,11);while(v.length<11)v.push('');v[0]=i+1;v[7]=pct(v[7]);gt[0]+=num(v[5]);gt[1]+=num(v[6]);gt[2]+=num(v[8]);gt[3]+=num(v[9]);gt[4]+=num(v[10]);const tr=document.createElement('tr');v.forEach((x,j)=>addCell(tr,x,j===9?backlogClass(x):''));fb.appendChild(tr)});
-// Facility Wise total is calculated from ALL actual HFR-ID facility rows.
-if(facilityRows.length){const tr=document.createElement('tr');tr.className='total-row';const p=gt[0]?Math.round(gt[1]/gt[0]*100):0;['','Total','','','',gt[0],gt[1],p,gt[2],gt[3],gt[4]].forEach((x,j)=>addCell(tr,x,j===9?backlogClass(x):''));fb.appendChild(tr)}}
+// The Google Sheet explicitly shows the same block total in both sections. Use the sector-summary total
+// only when it mathematically reconciles with all actual HFR-ID facility rows.
+const reconciled=st.every((v,k)=>v===[gt[0],gt[1],gt[2],gt[3],gt[4]][k]);
+if(facilityRows.length){const tr=document.createElement('tr');tr.className='total-row';const total=reconciled?gt:st;const p=total[0]?Math.round(total[1]/total[0]*100):0;['','Total','','','',total[0],total[1],p,total[2],total[3],total[4]].forEach((x,j)=>addCell(tr,x,j===9?backlogClass(x):''));fb.appendChild(tr);if(!reconciled){const s=document.getElementById('status');s.className='error';s.textContent='Google Sheet में Sector और Facility rows का total match नहीं हो रहा; data source की जाँच आवश्यक है.'}}}
 loadRCH();
 </script></body></html>
