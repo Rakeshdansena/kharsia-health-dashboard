@@ -7,12 +7,41 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="header"><h1>🏥 Kharsia Health Dashboard</h1><small>Block Kharsia · District Raigarh · Chhattisgarh</small></div>
-<div class="container">
-<aside class="sidebar"><div class="sidebar-title">Health Programmes</div><button class="menu-btn active" onclick="showDashboard()">🏠 Dashboard</button><button class="menu-btn" onclick="location.href='ayushman.html'">💳 Ayushman Card</button><button class="menu-btn" onclick="location.href='rch.html'">👶 RCH 2.0</button><button class="menu-btn" onclick="location.href='ncd.html'">🩺 NCD</button><div id="menuButtons"></div></aside>
+<div class="app">
+<header class="topbar">
+  <div><h1>🏥 Kharsia Health Dashboard</h1><p>Block Kharsia · District Raigarh · Chhattisgarh</p></div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-title">HEALTH PROGRAMMES</div>
+  <a class="menu-btn active" href="index.html">🏠 Dashboard</a>
+  <a class="menu-btn" href="ayushman.html">💳 Ayushman Card</a>
+  <a class="menu-btn" href="rch.html">👩‍🍼 RCH 2.0</a>
+  <a class="menu-btn" href="ncd.html">❤️ NCD</a>
+  <a class="menu-btn" href="javascript:openByName('JAS Meeting')">🤝 JAS Meeting</a>
+  <a class="menu-btn" href="javascript:openByName('Health & Wellness Center')">🏥 Health & Wellness Center</a>
+  <a class="menu-btn" href="javascript:openByName('Ayushman Shivir')">🏕️ Ayushman Shivir</a>
+  <a class="menu-btn" href="javascript:openByName('Wellness Activity')">🩺 Wellness Activity</a>
+  <a class="menu-btn" href="javascript:openByName('RBSK')">👶 RBSK</a>
+  <a class="menu-btn" href="javascript:openByName('NRC Kharsia')">🏥 NRC Kharsia</a>
+  <a class="menu-btn" href="javascript:openByName('Blindness Control')">👁️ Blindness Control</a>
+  <a class="menu-btn" href="javascript:openByName('NQAS Certification')">🏅 NQAS Certification</a>
+  <a class="menu-btn" href="javascript:openByName('Dialysis')">💧 Dialysis</a>
+  <a class="menu-btn" href="javascript:openByName('NLEP')">🦠 NLEP</a>
+</aside>
 <main class="content">
-<section id="dashboardPage" class="page active"><div class="welcome"><h2>Kharsia Health Programme Dashboard</h2><p>विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए programme पर क्लिक करें।</p></div><div id="dashboardCards" class="cards"></div><div class="block-summary-wrap"><div class="block-summary-head"><div><h2>📊 Block Kharsia — All Programme Summary</h2><p>सभी स्वास्थ्य कार्यक्रमों का live संक्षिप्त सारांश</p></div><button class="summary-refresh-btn" onclick="loadBlockSummary()">↻ Refresh Summary</button></div><div id="blockSummaryStatus" class="block-summary-status">Summary data load हो रहा है...</div><div id="blockSummaryGrid" class="block-summary-grid"></div></div></section>
-</main></div>
+<section class="welcome">
+  <div><span class="eyebrow">BLOCK KHARSIA · HEALTH PROGRAMMES</span><h2>Kharsia Health Programme Dashboard</h2><p>विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए programme पर क्लिक करें।</p></div>
+  <button class="summary-refresh-btn" onclick="loadBlockSummary()">↻ Refresh</button>
+</section>
+<div id="dashboardCards" class="cards"></div>
+<section class="block-summary-wrap">
+  <div class="block-summary-head"><div><h2>📊 Block Kharsia — All Programme Summary</h2><p>सभी स्वास्थ्य कार्यक्रमों का live संक्षिप्त सारांश</p></div><button class="summary-refresh-btn" onclick="loadBlockSummary()">↻ Refresh Summary</button></div>
+  <div id="blockSummaryStatus" class="block-summary-status">Summary data load हो रहा है...</div>
+  <div id="blockSummaryGrid" class="block-summary-grid"></div>
+</section>
+</main>
+</div></div>
 <script src="index.js"></script>
 </body>
 </html>
