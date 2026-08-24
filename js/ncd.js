@@ -1,13 +1,9 @@
 /* NCD MODULE — Kharsia Health Dashboard — FY 2026-27 */
 (function(){
 'use strict';
-const PARTS=[
- {key:'enrollment',title:'Part 1 — Enrollment & ABHA'},
- {key:'htn',title:'Part 2 — HTN'},
- {key:'dm',title:'Part 3 — DM'}
-];
+const PARTS=[{key:'enrollment',title:'Part 1 — Enrollment & ABHA'},{key:'htn',title:'Part 2 — HTN'},{key:'dm',title:'Part 3 — DM'}];
 function t(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
-function row(data,r){const a=[];for(let c=0;c<data.getNumberOfColumns();c++){try{a.push(data.getFormattedValue(r,c)||'')}catch(e){a.push('')}}return a;}
+function row(data,r){const a=[];for(let c=0;c<data.getNumberOfColumns();c++){try{a.push(data.getFormattedValue(r,c)||data.getValue(r,c)||'')}catch(e){a.push('')}}return a;}
 function rt(r){return r.map(t).join(' ').toLowerCase();}
 function num(v){const n=parseFloat(t(v).replace(/,/g,'').replace(/%/g,''));return Number.isFinite(n)?n:0;}
 function total(r){return /^(total|योग|कुल|grand total|block total)/i.test(t(r[0]))||/\b(total|योग|कुल)\b/i.test(r.map(t).join(' '));}
@@ -16,8 +12,37 @@ function styles(){if(document.getElementById('ncd-module-style'))return;const s=
 .ncd-summary-wrap{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin:15px 0}.ncd-summary-card{background:#f8fafc;border:1px solid #dbe3ec;border-radius:10px;padding:12px;text-align:center}.ncd-summary-title{font-size:11px;font-weight:700;color:#64748b}.ncd-summary-value{font-size:22px;font-weight:900;color:#075985;margin-top:4px}.ncd-summary-sub{font-size:11px;color:#64748b;margin-top:3px}.ncd-part{background:#fff;border-radius:12px;padding:12px;margin:0 0 16px;box-shadow:0 3px 12px rgba(0,0,0,.07);overflow:auto}.ncd-part-title{text-align:center;color:#075985;font-size:18px;font-weight:900;margin:4px 0 2px}.ncd-part-subtitle{text-align:center;color:#64748b;font-size:12px;margin-bottom:10px}.ncd-part-table{width:100%;border-collapse:collapse;table-layout:auto;font-size:12px}.ncd-part-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:8px 6px;text-align:center;vertical-align:middle;white-space:normal}.ncd-part-table td{border:1px solid #cbd5e1;padding:7px 6px;text-align:center;vertical-align:middle;white-space:normal}.ncd-part-table td:first-child{text-align:left;font-weight:700}.ncd-part-table tbody tr:nth-child(even){background:#f8fafc}.ncd-part-table tbody tr:hover{background:#e0f2fe}.ncd-part-table .ncd-total-row{background:#dbeafe!important;font-weight:900}.ncd-part-table .ncd-percent-good{background:#dcfce7;color:#166534;font-weight:900}.ncd-part-table .ncd-percent-mid{background:#fef3c7;color:#92400e;font-weight:900}.ncd-part-table .ncd-percent-low{background:#fecaca;color:#991b1b;font-weight:900}@media(max-width:800px){.ncd-summary-wrap{grid-template-columns:repeat(2,minmax(140px,1fr))}.ncd-part-table{min-width:850px}}
 `;document.head.appendChild(s)}
 function pct(v){const n=num(v);return n>=90?'ncd-percent-good':n>=70?'ncd-percent-mid':'ncd-percent-low';}
-function partTable(rows){const table=document.createElement('table');table.className='ncd-part-table';const header=rows.find(r=>/sector|facility|30\+|screening|enrollment|abha|htn|hypertensive|under treatment|follow-up|under control|diabetes|estimated/i.test(rt(r)))||rows[0];const hi=Math.max(0,rows.indexOf(header));const thead=document.createElement('thead'),htr=document.createElement('tr');header.forEach((v,i)=>{const th=document.createElement('th');th.textContent=t(v)||('Column '+(i+1));htr.appendChild(th)});thead.appendChild(htr);table.appendChild(thead);const tbody=document.createElement('tbody');rows.slice(hi+1).forEach(r=>{if(!r.some(v=>t(v)))return;const tr=document.createElement('tr');if(total(r))tr.className='ncd-total-row';r.forEach(v=>{const td=document.createElement('td'),v2=t(v);td.textContent=v2;if(/%$/.test(v2))td.classList.add(pct(v2));tr.appendChild(td)});tbody.appendChild(tr)});table.appendChild(tbody);return table}
-function card(title,value,sub){const d=document.createElement('div');d.className='ncd-summary-card';d.innerHTML='<div class="ncd-summary-title">'+title+'</div><div class="ncd-summary-value">'+value+'</div><div class="ncd-summary-sub">'+sub+'</div>';return d}
-function renderNCDTable(data){styles();const table=document.getElementById('reportTable'),box=document.querySelector('.table-box'),rch=document.getElementById('rchContainer');if(rch)rch.style.display='none';if(box)box.style.display='none';let out=document.getElementById('ncdModuleContainer');if(!out){out=document.createElement('div');out.id='ncdModuleContainer';const area=document.getElementById('pdfArea');if(area)area.insertBefore(out,box);else table.parentNode.insertBefore(out,table)}out.innerHTML='';const groups=PARTS.map(p=>({key:p.key,title:p.title,rows:[]}));let current=null;for(let r=0;r<data.getNumberOfRows();r++){const rr=row(data,r),d=detect(rr,current);if(d)current=d;if(current){const g=groups.find(x=>x.key===current);if(g)g.rows.push(rr)}}if(!groups.some(g=>g.rows.length)&&data.getNumberOfRows())groups[0].rows=Array.from({length:data.getNumberOfRows()},(_,r)=>row(data,r));const active=groups.filter(g=>g.rows.some(r=>r.some(v=>t(v))));const wrap=document.createElement('div');wrap.className='ncd-summary-wrap';wrap.appendChild(card('NCD Parts',active.length,'Enrollment & ABHA • HTN • DM'));wrap.appendChild(card('Rows Loaded',active.reduce((n,g)=>n+g.rows.length,0),'Google Sheet data'));wrap.appendChild(card('Part 1','✓','Enrollment & ABHA'));wrap.appendChild(card('Part 2 + 3',active.filter(g=>g.key!=='enrollment').length+'/2','HTN + DM'));out.appendChild(wrap);active.forEach(g=>{const p=document.createElement('div');p.className='ncd-part';const h=document.createElement('div');h.className='ncd-part-title';h.textContent=g.title;p.appendChild(h);const s=document.createElement('div');s.className='ncd-part-subtitle';s.textContent='NCD Status 2026-27 | Block Kharsia';p.appendChild(s);p.appendChild(partTable(g.rows));out.appendChild(p)});table.style.display='none';}
+function findHeader(rows){
+  // Prefer the first real header row. Do NOT invent "Column 2/3".
+  for(let i=0;i<Math.min(rows.length,12);i++){
+    const s=rt(rows[i]);
+    const count=rows[i].filter(v=>t(v)).length;
+    if(count>=2 && /sector|facility|block|30\+|population|screening|enrollment|abha|htn|hypertension|estimated|treatment|follow|control|diabetes|dm/i.test(s)) return i;
+  }
+  // If the sheet has a normal first row, use it as header.
+  return rows.length ? 0 : -1;
+}
+function partTable(rows){
+ const table=document.createElement('table');table.className='ncd-part-table';
+ const hi=findHeader(rows);if(hi<0)return table;
+ const header=rows[hi];
+ const thead=document.createElement('thead'),htr=document.createElement('tr');
+ header.forEach((v,i)=>{const th=document.createElement('th');const value=t(v);th.textContent=value;/* Never show Column N */htr.appendChild(th)});
+ thead.appendChild(htr);table.appendChild(thead);
+ const tbody=document.createElement('tbody');
+ rows.slice(hi+1).forEach(r=>{if(!r.some(v=>t(v)))return;const tr=document.createElement('tr');if(total(r))tr.className='ncd-total-row';r.forEach(v=>{const td=document.createElement('td'),v2=t(v);td.textContent=v2;if(/%$/.test(v2))td.classList.add(pct(v2));tr.appendChild(td)});tbody.appendChild(tr)});
+ table.appendChild(tbody);return table;
+}
+function card(title,value,sub){const d=document.createElement('div');d.className='ncd-summary-card';d.innerHTML='<div class="ncd-summary-title">'+title+'</div><div class="ncd-summary-value">'+value+'</div><div class="ncd-summary-sub">'+sub+'</div>';return d;}
+function renderNCDTable(data){
+ styles();const table=document.getElementById('reportTable'),box=document.querySelector('.table-box'),rch=document.getElementById('rchContainer');if(rch)rch.style.display='none';if(box)box.style.display='none';
+ let out=document.getElementById('ncdModuleContainer');if(!out){out=document.createElement('div');out.id='ncdModuleContainer';const area=document.getElementById('pdfArea');if(area)area.insertBefore(out,box);else table.parentNode.insertBefore(out,table)}out.innerHTML='';
+ const groups=PARTS.map(p=>({key:p.key,title:p.title,rows:[]}));let current=null;
+ for(let r=0;r<data.getNumberOfRows();r++){const rr=row(data,r),d=detect(rr,current);if(d)current=d;if(current){const g=groups.find(x=>x.key===current);if(g)g.rows.push(rr)}}
+ if(!groups.some(g=>g.rows.length)&&data.getNumberOfRows())groups[0].rows=Array.from({length:data.getNumberOfRows()},(_,r)=>row(data,r));
+ const active=groups.filter(g=>g.rows.some(r=>r.some(v=>t(v))));
+ const wrap=document.createElement('div');wrap.className='ncd-summary-wrap';wrap.appendChild(card('NCD Parts',active.length,'Enrollment & ABHA • HTN • DM'));wrap.appendChild(card('Rows Loaded',active.reduce((n,g)=>n+g.rows.length,0),'Google Sheet data'));wrap.appendChild(card('Part 1','✓','Enrollment & ABHA'));wrap.appendChild(card('Part 2 + 3',active.filter(g=>g.key!=='enrollment').length+'/2','HTN + DM'));out.appendChild(wrap);
+ active.forEach(g=>{const p=document.createElement('div');p.className='ncd-part';const h=document.createElement('div');h.className='ncd-part-title';h.textContent=g.title;p.appendChild(h);const s=document.createElement('div');s.className='ncd-part-subtitle';s.textContent='NCD Status 2026-27 | Block Kharsia';p.appendChild(s);p.appendChild(partTable(g.rows));out.appendChild(p)});if(table)table.style.display='none';
+}
 window.renderNCDTable=renderNCDTable;
 })();
