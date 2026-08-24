@@ -1,244 +1,132 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RCH 2.0 PW Registration Detail FY 2026-27</title>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
-    body { display: flex; height: 100vh; background-color: #f0f2f5; }
-
-    /* Sidebar Navigation */
-    .sidebar { width: 250px; background: #1e293b; color: #fff; padding: 20px; }
-    .sidebar h2 { font-size: 18px; margin-bottom: 20px; color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-    .sidebar button {
-      width: 100%; padding: 12px; margin-bottom: 10px; border: none;
-      background: #334155; color: white; text-align: left;
-      cursor: pointer; border-radius: 6px; font-size: 14px; transition: 0.2s;
-    }
-    .sidebar button:hover, .sidebar button.active { background: #0284c7; font-weight: bold; }
-
-    /* Main Area */
-    .main-content { flex: 1; padding: 25px; overflow-y: auto; }
-    .module-section { display: none; }
-    .module-section.active { display: block; }
-
-    /* Dashboard Summary Cards */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; margin-bottom: 25px; }
-    .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #0284c7; }
-    .card h3 { font-size: 13px; color: #64748b; margin-bottom: 6px; text-transform: uppercase; }
-    .card p { font-size: 24px; font-weight: bold; color: #0f172a; }
-
-    /* Form & Tables */
-    .form-box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-    input, select { padding: 9px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
-    button.btn-add { grid-column: 1 / -1; padding: 10px; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    button.btn-add:hover { background: #047857; }
-
-    .table-container { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
-    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: center; }
-    th { background: #1e293b; color: white; font-weight: 600; }
-    tr:nth-child(even) { background-color: #f8fafc; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RCH 2.0 PW Registration Detail FY 2026-27</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f9;font-family:Segoe UI,Arial,sans-serif;color:#111827}
+.page{padding:18px;max-width:100%;overflow:hidden}
+.header{background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:14px 16px;margin-bottom:14px;text-align:center}
+.header h1{margin:0;font-size:22px;font-weight:800;color:#111827}
+.header .sub{margin-top:5px;font-size:14px;font-weight:600;color:#374151}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.toolbar button{border:0;border-radius:6px;padding:9px 14px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+.toolbar button:hover{opacity:.9}
+#status{font-size:13px;font-weight:600;color:#4b5563}
+.table-wrap{background:#fff;border:1px solid #cbd5e1;border-radius:8px;overflow:auto;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-size:13px}
+th,td{border:1px solid #9ca3af;padding:8px 10px;text-align:center;white-space:nowrap}
+thead tr.title-row th{background:#fff;color:#111827;font-size:17px;font-weight:800;padding:12px;border-bottom:1px solid #9ca3af}
+thead tr.blank-row th{height:10px;padding:4px;background:#fff}
+thead tr.head-row th{background:#e5e7eb;color:#111827;font-weight:800;vertical-align:middle}
+tbody tr:nth-child(even){background:#f8fafc}
+tbody tr:hover{background:#eef6ff}
+tbody td:first-child{font-weight:700}
+.backlog-minus{background:#fecaca!important;color:#991b1b!important;font-weight:800}
+.backlog-zero{background:#fef08a!important;color:#854d0e!important;font-weight:800}
+.backlog-plus{background:#bbf7d0!important;color:#166534!important;font-weight:800}
+.total-row{background:#dbeafe!important;font-weight:800}
+.total-row td{font-weight:800}
+.error{color:#b91c1c}
+@media(max-width:700px){.page{padding:8px}.header h1{font-size:17px}.header .sub{font-size:12px}th,td{padding:6px 8px;font-size:12px}}
+</style>
 </head>
 <body>
-
-  <!-- Sidebar Nav -->
-  <div class="sidebar">
-    <h2>RCH 2.0 Portal</h2>
-    <button class="nav-btn active" onclick="showModule('dashboard')">Dashboard Summary</button>
-    <button class="nav-btn" onclick="showModule('rch')">RCH 2.0 PW Module</button>
+<div class="page">
+  <div class="header">
+    <h1 id="pageTitle">RCH 2.0 PW Registration Detail FY 2026-27</h1>
+    <div class="sub" id="pageDate">as on Date 01-08-2026</div>
   </div>
 
-  <!-- Main Content Area -->
-  <div class="main-content">
-
-    <!-- 1. DASHBOARD MODULE (By Default Open) -->
-    <div id="dashboard" class="module-section active">
-      <h1>RCH 2.0 PW Registration Detail FY 2026-27</h1>
-      <p style="margin-top: 5px; color: #64748b; font-weight: 600;">As on Date: 01-08-2026</p>
-
-      <div class="cards-grid">
-        <div class="card">
-          <h3>HMIS PW Reg.</h3>
-          <p id="card-hmis">0</p>
-        </div>
-        <div class="card" style="border-left-color: #10b981;">
-          <h3>RCH 2.0 PW Reg.</h3>
-          <p id="card-rch">0</p>
-        </div>
-        <div class="card" style="border-left-color: #8b5cf6;">
-          <h3>Overall %</h3>
-          <p id="card-percent">0%</p>
-        </div>
-        <div class="card" style="border-left-color: #f59e0b;">
-          <h3>Tem. Reg.</h3>
-          <p id="card-temp">0</p>
-        </div>
-        <div class="card" style="border-left-color: #ef4444;">
-          <h3>Backlog</h3>
-          <p id="card-backlog">0</p>
-        </div>
-        <div class="card" style="border-left-color: #dc2626;">
-          <h3>High Risk</h3>
-          <p id="card-highrisk">0</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. RCH 2.0 PW REGISTRATION MODULE -->
-    <div id="rch" class="module-section">
-      <h1>RCH 2.0 PW Entry & Detail</h1>
-      <p style="margin-bottom: 15px; color: #64748b;">FY 2026-27 (as on Date 01-08-2026)</p>
-
-      <div class="form-box">
-        <h3>New Facility Record Entry</h3>
-        <br>
-        <form onsubmit="addRchRecord(event)">
-          <input type="text" id="sector" placeholder="Sector" required>
-          <input type="text" id="hfrId" placeholder="HFR ID" required>
-          <input type="text" id="facility" placeholder="Health Facility" required>
-          <select id="facilityType" required>
-            <option value="">Facility Type</option>
-            <option value="Sub-Center">Sub-Center</option>
-            <option value="PHC">PHC</option>
-            <option value="CHC">CHC</option>
-            <option value="DH">DH</option>
-          </select>
-          <input type="number" id="hmisPW" placeholder="HMIS PW Reg." required>
-          <input type="number" id="rchPW" placeholder="RCH 2.0 PW Reg." required>
-          <input type="number" id="tempReg" placeholder="Tem. Registration" required>
-          <input type="number" id="backlog" placeholder="Backlog" required>
-          <input type="number" id="highRisk" placeholder="High Risk" required>
-          <button type="submit" class="btn-add">Save Record</button>
-        </form>
-      </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Sn</th>
-              <th>Sector</th>
-              <th>HFR ID</th>
-              <th>Health Facility</th>
-              <th>Health Facility Type</th>
-              <th>HMIS PW Registration</th>
-              <th>RCH 2.0 PW Registration</th>
-              <th>%</th>
-              <th>Tem. Registration</th>
-              <th>Backlog</th>
-              <th>High Risk</th>
-            </tr>
-          </thead>
-          <tbody id="rch-table-body"></tbody>
-        </table>
-      </div>
-    </div>
-
+  <div class="toolbar">
+    <button onclick="loadRCH()">↻ Refresh Data</button>
+    <button onclick="window.print()">🖨 Print</button>
+    <span id="status">Google Sheet से data load हो रहा है...</span>
   </div>
 
-  <script>
-    // Sample Initial Data Structure
-    let rchData = [
-      { sector: 'Kharsia Rural', hfrId: 'HFR101', facility: 'PHC Chaple', type: 'PHC', hmisPW: 150, rchPW: 135, tempReg: 5, backlog: 10, highRisk: 12 },
-      { sector: 'Kharsia Urban', hfrId: 'HFR102', facility: 'CHC Kharsia', type: 'CHC', hmisPW: 200, rchPW: 190, tempReg: 4, backlog: 6, highRisk: 18 }
-    ];
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr class="title-row">
+          <th colspan="11">RCH 2.0 PW Registration Detail FY 2026-27 as on Date 01-08-2026</th>
+        </tr>
+        <tr class="blank-row"><th colspan="11"></th></tr>
+        <tr class="head-row">
+          <th>Sn</th>
+          <th>Sector</th>
+          <th>HFR ID</th>
+          <th>Health Facility</th>
+          <th>Health Facility Type</th>
+          <th>HMIS PW Registration</th>
+          <th>RCH 2.0 PW Registration</th>
+          <th>%</th>
+          <th>Tem.<br>Registration</th>
+          <th>Backlog</th>
+          <th>High Risk</th>
+        </tr>
+      </thead>
+      <tbody id="rchBody"></tbody>
+    </table>
+  </div>
+</div>
 
-    // Page Load - Default Dashboard Show Karein
-    window.onload = function() {
-      showModule('dashboard');
-      renderTable();
-      updateDashboardSummary();
-    };
+<script>
+const SPREADSHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
+const RCH_GID='1044088930';
 
-    // Tab / Module Switcher
-    function showModule(moduleId) {
-      document.querySelectorAll('.module-section').forEach(sec => sec.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function backlogClass(v){const n=Number(String(v).replace(/,/g,''));if(Number.isNaN(n))return '';return n<0?'backlog-minus':n===0?'backlog-zero':'backlog-plus';}
+function clean(v){return String(v??'').replace(/<br\s*\/?>/gi,' ').trim();}
 
-      document.getElementById(moduleId).classList.add('active');
-      
-      const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
-        btn.getAttribute('onclick').includes(moduleId)
-      );
-      if(activeBtn) activeBtn.classList.add('active');
+async function loadRCH(){
+  const status=document.getElementById('status');
+  status.className=''; status.textContent='Google Sheet से data load हो रहा है...';
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${RCH_GID}`;
+    const res=await fetch(url,{cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const json=JSON.parse(text.substring(text.indexOf('{'),text.lastIndexOf('}')+1));
+    const rows=json.table.rows||[];
+    render(rows);
+    status.textContent=`Google Sheet से ${Math.max(0,rows.length-2)} records load हुए`;
+  }catch(err){
+    status.className='error';
+    status.textContent='Google Sheet से data load नहीं हो पाया: '+err.message;
+  }
+}
 
-      if(moduleId === 'dashboard') {
-        updateDashboardSummary();
-      }
-    }
-
-    // Dynamic Summary Calculation for Dashboard
-    function updateDashboardSummary() {
-      let totalHMIS = 0, totalRCH = 0, totalTemp = 0, totalBacklog = 0, totalHighRisk = 0;
-
-      rchData.forEach(item => {
-        totalHMIS += Number(item.hmisPW);
-        totalRCH += Number(item.rchPW);
-        totalTemp += Number(item.tempReg);
-        totalBacklog += Number(item.backlog);
-        totalHighRisk += Number(item.highRisk);
-      });
-
-      let percentage = totalHMIS > 0 ? ((totalRCH / totalHMIS) * 100).toFixed(2) + '%' : '0%';
-
-      document.getElementById('card-hmis').innerText = totalHMIS;
-      document.getElementById('card-rch').innerText = totalRCH;
-      document.getElementById('card-percent').innerText = percentage;
-      document.getElementById('card-temp').innerText = totalTemp;
-      document.getElementById('card-backlog').innerText = totalBacklog;
-      document.getElementById('card-highrisk').innerText = totalHighRisk;
-    }
-
-    // Render Table Data
-    function renderTable() {
-      const tbody = document.getElementById('rch-table-body');
-      tbody.innerHTML = rchData.map((item, index) => {
-        let percent = item.hmisPW > 0 ? ((item.rchPW / item.hmisPW) * 100).toFixed(2) + '%' : '0%';
-        return `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${item.sector}</td>
-            <td>${item.hfrId}</td>
-            <td>${item.facility}</td>
-            <td>${item.type}</td>
-            <td>${item.hmisPW}</td>
-            <td>${item.rchPW}</td>
-            <td><b>${percent}</b></td>
-            <td>${item.tempReg}</td>
-            <td>${item.backlog}</td>
-            <td>${item.highRisk}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Form Entry Handler
-    function addRchRecord(e) {
-      e.preventDefault();
-      
-      const newRecord = {
-        sector: document.getElementById('sector').value,
-        hfrId: document.getElementById('hfrId').value,
-        facility: document.getElementById('facility').value,
-        type: document.getElementById('facilityType').value,
-        hmisPW: Number(document.getElementById('hmisPW').value),
-        rchPW: Number(document.getElementById('rchPW').value),
-        tempReg: Number(document.getElementById('tempReg').value),
-        backlog: Number(document.getElementById('backlog').value),
-        highRisk: Number(document.getElementById('highRisk').value)
-      };
-
-      rchData.push(newRecord);
-      e.target.reset();
-      
-      renderTable();
-      updateDashboardSummary();
-      alert('Record successfully added!');
-    }
-  </script>
+function render(rows){
+  const body=document.getElementById('rchBody');
+  body.innerHTML='';
+  let total=[0,0,0,0,0];
+  rows.forEach((r,i)=>{
+    const c=(r.c||[]).map(x=>x&&x.v!=null?clean(x.v):'');
+    if(i<2)return;
+    if(!c.some(Boolean))return;
+    const vals=c.slice(0,11);
+    while(vals.length<11)vals.push('');
+    const tr=document.createElement('tr');
+    vals.forEach((v,j)=>{
+      const td=document.createElement('td');
+      td.innerHTML=esc(v);
+      if(j===9)td.className=backlogClass(v);
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+    [5,6,8,9,10].forEach((col,k)=>{const n=Number(String(vals[col]).replace(/,/g,''));if(!Number.isNaN(n))total[k]+=n;});
+  });
+  if(body.children.length){
+    const tr=document.createElement('tr');tr.className='total-row';
+    const pct=total[0]>0?(total[1]/total[0]*100).toFixed(0):0;
+    const out=['','Total','','','',total[0],total[1],pct,total[2],total[3],total[4]];
+    out.forEach((v,j)=>{const td=document.createElement('td');td.textContent=v;if(j===9)td.className=backlogClass(v);tr.appendChild(td)});
+    body.appendChild(tr);
+  }
+}
+loadRCH();
+</script>
 </body>
 </html>
