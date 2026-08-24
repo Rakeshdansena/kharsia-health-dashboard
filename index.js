@@ -50,22 +50,75 @@ function createMenu(){
  loadBlockSummary();
 }
 
-function gvizUrl(gid){
- return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${encodeURIComponent(gid)}`;
+function gvizUrl(gid,format='json'){
+ const output=format==='csv'?'csv':'json';
+ return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:${output}&gid=${encodeURIComponent(gid)}`;
+}
+
+async function fetchWithTimeout(url,timeoutMs=15000){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),timeoutMs);
+ try{
+  const res=await fetch(url,{cache:'no-store',signal:controller.signal});
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res;
+ }catch(e){
+  if(e.name==='AbortError') throw new Error('Request timed out');
+  throw e;
+ }finally{
+  clearTimeout(timer);
+ }
+}
+
+function parseCsvLine(line){
+ const out=[]; let value='', quoted=false;
+ for(let i=0;i<line.length;i++){
+  const ch=line[i];
+  if(ch==='"'){
+   if(quoted && line[i+1]==='"'){value+='"';i++;}
+   else quoted=!quoted;
+  }else if(ch===',' && !quoted){out.push(value);value='';}
+  else value+=ch;
+ }
+ out.push(value);
+ return out;
+}
+
+function parseCsv(text){
+ const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).filter(line=>line.trim()!=='');
+ if(!lines.length) return {cols:[],rows:[]};
+ const matrix=lines.map(parseCsvLine);
+ const cols=matrix[0].map((v,i)=>String(v||'').trim()||`Column ${i+1}`);
+ const rows=matrix.slice(1).map(r=>cols.map((_,i)=>r[i]??''));
+ return {cols,rows};
 }
 
 async function fetchSheetRows(report){
  if(!report || !report.gid || report.gid==='0') throw new Error('Google Sheet GID उपलब्ध नहीं है');
- const res=await fetch(gvizUrl(report.gid),{cache:'no-store'});
- if(!res.ok) throw new Error(`HTTP ${res.status}`);
- const text=await res.text();
- const start=text.indexOf('{'), end=text.lastIndexOf('}');
- if(start<0||end<start) throw new Error('Google Sheet response invalid');
- const json=JSON.parse(text.slice(start,end+1));
- const table=json.table||{};
- const cols=(table.cols||[]).map((c,i)=>c.label||`Column ${i+1}`);
- const rows=(table.rows||[]).map(r=>(r.c||[]).map(c=>c ? (c.v ?? c.f ?? '') : ''));
- return {cols,rows};
+ let firstError='';
+ try{
+  const res=await fetchWithTimeout(gvizUrl(report.gid,'json'));
+  const text=await res.text();
+  const start=text.indexOf('{'), end=text.lastIndexOf('}');
+  if(start<0||end<start) throw new Error('Google Sheet JSON response invalid');
+  const json=JSON.parse(text.slice(start,end+1));
+  const table=json.table||{};
+  const cols=(table.cols||[]).map((c,i)=>c.label||`Column ${i+1}`);
+  const rows=(table.rows||[]).map(r=>(r.c||[]).map(c=>c ? (c.v ?? c.f ?? '') : ''));
+  if(!cols.length) throw new Error('Google Sheet में columns नहीं मिले');
+  return {cols,rows};
+ }catch(e){
+  firstError=e.message||'GViz load failed';
+ }
+ try{
+  const res=await fetchWithTimeout(gvizUrl(report.gid,'csv'));
+  const data=parseCsv(await res.text());
+  if(!data.cols.length) throw new Error('Google Sheet CSV में data नहीं मिला');
+  return data;
+ }catch(e){
+  const secondError=e.message||'CSV load failed';
+  throw new Error(`${firstError}; fallback: ${secondError}`);
+ }
 }
 
 function num(v){
@@ -94,8 +147,7 @@ function buildModuleSummary(report,data){
   }
   if(count>=1 && !/^(year|fy|month|date|दिन|वर्ष|facility code|code)$/i.test(label)) metricCandidates.push({label,total,count});
  }
- // Prefer meaningful health-programme columns, then largest numeric totals.
- const priority=/(total|कुल|target|लक्ष्य|card|registration|screening|treatment|follow|control|patient|beneficiar|activity|meeting|camp|visit|abha|delivery|pregnan|immun|referr|case|test|service)/i;
+ const priority=/(total|कुल|target|लक्ष्य|card|registration|screening|treatment|follow|control|patient|beneficiar|activity|meeting|camp|visit|referr|delivery|pregnan|immun|case|test|service)/i;
  metricCandidates.sort((a,b)=>{
   const ap=priority.test(a.label)?1:0, bp=priority.test(b.label)?1:0;
   if(ap!==bp) return bp-ap;
@@ -169,8 +221,5 @@ async function openReport(index){
 }
 
 function refreshReport(){ if(currentReportIndex!==null) openReport(currentReportIndex); }
-
 function googleSheetLoad(){ return loadBlockSummary(); }
-
-// Start dashboard
 window.addEventListener('DOMContentLoaded',()=>createMenu());
