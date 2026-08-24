@@ -1,17 +1,35 @@
-Kharsia Health Dashboard — Ready Package v2
+Kharsia Health Dashboard — FINAL ALL-MODULE PACKAGE
 
-LIVE ENTRY:
-- index.html
+Live entry: index.html
 
-Important:
-- The newer dashboard source from index_updated.html is now the live index.
-- Ayushman Card and RCH 2.0 existing layouts/data logic were not replaced.
-- RCH backlog colors are locked:
-  negative = red
-  zero = yellow
-  positive = green
-- Google Sheet is loaded using Google Visualization / gviz.
-- If data still does not load, the Google Sheet must be accessible to viewers.
+Modules included:
+- Dashboard
+- Ayushman Card
+- RCH 2.0
+- NCD (3 parts: Enrollment & ABHA, HTN, DM)
+- JAS Meeting
+- Health & Wellness Center
+- Ayushman Shivir
+- Wellness Activity
+- RBSK
+- NRC Kharsia
+- Blindness Control
+- NQAS Certification
+- Dialysis
+- NLEP
+
+Important locked items:
+- Ayushman Card layout/functionality preserved.
+- RCH 2.0 layout/functionality preserved.
+- RCH backlog: negative=red, zero=yellow, positive=green.
+
+NCD final layout:
+- Facility Details
+- PART 1 — Enrollment & ABHA
+- PART 2 — HTN
+- PART 3 — DM
 
 Google Sheet ID:
 1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0
+
+Upload the complete folder contents to GitHub Pages.
