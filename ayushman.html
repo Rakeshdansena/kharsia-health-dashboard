@@ -2,6 +2,7 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ayushman Card Report</title>
   <style>
@@ -42,9 +43,9 @@
     <div class="toolbar-header">
       <div class="toolbar-title">Ayushman Card & Vay Vandana Report</div>
       <div class="action-group">
-        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="à¤¡à¥‡à¤Ÿà¤¾ à¤–à¥‹à¤œà¥‡à¤‚...">
-        <button class="btn btn-excel" onclick="exportToExcel()">ðŸ“Š Excel à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡</button>
-        <button class="btn btn-pdf" onclick="exportToPDF()">ðŸ“„ PDF à¤¡à¤¾à¤‰à¤¨à¤²à¥‹à¤¡</button>
+        <input type="text" class="search-input" id="searchInput" onkeyup="filterTables()" placeholder="डेटा खोजें...">
+        <button class="btn btn-excel" onclick="exportToExcel()">📊 Excel डाउनलोड</button>
+        <button class="btn btn-pdf" onclick="exportToPDF()">📄 PDF डाउनलोड</button>
       </div>
     </div>
 
@@ -55,22 +56,22 @@
         <thead>
           <tr>
             <th colspan="8" class="section-title-header">
-              à¤†à¤¯à¥à¤·à¥à¤®à¤¾à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¦à¤¿à¤¨à¤¾à¤‚à¤• 17.05.2026 à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚
+              आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में
             </th>
           </tr>
           <tr>
-            <th rowspan="2" class="column-header text-center" style="width: 50px;">à¤•à¥à¤°</th>
-            <th colspan="3" class="column-header text-center">à¤²à¤•à¥à¤·à¥à¤¯</th>
-            <th colspan="3" class="column-header text-center">à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¿</th>
-            <th rowspan="2" class="column-header text-center" style="width: 80px;">à¤ªà¥à¤°à¤¤à¤¿à¤¶à¤¤</th>
+            <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
+            <th colspan="3" class="column-header text-center">लक्ष्य</th>
+            <th colspan="3" class="column-header text-center">उपलब्धि</th>
+            <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
           </tr>
           <tr>
-            <th class="column-header text-center">à¤—à¥à¤°à¤¾à¤®à¥€à¤£</th>
-            <th class="column-header text-center">à¤…à¤°à¥à¤¬à¤¨</th>
-            <th class="column-header text-center">à¤¯à¥‹à¤—</th>
-            <th class="column-header text-center">à¤—à¥à¤°à¤¾à¤®à¥€à¤£</th>
-            <th class="column-header text-center">à¤…à¤°à¥à¤¬à¤¨</th>
-            <th class="column-header text-center">à¤¯à¥‹à¤—</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
           </tr>
         </thead>
         <tbody>
@@ -92,22 +93,22 @@
         <thead>
           <tr>
             <th colspan="8" class="section-title-header">
-              à¤µà¤¯ à¤µà¤‚à¤¦à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤•à¥€ à¤ªà¥à¤°à¤—à¤¤à¤¿ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¦à¤¿à¤¨à¤¾à¤‚à¤• 16.05.2026 à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚
+              वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में
             </th>
           </tr>
           <tr>
-            <th rowspan="2" class="column-header text-center" style="width: 50px;">à¤•à¥à¤°</th>
-            <th colspan="3" class="column-header text-center">à¤²à¤•à¥à¤·à¥à¤¯</th>
-            <th colspan="3" class="column-header text-center">à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¿</th>
-            <th rowspan="2" class="column-header text-center" style="width: 80px;">à¤ªà¥à¤°à¤¤à¤¿à¤¶à¤¤</th>
+            <th rowspan="2" class="column-header text-center" style="width: 50px;">क्र</th>
+            <th colspan="3" class="column-header text-center">लक्ष्य</th>
+            <th colspan="3" class="column-header text-center">उपलब्धि</th>
+            <th rowspan="2" class="column-header text-center" style="width: 80px;">प्रतिशत</th>
           </tr>
           <tr>
-            <th class="column-header text-center">à¤—à¥à¤°à¤¾à¤®à¥€à¤£</th>
-            <th class="column-header text-center">à¤…à¤°à¥à¤¬à¤¨</th>
-            <th class="column-header text-center">à¤¯à¥‹à¤—</th>
-            <th class="column-header text-center">à¤—à¥à¤°à¤¾à¤®à¥€à¤£</th>
-            <th class="column-header text-center">à¤…à¤°à¥à¤¬à¤¨</th>
-            <th class="column-header text-center">à¤¯à¥‹à¤—</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
+            <th class="column-header text-center">ग्रामीण</th>
+            <th class="column-header text-center">अर्बन</th>
+            <th class="column-header text-center">योग</th>
           </tr>
         </thead>
         <tbody>
