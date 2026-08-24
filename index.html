@@ -4,6 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Kharsia Health Dashboard</title>
@@ -968,7 +969,7 @@ body{
 <style>
 
 /* =====================================================
-   RCH BACKLOG COLOR â€” LOCKED LOGIC
+   RCH BACKLOG COLOR — LOCKED LOGIC
    Negative = RED, Zero = YELLOW, Positive = GREEN
 ===================================================== */
 .rch-backlog-minus{
@@ -1000,10 +1001,10 @@ body{
 
 <div class="header">
 
- <h1>ðŸ¥ Kharsia Health Dashboard</h1>
+ <h1>🏥 Kharsia Health Dashboard</h1>
 
  <small>
-  Block Kharsia Â· District Raigarh Â· Chhattisgarh
+  Block Kharsia · District Raigarh · Chhattisgarh
  </small>
 
 </div>
@@ -1027,7 +1028,7 @@ body{
   id="dashboardBtn"
   onclick="showDashboard()">
 
-  ðŸ  Dashboard
+  🏠 Dashboard
 
  </button>
 
@@ -1058,8 +1059,8 @@ body{
   </h2>
 
   <p>
-   à¤µà¤¿à¤­à¤¿à¤¨à¥à¤¨ à¤¸à¥à¤µà¤¾à¤¸à¥à¤¥à¥à¤¯ à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤°à¤®à¥‹à¤‚ à¤•à¥€ à¤ªà¥à¤°à¤—à¤¤à¤¿ à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ à¤¦à¥‡à¤–à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤
-   programme à¤ªà¤° à¤•à¥à¤²à¤¿à¤• à¤•à¤°à¥‡à¤‚à¥¤
+   विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए
+   programme पर क्लिक करें।
   </p>
 
  </div>
@@ -1093,7 +1094,7 @@ body{
   </h2>
 
   <p id="reportDescription">
-   Google Sheet à¤¸à¥‡ live data
+   Google Sheet से live data
   </p>
 
 
@@ -1201,7 +1202,7 @@ body{
     class="action-btn back-btn"
     onclick="showDashboard()">
 
-    â† Dashboard
+    ← Dashboard
 
    </button>
 
@@ -1210,7 +1211,7 @@ body{
     class="action-btn refresh-btn"
     onclick="refreshReport()">
 
-    ðŸ”„ Refresh
+    🔄 Refresh
 
    </button>
 
@@ -1219,7 +1220,7 @@ body{
     class="action-btn pdf-btn"
     onclick="downloadPDF()">
 
-    ðŸ“„ Download PDF
+    📄 Download PDF
 
    </button>
 
@@ -1228,7 +1229,7 @@ body{
     class="action-btn excel-btn"
     onclick="downloadExcel()">
 
-    ðŸ“Š Download Excel
+    📊 Download Excel
 
    </button>
 
@@ -1237,7 +1238,7 @@ body{
     class="action-btn print-btn"
     onclick="printReport()">
 
-    ðŸ–¨ï¸ Print
+    🖨️ Print
 
    </button>
 
@@ -1246,7 +1247,7 @@ body{
     id="searchBox"
     class="search"
     type="text"
-    placeholder="ðŸ”Ž Table à¤®à¥‡à¤‚ search à¤•à¤°à¥‡à¤‚..."
+    placeholder="🔎 Table में search करें..."
     oninput="filterTable()">
 
   </div>
@@ -1258,7 +1259,7 @@ body{
   id="status"
   class="status">
 
-  Google Sheet à¤¸à¥‡ data load à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ...
+  Google Sheet से data load हो रहा है...
 
  </div>
 
@@ -1305,7 +1306,7 @@ body{
 
  <div class="footer">
 
-  Data source: Google Sheet Â· Kharsia Health Dashboard
+  Data source: Google Sheet · Kharsia Health Dashboard
 
  </div>
 
@@ -1336,15 +1337,15 @@ const REPORTS=[
 
  {
   name:"Ayushman Card",
-  icon:"ðŸ’³",
+  icon:"💳",
   gid:"925649620",
   description:
-   "à¤†à¤¯à¥à¤·à¥à¤®à¤¾à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤à¤µà¤‚ à¤µà¤¯ à¤µà¤‚à¤¦à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤•à¥€ à¤ªà¥à¤°à¤—à¤¤à¤¿"
+   "आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
  },
 
  {
   name:"RCH 2.0",
-  icon:"ðŸ‘©â€ðŸ¼",
+  icon:"👩‍🍼",
   gid:"1044088930",
   description:
    "RCH 2.0 PW Registration Detail"
@@ -1352,7 +1353,7 @@ const REPORTS=[
 
  {
   name:"NCD",
-  icon:"â¤ï¸",
+  icon:"❤️",
   gid:"1254412412",
   description:
    "NCD Status 2026-27"
@@ -1360,7 +1361,7 @@ const REPORTS=[
 
  {
   name:"JAS Meeting",
-  icon:"ðŸ¤",
+  icon:"🤝",
   gid:"1018164338",
   description:
    "JAS Meeting Reporting"
@@ -1368,7 +1369,7 @@ const REPORTS=[
 
  {
   name:"Health & Wellness Center",
-  icon:"ðŸ¥",
+  icon:"🏥",
   gid:"0",
   description:
    "Health Wellness Center - Block Kharsia"
@@ -1376,7 +1377,7 @@ const REPORTS=[
 
  {
   name:"Ayushman Shivir",
-  icon:"ðŸ•ï¸",
+  icon:"🏕️",
   gid:"1262815420",
   description:
    "Ayushman Shivir Reporting FY 2026-27"
@@ -1384,7 +1385,7 @@ const REPORTS=[
 
  {
   name:"Wellness Activity",
-  icon:"ðŸ©º",
+  icon:"🩺",
   gid:"447031017",
   description:
    "Ayushman Arogya Mandir Wellness Activity"
@@ -1392,15 +1393,15 @@ const REPORTS=[
 
  {
   name:"RBSK",
-  icon:"ðŸ‘¶",
+  icon:"👶",
   gid:"1502752823",
   description:
-   "à¤°à¤¾à¤·à¥à¤Ÿà¥à¤°à¥€à¤¯ à¤¬à¤¾à¤² à¤¸à¥à¤µà¤¾à¤¸à¥à¤¥à¥à¤¯ à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤°à¤®"
+   "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
  },
 
  {
   name:"NRC Kharsia",
-  icon:"ðŸ¥",
+  icon:"🏥",
   gid:"1010102020",
   description:
    "NRC Kharsia Reporting"
@@ -1408,7 +1409,7 @@ const REPORTS=[
 
  {
   name:"Blindness Control",
-  icon:"ðŸ‘ï¸",
+  icon:"👁️",
   gid:"1002009767",
   description:
    "National Blindness Control Programme"
@@ -1416,7 +1417,7 @@ const REPORTS=[
 
  {
   name:"NQAS Certification",
-  icon:"ðŸ…",
+  icon:"🏅",
   gid:"728123647",
   description:
    "NQAS Certification Detail Kharsia"
@@ -1424,15 +1425,15 @@ const REPORTS=[
 
  {
   name:"Dialysis",
-  icon:"ðŸ’§",
+  icon:"💧",
   gid:"781496964",
   description:
-   "à¤ªà¥à¤°à¤§à¤¾à¤¨à¤®à¤‚à¤¤à¥à¤°à¥€ à¤°à¤¾à¤·à¥à¤Ÿà¥à¤°à¥€à¤¯ à¤¡à¤¾à¤¯à¤²à¤¿à¤¸à¤¿à¤¸ à¤•à¤¾à¤°à¥à¤¯à¤•à¥à¤°à¤®"
+   "प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
  },
 
  {
   name:"NLEP",
-  icon:"ðŸ¦ ",
+  icon:"🦠",
   gid:"1536656599",
   description:
    "National Leprosy Eradication Programme"
@@ -1608,7 +1609,7 @@ function openReport(index){
  document
   .getElementById("pdfTitle")
   .innerText =
-   "Kharsia Health Dashboard â€” "+
+   "Kharsia Health Dashboard — "+
    report.name;
 
 
@@ -1682,7 +1683,7 @@ function openReport(index){
 
 
  setStatus(
-  "Google Sheet à¤¸à¥‡ data load à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ..."
+  "Google Sheet से data load हो रहा है..."
  );
 
 
@@ -1745,9 +1746,9 @@ function loadGoogleSheet(gid){
    ){
 
     setStatus(
-     "âŒ Google Sheet à¤¸à¥‡ data load à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹ à¤ªà¤¾à¤¯à¤¾: "+
+     "❌ Google Sheet से data load नहीं हो पाया: "+
      (response.getMessage() || "Sheet access/permission error")+
-     " | à¤•à¥ƒà¤ªà¤¯à¤¾ Sheet à¤•à¥‹ Anyone with the link / Viewer access à¤¦à¥‡à¤‚à¥¤",
+     " | कृपया Sheet को Anyone with the link / Viewer access दें।",
      "error"
     );
 
@@ -1806,7 +1807,7 @@ function loadGoogleSheet(gid){
 
 
    setStatus(
-    "âœ“ Google Sheet à¤¸à¥‡ data successfully loaded",
+    "✓ Google Sheet से data successfully loaded",
     "success"
    );
 
@@ -3070,7 +3071,7 @@ function renderRCHTable(
 
 
  sectorTitle.innerText =
-  "RCH 2.0 â€” Sector Wise";
+  "RCH 2.0 — Sector Wise";
 
 
  const sectorDate =
@@ -3118,7 +3119,7 @@ function renderRCHTable(
 
 
  facilityTitle.innerText =
-  "RCH 2.0 â€” Facility Wise";
+  "RCH 2.0 — Facility Wise";
 
 
  const facilityDate =
@@ -3181,11 +3182,11 @@ function parseAyushmanData(data){
 
 
  let ayushmanTitle =
-  "à¤†à¤¯à¥à¤·à¥à¤®à¤¾à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¦à¤¿à¤¨à¤¾à¤‚à¤• 17.05.2026 à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚";
+  "आयुष्मान कार्ड की जानकारी दिनांक 17.05.2026 की स्थिति में";
 
 
  let vayTitle =
-  "à¤µà¤¯ à¤µà¤‚à¤¦à¤¨ à¤•à¤¾à¤°à¥à¤¡ à¤•à¥€ à¤ªà¥à¤°à¤—à¤¤à¤¿ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¦à¤¿à¤¨à¤¾à¤‚à¤• 16.05.2026 à¤•à¥€ à¤¸à¥à¤¥à¤¿à¤¤à¤¿ à¤®à¥‡à¤‚";
+  "वय वंदन कार्ड की प्रगति की जानकारी दिनांक 16.05.2026 की स्थिति में";
 
 
  let ayushmanData=null;
@@ -3212,7 +3213,7 @@ function parseAyushmanData(data){
 
    if(
     lower.includes(
-     "à¤†à¤¯à¥à¤·à¥à¤®à¤¾à¤¨ à¤•à¤¾à¤°à¥à¤¡"
+     "आयुष्मान कार्ड"
     )
    ){
 
@@ -3232,7 +3233,7 @@ function parseAyushmanData(data){
 
    if(
     lower.includes(
-     "à¤µà¤¯ à¤µà¤‚à¤¦à¤¨ à¤•à¤¾à¤°à¥à¤¡"
+     "वय वंदन कार्ड"
     )
    ){
 
@@ -3303,8 +3304,8 @@ function parseAyushmanData(data){
 
 
  /*
-   à¤…à¤—à¤° sheet à¤®à¥‡à¤‚ data à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¤¾,
-   à¤¤à¥‹ default values à¤°à¤–à¥‡à¤‚à¤—à¥‡à¥¤
+   अगर sheet में data नहीं मिला,
+   तो default values रखेंगे।
  */
 
  if(!ayushmanData){
@@ -3457,7 +3458,7 @@ function createAyushmanHeader(){
 
 
  sn.innerHTML =
-  "<b>à¤•à¥à¤°</b>";
+  "<b>क्र</b>";
 
  sn.rowSpan=2;
 
@@ -3475,7 +3476,7 @@ function createAyushmanHeader(){
 
 
  target.innerHTML =
-  "<b>à¤²à¤•à¥à¤·à¥à¤¯</b>";
+  "<b>लक्ष्य</b>";
 
  target.colSpan=3;
 
@@ -3493,7 +3494,7 @@ function createAyushmanHeader(){
 
 
  achievement.innerHTML =
-  "<b>à¤‰à¤ªà¤²à¤¬à¥à¤§à¤¿</b>";
+  "<b>उपलब्धि</b>";
 
  achievement.colSpan=3;
 
@@ -3513,7 +3514,7 @@ function createAyushmanHeader(){
 
 
  percent.innerHTML =
-  "<b>à¤ªà¥à¤°à¤¤à¤¿à¤¶à¤¤</b>";
+  "<b>प्रतिशत</b>";
 
  percent.rowSpan=2;
 
@@ -3539,12 +3540,12 @@ function createAyushmanHeader(){
 
  [
 
-  "à¤—à¥à¤°à¤¾à¤®à¥€à¤£",
-  "à¤…à¤°à¥à¤¬à¤¨",
-  "à¤¯à¥‹à¤—",
-  "à¤—à¥à¤°à¤¾à¤®à¥€à¤£",
-  "à¤…à¤°à¥à¤¬à¤¨",
-  "à¤¯à¥‹à¤—"
+  "ग्रामीण",
+  "अर्बन",
+  "योग",
+  "ग्रामीण",
+  "अर्बन",
+  "योग"
 
  ].forEach(
   text=>{
@@ -3665,7 +3666,7 @@ function renderAyushmanTable(
 
 
  /*
-   Google Sheet à¤¸à¥‡ data à¤ªà¤¢à¤¼à¥‡à¤‚à¤—à¥‡
+   Google Sheet से data पढ़ेंगे
  */
 
  const parsed =
@@ -3882,8 +3883,8 @@ function renderNormalTable(
 
   if(
    first==="total" ||
-   first==="à¤¯à¥‹à¤—" ||
-   first==="à¤•à¥à¤²"
+   first==="योग" ||
+   first==="कुल"
   ){
 
    tr.classList.add(
