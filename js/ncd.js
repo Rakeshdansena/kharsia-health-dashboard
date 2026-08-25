@@ -1,24 +1,39 @@
-/* NCD MODULE — Kharsia Health Dashboard — FY 2026-27 */
+/* NCD MODULE — exact Google Sheet layout: Sector Wise first, Facility Wise second */
 (function(){
 'use strict';
 const LAST_UPDATED='17-Aug-2026 23:06:53';
-const PARTS=[{key:'enrollment',title:'Part 1 — Enrollment & ABHA'},{key:'htn',title:'Part 2 — HTN'},{key:'dm',title:'Part 3 — DM'}];
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
-function vals(data,r){let a=[];for(let c=0;c<data.getNumberOfColumns();c++){let v='';try{v=data.getFormattedValue(r,c)||data.getValue(r,c)||''}catch(e){}a.push(clean(v))}return a}
-function txt(r){return r.map(clean).join(' ').toLowerCase()}
-function total(r){return /^(total|योग|कुल|grand total|block total)/i.test(clean(r[0]))||/\b(total|योग|कुल)\b/i.test(txt(r))}
-function findPart(r,current){let s=txt(r);if(/part\s*1|enrollment.*abha/i.test(s))return'enrollment';if(/part\s*2|\bhtn\b|hypertension|estimated hypertensive/i.test(s))return'htn';if(/part\s*3|\bdm\b|diabetes|estimated diabetes/i.test(s))return'dm';return current}
-function findHeader(rows){for(let i=0;i<Math.min(20,rows.length);i++){let s=txt(rows[i]),n=rows[i].filter(Boolean).length;if(n>=2&&/sector|facility|30\+|population|screening|enrollment|abha|htn|estimated|treatment|follow|control|diabetes|dm/i.test(s))return i}return rows.findIndex(r=>r.some(Boolean))}
-function makeTable(head,rows){let t=document.createElement('table');t.className='ncd-part-table';let tr=document.createElement('tr');head.forEach(v=>{let th=document.createElement('th');th.textContent=v||'';tr.appendChild(th)});let thead=document.createElement('thead');thead.appendChild(tr);t.appendChild(thead);let body=document.createElement('tbody');rows.forEach(r=>{if(!r.some(Boolean))return;let x=document.createElement('tr');if(total(r))x.className='ncd-total-row';r.forEach(v=>{let td=document.createElement('td');td.textContent=v||'';x.appendChild(td)});body.appendChild(x)});t.appendChild(body);return t}
-function splitRows(rows,hi){let sector=[],facility=[],mode='';rows.slice(Math.max(hi+1,0)).forEach(r=>{let s=txt(r);if(/\bsector\b|सेक्टर/i.test(s)){mode='sector';return}if(/\bfacility\b|facility wise|sub.?centre|phc|shc|hwc|uphc|आरोग्य|उप.?केंद्र/i.test(s)){mode='facility';return}if(mode==='sector')sector.push(r);else if(mode==='facility')facility.push(r)});if(!sector.length&&!facility.length){sector=rows.slice(Math.max(hi+1,0));facility=rows.slice(Math.max(hi+1,0))}return{sector,facility}}
-function css(){if(document.getElementById('ncd-style'))return;let s=document.createElement('style');s.id='ncd-style';s.textContent=`#ncdModuleContainer{display:none}.ncd-status-heading{width:100%;box-sizing:border-box;text-align:center;font-size:16px;font-weight:900;color:#075985;background:#e0f2fe;border:1px solid #93c5fd;padding:10px 8px;margin:0 0 14px;border-radius:6px}.ncd-part{background:#fff;padding:12px;margin:0 0 18px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow:auto}.ncd-part-title{text-align:center;font-size:18px;font-weight:900;color:#075985;margin:5px 0 10px}.ncd-section-title{font-size:15px;font-weight:900;color:#075985;background:#e0f2fe;border-left:5px solid #075985;padding:8px 10px;margin:12px 0 7px}.ncd-part-table{width:100%;border-collapse:collapse;font-size:12px}.ncd-part-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:8px 6px;text-align:center;vertical-align:middle}.ncd-part-table td{border:1px solid #cbd5e1;padding:7px 6px;text-align:center;vertical-align:middle}.ncd-part-table td:first-child{text-align:left;font-weight:700}.ncd-total-row{background:#dbeafe!important;font-weight:900}@media(max-width:800px){.ncd-part-table{min-width:900px}}`;document.head.appendChild(s)}
+function row(data,r){let a=[];for(let c=0;c<data.getNumberOfColumns();c++){let v='';try{v=data.getFormattedValue(r,c)||data.getValue(r,c)||''}catch(e){}a.push(clean(v))}return a}
+function text(r){return r.join(' ').toLowerCase()}
+function isHeader(r){let s=text(r);return /subcenter|total\s+population|screening\s+target|enrollment\s*30|abha\s*link/i.test(s)}
+function isSectorHeader(r){return /^sector$/i.test(clean(r[0])) || /\bsector\b/i.test(text(r)) && /total\s+population/i.test(text(r))}
+function isTotal(r){return /^total$/i.test(clean(r[0]))}
+function makeTable(head,rows){let t=document.createElement('table');t.className='ncd-table';let thead=document.createElement('thead'),tr=document.createElement('tr');head.forEach(v=>{let th=document.createElement('th');th.textContent=v;tr.appendChild(th)});thead.appendChild(tr);t.appendChild(thead);let tbody=document.createElement('tbody');rows.forEach(r=>{if(!r.some(Boolean)||isHeader(r)||isSectorHeader(r))return;let tr=document.createElement('tr');if(isTotal(r))tr.className='ncd-total-row';for(let i=0;i<head.length;i++){let td=document.createElement('td');td.textContent=r[i]||'';tr.appendChild(td)}tbody.appendChild(tr)});t.appendChild(tbody);return t}
+function css(){if(document.getElementById('ncd-exact-style'))return;let s=document.createElement('style');s.id='ncd-exact-style';s.textContent=`#ncdModuleContainer{display:none}.ncd-status-heading{width:100%;box-sizing:border-box;text-align:center;font-size:16px;font-weight:900;color:#075985;background:#e0f2fe;border:1px solid #93c5fd;padding:10px 8px;margin:0 0 14px;border-radius:6px}.ncd-section{background:#fff;padding:10px;margin:0 0 18px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow:auto}.ncd-section-title{font-size:17px;font-weight:900;color:#075985;background:#e0f2fe;border-left:5px solid #075985;padding:9px 10px;margin:0 0 8px}.ncd-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1500px}.ncd-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:8px 6px;text-align:center;vertical-align:middle;white-space:normal}.ncd-table td{border:1px solid #cbd5e1;padding:7px 6px;text-align:center;vertical-align:middle}.ncd-table td:first-child{text-align:left;font-weight:700}.ncd-total-row{background:#dbeafe!important;font-weight:900}.ncd-section-title + .ncd-table{margin-bottom:0}`;document.head.appendChild(s)}
 function renderNCDTable(data){
- css();let rch=document.getElementById('rchContainer');if(rch)rch.style.display='none';let box=document.querySelector('.table-box');if(box)box.style.display='none';
- let out=document.getElementById('ncdModuleContainer');if(!out){out=document.createElement('div');out.id='ncdModuleContainer';(document.getElementById('pdfArea')||document.body).appendChild(out)}out.innerHTML='';out.style.display='block';
- let heading=document.createElement('div');heading.className='ncd-status-heading';heading.textContent='NCD Status 2026-27 As On Last Updated On : '+LAST_UPDATED;out.appendChild(heading);
- let groups=PARTS.map(p=>({key:p.key,title:p.title,rows:[]})),current='enrollment';
- for(let r=0;r<data.getNumberOfRows();r++){let rr=vals(data,r),p=findPart(rr,current);if(p)current=p;let g=groups.find(x=>x.key===current);if(g)g.rows.push(rr)}
- groups.filter(g=>g.rows.length).forEach(g=>{let part=document.createElement('div');part.className='ncd-part';let title=document.createElement('div');title.className='ncd-part-title';title.textContent=g.title;part.appendChild(title);let hi=findHeader(g.rows);let head=hi>=0?g.rows[hi]:[];let sp=splitRows(g.rows,hi);let sh=document.createElement('div');sh.className='ncd-section-title';sh.textContent='Sector Wise';part.appendChild(sh);part.appendChild(makeTable(head,sp.sector));let fh=document.createElement('div');fh.className='ncd-section-title';fh.textContent='Facility Wise';part.appendChild(fh);part.appendChild(makeTable(head,sp.facility));out.appendChild(part)});
+ css();
+ let rch=document.getElementById('rchContainer');if(rch)rch.style.display='none';
+ let box=document.querySelector('.table-box');if(box)box.style.display='none';
+ let out=document.getElementById('ncdModuleContainer');if(!out){out=document.createElement('div');out.id='ncdModuleContainer';(document.getElementById('pdfArea')||document.body).appendChild(out)}
+ out.innerHTML='';out.style.display='block';
+ let rows=[];for(let r=0;r<data.getNumberOfRows();r++)rows.push(row(data,r));
+ let headerIndex=rows.findIndex(isHeader);if(headerIndex<0){headerIndex=rows.findIndex(r=>/subcenter/i.test(clean(r[0])))}
+ if(headerIndex<0){let msg=document.createElement('div');msg.className='ncd-status-heading';msg.textContent='NCD data header नहीं मिला';out.appendChild(msg);return}
+ let head=rows[headerIndex];
+ let sectorStart=-1,sectorHeader=-1,facilityEnd=-1;
+ for(let i=headerIndex+1;i<rows.length;i++){if(isTotal(rows[i])){if(facilityEnd<0)facilityEnd=i;else break}if(isSectorHeader(rows[i])){sectorHeader=i;sectorStart=i+1;break}}
+ let facilityEndIndex=facilityEnd>=0?facilityEnd:sectorHeader>=0?sectorHeader-1:rows.length;
+ let facility=rows.slice(headerIndex+1,facilityEndIndex).filter(r=>r.some(Boolean));
+ let sector=[];
+ if(sectorHeader>=0){for(let i=sectorStart;i<rows.length;i++){if(isTotal(rows[i]))break;if(rows[i].some(Boolean))sector.push(rows[i])}}
+ if(!sector.length){
+   // Fallback: locate known sector names/second copy of the NCD header.
+   let second=rows.findIndex((r,i)=>i>headerIndex+1 && isSectorHeader(r));
+   if(second>=0)sector=rows.slice(second+1).filter(r=>r.some(Boolean)&&!isTotal(r));
+ }
+ let status=document.createElement('div');status.className='ncd-status-heading';status.textContent='NCD Status 2026-27 As On Last Updated On : '+LAST_UPDATED;out.appendChild(status);
+ let sec=document.createElement('div');sec.className='ncd-section';let st=document.createElement('div');st.className='ncd-section-title';st.textContent='Sector Wise';sec.appendChild(st);sec.appendChild(makeTable(head,sector));out.appendChild(sec);
+ let fac=document.createElement('div');fac.className='ncd-section';let ft=document.createElement('div');ft.className='ncd-section-title';ft.textContent='Facility Wise';fac.appendChild(ft);fac.appendChild(makeTable(head,facility));out.appendChild(fac);
 }
 window.renderNCDTable=renderNCDTable;
 })();
