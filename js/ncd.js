@@ -1,4 +1,4 @@
-/* NCD MODULE — Google Sheet renderer, exact merged HTN/DM headers */
+/* NCD MODULE — Google Sheet renderer, exact merged HTN/DM headers and 23 data columns */
 (function(){
 'use strict';
 const SHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
@@ -17,8 +17,8 @@ function table(dataRows){
  const thd=document.createElement('thead');
  const r1=document.createElement('tr');
  ['Subcenter','Total Population','Screening Target (47.8% of Total Population)','Enrollment 30+ (Progressive)','%','ABHA Link (Progressive)','ABHA Link %'].forEach(v=>{const th=document.createElement('th');th.textContent=v;th.rowSpan=2;r1.appendChild(th)});
- let th=document.createElement('th');th.textContent='HTN';th.colSpan=9;th.rowSpan=1;r1.appendChild(th);
- th=document.createElement('th');th.textContent='DM';th.colSpan=9;th.rowSpan=1;r1.appendChild(th);
+ let th=document.createElement('th');th.textContent='HTN';th.colSpan=9;r1.appendChild(th);
+ th=document.createElement('th');th.textContent='DM';th.colSpan=9;r1.appendChild(th);
  thd.appendChild(r1);
  const r2=document.createElement('tr');
  HTN_HEADERS.forEach(v=>{const x=document.createElement('th');x.textContent=v;r2.appendChild(x)});
