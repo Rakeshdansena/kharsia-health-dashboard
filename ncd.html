@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>NCD Status 2026-27 - Kharsia Health Dashboard</title>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#1f2937;font-family:Arial,"Noto Sans",sans-serif}.header{background:linear-gradient(135deg,#075985,#0f766e);color:#fff;padding:14px 22px;box-shadow:0 3px 10px rgba(0,0,0,.15);display:flex;align-items:center;gap:15px}.header h1{margin:0;font-size:21px}.back{margin-left:auto;background:#fff;color:#075985;border:0;border-radius:7px;padding:8px 13px;font-weight:700;cursor:pointer}.content{padding:18px;max-width:1800px;margin:auto}.status{padding:10px 14px;background:#e0f2fe;color:#075985;border-radius:8px;margin-bottom:12px}.error{background:#fee2e2;color:#991b1b}.loading{text-align:center;background:#fff;padding:25px;border-radius:10px}#pdfArea{width:100%}
-</style>
+<style>*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#1f2937;font-family:Arial,"Noto Sans",sans-serif}.header{background:linear-gradient(135deg,#075985,#0f766e);color:#fff;padding:14px 22px;box-shadow:0 3px 10px rgba(0,0,0,.15);display:flex;align-items:center;gap:15px}.header h1{margin:0;font-size:21px}.back{margin-left:auto;background:#fff;color:#075985;border:0;border-radius:7px;padding:8px 13px;font-weight:700;cursor:pointer}.content{padding:18px;max-width:1800px;margin:auto}.status{padding:10px 14px;background:#e0f2fe;color:#075985;border-radius:8px;margin-bottom:12px}.error{background:#fee2e2;color:#991b1b}.loading{text-align:center;background:#fff;padding:25px;border-radius:10px}#pdfArea{width:100%}</style>
 </head>
 <body>
 <header class="header"><h1>❤️ NCD Status 2026-27 — Block Kharsia</h1><button class="back" onclick="location.href='index.html'">← Dashboard</button></header>
@@ -16,7 +14,7 @@
 <script>
 google.charts.load('current',{packages:['table']});
 google.charts.setOnLoadCallback(function(){
- try{document.getElementById('ncdLoading')?.remove();window.renderNCDTable();document.getElementById('ncdStatus').textContent='NCD live data loaded';document.getElementById('ncdStatus').className='status'}
+ try{document.getElementById('ncdLoading')?.remove();window.renderNCDTable();}
  catch(e){document.getElementById('ncdStatus').textContent='NCD data load error: '+e.message;document.getElementById('ncdStatus').className='status error'}
 });
 </script>
