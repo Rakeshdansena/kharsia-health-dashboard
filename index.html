@@ -7,7 +7,7 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="dashboardFrame" src="index_updated.html?v=20260826-jas7" title="Kharsia Health Dashboard"></iframe>
+<iframe id="dashboardFrame" src="index_updated.html?v=20260827-jas8" title="Kharsia Health Dashboard"></iframe>
 <script>
 (function(){
  const frame=document.getElementById('dashboardFrame');
@@ -16,36 +16,7 @@
    const win=frame.contentWindow,doc=frame.contentDocument;if(!doc)return;
    function inject(id,src){if(doc.getElementById(id))return;const s=doc.createElement('script');s.id=id;s.src=src;doc.body.appendChild(s)}
    inject('ncd-module-loader','js/ncd.js?v=20260825-ncd3');
-   inject('jas-meeting-module-loader','js/jas-meeting.js?v=20260826-jas7');
-   function forceJAS(){
-    const title=doc.getElementById('reportTitle');
-    if(!title||!/JAS\s*Meeting/i.test(title.textContent||''))return;
-    const old=doc.getElementById('reportTable');
-    if(!old)return;
-    const rows=old.querySelectorAll('tbody tr');
-    if(!rows.length)return;
-    let box=doc.getElementById('jasForceBox');
-    if(!box){
-      box=doc.createElement('div');box.id='jasForceBox';
-      box.innerHTML='<div class="jas-force-title">Facility Wise Data</div><div class="jas-force-scroll"><table class="jas-force-table"><thead><tr><th>SN</th><th>NIN</th><th>NAME</th><th>Target till July 26</th><th>Achievement</th><th>%</th></tr></thead><tbody></tbody></table></div>';
-      const st=doc.createElement('style');st.id='jasForceCss';st.textContent='#jasForceBox{background:#fff;border-radius:12px;padding:12px;margin-bottom:15px;box-shadow:0 3px 12px rgba(0,0,0,.07)}.jas-force-title{text-align:center;color:#075985;font-size:16px;font-weight:800;margin:2px 0 10px}.jas-force-scroll{overflow:auto}.jas-force-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px}.jas-force-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:7px 4px;text-align:center}.jas-force-table td{border:1px solid #cbd5e1;padding:6px 4px;text-align:center;vertical-align:middle;word-break:break-word}.jas-force-table th:nth-child(1){width:7%}.jas-force-table th:nth-child(2){width:17%}.jas-force-table th:nth-child(3){width:27%}.jas-force-table th:nth-child(4){width:17%}.jas-force-table th:nth-child(5){width:17%}.jas-force-table th:nth-child(6){width:15%}.jas-force-table .name{text-align:left;font-weight:700}.jas-force-table .good{background:#dcfce7;color:#166534;font-weight:800}.jas-force-table .low{background:#fecaca;color:#991b1b;font-weight:800}.jas-force-table .zero{background:#fef3c7;color:#92400e;font-weight:800}.jas-force-total{background:#dbeafe!important;font-weight:900}';doc.head.appendChild(st);old.parentNode.insertBefore(box,old);old.style.display='none';
-    }
-    const body=box.querySelector('tbody');body.innerHTML='';let T=0,A=0;
-    rows.forEach((tr,i)=>{
-      const cells=tr.querySelectorAll('td');if(cells.length<6)return;
-      const vals=[cells[0].textContent.trim(),cells[1].textContent.trim(),cells[2].textContent.trim(),cells[3].textContent.trim(),cells[4].textContent.trim(),cells[5].textContent.trim()];
-      if(!vals[0] && i>0)return;
-      const target=Number(vals[3].replace(/,/g,''))||0,ach=Number(vals[4].replace(/,/g,''))||0;T+=target;A+=ach;
-      const p=Number(vals[5].replace('%',''))||0;
-      const cls=p===0?'zero':p<100?'low':'good';
-      body.insertAdjacentHTML('beforeend','<tr><td>'+vals[0]+'</td><td>'+vals[1]+'</td><td class="name">'+vals[2]+'</td><td>'+vals[3]+'</td><td>'+vals[4]+'</td><td class="'+cls+'">'+vals[5]+'%</td></tr>');
-    });
-    body.insertAdjacentHTML('beforeend','<tr class="jas-force-total"><td></td><td></td><td>TOTAL</td><td>'+T+'</td><td>'+A+'</td><td>'+ (T?Math.round(A/T*100):0) +'%</td></tr>');
-   }
-   const click=()=>setTimeout(forceJAS,700);
-   doc.addEventListener('click',function(ev){const el=ev.target.closest('button,.menu-btn,.card');if(el&&/JAS\s*Meeting/i.test(el.textContent||''))click()},true);
-   const obs=new MutationObserver(function(){const t=doc.getElementById('reportTitle');if(t&&/JAS\s*Meeting/i.test(t.textContent||''))setTimeout(forceJAS,100)});obs.observe(doc.body,{subtree:true,childList:true,characterData:true});
-   setInterval(forceJAS,1500);
+   inject('jas-meeting-module-loader','js/jas-meeting.js?v=20260827-jas8');
   }catch(e){console.error(e)}
  });
 })();
