@@ -3,7 +3,8 @@
 'use strict';
 
 const GID='1018164338';
-const SID=window.SPREADSHEET_ID;
+// index_updated.html defines SPREADSHEET_ID with const, so it is not a window property.
+const SID=(typeof SPREADSHEET_ID!=='undefined' ? SPREADSHEET_ID : window.SPREADSHEET_ID);
 const TITLE='Jan Arogya Samiti Meeting FY 2026-27 Till July 2026';
 
 const N=v=>Number(String(v??'').replace(/,/g,'').replace('%','').trim())||0;
@@ -109,7 +110,18 @@ function loadDirect(){
  if(!window.google?.visualization?.Query || !SID) return;
  const q=new google.visualization.Query('https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0');
  q.setQuery('select A,B,C,D,E,F,G,H,I');
- q.send(r=>{if(!r.isError()) render(r.getDataTable());});
+ q.send(r=>{
+  if(!r.isError()) render(r.getDataTable());
+  else {
+   const rp=document.getElementById('reportPage');
+   if(rp){
+    rp.classList.add('jas-active');
+    let qbox=document.getElementById('jasMeetingModule');
+    if(!qbox){qbox=document.createElement('div');qbox.id='jasMeetingModule';rp.appendChild(qbox);}
+    qbox.innerHTML='<div class="jas-page">JAS Meeting data load नहीं हो पाया: '+E(r.getMessage())+'</div>';
+   }
+  }
+ });
 }
 
 function install(){
