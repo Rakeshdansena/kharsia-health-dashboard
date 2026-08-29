@@ -7,7 +7,7 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="dashboardFrame" src="index_updated.html?v=20260828-jas-final" title="Kharsia Health Dashboard"></iframe>
+<iframe id="dashboardFrame" src="index_updated.html?v=20260829-jas-01" title="Kharsia Health Dashboard"></iframe>
 <script>
 const f=document.getElementById('dashboardFrame');
 f.addEventListener('load',function(){
@@ -17,7 +17,7 @@ f.addEventListener('load',function(){
     if(oldJas) oldJas.remove();
     const jas=d.createElement('script');
     jas.id='jas-live-fix-script';
-    jas.src='js/jas-live-fix.js?v=20260828-final';
+    jas.src='js/jas-live-fix.js?v=20260829-jas-01';
     d.head.appendChild(jas);
 
     const oldHwc=d.getElementById('hwc-live-fix-script');
