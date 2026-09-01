@@ -1,4 +1,4 @@
-/* WELLNESS ACTIVITY — Sector Wise first + Summary + Search + PDF + Excel */
+/* WELLNESS ACTIVITY — isolated module renderer */
 (function(){
 'use strict';
 const SID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
@@ -37,9 +37,33 @@ function toolbar(){return '<div class="wellness-toolbar"><input id="wellnessSear
 function bind(){const inp=document.getElementById('wellnessSearch');if(inp)inp.oninput=function(){const q=this.value.toLowerCase().trim();document.querySelectorAll('#wellnessActivityModule tbody tr').forEach(tr=>{if(tr.classList.contains('wellness-total'))return;tr.style.display=!q||tr.textContent.toLowerCase().includes(q)?'':'none'})};document.getElementById('wellnessPdfBtn')?.addEventListener('click',pdf);document.getElementById('wellnessExcelBtn')?.addEventListener('click',excel)}
 function pdf(){const el=document.getElementById('wellnessActivityModule');if(!window.html2pdf){window.print();return}const clone=el.cloneNode(true);clone.querySelector('.wellness-toolbar')?.remove();const wrap=document.createElement('div');wrap.style.background='#fff';wrap.style.padding='12px';wrap.appendChild(clone);html2pdf().set({margin:8,filename:'Wellness_Activity_FY_2026-27.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}}).from(wrap).save()}
 function excel(){if(!window.XLSX){alert('Excel export library not available');return}const wb=XLSX.utils.book_new();const s=[['Ayushman Arogya Mandir Wellness Activity FY 2026-27'],[],['SN','NIN','Sector','No of Facility','Target Per Month /25','Total','%']];LAST.sectors.forEach(v=>s.push([v[0],v[1]||'-',v[2],num(v[3]),num(v[4]),num(v[5]),num(v[6])+'%']));s.push([]);s.push(['SN','NIN','Sector','Facility Name','Target Per Month /25','Total','%']);LAST.facilities.forEach(v=>s.push([v[0],v[1],v[2],v[3],num(v[4]),num(v[5]),num(v[6])+'%']));const ws=XLSX.utils.aoa_to_sheet(s);ws['!cols']=[{wch:7},{wch:14},{wch:15},{wch:22},{wch:20},{wch:12},{wch:10}];XLSX.utils.book_append_sheet(wb,ws,'Wellness Activity');XLSX.writeFile(wb,'Wellness_Activity_FY_2026-27.xlsx')}
-function render(dt){css();const a=getRows(dt);const facilities=a.filter(isFacility);const sectors=a.filter(isSector);LAST={facilities,sectors};const rp=document.getElementById('reportPage');if(!rp)return;rp.querySelectorAll('.report-header,.status,.table-box,.report-actions,.footer').forEach(e=>e.style.display='none');let q=document.getElementById('wellnessActivityModule');if(!q){q=document.createElement('div');q.id='wellnessActivityModule';rp.appendChild(q)}let h='<div class="wellness-title">'+TITLE+'</div>'+toolbar();if(!facilities.length&&!sectors.length)h+='<div class="wellness-empty">Wellness Activity data नहीं मिला। Google Sheet से 7 columns पढ़े नहीं जा सके।</div>';else{h+=summary(facilities,sectors);if(sectors.length)h+=sectorTable(sectors);if(facilities.length)h+=facilityTable(facilities)}q.innerHTML=h;bind()}
-function load(){if(!window.google?.visualization?.Query){setTimeout(load,300);return}const q=new google.visualization.Query('https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0');q.setQuery('select A,B,C,D,E,F,G');q.send(r=>{if(r.isError()){const qx=document.getElementById('wellnessActivityModule');if(qx)qx.innerHTML='<div class="wellness-title">'+TITLE+'</div><div class="wellness-empty">Google Sheet data load error: '+esc(r.getMessage())+'</div>';return}render(r.getDataTable())})}
-function openWellness(){document.getElementById('dashboardPage')?.classList.remove('active');document.getElementById('reportPage')?.classList.add('active');load()}
-function hook(){if(window.__wellnessHook)return;const old=window.openReport;if(typeof old!=='function')return;window.__wellnessHook=true;window.openReport=function(i){const b=document.querySelectorAll('#menuButtons .menu-btn')[i];if(b&&/wellness activity/i.test(b.textContent||'')){openWellness();return}return old.apply(this,arguments)};document.addEventListener('click',e=>{const b=e.target.closest('#menuButtons .menu-btn');if(b&&/wellness activity/i.test(b.textContent||'')){e.preventDefault();e.stopImmediatePropagation();openWellness()}},true)}
-css();let tries=0;const timer=setInterval(()=>{hook();if(++tries>80)clearInterval(timer)},500);
+function clearOtherReports(){
+  document.querySelectorAll('.shivir-final').forEach(x=>{x.style.display='none';x.innerHTML=''})
+  document.querySelectorAll('#reportPage > .table-box,#reportPage > .status,#reportPage > .report-header').forEach(x=>x.style.display='none')
+  document.querySelectorAll('#reportPage .report-actions,#reportPage .footer').forEach(x=>x.style.display='none')
+}
+function render(dt){
+  if(!window.__wellnessActivityActive)return false;
+  if(!dt||typeof dt.getNumberOfColumns!=='function')return false;
+  const a=getRows(dt);const facilities=a.filter(isFacility);const sectors=a.filter(isSector);LAST={facilities,sectors};
+  const rp=document.getElementById('reportPage');if(!rp)return false;clearOtherReports();
+  let q=document.getElementById('wellnessActivityModule');if(!q){q=document.createElement('div');q.id='wellnessActivityModule';rp.appendChild(q)}
+  let h='<div class="wellness-title">'+TITLE+'</div>'+toolbar();if(!facilities.length&&!sectors.length)h+='<div class="wellness-empty">Wellness Activity data नहीं मिला। Google Sheet से 7 columns पढ़े नहीं जा सके।</div>';else{h+=summary(facilities,sectors);if(sectors.length)h+=sectorTable(sectors);if(facilities.length)h+=facilityTable(facilities)}q.innerHTML=h;q.style.display='block';bind();return true
+}
+function load(){
+  if(!window.__wellnessActivityActive)return;
+  if(!window.google?.visualization?.Query){setTimeout(load,300);return}
+  const q=new google.visualization.Query('https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0');q.setQuery('select A,B,C,D,E,F,G');q.send(r=>{if(!window.__wellnessActivityActive)return;if(r.isError()){const qx=document.getElementById('wellnessActivityModule');if(qx)qx.innerHTML='<div class="wellness-title">'+TITLE+'</div><div class="wellness-empty">Google Sheet data load error: '+esc(r.getMessage())+'</div>';return}render(r.getDataTable())})
+}
+function openWellness(){
+  window.__wellnessActivityActive=true;
+  window.__ayushmanShivirActive=false;
+  document.getElementById('dashboardPage')?.classList.remove('active');
+  document.getElementById('reportPage')?.classList.add('active');
+  clearOtherReports();
+  const old=document.getElementById('wellnessActivityModule');if(old)old.style.display='none';
+  load();
+}
+function hook(){if(window.__wellnessHook)return;window.__wellnessHook=true;document.addEventListener('click',e=>{const b=e.target.closest('#menuButtons .menu-btn');if(!b)return;const txt=(b.textContent||'').trim();if(/wellness\s+activity/i.test(txt)){e.preventDefault();e.stopImmediatePropagation();openWellness();return}if(/ayushman\s+shivir/i.test(txt)){window.__wellnessActivityActive=false;document.getElementById('wellnessActivityModule')?.remove();}},true)}
+css();hook();
 })();
