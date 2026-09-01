@@ -21,8 +21,7 @@ function injectFixes(){
     let hwc=d.getElementById('hwc-live-fix-script');
     if(!hwc){hwc=d.createElement('script');hwc.id='hwc-live-fix-script';hwc.src='js/hwc-live-fix.js?v=20260827-1';d.head.appendChild(hwc)}
     let wellness=d.getElementById('wellness-live-fix-script');
-    if(wellness){wellness.remove()}
-    wellness=d.createElement('script');wellness.id='wellness-live-fix-script';wellness.src='js/wellness-live-fix.js?v=20260901-wellness-02';d.head.appendChild(wellness);
+    if(!wellness){wellness=d.createElement('script');wellness.id='wellness-live-fix-script';wellness.src='js/wellness-live-fix.js?v=20260901-wellness-02';d.head.appendChild(wellness)}
     d.querySelectorAll('#menuButtons .menu-btn').forEach(b=>{
       if(/jas meeting/i.test(b.textContent||'')&&!b.dataset.jasParentHook){b.dataset.jasParentHook='1';b.addEventListener('click',function(){setTimeout(()=>{try{d.defaultView&&d.defaultView.dispatchEvent(new Event('jas-direct-open'))}catch(e){}},50)},true)}
     });
