@@ -7,7 +7,7 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="dashboardFrame" src="index_updated.html?v=20260901-wellness-01" title="Kharsia Health Dashboard"></iframe>
+<iframe id="dashboardFrame" src="index_updated.html?v=20260901-wellness-02" title="Kharsia Health Dashboard"></iframe>
 <script>
 const f=document.getElementById('dashboardFrame');
 function injectFixes(){
@@ -21,7 +21,8 @@ function injectFixes(){
     let hwc=d.getElementById('hwc-live-fix-script');
     if(!hwc){hwc=d.createElement('script');hwc.id='hwc-live-fix-script';hwc.src='js/hwc-live-fix.js?v=20260827-1';d.head.appendChild(hwc)}
     let wellness=d.getElementById('wellness-live-fix-script');
-    if(!wellness){wellness=d.createElement('script');wellness.id='wellness-live-fix-script';wellness.src='js/wellness-live-fix.js?v=20260901-wellness-01';d.head.appendChild(wellness)}
+    if(wellness){wellness.remove()}
+    wellness=d.createElement('script');wellness.id='wellness-live-fix-script';wellness.src='js/wellness-live-fix.js?v=20260901-wellness-02';d.head.appendChild(wellness);
     d.querySelectorAll('#menuButtons .menu-btn').forEach(b=>{
       if(/jas meeting/i.test(b.textContent||'')&&!b.dataset.jasParentHook){b.dataset.jasParentHook='1';b.addEventListener('click',function(){setTimeout(()=>{try{d.defaultView&&d.defaultView.dispatchEvent(new Event('jas-direct-open'))}catch(e){}},50)},true)}
     });
