@@ -14,33 +14,28 @@
 <script>
 const SPREADSHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0',RCH_GID='1044088930';
 function clean(v){return String(v??'').replace(/<br\s*\/?>/gi,' ').trim()}
-function num(v){const n=Number(String(v??'').replace(/,/g,''));return Number.isFinite(n)?n:0}
+function num(v){let s=String(v??'').replace(/,/g,'').replace(/[−–—]/g,'-').replace(/%/g,'').trim();if(/^\(.*\)$/.test(s))s='-'+s.slice(1,-1);const n=Number(s);return Number.isFinite(n)?n:0}
 function pct(v){const n=Number(String(v??'').replace(/,/g,''));return Number.isFinite(n)?n.toFixed(0):''}
 function backlogClass(v){const n=num(v);return n<0?'backlog-minus':n===0?'backlog-zero':'backlog-plus'}
-function addCell(tr,x,cls=''){const td=document.createElement('td');td.textContent=x;if(cls)td.className=cls;tr.appendChild(td)}
+function addCell(tr,x,cls=''){const td=document.createElement('td');td.textContent=x;if(cls){td.className=cls;if(cls==='backlog-minus'){td.style.backgroundColor='#fecaca';td.style.color='#991b1b';}else if(cls==='backlog-zero'){td.style.backgroundColor='#fef08a';td.style.color='#854d0e';}else if(cls==='backlog-plus'){td.style.backgroundColor='#bbf7d0';td.style.color='#166534';}td.style.fontWeight='800';}tr.appendChild(td)}
 function isHeaderRow(c){const s=c.join(' ').toLowerCase();return s.includes('sector')&&s.includes('hfr id')&&s.includes('health facility')}
-function getAsOnDate(rows,rawText=''){
-  const dateRe=/as\s*on\s*date\s*:?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/i;
-  for(const r of rows){
-    const vals=(r.c||[]).map(x=>x&&x.f!=null?clean(x.f):(x&&x.v!=null?clean(x.v):''));
-    const m=vals.join(' ').match(dateRe);
-    if(m)return m[1].replace(/\//g,'-');
-  }
-  const m=String(rawText||'').match(dateRe);
-  return m?m[1].replace(/\//g,'-'):'';
+function extractDate(text){const s=String(text??'').replace(/<br\s*\/?>/gi,' ');let m=s.match(/as\s*on\s*date\s*:?\s*(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/i);if(m)return m[1].replace(/\//g,'-');m=s.match(/\b(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})\b/);return m?m[1].replace(/\//g,'-'):''}
+function getAsOnDate(rows,cols=[],rawText=''){
+  const all=[];
+  (cols||[]).forEach(c=>{if(c){all.push(c.label,c.id,c.pattern)}});
+  for(const r of rows||[]){for(const x of (r.c||[])){if(x){all.push(x.f,x.v)}}}
+  for(const x of all){const d=extractDate(x);if(d)return d}
+  return extractDate(rawText);
 }
-function updateRCHHeading(rows,rawText=''){
-  const date=getAsOnDate(rows,rawText);
+function updateRCHHeading(rows,cols=[],rawText=''){
+  const date=getAsOnDate(rows,cols,rawText);
   if(!date)return;
   document.getElementById('rchAsOnDate').textContent='As On Date : '+date;
   document.getElementById('rchFacilityTitle').textContent='RCH 2.0 PW Registration Detail FY 2026-27 | As On Date : '+date;
 }
-// Exact Google Sheet structure: the second 8-row block has HFR ID '-' and SHC/SDH type.
-// These are the authoritative Sector Wise totals, including Urban Kharsia (SDH).
 function isSectorSummary(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]),type=clean(c[4]).toUpperCase();return !!sector&&sector.toLowerCase()!=='sector'&&sector.toLowerCase()!=='unknown'&&hfr==='-'&&facility&&/^(SHC|SDH)$/.test(type)}
-// The first block contains the actual facilities. Include every HFR ID row, including all Barra rows and Urban Kharsia SDH.
 function isFacility(c){const sector=clean(c[1]),hfr=clean(c[2]),facility=clean(c[3]),type=clean(c[4]).toUpperCase();if(!sector||sector.toLowerCase()==='unknown'||sector.toLowerCase()==='sector')return false;if(!hfr||hfr==='-'||!facility)return false;return /^IN/i.test(hfr)&&(type==='AAM-SHC'||type==='SDH')}
-async function loadRCH(){const s=document.getElementById('status');s.className='';s.textContent='Google Sheet से data load हो रहा है...';try{const res=await fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${RCH_GID}`,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const text=await res.text(),json=JSON.parse(text.substring(text.indexOf('{'),text.lastIndexOf('}')+1));const rows=json.table.rows||[];updateRCHHeading(rows,text);render(rows);s.textContent='Google Sheet से data load हुआ'}catch(e){s.className='error';s.textContent='Google Sheet से data load नहीं हो पाया: '+e.message}}
+async function loadRCH(){const s=document.getElementById('status');s.className='';s.textContent='Google Sheet से data load हो रहा है...';try{const res=await fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${RCH_GID}&_=${Date.now()}`,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const text=await res.text(),json=JSON.parse(text.substring(text.indexOf('{'),text.lastIndexOf('}')+1));const rows=json.table.rows||[],cols=json.table.cols||[];updateRCHHeading(rows,cols,text);render(rows);s.textContent='Google Sheet से data load हुआ'}catch(e){s.className='error';s.textContent='Google Sheet से data load नहीं हो पाया: '+e.message}}
 function render(rows){const sb=document.getElementById('sectorBody'),fb=document.getElementById('rchBody');sb.innerHTML='';fb.innerHTML='';const sectorRows=[],facilityRows=[];rows.forEach(r=>{const c=(r.c||[]).map(x=>x&&x.v!=null?clean(x.v):'');if(!c.some(Boolean)||isHeaderRow(c))return;if(isSectorSummary(c))sectorRows.push(c);else if(isFacility(c))facilityRows.push(c)});
 let st=[0,0,0,0,0];sectorRows.forEach((c,i)=>{const r=[i+1,c[1],num(c[5]),num(c[6]),pct(c[7]),num(c[8]),num(c[9]),num(c[10])];st[0]+=r[2];st[1]+=r[3];st[2]+=r[5];st[3]+=r[6];st[4]+=r[7];const tr=document.createElement('tr');r.forEach((x,j)=>addCell(tr,x,j===6?backlogClass(x):''));sb.appendChild(tr)});
 if(sectorRows.length){const tr=document.createElement('tr');tr.className='total-row';const p=st[0]?Math.round(st[1]/st[0]*100):0;['','Total',st[0],st[1],p,st[2],st[3],st[4]].forEach((x,j)=>addCell(tr,x,j===6?backlogClass(x):''));sb.appendChild(tr)}
