@@ -66,15 +66,6 @@
     return true;
   }
 
-  function refreshIfRCH(){
-    try{
-      const report=window.currentReportIndex!=null && window.REPORTS ? window.REPORTS[window.currentReportIndex] : null;
-      if(report && report.name==='RCH 2.0' && typeof window.renderRCHTable==='function' && window.currentRCHData){
-        window.renderRCHTable(window.currentRCHData);
-      }
-    }catch(e){}
-  }
-
   function boot(){
     if(install())return;
     setTimeout(boot,250);
@@ -82,8 +73,4 @@
 
   boot();
   setInterval(install,1000);
-  document.addEventListener('click',function(e){
-    const b=e.target&&e.target.closest?e.target.closest('.menu-btn'):null;
-    if(b && /RCH\s*2\.0/i.test(b.textContent||''))setTimeout(function(){install();refreshIfRCH()},700);
-  },true);
 })();
