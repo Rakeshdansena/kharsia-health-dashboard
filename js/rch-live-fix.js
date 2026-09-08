@@ -18,35 +18,26 @@
     if(!data)return '';
     const priority=[];
     const all=[];
-
     try{
       const cols=data.getNumberOfColumns();
       for(let c=0;c<cols;c++){
         const label=clean(data.getColumnLabel(c));
-        if(label){
-          all.push(label);
-          if(/rch|as\s*on|date|fy\s*20|till|upto/i.test(label))priority.push(label);
-        }
+        if(label){all.push(label);if(/rch|as\s*on|date|fy\s*20|till|upto/i.test(label))priority.push(label)}
       }
     }catch(e){}
-
     try{
-      const rows=data.getNumberOfRows();
-      const cols=data.getNumberOfColumns();
+      const rows=data.getNumberOfRows(),cols=data.getNumberOfColumns();
       for(let r=0;r<rows;r++){
         const parts=[];
-        for(let c=0;c<cols;c++){
-          try{parts.push(clean(data.getFormattedValue(r,c)));}catch(e){}
-        }
+        for(let c=0;c<cols;c++){try{parts.push(clean(data.getFormattedValue(r,c)))}catch(e){}}
         const text=parts.filter(Boolean).join(' ');
         if(!text)continue;
         all.push(text);
         if(/rch|as\s*on|date|fy\s*20|till|upto/i.test(text))priority.push(text);
       }
     }catch(e){}
-
-    for(const x of priority){const d=extractDate(x);if(d)return d;}
-    for(const x of all){const d=extractDate(x);if(d)return d;}
+    for(const x of priority){const d=extractDate(x);if(d)return d}
+    for(const x of all){const d=extractDate(x);if(d)return d}
     return '';
   }
 
@@ -63,14 +54,17 @@
     patched.__liveDateFix=true;
     patched.__original=original;
     window.parseRCHData=patched;
+    setTimeout(function(){
+      try{
+        if(typeof currentReportIndex!=='undefined' && REPORTS[currentReportIndex] && REPORTS[currentReportIndex].name==='RCH 2.0' && typeof currentData!=='undefined' && currentData && typeof window.renderRCHTable==='function'){
+          window.renderRCHTable(currentData);
+        }
+      }catch(e){}
+    },100);
     return true;
   }
 
-  function boot(){
-    if(install())return;
-    setTimeout(boot,250);
-  }
-
+  function boot(){if(install())return;setTimeout(boot,250)}
   boot();
   setInterval(install,1000);
 })();
