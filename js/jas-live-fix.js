@@ -239,16 +239,41 @@ function renderSummary(sectorRows,facilityRows){
   '</div>';
 }
 
+function buildSectorRowsFromFacilities(facilityRows){
+  const map=new Map();
+  facilityRows.forEach(v=>{
+    const sector=clean(v[2]);
+    if(!sector) return;
+    if(!map.has(sector)) map.set(sector,{sector,facilities:0,target:0,achievement:0});
+    const x=map.get(sector);
+    x.facilities++;
+    x.target+=num(v[4]);
+    x.achievement+=num(v[5]);
+  });
+  let sn=1;
+  return Array.from(map.values()).map(x=>[
+    String(sn++), x.sector, '-', String(x.facilities),
+    String(x.target), String(x.achievement),
+    x.target ? String((x.achievement/x.target*100).toFixed(1)) : '0'
+  ]);
+}
+
 function render(dt){
   css();
   const a=getRows(dt);
   const sec=findSections(a);
-  const sectorRows=sec.sectorHeader>=0
-    ? collectSection(a,sec.sectorHeader,sec.facilityHeader,'sector')
-    : [];
   const facilityRows=sec.facilityHeader>=0
     ? collectSection(a,sec.facilityHeader,-1,'facility')
     : [];
+
+  // Current Google Sheet is facility-wise only. Build Sector Wise
+  // automatically from the facility rows so both views are always shown.
+  let sectorRows=sec.sectorHeader>=0
+    ? collectSection(a,sec.sectorHeader,sec.facilityHeader,'sector')
+    : [];
+  if(!sectorRows.length && facilityRows.length){
+    sectorRows=buildSectorRowsFromFacilities(facilityRows);
+  }
 
   let q=document.getElementById('jasMeetingModule');
   const rp=document.getElementById('reportPage');
