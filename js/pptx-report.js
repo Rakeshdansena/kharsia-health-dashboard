@@ -98,7 +98,7 @@ function analyse(mod){
 function addTitle(slide,title,sub){
   slide.addText(title,{x:.45,y:.28,w:12.4,h:.48,fontSize:24,bold:true,color:'075985',margin:0});
   slide.addText(sub||'',{x:.48,y:.78,w:12.1,h:.32,fontSize:10,color:'64748B',margin:0});
-  slide.addShape(pptx.shapes.LINE,{x:.45,y:1.13,w:12.35,h:0,line:{color:'0F766E',width:1.2}});
+  slide.addShape(window._kharsiaPptx.shapes.LINE,{x:.45,y:1.13,w:12.35,h:0,line:{color:'0F766E',width:1.2}});
 }
 
 function addTableSlide(pptx,mod,table,idx){
@@ -136,7 +136,7 @@ function addModuleAnalysis(pptx,mod){
     cards.forEach((m,i)=>{
       const col=i%2,row=Math.floor(i/2);
       const x=6.65+col*2.85,y=1.95+row*1.02;
-      slide.addShape(pptx.shapes.ROUNDED_RECTANGLE,{x,y,w:2.55,h:.78,rectRadius:.08,fill:{color:'FFFFFF'},line:{color:'D6E3EC',pt:1}});
+      slide.addShape(window._kharsiaPptx.shapes.ROUNDED_RECTANGLE,{x,y,w:2.55,h:.78,rectRadius:.08,fill:{color:'FFFFFF'},line:{color:'D6E3EC',pt:1}});
       slide.addText(m[0],{x:x+.12,y:y+.1,w:2.3,h:.24,fontSize:8,color:'64748B',bold:true,margin:0});
       slide.addText(text(m[1]),{x:x+.12,y:y+.36,w:2.3,h:.28,fontSize:16,color:'0F766E',bold:true,margin:0});
     });
@@ -150,7 +150,8 @@ async function generate(){
   try{
     await loadPptxLib();
     const pptx=new window.PptxGenJS();
-    // PptxGenJS v3 uses pptx.shapes.* for shape constants.
+    window._kharsiaPptx=pptx;
+    // Keep the active presentation available to helper functions.
     pptx.layout='LAYOUT_WIDE';
     pptx.author='Kharsia Health Dashboard';
     pptx.subject='Kharsia Health Programme Data Analysis';
