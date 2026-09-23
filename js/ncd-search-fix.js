@@ -9,11 +9,8 @@
 
     function applySearch(){
       const value = String(input.value || '').toLowerCase().trim();
-      const isNCD =
-        window.currentReportIndex !== undefined &&
-        window.REPORTS &&
-        window.REPORTS[window.currentReportIndex] &&
-        window.REPORTS[window.currentReportIndex].name === 'NCD';
+      const title = document.getElementById('reportTitle');
+      const isNCD = !!title && /NCD/i.test(String(title.textContent || ''));
 
       if(!isNCD) return;
 
