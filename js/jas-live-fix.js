@@ -78,6 +78,7 @@ function css(){
  color:#15803d!important;
  font-weight:900;
 }
+.jas-mid{color:#b45309!important;font-weight:900}
 .jas-low{
  color:#dc2626!important;
  font-weight:900;
@@ -120,23 +121,28 @@ function findTitle(a){
   return TITLE_FALLBACK;
 }
 
+function norm(v){return clean(v).toLowerCase().replace(/[^a-z0-9]+/g,' ');}
+
+function isAchievement(v){return /achiev/.test(norm(v));}
+
 function isSectorHeader(v){
-  const x=v.slice(0,7).join(' ').toLowerCase();
-  return x.includes('sn') &&
-         x.includes('sector') &&
-         x.includes('no of aam facility') &&
-         x.includes('target') &&
-         x.includes('achievment');
+  const x=v.slice(0,7).map(norm).join(' ');
+  return /\bsn\b/.test(x) &&
+         /sector/.test(x) &&
+         /target/.test(x) &&
+         isAchievement(x) &&
+         !/facility/.test(x) ||
+         (/\bsn\b/.test(x) && /aam/.test(x) && /target/.test(x) && isAchievement(x) && !/name of facility/.test(x));
 }
 
 function isFacilityHeader(v){
-  const x=v.slice(0,7).join(' ').toLowerCase();
-  return x.includes('sn') &&
-         x.includes('nin') &&
-         x.includes('name of sector') &&
-         x.includes('name of facility') &&
-         x.includes('target') &&
-         x.includes('achievment');
+  const x=v.slice(0,7).map(norm).join(' ');
+  return /\bsn\b/.test(x) &&
+         /nin/.test(x) &&
+         /sector/.test(x) &&
+         /facility/.test(x) &&
+         /target/.test(x) &&
+         isAchievement(x);
 }
 
 function findSections(a){
@@ -154,7 +160,7 @@ function collectSection(a,start,end,type){
   for(let r=start+1;r<(end<0?a.length:end);r++){
     const v=a[r].slice(0,7);
     if(isTotal(v[0])) break;
-    if(/^\d+$/.test(v[0])){
+    if(/^\d+(?:\.0+)?$/.test(v[0])){
       if(type==='sector' && v[1]) rows.push(v);
       if(type==='facility' && v[1] && v[2] && v[3]) rows.push(v);
     }
@@ -277,7 +283,7 @@ function load(){
     'https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0'
   );
   /* IMPORTANT: JAS uses 7 columns A:G. */
-  q.setQuery('select A,B,C,D,E,F,G');
+  q.setQuery('select A,B,C,D,E,F,G where A is not null');
   q.send(r=>{
     if(r.isError()){
       console.error('JAS Sheet error:',r.getMessage());
