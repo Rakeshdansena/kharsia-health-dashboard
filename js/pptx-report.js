@@ -237,6 +237,7 @@ async function generate(){
     ],{x:.45,y:1.35,w:12.2,h:5.6,colW:[.65,2.3,.8,8.45],border:{type:'solid',color:'CBD5E1',pt:1},rowH:.28});
 
     for(const mod of modules){
+      addGraphSlide(pptx,mod);
       addModuleAnalysis(pptx,mod);
       for(const table of mod.tables.slice(0,2)) addTableSlide(pptx,mod,table,0);
     }
