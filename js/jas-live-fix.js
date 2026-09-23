@@ -149,7 +149,7 @@ function findSections(a){
   let sectorHeader=-1, facilityHeader=-1;
   for(let i=0;i<a.length;i++){
     const x=a[i].map(norm).join(' ');
-    if(/\\bsn\\b/.test(x) && /target/.test(x) && /achiev/.test(x)){
+    if(/\bsn\b/.test(x) && /target/.test(x) && /achiev/.test(x)){
       if(/name of facility|facility/.test(x)) facilityHeader=i;
       else if(sectorHeader<0) sectorHeader=i;
     }
@@ -164,7 +164,7 @@ function collectSection(a,start,end,type){
   for(let r=from;r<to;r++){
     const v=a[r].slice(0,7);
     const sn=clean(v[0]), d=clean(v[3]);
-    if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+    if(!/^\d+(?:\.0+)?$/.test(sn)) continue;
     if(type==='sector' && v[1] && v[2] && d && Number.isFinite(num(d))) rows.push(v);
     if(type==='facility' && v[1] && v[2] && d && !Number.isFinite(num(d))) rows.push(v);
   }
