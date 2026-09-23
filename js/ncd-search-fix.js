@@ -1,39 +1,37 @@
-/* NCD SEARCH FIX — filters the custom NCD tables rendered by js/ncd.js */
+/* NCD SEARCH FIX — works with the actual NCD table rendered by index_updated.html */
 (function(){
   'use strict';
-
-  function bindNCDSearch(){
-    const input = document.getElementById('searchBox');
-    if(!input || input.dataset.ncdSearchBound === '1') return;
-    input.dataset.ncdSearchBound = '1';
-
-    function applySearch(){
-      const value = String(input.value || '').toLowerCase().trim();
-      const title = document.getElementById('reportTitle');
-      const isNCD = !!title && /NCD/i.test(String(title.textContent || ''));
-
-      if(!isNCD) return;
-
-      document.querySelectorAll('#ncdModuleContainer tbody tr').forEach(function(row){
-        row.style.display =
-          row.innerText.toLowerCase().includes(value) ? '' : 'none';
-      });
+  function bind(){
+    const input=document.getElementById('searchBox');
+    if(!input) return;
+    if(input.dataset.ncdSearchBound!=='1'){
+      input.dataset.ncdSearchBound='1';
+      input.addEventListener('input',apply);
+      input.addEventListener('keyup',apply);
     }
-
-    input.addEventListener('input', applySearch);
-    window.__applyNCDSearch = applySearch;
+    apply();
   }
-
-  function run(){
-    bindNCDSearch();
-    if(window.__applyNCDSearch) window.__applyNCDSearch();
+  function isNCD(){
+    try{
+      if(typeof window.currentReportIndex!=='undefined' && window.REPORTS && window.REPORTS[window.currentReportIndex]){
+        return window.REPORTS[window.currentReportIndex].name==='NCD';
+      }
+    }catch(e){}
+    const title=document.getElementById('reportTitle');
+    return !!title && /NCD/i.test(title.textContent||'');
   }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', run);
-  }else{
-    run();
+  function apply(){
+    if(!isNCD()) return;
+    const input=document.getElementById('searchBox');
+    if(!input) return;
+    const q=String(input.value||'').toLowerCase().trim();
+    document.querySelectorAll('#reportTable tbody tr').forEach(row=>{
+      row.style.display=(!q || (row.innerText||'').toLowerCase().includes(q))?'':'none';
+    });
   }
-
+  window.__applyNCDSearch=apply;
+  function run(){bind();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
   new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});
+  setInterval(run,1000);
 })();
