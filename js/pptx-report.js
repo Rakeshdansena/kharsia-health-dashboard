@@ -76,24 +76,77 @@ function analyse(mod){
   const facts=[];
   const allRows=mod.tables.flatMap(t=>t.rows);
   const dataRows=allRows.slice(1);
-  let pct=[];
-  let nums=[];
+  let pct=[], nums=[];
   dataRows.forEach(r=>r.forEach(v=>{
-    if(/%$/.test(v)){const n=num(v);if(Number.isFinite(n))pct.push(n);}
-    else {const n=num(v);if(Number.isFinite(n))nums.push(n);}
+    const s=text(v);
+    if(/%$/.test(s)){const n=num(s);if(Number.isFinite(n))pct.push(n);}
+    else {const n=num(s);if(Number.isFinite(n))nums.push(n);}
   }));
   if(pct.length){
     const avg=pct.reduce((a,b)=>a+b,0)/pct.length;
-    const max=Math.max(...pct),min=Math.min(...pct);
-    facts.push('Reported percentage values: '+pct.length+'; average '+avg.toFixed(1)+'%.');
-    facts.push('Observed range: '+min.toFixed(1)+'% to '+max.toFixed(1)+'%.');
+    facts.push('Average reported percentage: '+avg.toFixed(1)+'%.');
+    facts.push('Observed percentage range: '+Math.min(...pct).toFixed(1)+'%–'+Math.max(...pct).toFixed(1)+'%.');
+    const low=pct.filter(x=>x<50).length;
+    if(low) facts.push(low+' reported percentage value(s) are below 50%.');
   }
   const totals=allRows.filter(r=>r.some(v=>/^total$|^कुल$|^योग$/i.test(text(v))));
-  if(totals.length) facts.push('Total row detected in the report for block-level aggregation.');
-  if(nums.length) facts.push('Numeric indicators available across '+dataRows.length+' rendered data rows.');
-  if(!facts.length) facts.push('Report loaded; analysis is based on the live rendered Google Sheet table.');
+  if(totals.length) facts.push('Block/facility total row is available in the rendered report.');
+  if(nums.length) facts.push('Numeric indicators are available across '+dataRows.length+' rendered data rows.');
+  if(!facts.length) facts.push('Report loaded; key points are based on the live rendered Google Sheet table.');
   return facts;
 }
+
+function extractMetrics(mod){
+  const rows=mod.tables.flatMap(t=>t.rows);
+  const header=rows[0]||[];
+  const sample=rows.find(r=>r.some(v=>/^total$|^कुल$|^योग$/i.test(text(v))))||rows[1]||[];
+  const out=[];
+  header.forEach((h,i)=>{
+    const raw=text(sample[i]);
+    const n=num(raw);
+    if(Number.isFinite(n) && text(h)) out.push({label:text(h),value:n,raw});
+  });
+  return out.slice(0,8);
+}
+
+function addGraphSlide(pptx,mod){
+  const metrics=extractMetrics(mod);
+  if(!metrics.length) return;
+  const slide=pptx.addSlide();
+  slide.background={color:'F8FAFC'};
+  addTitle(slide,mod.name,'Visual summary — key indicators from the live dashboard');
+  const chartData=[{name:'Value',labels:metrics.map(m=>m.label),values:metrics.map(m=>m.value)}];
+  try{
+    slide.addChart(pptx.ChartType.bar,chartData,{
+      x:.55,y:1.45,w:8.0,h:5.35,
+      catAxisLabelFontFace:'Aptos',catAxisLabelFontSize:11,
+      valAxisLabelFontFace:'Aptos',valAxisLabelFontSize:10,
+      showLegend:false,showTitle:false,showValue:true,
+      showCatName:false,showSerName:false,
+      chartColors:['0F766E'],
+      valGridLine:{color:'D6E3EC',pt:1},
+      valAxisMinVal:0,
+      showCatName:false,
+      dataLabelPosition:'outEnd'
+    });
+  }catch(e){
+    // If chart rendering is unavailable, keep the data visible as a large table.
+    slide.addTable(metrics.map(m=>[{text:m.label,options:{fontSize:14,bold:true}},{text:m.raw,options:{fontSize:20,bold:true,align:'center'}}]),{
+      x:.7,y:1.55,w:7.7,h:4.9,colW:[5.3,2.4],rowH:.55,
+      border:{type:'solid',color:'CBD5E1',pt:1}
+    });
+  }
+  slide.addText('KEY POINTS',{x:8.85,y:1.45,w:3.5,h:.35,fontSize:20,bold:true,color:'075985',margin:0});
+  const facts=analyse(mod);
+  slide.addText(facts.slice(0,5).map(x=>'• '+x).join('\n'),{
+    x:8.85,y:1.95,w:3.65,h:3.25,fontSize:16,bold:true,color:'172033',
+    breakLine:false,margin:.03,valign:'mid',fit:'shrink'
+  });
+  slide.addText('Values shown are taken from the dashboard at PPTX generation time.',{
+    x:8.85,y:6.25,w:3.65,h:.45,fontSize:9,color:'64748B',margin:0
+  });
+}
+
 
 function addTitle(slide,title,sub){
   slide.addText(title,{x:.45,y:.28,w:12.4,h:.48,fontSize:24,bold:true,color:'075985',margin:0});
