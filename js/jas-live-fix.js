@@ -101,7 +101,7 @@ function getRows(dt){
   const out=[];
   for(let r=0;r<dt.getNumberOfRows();r++){
     const row=[];
-    for(let c=0;c<7;c++) row.push(clean(dt.getFormattedValue(r,c)));
+    for(let c=0;c<13;c++) row.push(clean(dt.getFormattedValue(r,c)));
     out.push(row);
   }
   return out;
@@ -146,24 +146,27 @@ function isFacilityHeader(v){
 }
 
 function findSections(a){
-  let sectorHeader=-1;
-  let facilityHeader=-1;
+  let sectorHeader=-1, facilityHeader=-1;
   for(let i=0;i<a.length;i++){
-    if(sectorHeader<0 && isSectorHeader(a[i])) sectorHeader=i;
-    else if(facilityHeader<0 && isFacilityHeader(a[i])) facilityHeader=i;
+    const x=a[i].map(norm).join(' ');
+    if(/\\bsn\\b/.test(x) && /target/.test(x) && /achiev/.test(x)){
+      if(/name of facility|facility/.test(x)) facilityHeader=i;
+      else if(sectorHeader<0) sectorHeader=i;
+    }
   }
   return {sectorHeader,facilityHeader};
 }
 
 function collectSection(a,start,end,type){
   const rows=[];
-  for(let r=start+1;r<(end<0?a.length:end);r++){
+  const from=start>=0?start+1:0;
+  const to=end>=0?end:a.length;
+  for(let r=from;r<to;r++){
     const v=a[r].slice(0,7);
-    if(isTotal(v[0])) break;
-    if(/^\d+(?:\.0+)?$/.test(v[0])){
-      if(type==='sector' && v[1]) rows.push(v);
-      if(type==='facility' && v[1] && v[2] && v[3]) rows.push(v);
-    }
+    const sn=clean(v[0]), d=clean(v[3]);
+    if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+    if(type==='sector' && v[1] && v[2] && d && Number.isFinite(num(d))) rows.push(v);
+    if(type==='facility' && v[1] && v[2] && d && !Number.isFinite(num(d))) rows.push(v);
   }
   return rows;
 }
@@ -283,7 +286,7 @@ function load(){
     'https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0'
   );
   /* IMPORTANT: JAS uses 7 columns A:G. */
-  q.setQuery('select A,B,C,D,E,F,G where A is not null');
+  q.setQuery('select A,B,C,D,E,F,G,H,I,J,K,L,M where A is not null');
   q.send(r=>{
     if(r.isError()){
       console.error('JAS Sheet error:',r.getMessage());
