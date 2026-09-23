@@ -101,7 +101,7 @@ function getRows(dt){
   const out=[];
   for(let r=0;r<dt.getNumberOfRows();r++){
     const row=[];
-    for(let c=0;c<13;c++) row.push(clean(dt.getFormattedValue(r,c)));
+    for(let c=0;c<Math.min(13,dt.getNumberOfColumns());c++) row.push(clean(dt.getFormattedValue(r,c))); while(row.length<13) row.push('');
     out.push(row);
   }
   return out;
@@ -324,6 +324,8 @@ function load(){
 }
 
 function openJAS(){
+  const status=document.getElementById('status');
+  if(status) status.style.display='none';
   document.getElementById('dashboardPage')?.classList.remove('active');
   document.getElementById('reportPage')?.classList.add('active');
   load();
