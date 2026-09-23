@@ -9,34 +9,16 @@ function num(x){const n=Number(String(x??'').replace(/,/g,''));return Number.isF
 function getRows(d){const a=[];for(let r=0;r<d.getNumberOfRows();r++){const x=[];for(let c=0;c<Math.min(d.getNumberOfColumns(),COLS);c++)x.push(v(d.getFormattedValue(r,c)));a.push(x)}return a}
 function sheetTitle(all){
   if(!all.length)return FALLBACK_TITLE;
-  const flat=[];
-  all.forEach(r=>r.forEach(x=>{const z=v(x);if(z)flat.push(z)}));
-  const main=flat.find(x=>/ayushman\s*shivir|shivir\s*reporting/i.test(x))||'';
-  const update=flat.find(x=>/(last\s*update|last\s*updated|updated\s*on|update\s*date|last\s*update\s*date)/i.test(x))||'';
-  const datePatterns=[
-    /\b\d{1,2}[-\/]\d{1,2}[-\/]\d{4}\b/,
-    /\b\d{1,2}[- ](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[- ]\d{4}\b/i,
-    /\b\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b/i
-  ];
-  let date='';
-  for(const x of flat){
-    const m=x.match(/(?:last\s*updated?\s*(?:on|date)?|updated\s*on|update\s*date|as\s*on\s*(?:date)?)[^0-9]{0,8}(\d{1,2}[-\/]\d{1,2}[-\/]\d{4}|\d{1,2}[- ](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[- ]\d{4}|\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
-    if(m){date=m[1];break}
+  for(const row of all){
+    const cells=row.map(v=>v).filter(Boolean);
+    if(!cells.length)continue;
+    const text=cells.join(' ').replace(/\\s+/g,' ').trim();
+    if(!text)continue;
+    if(/ayushman\\s*shivir|shivir\\s*reporting/i.test(text)) return text;
+    if(/reporting\\s*fy|fy\\s*20\\d\\d|as\\s*on|till\\s+\\d|upto\\s+\\d|updated?/i.test(text)) return text;
+    if(cells.length===1 && text.length>=20 && !/^sn$|^s\\.?no\\.?$/i.test(text)) return text;
   }
-  if(!date){
-    for(const x of flat){
-      const m=x.match(datePatterns[0])||x.match(datePatterns[1])||x.match(datePatterns[2]);
-      if(m && /(20\d{2})/.test(m[0])){date=m[0];break}
-    }
-  }
-  if(update && main && update!==main)return main+' | '+update;
-  if(main && date && !dateInText(main,date))return main+' | Last Updated : '+date;
-  return update||main||flat[0]||FALLBACK_TITLE;
-}
-function dateInText(text,date){
-  const a=v(text).toLowerCase().replace(/[\/]/g,'-');
-  const b=v(date).toLowerCase().replace(/[\/]/g,'-');
-  return a.includes(b)||a.includes(b.replace(/-/g,' '));
+  return FALLBACK_TITLE;
 }
 function facility(r){return /^\d+$/.test(v(r[0]))&&/^\d{8,}$/.test(v(r[1]))&&v(r[2])&&v(r[3])}
 function sector(r){return /^\d+$/.test(v(r[0]))&&v(r[2])&&/^\d+$/.test(v(r[3]))}
