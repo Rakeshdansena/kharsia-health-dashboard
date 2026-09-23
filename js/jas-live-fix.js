@@ -4,7 +4,7 @@
 
 const SID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
 const GID='1018164338';
-const TITLE='Jan Arogya Samiti Meeting FY 2026-27 Till July 2026';
+const TITLE_FALLBACK='Jan Arogya Samiti Meeting FY 2026-27 Till July 2026';
 
 const clean=v=>String(v??'').trim();
 const num=v=>{
@@ -28,7 +28,7 @@ function css(){
  border-radius:12px;
  box-sizing:border-box;
 }
-.jas-title{
+.jas-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:8px 0 18px}.jas-card{background:linear-gradient(135deg,#eff6ff,#ecfeff);border:1px solid #bae6fd;border-radius:10px;padding:10px;text-align:center;box-shadow:0 2px 7px rgba(15,23,42,.08)}.jas-card b{display:block;font-size:10px;color:#475569;letter-spacing:.6px}.jas-card strong{display:block;font-size:23px;color:#075985;margin-top:4px}.jas-title{
  text-align:center;
  font-weight:800;
  color:#075985;
@@ -110,6 +110,16 @@ function isTotal(v){
   return /^(total|योग|कुल)$/i.test(clean(v));
 }
 
+function findTitle(a){
+  for(const r of a){
+    for(const v of r){
+      const s=clean(v);
+      if(/jan\s*arogya\s*samiti\s*meeting/i.test(s)) return s;
+    }
+  }
+  return TITLE_FALLBACK;
+}
+
 function isSectorHeader(v){
   const x=v.slice(0,7).join(' ').toLowerCase();
   return x.includes('sn') &&
@@ -152,7 +162,7 @@ function collectSection(a,start,end,type){
   return rows;
 }
 
-function pctClass(p){ return p>=100?'jas-good':'jas-low'; }
+function pctClass(p){ return p>=100?'jas-good':p>=80?'jas-mid':'jas-low'; }
 
 function renderSector(rows){
   let h='<div class="jas-section-title">Sector Wise</div>';
@@ -176,7 +186,7 @@ function renderSector(rows){
   });
 
   h+='<tr class="jas-total">'+
-     '<td colspan="3">Total</td><td>'+fac+'</td><td>'+target+'</td><td>'+ach+'</td><td></td></tr>'+
+     '<td colspan="3">Total</td><td>'+fac+'</td><td>'+target+'</td><td>'+ach+'</td><td class="'+pctClass(target?ach/target*100:0)+'">'+(target?(ach/target*100).toFixed(1):0)+'%</td></tr>'+
      '</tbody></table></div>';
   return h;
 }
@@ -203,9 +213,21 @@ function renderFacility(rows){
   });
 
   h+='<tr class="jas-total">'+
-     '<td colspan="4">Total</td><td>'+target+'</td><td>'+ach+'</td><td></td></tr>'+
+     '<td colspan="4">Total</td><td>'+target+'</td><td>'+ach+'</td><td class="'+pctClass(target?ach/target*100:0)+'">'+(target?(ach/target*100).toFixed(1):0)+'%</td></tr>'+
      '</tbody></table></div>';
   return h;
+}
+
+function renderSummary(sectorRows,facilityRows){
+  const sT=sectorRows.reduce((a,v)=>a+num(v[4]),0), sA=sectorRows.reduce((a,v)=>a+num(v[5]),0);
+  const pct=sT?((sA/sT)*100):0;
+  return '<div class="jas-summary">'+
+    '<div class="jas-card"><b>SECTORS</b><strong>'+sectorRows.length+'</strong></div>'+
+    '<div class="jas-card"><b>FACILITIES</b><strong>'+facilityRows.length+'</strong></div>'+
+    '<div class="jas-card"><b>TARGET</b><strong>'+sT+'</strong></div>'+
+    '<div class="jas-card"><b>ACHIEVEMENT</b><strong>'+sA+'</strong></div>'+
+    '<div class="jas-card"><b>OVERALL %</b><strong class="'+pctClass(pct)+'">'+pct.toFixed(1)+'%</strong></div>'+
+  '</div>';
 }
 
 function render(dt){
@@ -228,7 +250,9 @@ function render(dt){
   }
   if(!q) return;
 
-  let h='<div class="jas-title">'+TITLE+'</div>';
+  const title=findTitle(a);
+  let h='<div class="jas-title">'+esc(title)+'</div>';
+  h+=renderSummary(sectorRows,facilityRows);
   if(!sectorRows.length && !facilityRows.length){
     h+='<div class="jas-empty">JAS Meeting data नहीं मिला। Google Sheet की पहली 7 columns में सही header check करें।</div>';
   }else{
