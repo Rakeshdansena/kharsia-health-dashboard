@@ -46,11 +46,15 @@ function clickModule(name){
 function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 
 async function waitForModule(name){
-  for(let i=0;i<24;i++){
-    await wait(350);
+  for(let i=0;i<40;i++){
+    await wait(400);
     const title=text(document.getElementById('reportTitle')?.textContent);
-    const body=text(document.getElementById('pdfArea')?.innerText);
-    if(title || body.length>40) return;
+    const area=document.getElementById('pdfArea');
+    const body=text(area?.innerText);
+    const ncd=area?.querySelector('#ncdModuleContainer');
+    const tables=area?[...area.querySelectorAll('table')].filter(visible):[];
+    if(name==='NCD' && ncd && ncd.querySelectorAll('table').length>=2) return;
+    if(name!=='NCD' && (title || body.length>40 || tables.length)) return;
   }
 }
 
@@ -65,10 +69,15 @@ function collectTables(){
 
 function collectModule(name){
   const title=text(document.getElementById('reportTitle')?.innerText)||name;
+  const ncd=document.getElementById('ncdModuleContainer');
   const heading=text(document.querySelector('.shivir-page-heading .subheading')?.innerText) ||
-                text(document.querySelector('#ncdModuleContainer .ncd-final-title')?.innerText) || title;
+                (name==='NCD' ? text(ncd?.querySelector('.ncd-final-title')?.innerText) : '') || title;
   const status=text(document.getElementById('status')?.innerText);
-  const tables=collectTables();
+  let tables=collectTables();
+  if(name==='NCD' && ncd){
+    const nt=[...ncd.querySelectorAll('table')].map((table,ti)=>({rows:[...table.rows].map(tr=>[...tr.cells].map(c=>text(c.innerText))),index:ti})).filter(x=>x.rows.length);
+    if(nt.length) tables=nt;
+  }
   return {name,title,heading,status,tables};
 }
 
