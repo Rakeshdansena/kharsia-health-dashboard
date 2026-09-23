@@ -7,7 +7,15 @@ const SH=['Sn','NIN ID','Sector','No. of Facility','Target Upto 18 August 2026',
 function v(x){return String(x==null?'':x).replace(/\s+/g,' ').trim()}
 function num(x){const n=Number(String(x??'').replace(/,/g,''));return Number.isFinite(n)?n:0}
 function getRows(d){const a=[];for(let r=0;r<d.getNumberOfRows();r++){const x=[];for(let c=0;c<Math.min(d.getNumberOfColumns(),COLS);c++)x.push(v(d.getFormattedValue(r,c)));a.push(x)}return a}
-function sheetTitle(all){if(!all.length)return FALLBACK_TITLE;const first=all[0].filter(Boolean);const candidate=first.find(x=>/ayushman|shivir|fy\s*20|till|upto|update|date|august|july|september|october|november|december|january|february|march|april|may|june/i.test(x));return candidate||first.find(Boolean)||FALLBACK_TITLE}
+function sheetTitle(all){
+  if(!all.length)return FALLBACK_TITLE;
+  const flat=[];
+  all.forEach(r=>r.forEach(x=>{const s=v(x);if(s)flat.push(s)}));
+  const update=flat.find(x=>/(last\s*update|last\s*updated|updated\s*on|update\s*date|as\s*on\s*(date|\w+))/i.test(x));
+  const main=flat.find(x=>/ayushman\s*shivir|shivir\s*reporting|ayushman.*fy\s*20/i.test(x));
+  if(main&&update&&main!==update)return main+' | '+update;
+  return update||main||flat[0]||FALLBACK_TITLE;
+}
 function facility(r){return /^\d+$/.test(v(r[0]))&&/^\d{8,}$/.test(v(r[1]))&&v(r[2])&&v(r[3])}
 function sector(r){return /^\d+$/.test(v(r[0]))&&v(r[2])&&/^\d+$/.test(v(r[3]))}
 function isTotal(r){return v(r[0]).toLowerCase()==='total'||v(r[3]).toLowerCase()==='total'||v(r[2]).toLowerCase()==='total'}
