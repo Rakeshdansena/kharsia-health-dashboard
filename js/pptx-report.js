@@ -122,17 +122,18 @@ function addGraphSlide(pptx,mod){
   const metrics=extractMetrics(mod);
   if(!metrics.length) return;
   const slide=pptx.addSlide();
-  slide.background={color:'F8FAFC'};
-  addTitle(slide,mod.name,'Visual summary — key indicators from the live dashboard');
+  slide.background={color:'F4F7FB'};
+  addTitle(slide,mod.name,'VISUAL PERFORMANCE SUMMARY',true);
   const chartData=[{name:'Value',labels:metrics.map(m=>m.label),values:metrics.map(m=>m.value)}];
   try{
     slide.addChart(pptx.ChartType.bar,chartData,{
-      x:.55,y:1.45,w:8.0,h:5.35,
-      catAxisLabelFontFace:'Aptos',catAxisLabelFontSize:11,
+      x:.55,y:1.55,w:7.55,h:4.85,
+      catAxisLabelFontFace:'Aptos',catAxisLabelFontSize:12,
       valAxisLabelFontFace:'Aptos',valAxisLabelFontSize:10,
       showLegend:false,showTitle:false,showValue:true,
       showCatName:false,showSerName:false,
       chartColors:['0F766E'],
+      showValue:true,
       valGridLine:{color:'D6E3EC',pt:1},
       valAxisMinVal:0,
       showCatName:false,
@@ -145,28 +146,28 @@ function addGraphSlide(pptx,mod){
       border:{type:'solid',color:'CBD5E1',pt:1}
     });
   }
-  slide.addText('KEY POINTS',{x:8.85,y:1.45,w:3.5,h:.35,fontSize:20,bold:true,color:'075985',margin:0});
+  slide.addText('KEY POINTS',{x:8.45,y:1.45,w:3.95,h:.38,fontSize:22,bold:true,color:'0F766E',margin:0});
   const facts=analyse(mod);
   slide.addText(facts.slice(0,5).map(x=>'• '+x).join('\n'),{
-    x:8.85,y:1.95,w:3.65,h:3.25,fontSize:16,bold:true,color:'172033',
+    x:8.45,y:1.95,w:3.95,h:3.65,fontSize:16,bold:true,color:'172033',
     breakLine:false,margin:.03,valign:'mid',fit:'shrink'
   });
   slide.addText('Values shown are taken from the dashboard at PPTX generation time.',{
-    x:8.85,y:6.25,w:3.65,h:.45,fontSize:9,color:'64748B',margin:0
+    x:8.45,y:6.15,w:3.95,h:.45,fontSize:9,color:'64748B',margin:0
   });
 }
 
 
-function addTitle(slide,title,sub){
-  slide.addText(title,{x:.45,y:.28,w:12.4,h:.48,fontSize:24,bold:true,color:'075985',margin:0});
-  slide.addText(sub||'',{x:.48,y:.78,w:12.1,h:.32,fontSize:10,color:'64748B',margin:0});
-  slide.addText('',{x:.45,y:1.12,w:12.35,h:.02,line:{color:'0F766E',pt:1.2},margin:0});
+function addTitle(slide,title,sub,hero){
+  slide.addText(title,{x:.45,y:.25,w:12.0,h:.55,fontSize:hero?28:24,bold:true,color:'0B3558',margin:0});
+  slide.addText(sub||'',{x:.48,y:.80,w:12.0,h:.28,fontSize:hero?11:10,bold:true,color:'0F766E',margin:0,charSpacing:1});
+  slide.addText('',{x:.45,y:1.16,w:12.35,h:.02,line:{color:'14B8A6',pt:1.6},margin:0});
 }
 
 function addTableSlide(pptx,mod,table,idx){
   const slide=pptx.addSlide();
-  slide.background={color:'F8FAFC'};
-  addTitle(slide,mod.name,mod.heading||mod.title);
+  slide.background={color:'F4F7FB'};
+  addTitle(slide,mod.name,mod.heading||mod.title,true);
   const rows=table.rows.slice(0,24);
   const cols=Math.max(...rows.map(r=>r.length),1);
   const width=12.2/cols;
@@ -179,10 +180,10 @@ function addTableSlide(pptx,mod,table,idx){
 }
 
 function addModuleAnalysis(pptx,mod){
-  const slide=pptx.addSlide(); slide.background={color:'F8FAFC'};
-  addTitle(slide,mod.name,'Data analysis from live rendered report');
+  const slide=pptx.addSlide(); slide.background={color:'F4F7FB'};
+  addTitle(slide,mod.name,'KEY FINDINGS & INDICATORS',true);
   const facts=analyse(mod);
-  slide.addText('Key observations',{x:.55,y:1.42,w:3,h:.35,fontSize:17,bold:true,color:'075985',margin:0});
+  slide.addText('KEY OBSERVATIONS',{x:.55,y:1.48,w:4,h:.35,fontSize:18,bold:true,color:'0F766E',margin:0});
   slide.addText(facts.map(x=>'• '+x).join('\n'),{x:.65,y:1.95,w:5.8,h:2.2,fontSize:14,color:'172033',breakLine:false,margin:.02});
   const rows=mod.tables.flatMap(t=>t.rows);
   const header=rows[0]||[];
@@ -192,16 +193,16 @@ function addModuleAnalysis(pptx,mod){
     const n=num(sample[i]);
     if(Number.isFinite(n)) metrics.push([text(h)||('Indicator '+(i+1)),sample[i]]);
   });
-  slide.addText('Available numeric indicators',{x:6.65,y:1.42,w:4.8,h:.35,fontSize:17,bold:true,color:'075985',margin:0});
+  slide.addText('BLOCK INDICATORS',{x:6.55,y:1.48,w:4.8,h:.35,fontSize:18,bold:true,color:'0F766E',margin:0});
   if(metrics.length){
     const cards=metrics.slice(0,8);
     cards.forEach((m,i)=>{
       const col=i%2,row=Math.floor(i/2);
-      const x=6.65+col*2.85,y=1.95+row*1.02;
-      slide.addText(m[0]+'\n'+text(m[1]),{x,y,w:2.55,h:.78,fontSize:10,color:'172033',bold:true,fill:{color:'FFFFFF'},line:{color:'D6E3EC',pt:1},margin:.12,valign:'mid',breakLine:false});
+      const x=6.55+col*2.85,y=1.95+row*1.05;
+      slide.addText(m[0]+'\n'+text(m[1]),{x,y,w:2.55,h:.78,fontSize:11,color:'172033',bold:true,fill:{color:'FFFFFF'},line:{color:'D6E3EC',pt:1.2},margin:.12,valign:'mid',breakLine:false});
     });
   } else slide.addText('No numeric indicator was detected in the rendered table.',{x:6.7,y:2,w:5,h:1,fontSize:12,color:'64748B'});
-  slide.addText('Analysis is descriptive only and uses the values currently visible on the dashboard.',{x:.55,y:7.25,w:11.5,h:.2,fontSize:7,color:'94A3B8',margin:0});
+  slide.addText('Source: live Google Sheet data rendered in the dashboard.',{x:.55,y:7.25,w:11.5,h:.2,fontSize:7,color:'94A3B8',margin:0});
 }
 
 async function generate(){
@@ -232,13 +233,13 @@ async function generate(){
     }
 
     let slide=pptx.addSlide(); slide.background={color:'075985'};
-    slide.addText('🏥 Kharsia Health Dashboard',{x:.7,y:1.45,w:11.9,h:.7,fontSize:30,bold:true,color:'FFFFFF',align:'center',margin:0});
-    slide.addText('Health Programme Data Analysis',{x:1.2,y:2.35,w:10.9,h:.5,fontSize:22,color:'E0F2FE',align:'center',margin:0});
-    slide.addText('Block Kharsia · District Raigarh · Chhattisgarh',{x:1.2,y:3.05,w:10.9,h:.35,fontSize:13,color:'D1FAE5',align:'center',margin:0});
-    slide.addText(new Date().toLocaleDateString('en-IN'),{x:4.5,y:6.5,w:4,h:.3,fontSize:10,color:'CBD5E1',align:'center',margin:0});
+    slide.addText('KHARSIA HEALTH DASHBOARD',{x:.7,y:1.35,w:11.9,h:.7,fontSize:34,bold:true,color:'FFFFFF',align:'center',margin:0,charSpacing:1});
+    slide.addText('HEALTH PROGRAMME PERFORMANCE REVIEW',{x:1.2,y:2.25,w:10.9,h:.5,fontSize:23,bold:true,color:'99F6E4',align:'center',margin:0});
+    slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh',{x:1.2,y:3.0,w:10.9,h:.35,fontSize:15,color:'E2E8F0',align:'center',margin:0});
+    slide.addText('DATA ANALYSIS PRESENTATION  •  '+new Date().toLocaleDateString('en-IN'),{x:3.4,y:6.45,w:5.2,h:.3,fontSize:10,bold:true,color:'CBD5E1',align:'center',margin:0});
 
     slide=pptx.addSlide(); slide.background={color:'F8FAFC'};
-    addTitle(slide,'Programme Coverage Summary','Modules loaded from the live dashboard');
+    addTitle(slide,'PROGRAMME COVERAGE','Modules loaded from the live dashboard',true);
     const summary=modules.map((m,i)=>[String(i+1),m.name,String(m.tables.length),m.heading||m.title]);
     slide.addTable([
       [{text:'S.No.',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Programme',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Tables',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Report heading / update',options:{bold:true,color:'FFFFFF',fill:'075985'}}],
@@ -251,8 +252,8 @@ async function generate(){
       for(const table of mod.tables.slice(0,2)) addTableSlide(pptx,mod,table,0);
     }
 
-    slide=pptx.addSlide(); slide.background={color:'0F2942'};
-    slide.addText('Meeting Notes / Action Review',{x:.7,y:.7,w:11.8,h:.5,fontSize:25,bold:true,color:'FFFFFF',align:'center',margin:0});
+    slide=pptx.addSlide(); slide.background={color:'0B3558'};
+    slide.addText('MEETING REVIEW & ACTION POINTS',{x:.7,y:.7,w:11.8,h:.5,fontSize:28,bold:true,color:'FFFFFF',align:'center',margin:0});
     slide.addText('• Module-wise figures and percentages are taken from the live dashboard at generation time.\n• Review low/zero percentage indicators, backlog values and programme-specific gaps from the corresponding module slides.\n• Use the dashboard Refresh button before generating the PPTX for the latest Google Sheet data.',{x:1.1,y:1.8,w:10.8,h:2.2,fontSize:16,color:'E2E8F0',breakLine:false,margin:.02});
     slide.addText('Generated automatically from Kharsia Health Dashboard',{x:1.1,y:6.55,w:10.8,h:.3,fontSize:10,color:'94A3B8',align:'center',margin:0});
 
