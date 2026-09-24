@@ -166,13 +166,11 @@ function addAyushmanVisualSlide(pptx,mod){
   const facts=analyse(mod);
   slide.addText(facts.slice(0,5).map(x=>'• '+x).join('\\n'),{x:6.2,y:2.05,w:6.25,h:2.5,fontSize:16,color:'172033',bold:true,breakLine:false,margin:.03,fit:'shrink'});
   slide.addText('INDICATOR VALUES',{x:6.15,y:4.75,w:5.8,h:.35,fontSize:17,bold:true,color:'0F766E',margin:0});
-  const metricRows=metrics.slice(0,6).map(m=>[
-    {text:m.label,options:{fontSize:11,bold:true,color:'0B3558',fill:'FFFFFF',margin:3}},
-    {text:m.raw,options:{fontSize:14,bold:true,color:'0F766E',fill:'FFFFFF',align:'center',margin:3}}
-  ]);
-  if(metricRows.length){
-    slide.addTable(metricRows,{x:6.15,y:5.15,w:6.25,h:1.45,colW:[4.5,1.75],rowH:.24,border:{type:'solid',color:'CBD5E1',pt:1},margin:2});
-  }
+  metrics.slice(0,6).forEach((m,i)=>{
+    const y=5.08+i*.31;
+    slide.addText(m.label,{x:6.15,y,w:4.45,h:.23,fontSize:9,bold:true,color:'0B3558',fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:.7},margin:.04,fit:'shrink'});
+    slide.addText(m.raw,{x:10.6,y,w:1.8,h:.23,fontSize:10,bold:true,color:'0F766E',fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:.7},align:'center',margin:.03,fit:'shrink'});
+  });
   slide.addText('Source: live Google Sheet data rendered in the dashboard.',{x:.55,y:7.22,w:8,h:.2,fontSize:7,color:'94A3B8',margin:0});
 }
 
