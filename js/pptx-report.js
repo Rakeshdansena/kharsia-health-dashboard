@@ -361,7 +361,7 @@ async function generateRCHPPTX(){
 
   // 3. BLOCK SUMMARY
   slide=pptx.addSlide();
-  rchHeader(slide,'RCH 2.0 — Block Summary Dashboard',`PW Registration Detail FY 2026–27 | As On Date : ${date}`);
+  rchHeader(slide,'Janani Portal (RCH 2.0) — Block Summary Dashboard',`PW Registration Detail FY 2026–27 | As On Date : ${date}`);
   [
     ['HMIS PW Registration',total.hmis],
     ['RCH 2.0 PW Registration',total.rch],
@@ -381,7 +381,7 @@ async function generateRCHPPTX(){
 
   // 4. SECTOR DATA + GRAPH
   slide=pptx.addSlide();
-  rchHeader(slide,'RCH 2.0 — Sector Wise Data with Graph',`As On Date : ${date}`);
+  rchHeader(slide,'Janani Portal (RCH 2.0) — Sector Wise Data with Graph',`As On Date : ${date}`);
   try{
     slide.addChart(pptx.ChartType.bar,[{name:'RCH 2.0 %',labels:sectors.map(r=>rchText(r.sector)),values:sectors.map(r=>rchNum(r.percent))}],{
       x:.45,y:1.5,w:5.05,h:5.0,showLegend:false,showValue:true,showTitle:false,
@@ -405,7 +405,7 @@ async function generateRCHPPTX(){
     for(let start=0;start<fr.length;start+=18){
       const chunk=fr.slice(start,start+18);
       slide=pptx.addSlide();
-      rchHeader(slide,`RCH 2.0 — ${sector} — Facility Wise`,`${start+1}–${start+chunk.length} of ${fr.length} facilities | As On Date : ${date}`);
+      rchHeader(slide,`Janani Portal (RCH 2.0) — ${sector} — Facility Wise`,`${start+1}–${start+chunk.length} of ${fr.length} facilities | As On Date : ${date}`);
       const rows=[
         ['Sn','Facility','HMIS PW','RCH PW','%','Temporary','Backlog','High Risk'],
         ...chunk.map((r,i)=>[r.sn||start+i+1,rchText(r.facility),r.hmis,r.rch,rchPct(r.hmis>0?r.rch/r.hmis*100:0),r.temp,r.backlog,r.highRisk])
@@ -428,7 +428,7 @@ async function generateRCHPPTX(){
 
   // FINAL ANALYSIS
   slide=pptx.addSlide();
-  rchHeader(slide,'RCH 2.0 — Overall Data Analysis',`Block Kharsia | As On Date : ${date}`);
+  rchHeader(slide,'Janani Portal (RCH 2.0) — Overall Data Analysis',`Block Kharsia | As On Date : ${date}`);
   const maxS=sectors.reduce((a,b)=>a.percent>b.percent?a:b,sectors[0]);
   const minS=sectors.reduce((a,b)=>a.percent<b.percent?a:b,sectors[0]);
   [
@@ -448,7 +448,7 @@ function mountRCHPPTXButton(){
   if(document.getElementById('rchPptxGenerateBtn')) return;
   const b=document.createElement('button');
   b.id='rchPptxGenerateBtn';
-  b.textContent='📽️ RCH 2.0 PPTX';
+  b.textContent='📽️ Janani Portal PPTX';
   Object.assign(b.style,{position:'fixed',right:'22px',top:'64px',zIndex:99999,border:0,borderRadius:'9px',padding:'10px 14px',background:'#7c3aed',color:'#fff',fontWeight:'800',fontSize:'13px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,.2)',display:'none'});
   b.onclick=generateRCHPPTX;
   document.body.appendChild(b);
