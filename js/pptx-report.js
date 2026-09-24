@@ -15,7 +15,7 @@ function loadPptxLib(){
   return new Promise((resolve,reject)=>{
     if(window.PptxGenJS)return resolve();
     const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+    s.src='https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
     s.onload=()=>resolve();
     s.onerror=()=>reject(new Error('PowerPoint library load failed'));
     document.head.appendChild(s);
