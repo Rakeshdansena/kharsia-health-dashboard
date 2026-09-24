@@ -1042,7 +1042,7 @@ body{
  </div>
 
  <div style="display:flex;justify-content:flex-end;margin:0 0 18px;">
-  <button id="dashboardPptxBtn" class="action-btn" onclick="generate()" style="background:#b91c1c;font-weight:800;font-size:14px;">
+  <button id="dashboardPptxBtn" class="action-btn" onclick="window.generate && window.generate()" style="background:#b91c1c;font-weight:800;font-size:14px;">
    📊 Generate PPTX
   </button>
  </div>
@@ -4486,6 +4486,6 @@ google.charts.setOnLoadCallback(
 
 </script>
 
-<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-final-pptx-15"></script>\n<script src="js/ncd.js"></script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-pptx-16"></script>\n<script src="js/ncd.js"></script>
 </body>
 </html>
