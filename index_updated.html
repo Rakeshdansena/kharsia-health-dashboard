@@ -1331,7 +1331,8 @@ const REPORTS=[
  },
 
  {
-  name:"Janani Portal (RCH 2.0)",
+  name:"RCH 2.0",
+  displayName:"Janani Portal",
   icon:"👩‍🍼",
   gid:"1044088930",
   description:
@@ -1487,7 +1488,7 @@ function createMenu(){
    btn.innerHTML =
     report.icon+
     " "+
-    report.name;
+    (report.displayName || report.name);
 
    btn.onclick=()=>{
     openReport(index);
@@ -1590,14 +1591,14 @@ function openReport(index){
   .innerText =
    report.icon+
    " "+
-   report.name;
+   (report.displayName || report.name);
 
 
  document
   .getElementById("pdfTitle")
   .innerText =
    "Kharsia Health Dashboard — "+
-   report.name;
+   (report.displayName || report.name);
 
 
  document
@@ -4489,6 +4490,6 @@ google.charts.setOnLoadCallback(
 
 </script>
 
-<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-pptx-rch-06"></script>\n<script src="js/ncd.js"></script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-janani-pptx-07"></script>\n<script src="js/ncd.js"></script>
 </body>
 </html>
