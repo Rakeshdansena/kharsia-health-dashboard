@@ -263,47 +263,71 @@ function addModuleAnalysis(pptx,mod){
 
 async function generate(){
   const dashboardBtn=document.getElementById('dashboardPptxBtn');
-  const setBtn=(msg,busy)=>{ if(dashboardBtn){ dashboardBtn.disabled=!!busy; dashboardBtn.textContent=msg; dashboardBtn.style.opacity=busy?'0.75':'1'; } };
+  const setBtn=(msg,busy)=>{ 
+    if(dashboardBtn){ 
+      dashboardBtn.disabled=!!busy; 
+      dashboardBtn.textContent=msg; 
+      dashboardBtn.style.opacity=busy?'0.75':'1'; 
+    } 
+  };
+
+  setBtn('⏳ PPTX तैयार हो रहा है...',true);
+
   try{
-    setBtn('⏳ PPTX तैयार हो रहा है...',true);
     if(typeof google==='undefined' || !google.visualization){
       await new Promise((resolve,reject)=>{
         if(typeof google!=='undefined' && google.charts){
-          try{ google.charts.load('current',{packages:['corechart','table']}); google.charts.setOnLoadCallback(resolve); }
-          catch(e){ reject(e); }
-        } else reject(new Error('Google Sheets service उपलब्ध नहीं है'));
+          try{
+            google.charts.load('current',{packages:['corechart','table']});
+            google.charts.setOnLoadCallback(resolve);
+          }catch(e){ reject(e); }
+        } else {
+          reject(new Error('Google Sheets service उपलब्ध नहीं है'));
+        }
       });
     }
+
     const query=new google.visualization.Query(
       'https://docs.google.com/spreadsheets/d/'+
       encodeURIComponent(SPREADSHEET_ID)+
       '/gviz/tq?gid=1044088930&headers=0'
     );
     query.setQuery('select *');
-    query.send(async response=>{
-      try{
-        if(response.isError()){
-          alert('Janani Portal data load नहीं हुआ: '+response.getMessage());
-          return;
+
+    // IMPORTANT: return a Promise so the start handler waits until
+    // the asynchronous Google Sheet callback and PPTX export are finished.
+    await new Promise((resolve,reject)=>{
+      query.send(async response=>{
+        try{
+          if(response.isError()){
+            throw new Error('Janani Portal data load नहीं हुआ: '+response.getMessage());
+          }
+
+          currentRCHData=parseRCHData(response.getDataTable());
+
+          if(!currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
+            throw new Error('Janani Portal में कोई facility data नहीं मिला।');
+          }
+
+          await generateRCHPPTX();
+
+          setBtn('✅ PPTX तैयार — Download करें',false);
+          setTimeout(()=>setBtn('📊 Generate PPTX',false),5000);
+
+          resolve();
+        }catch(e){
+          console.error('PPTX generation error',e);
+          setBtn('❌ PPTX में error — फिर प्रयास करें',false);
+          reject(e);
         }
-        currentRCHData=parseRCHData(response.getDataTable());
-        if(!currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
-          alert('Janani Portal में कोई facility data नहीं मिला।');
-          return;
-        }
-        await generateRCHPPTX();
-        setBtn('✅ PPTX तैयार — Download करें',false);
-        setTimeout(()=>setBtn('📊 Generate PPTX',false),5000);
-      }catch(e){
-        console.error('PPTX generation error',e);
-        setBtn('❌ PPTX में error — फिर प्रयास करें',false);
-        alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
-      }
+      });
     });
+
   }catch(e){
-    console.error(e);
+    console.error('PPTX generate error',e);
     setBtn('❌ PPTX में error — फिर प्रयास करें',false);
     alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
+    throw e;
   }
 }
 window.generate=generate;
