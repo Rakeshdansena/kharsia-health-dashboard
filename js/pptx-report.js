@@ -241,6 +241,106 @@
       '<div style="margin-top:7px;font-size:12px;font-weight:500;color:#475569">' + detail + '</div>';
   }
 
+  var COVER_PHOTO_URL = 'https://images.unsplash.com/photo-1758691462878-6edc3d3da1be?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=80&w=1800';
+
+  function fetchImageData(url) {
+    return fetch(url, { mode: 'cors' }).then(function (r) {
+      if (!r.ok) throw new Error('Cover photo load failed');
+      return r.blob();
+    }).then(function (blob) {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onloadend = function () { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    });
+  }
+
+  function queryGenericSheet(gid) {
+    return new Promise(function (resolve, reject) {
+      if (!gid || gid === '0') { resolve(null); return; }
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + encodeURIComponent(gid) + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function (response) {
+        if (response.isError()) { resolve(null); return; }
+        try {
+          var dt = response.getDataTable();
+          var headers = [], rows = [];
+          for (var c = 0; c < dt.getNumberOfColumns(); c++) headers.push(clean(dt.getFormattedValue(0, c)) || ('Column ' + (c + 1)));
+          for (var r = 1; r < dt.getNumberOfRows(); r++) {
+            var row = [];
+            for (var cc = 0; cc < dt.getNumberOfColumns(); cc++) row.push(clean(dt.getFormattedValue(r, cc)));
+            if (row.some(function(v){ return v !== ''; })) rows.push(row);
+          }
+          resolve({ headers: headers, rows: rows });
+        } catch (e) { resolve(null); }
+      });
+    });
+  }
+
+  function addGenericModuleSlide(pptx, module, data, index) {
+    if (!data || !data.rows || !data.rows.length) return;
+    var slide = pptx.addSlide();
+    addHeader(slide, module.icon + ' ' + module.name, 'MODULE PROGRESS REPORT');
+    addSectionTitle(slide, 'MODULE SUMMARY', 0.55, 1.05, 3.2);
+
+    var numeric = [];
+    data.headers.forEach(function(h, ci) {
+      var total = 0, count = 0;
+      data.rows.forEach(function(row) {
+        var raw = row[ci];
+        if (raw !== '' && isNumberLike(String(raw).replace(/,/g,''))) {
+          total += number(raw); count++;
+        }
+      });
+      if (count) numeric.push({ header:h, total:total, count:count, ci:ci });
+    });
+    numeric = numeric.slice(0, 4);
+    numeric.forEach(function(m, i) {
+      addCard(slide, 0.55 + i * 3.1, 1.48, 2.8, 1.15, m.header, Math.round(m.total * 100) / 100);
+    });
+
+    var chartMetric = numeric[0];
+    if (chartMetric) {
+      addSectionTitle(slide, 'PERFORMANCE CHART', 0.55, 2.95, 5.0);
+      var chartData = data.rows.slice(0, 12).map(function(row, i) {
+        return { name: clean(row[0]) || ('Item ' + (i + 1)), value: number(row[chartMetric.ci]) };
+      });
+      try {
+        slide.addChart(pptx.ChartType.bar, [{
+          name: chartMetric.header,
+          labels: chartData.map(function(x){return x.name;}),
+          values: chartData.map(function(x){return x.value;})
+        }], {
+          x:0.45,y:3.35,w:7.35,h:3.15,showLegend:false,showTitle:false,showValue:true,
+          catAxisLabelFontSize:12,valAxisLabelFontSize:11,
+          chartColors:['0F766E','2563EB','F59E0B','DC2626','7C3AED','059669','EA580C','0891B2','DB2777','65A30D','0284C7','9333EA'],
+          valGridLine:{color:'D6E3EC',pt:1},valAxisMinVal:0,dataLabelPosition:'outEnd'
+        });
+      } catch(e) {}
+    }
+
+    addSectionTitle(slide, 'KEY DATA / OBSERVATIONS', 8.05, 2.95, 4.5);
+    var obs = [];
+    obs.push('• Reporting rows available: ' + data.rows.length + '.');
+    if (numeric.length) numeric.forEach(function(m){ obs.push('• ' + m.header + ': ' + Math.round(m.total * 100) / 100 + '.'); });
+    if (data.headers.length) obs.push('• Data fields: ' + data.headers.length + '.');
+    slide.addText(obs.join('\n'), {
+      x:8.1,y:3.45,w:4.55,h:2.5,fontSize:15,bold:true,color:'172033',margin:0.03,fit:'shrink'
+    });
+
+    var table = [data.headers.slice(0, 6)];
+    data.rows.slice(0, 7).forEach(function(row){ table.push(row.slice(0,6)); });
+    addTable(slide, table, 8.05, 5.35, 4.65, 1.2);
+    slide.addText('Source: live Google Sheet | Module: ' + module.name, {
+      x:8.05,y:6.7,w:4.5,h:0.2,fontSize:7.5,color:'64748B',margin:0
+    });
+  }
+
   async function generate() {
     setButton('⏳ PPTX तैयार हो रहा है...', true);
     try {
@@ -268,66 +368,59 @@
       pptx.title = 'Kharsia Health Progressive Report';
       pptx.lang = 'en-IN';
 
-      // 1. COVER
+      // 1. COVER — meeting presentation style with photo
+      var coverPhoto = null;
+      try { coverPhoto = await fetchImageData(COVER_PHOTO_URL); } catch (photoErr) { console.warn(photoErr); }
       var slide = pptx.addSlide();
-      slide.background = { color: '075985' };
-      slide.addShape(pptx.ShapeType.rect, {
-        x: 0, y: 0, w: 13.333, h: 7.5,
-        fill: { color: '075985' }, line: { color: '075985' }
-      });
-      slide.addText('KHARSIA HEALTH DASHBOARD', {
-        x: 0.7, y: 1.0, w: 11.9, h: 0.35,
-        fontSize: 14, bold: true, color: 'BAE6FD',
-        align: 'center', charSpacing: 2, margin: 0
-      });
-      slide.addText('PROGRESSIVE REPORT', {
-        x: 0.7, y: 1.75, w: 11.9, h: 0.75,
-        fontSize: 38, bold: true, color: 'FFFFFF', align: 'center', margin: 0
-      });
-      slide.addText('Janani Portal (RCH 2.0)', {
-        x: 0.7, y: 2.65, w: 11.9, h: 0.42,
-        fontSize: 21, color: 'E0F2FE', align: 'center', margin: 0
-      });
-      slide.addText('FY 2026–27', {
-        x: 0.7, y: 3.25, w: 11.9, h: 0.35,
-        fontSize: 16, bold: true, color: 'FFFFFF', align: 'center', margin: 0
-      });
-      slide.addText('As On Date: ' + clean(parsed.asOnDate || 'Current Date'), {
-        x: 2.5, y: 4.2, w: 8.3, h: 0.5,
-        fontSize: 18, bold: true, color: 'FFFFFF',
-        align: 'center', margin: 0
-      });
-      slide.addText('Block Kharsia | District Raigarh | Chhattisgarh', {
-        x: 0.7, y: 6.55, w: 11.9, h: 0.28,
-        fontSize: 12, color: 'BAE6FD', align: 'center', margin: 0
-      });
+      slide.background = { color: 'F8FAFC' };
+      slide.addShape('rect', { x:0,y:0,w:13.333,h:7.5,fill:{color:'F8FAFC'},line:{color:'F8FAFC'} });
+      slide.addShape('rect', { x:0,y:0,w:13.333,h:0.85,fill:{color:'075985'},line:{color:'075985'} });
+      slide.addShape('rect', { x:0,y:7.05,w:13.333,h:0.45,fill:{color:'075985'},line:{color:'075985'} });
+      if (coverPhoto) {
+        slide.addImage({ data: coverPhoto, x:7.55, y:1.15, w:5.15, h:4.65, transparency:4 });
+        slide.addShape('rect',{x:7.55,y:1.15,w:5.15,h:4.65,fill:{color:'075985',transparency:78},line:{color:'FFFFFF',transparency:100}});
+      } else {
+        slide.addShape('roundRect',{x:7.55,y:1.15,w:5.15,h:4.65,fill:{color:'DFF7F3'},line:{color:'14B8A6',pt:1}});
+      }
+      slide.addText('KHARSIA HEALTH DASHBOARD', {x:0.65,y:1.0,w:6.35,h:0.38,fontSize:17,bold:true,color:'075985',margin:0});
+      slide.addText('PROGRESSIVE\nREPORT', {x:0.65,y:1.75,w:6.4,h:1.25,fontSize:35,bold:true,color:'0F172A',margin:0,breakLine:false});
+      slide.addText('Janani Portal (RCH 2.0)', {x:0.68,y:3.35,w:6.2,h:0.45,fontSize:22,bold:true,color:'0F766E',margin:0});
+      slide.addText('FY 2026–27', {x:0.68,y:4.0,w:3.5,h:0.38,fontSize:18,bold:true,color:'334155',margin:0});
+      slide.addText('As On Date: ' + clean(parsed.asOnDate || 'Current Date'), {x:0.68,y:4.65,w:5.9,h:0.45,fontSize:18,bold:true,color:'075985',margin:0});
+      slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh', {x:0.68,y:5.55,w:6.3,h:0.3,fontSize:11,bold:true,color:'475569',margin:0});
+      slide.addText('Healthcare photo: Unsplash / Vitaly Gariev', {x:7.65,y:5.93,w:4.9,h:0.2,fontSize:7.5,color:'64748B',align:'right',margin:0});
 
-      // 2. INDEX
+      // 2. INDEX — all dashboard modules
       slide = pptx.addSlide();
-      addHeader(slide, 'INDEX', 'Progressive report structure');
-      [
-        ['01', 'Cover Page'],
-        ['02', 'Index'],
-        ['03', 'Block Summary Dashboard'],
-        ['04', 'Sector Wise Data + Graph'],
-        ['05 onward', 'Sector-wise Facility Data + Analysis'],
-        ['Last', 'Overall Data Analysis']
-      ].forEach(function (item, i) {
-        var y = 1.55 + i * 0.78;
-        slide.addShape(pptx.ShapeType.roundRect, {
-          x: 1, y: y, w: 1.0, h: 0.45,
-          fill: { color: '0F766E' }, line: { color: '0F766E' }
-        });
-        slide.addText(item[0], {
-          x: 1, y: y + 0.1, w: 1, h: 0.2,
-          fontSize: 9, bold: true, color: 'FFFFFF',
-          align: 'center', margin: 0
-        });
-        slide.addText(item[1], {
-          x: 2.2, y: y + 0.05, w: 9.7, h: 0.28,
-          fontSize: 15, bold: i === 2,
-          color: '0F172A', margin: 0
-        });
+      addHeader(slide, 'INDEX', 'Progressive Report Modules');
+      var indexItems = [
+        ['01','Cover Page'],
+        ['02','Index'],
+        ['03','Janani Portal (RCH 2.0) — Block Summary'],
+        ['04','Janani Portal — Sector Wise Data + Color Graph'],
+        ['05','Janani Portal — Sector-wise Facility Data + Analysis'],
+        ['06','Janani Portal — Overall Analysis']
+      ];
+      var otherModules = [
+        {name:'Ayushman Card',icon:'💳',gid:'925649620'},
+        {name:'NCD',icon:'❤️',gid:'1254412412'},
+        {name:'JAS Meeting',icon:'🤝',gid:'1018164338'},
+        {name:'Health & Wellness Center',icon:'🏥',gid:'0'},
+        {name:'Ayushman Shivir',icon:'🏕️',gid:'1262815420'},
+        {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
+        {name:'RBSK',icon:'👶',gid:'1502752823'},
+        {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
+        {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
+        {name:'NQAS Certification',icon:'🏅',gid:'728123647'},
+        {name:'Dialysis',icon:'💧',gid:'781496964'},
+        {name:'NLEP',icon:'🦠',gid:'1536656599'}
+      ];
+      otherModules.forEach(function(m,i){ indexItems.push([String(i+7).padStart(2,'0'),m.icon+' '+m.name+' — Color Chart & Report']); });
+      indexItems.forEach(function(item,i){
+        var col=i<9?0:1, row=i<9?i:i-9, x=0.65+col*6.25, y=1.12+row*0.57;
+        slide.addShape('roundRect',{x:x,y:y,w:0.72,h:0.36,fill:{color:i<6?'0F766E':'2563EB'},line:{color:i<6?'0F766E':'2563EB'}});
+        slide.addText(item[0],{x:x,y:y+0.09,w:0.72,h:0.15,fontSize:8.5,bold:true,color:'FFFFFF',align:'center',margin:0});
+        slide.addText(item[1],{x:x+0.9,y:y+0.02,w:5.0,h:0.3,fontSize:12.5,bold:i<6,color:'172033',margin:0,fit:'shrink'});
       });
 
       showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
@@ -414,6 +507,16 @@
         addCard(slide, 8.8, 5.1, 1.75, 1.05, 'Achievement', s.percent + '%');
         addCard(slide, 10.75, 5.1, 1.75, 1.05, 'Facilities', s.facilities);
       });
+
+      // 6 onward. OTHER MODULE REPORTS — live Google Sheet + colorful chart
+      showProgress('Other module reports', 91, 'बाकी सभी modules के reports और color charts तैयार हो रहे हैं...');
+      for (var mi = 0; mi < otherModules.length; mi++) {
+        var mod = otherModules[mi];
+        var progress = 91 + Math.round((mi / Math.max(otherModules.length,1)) * 4);
+        showProgress('Module report ' + (mi + 1) + '/' + otherModules.length, progress, mod.name + ' का live data और color chart तैयार हो रहा है...');
+        var genericData = await queryGenericSheet(mod.gid);
+        addGenericModuleSlide(pptx, mod, genericData, mi);
+      }
 
       showProgress('Final analysis', 92, 'Overall Data Analysis slide तैयार हो रही है...');
       // LAST. OVERALL ANALYSIS
