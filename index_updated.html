@@ -1219,6 +1219,17 @@ body{
    </button>
 
 
+   <button
+    id="rchPptxActionBtn"
+    class="action-btn rch-pptx-btn"
+    onclick="generateRCHPPTX()"
+    style="display:none;">
+
+    📽️ Generate RCH 2.0 PPTX
+
+   </button>
+
+
    <input
     id="searchBox"
     class="search"
@@ -1600,9 +1611,9 @@ function openReport(index){
   .value="";
 
 
- if(
-  report.name==="RCH 2.0"
- ){
+ const rchPptxBtn=document.getElementById("rchPptxActionBtn");
+
+ if(report.name==="RCH 2.0"){
 
   document
    .getElementById(
@@ -1610,10 +1621,14 @@ function openReport(index){
    )
    .classList.add("show");
 
+  if(rchPptxBtn) rchPptxBtn.style.display="inline-block";
+
  }
  else{
 
   hideRCHSummary();
+
+  if(rchPptxBtn) rchPptxBtn.style.display="none";
 
  }
 
@@ -4474,6 +4489,6 @@ google.charts.setOnLoadCallback(
 
 </script>
 
-<script src="js/ncd.js"></script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-pptx-rch-06"></script>\n<script src="js/ncd.js"></script>
 </body>
 </html>
