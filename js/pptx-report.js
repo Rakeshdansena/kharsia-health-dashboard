@@ -1,5 +1,5 @@
 /* Kharsia Health Dashboard — Progressive PPTX Report
-   Stable standalone generator for the Dashboard PPTX button.
+   Stable standalone generator for the Dashboard PPTX button.\n   Cover slide follows the approved sample-style healthcare layout.
 */
 (function () {
   'use strict';
@@ -368,27 +368,82 @@
       pptx.title = 'Kharsia Health Progressive Report';
       pptx.lang = 'en-IN';
 
-      // 1. COVER — meeting presentation style with photo
+      // 1. COVER — sample-style healthcare cover with photo
       var coverPhoto = null;
       try { coverPhoto = await fetchImageData(COVER_PHOTO_URL); } catch (photoErr) { console.warn(photoErr); }
       var slide = pptx.addSlide();
-      slide.background = { color: 'F8FAFC' };
-      slide.addShape('rect', { x:0,y:0,w:13.333,h:7.5,fill:{color:'F8FAFC'},line:{color:'F8FAFC'} });
-      slide.addShape('rect', { x:0,y:0,w:13.333,h:0.85,fill:{color:'075985'},line:{color:'075985'} });
-      slide.addShape('rect', { x:0,y:7.05,w:13.333,h:0.45,fill:{color:'075985'},line:{color:'075985'} });
+      slide.background = { color: 'F7FBFF' };
+
+      // Top identity band
+      slide.addShape('rect', { x:0, y:0, w:13.333, h:0.22, fill:{color:'14B8A6'}, line:{color:'14B8A6'} });
+      slide.addShape('rect', { x:0, y:0.22, w:13.333, h:0.72, fill:{color:'FFFFFF'}, line:{color:'FFFFFF'} });
+      slide.addShape('ellipse', { x:0.38, y:0.30, w:0.58, h:0.58, fill:{color:'0F766E'}, line:{color:'0F766E'} });
+      slide.addText('H', { x:0.38, y:0.40, w:0.58, h:0.22, fontSize:18, bold:true, color:'FFFFFF', align:'center', margin:0 });
+      slide.addText('Kharsia Health Dashboard', {
+        x:1.08, y:0.34, w:6.2, h:0.34, fontSize:25, bold:true, color:'0F172A', margin:0
+      });
+      slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh', {
+        x:1.1, y:0.70, w:7.1, h:0.18, fontSize:10.5, bold:true, color:'475569', margin:0
+      });
+      slide.addShape('ellipse', { x:12.18, y:0.32, w:0.72, h:0.55, fill:{color:'E0F2FE'}, line:{color:'0EA5E9',pt:1} });
+      slide.addText('✚', { x:12.18, y:0.40, w:0.72, h:0.22, fontSize:20, bold:true, color:'0284C7', align:'center', margin:0 });
+
+      // Main report banner
+      slide.addShape('roundRect', { x:0.45, y:1.20, w:7.10, h:0.78, fill:{color:'0B4F6C'}, line:{color:'0B4F6C'} });
+      slide.addText('PROGRESSIVE REPORT', {
+        x:0.72, y:1.39, w:6.55, h:0.32, fontSize:27, bold:true, color:'FFFFFF', margin:0, align:'center'
+      });
+      slide.addShape('roundRect', { x:0.45, y:1.98, w:7.10, h:0.68, fill:{color:'14B8A6'}, line:{color:'14B8A6'} });
+      slide.addText('JANANI PORTAL (RCH 2.0)', {
+        x:0.70, y:2.15, w:6.60, h:0.28, fontSize:22, bold:true, color:'FFFFFF', margin:0, align:'center'
+      });
+
+      // Healthcare image
       if (coverPhoto) {
-        slide.addImage({ data: coverPhoto, x:7.55, y:1.15, w:5.15, h:4.65, transparency:4 });
-        slide.addShape('rect',{x:7.55,y:1.15,w:5.15,h:4.65,fill:{color:'075985',transparency:78},line:{color:'FFFFFF',transparency:100}});
+        slide.addImage({ data:coverPhoto, x:7.82, y:1.12, w:5.05, h:4.72 });
+        slide.addShape('roundRect', { x:7.82, y:1.12, w:5.05, h:4.72, fill:{color:'FFFFFF',transparency:100}, line:{color:'14B8A6',pt:2} });
+        slide.addShape('rect', { x:7.82, y:4.92, w:5.05, h:0.92, fill:{color:'075985',transparency:12}, line:{color:'075985',transparency:100} });
+        slide.addText('MATERNAL • NEWBORN • CHILD HEALTH', {
+          x:8.08, y:5.22, w:4.55, h:0.20, fontSize:10.5, bold:true, color:'FFFFFF', align:'center', margin:0
+        });
       } else {
-        slide.addShape('roundRect',{x:7.55,y:1.15,w:5.15,h:4.65,fill:{color:'DFF7F3'},line:{color:'14B8A6',pt:1}});
+        slide.addShape('roundRect', { x:7.82, y:1.12, w:5.05, h:4.72, fill:{color:'DFF7F3'}, line:{color:'14B8A6',pt:2} });
+        slide.addText('HEALTHCARE', { x:8.2,y:2.9,w:4.25,h:0.45,fontSize:28,bold:true,color:'0F766E',align:'center',margin:0 });
+        slide.addText('Progress • Coverage • Quality', { x:8.2,y:3.5,w:4.25,h:0.3,fontSize:15,bold:true,color:'075985',align:'center',margin:0 });
       }
-      slide.addText('KHARSIA HEALTH DASHBOARD', {x:0.65,y:1.0,w:6.35,h:0.38,fontSize:17,bold:true,color:'075985',margin:0});
-      slide.addText('PROGRESSIVE\nREPORT', {x:0.65,y:1.75,w:6.4,h:1.25,fontSize:35,bold:true,color:'0F172A',margin:0,breakLine:false});
-      slide.addText('Janani Portal (RCH 2.0)', {x:0.68,y:3.35,w:6.2,h:0.45,fontSize:22,bold:true,color:'0F766E',margin:0});
-      slide.addText('FY 2026–27', {x:0.68,y:4.0,w:3.5,h:0.38,fontSize:18,bold:true,color:'334155',margin:0});
-      slide.addText('As On Date: ' + clean(parsed.asOnDate || 'Current Date'), {x:0.68,y:4.65,w:5.9,h:0.45,fontSize:18,bold:true,color:'075985',margin:0});
-      slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh', {x:0.68,y:5.55,w:6.3,h:0.3,fontSize:11,bold:true,color:'475569',margin:0});
-      slide.addText('Healthcare photo: Unsplash / Vitaly Gariev', {x:7.65,y:5.93,w:4.9,h:0.2,fontSize:7.5,color:'64748B',align:'right',margin:0});
+
+      // FY and date panels
+      slide.addShape('roundRect', { x:1.30, y:3.05, w:4.55, h:0.66, fill:{color:'E0F2FE'}, line:{color:'38BDF8',pt:1} });
+      slide.addText('FY 2026 – 27', { x:1.30,y:3.21,w:4.55,h:0.25,fontSize:21,bold:true,color:'075985',align:'center',margin:0 });
+      slide.addText('As On Date', { x:0.68,y:4.00,w:1.55,h:0.24,fontSize:13,bold:true,color:'475569',margin:0 });
+      slide.addText(clean(parsed.asOnDate || 'Current Date'), { x:2.18,y:3.92,w:4.15,h:0.38,fontSize:21,bold:true,color:'0F172A',margin:0 });
+
+      // Health program icons / visual strip
+      var coverItems = [
+        ['♀','Maternal Health','EC4899'],
+        ['◉','Newborn Health','F59E0B'],
+        ['●','Child Health','2563EB'],
+        ['👨‍👩‍👧','Family Health','7C3AED'],
+        ['♥','Women Health','DC2626']
+      ];
+      coverItems.forEach(function(it, i) {
+        var x = 0.55 + i * 1.40;
+        slide.addShape('ellipse', { x:x, y:4.68, w:0.58, h:0.58, fill:{color:it[2],transparency:8}, line:{color:it[2]} });
+        slide.addText(it[0], { x:x, y:4.84, w:0.58, h:0.18, fontSize:15, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink' });
+        slide.addText(it[1], { x:x-0.20, y:5.33, w:0.98, h:0.38, fontSize:7.5, bold:true, color:'172033', align:'center', margin:0, fit:'shrink' });
+      });
+
+      // Bottom meeting footer
+      slide.addShape('rect', { x:0, y:6.78, w:13.333, h:0.72, fill:{color:'062E49'}, line:{color:'062E49'} });
+      slide.addText('Health Department  |  Monthly Performance Review', {
+        x:0.55, y:7.00, w:5.8, h:0.20, fontSize:11, bold:true, color:'FFFFFF', margin:0
+      });
+      slide.addText('Progress • Coverage • Quality • Analysis', {
+        x:7.20, y:7.00, w:5.55, h:0.20, fontSize:10.5, bold:true, color:'DFF7F3', align:'right', margin:0
+      });
+      slide.addText('Healthcare visual used for presentation cover', {
+        x:8.45, y:6.55, w:4.0, h:0.14, fontSize:6.5, color:'64748B', align:'right', margin:0
+      });
 
       // 2. INDEX — all dashboard modules
       slide = pptx.addSlide();
