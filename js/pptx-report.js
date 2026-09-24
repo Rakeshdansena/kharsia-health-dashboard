@@ -526,7 +526,8 @@
       var lowest = sectors.slice().sort(function (a, b) { return a.percent - b.percent; })[0];
       var maxBacklog = sectors.slice().sort(function (a, b) { return b.backlog - a.backlog; })[0];
       var minBacklog = sectors.slice().sort(function (a, b) { return a.backlog - b.backlog; })[0];
-      addSectionTitle(slide, 'KEY OBSERVATIONS', 0.65, 1.35, 4.5);\n      slide.addText('OBSERVATIONS', {
+      addSectionTitle(slide, 'KEY OBSERVATIONS', 0.65, 1.35, 4.5);
+      slide.addText('OBSERVATIONS', {
         x: 0.65, y: 1.72, w: 4, h: 0.25,
         fontSize: 20, bold: true, color: '0F766E', margin: 0
       });
