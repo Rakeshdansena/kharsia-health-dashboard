@@ -94,7 +94,7 @@
 
   function addHeader(slide, title, subtitle) {
     slide.background = { color: 'F7FAFC' };
-    slide.addShape(slide._pptx.ShapeType.rect, {
+    slide.addShape('rect', {
       x: 0, y: 0, w: 13.333, h: 0.55,
       fill: { color: '075985' }, line: { color: '075985' }
     });
@@ -113,7 +113,7 @@
   }
 
   function addCard(slide, x, y, w, h, label, value) {
-    slide.addShape(slide._pptx.ShapeType.roundRect, {
+    slide.addShape('roundRect', {
       x: x, y: y, w: w, h: h,
       fill: { color: 'FFFFFF' }, line: { color: 'CBD5E1', pt: 1 }
     });
