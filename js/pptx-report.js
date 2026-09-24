@@ -310,7 +310,7 @@ async function generateRCHPPTX(){
     try{ await loadPptxLib(); }catch(e){ alert('PowerPoint library load नहीं हुई। Internet connection check करें।'); return; }
   }
   if(typeof currentRCHData==='undefined' || !currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
-    alert('RCH 2.0 data अभी load नहीं हुआ है। पहले RCH 2.0 खोलें और Refresh करें।');
+    alert('Janani Portal (RCH 2.0) का data अभी load नहीं हुआ है। पहले Janani Portal खोलकर data load होने दें।');
     return;
   }
 
@@ -441,7 +441,7 @@ async function generateRCHPPTX(){
   ].forEach((t,i)=>slide.addText('• '+t,{x:.85,y:1.6+i*.68,w:11.5,h:.4,fontSize:14,color:'334155',margin:0}));
   slide.addText('Note: This analysis is descriptive and calculated from the data currently loaded by the website.',{x:.85,y:6.25,w:11.5,h:.3,fontSize:9,italic:true,color:'64748B',margin:0});
 
-  await pptx.writeFile({fileName:`RCH_2.0_Kharsia_FY_2026-27_${String(date).replace(/[\\/]/g,'-')}.pptx`});
+  await pptx.writeFile({fileName:`Janani_Portal_Kharsia_FY_2026-27_${String(date).replace(/[\\/]/g,'-')}.pptx`});
 }
 
 function mountRCHPPTXButton(){
