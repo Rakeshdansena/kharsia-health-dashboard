@@ -93,39 +93,74 @@
   }
 
   function addHeader(slide, title, subtitle) {
-    slide.background = { color: 'F7FAFC' };
+    slide.background = { color: 'F8FAFC' };
     slide.addShape('rect', {
-      x: 0, y: 0, w: 13.333, h: 0.55,
-      fill: { color: '075985' }, line: { color: '075985' }
+      x: 0, y: 0, w: 13.333, h: 0.72,
+      fill: { color: '0B4F6C' }, line: { color: '0B4F6C' }
+    });
+    slide.addShape('rect', {
+      x: 0, y: 0.72, w: 13.333, h: 0.08,
+      fill: { color: '14B8A6' }, line: { color: '14B8A6' }
     });
     slide.addText(title, {
-      x: 0.45, y: 0.72, w: 12.2, h: 0.42,
-      fontSize: 23, bold: true, color: '0F172A', margin: 0
+      x: 0.48, y: 0.16, w: 8.8, h: 0.34,
+      fontSize: 21, bold: true, color: 'FFFFFF', margin: 0
     });
     slide.addText(subtitle || '', {
-      x: 0.45, y: 1.15, w: 12.2, h: 0.28,
-      fontSize: 10, color: '475569', margin: 0
+      x: 9.0, y: 0.20, w: 3.75, h: 0.25,
+      fontSize: 9.5, bold: true, color: 'DFF7F3', align: 'right', margin: 0
     });
-    slide.addText('Kharsia Health Dashboard | Block Kharsia | District Raigarh | Chhattisgarh', {
-      x: 0.45, y: 7.15, w: 12, h: 0.18,
-      fontSize: 7.5, color: '64748B', align: 'right', margin: 0
+    slide.addText('KHARSIA HEALTH DASHBOARD  •  BLOCK KHARSIA  •  DISTRICT RAIGARH', {
+      x: 0.48, y: 7.12, w: 9.5, h: 0.18,
+      fontSize: 7, color: '64748B', margin: 0
+    });
+    slide.addText('FY 2026–27', {
+      x: 11.0, y: 7.12, w: 1.8, h: 0.18,
+      fontSize: 7, bold: true, color: '0B4F6C', align: 'right', margin: 0
+    });
+  }
+
+  function addSectionTitle(slide, text, x, y, w) {
+    slide.addText(text, {
+      x:x, y:y, w:w, h:0.32, fontSize:15, bold:true,
+      color:'0B4F6C', margin:0
+    });
+    slide.addShape('rect', {
+      x:x, y:y+0.38, w:0.65, h:0.045,
+      fill:{color:'14B8A6'}, line:{color:'14B8A6'}
     });
   }
 
   function addCard(slide, x, y, w, h, label, value) {
     slide.addShape('roundRect', {
-      x: x, y: y, w: w, h: h,
-      fill: { color: 'FFFFFF' }, line: { color: 'CBD5E1', pt: 1 }
+      x:x, y:y, w:w, h:h,
+      rectRadius:0.08,
+      fill:{color:'FFFFFF'},
+      line:{color:'D7E2EA', pt:1},
+      shadow:{type:'outer', color:'94A3B8', blur:1, angle:45, distance:1, opacity:0.16}
+    });
+    slide.addShape('rect', {
+      x:x, y:y, w:0.08, h:h,
+      fill:{color:'14B8A6'}, line:{color:'14B8A6'}
     });
     slide.addText(label, {
-      x: x + 0.08, y: y + 0.12, w: w - 0.16, h: 0.24,
-      fontSize: 8.5, bold: true, color: '64748B',
-      align: 'center', margin: 0, fit: 'shrink'
+      x:x+0.22, y:y+0.15, w:w-0.35, h:0.25,
+      fontSize:8.5, bold:true, color:'64748B', margin:0, fit:'shrink'
     });
     slide.addText(String(value), {
-      x: x + 0.08, y: y + 0.46, w: w - 0.16, h: 0.4,
-      fontSize: 20, bold: true, color: '075985',
-      align: 'center', margin: 0, fit: 'shrink'
+      x:x+0.22, y:y+0.48, w:w-0.35, h:0.42,
+      fontSize:22, bold:true, color:'0B4F6C', margin:0, fit:'shrink'
+    });
+  }
+
+  function addPill(slide, text, x, y, w, color) {
+    slide.addShape('roundRect', {
+      x:x, y:y, w:w, h:0.34,
+      fill:{color:color}, line:{color:color}
+    });
+    slide.addText(text, {
+      x:x, y:y+0.08, w:w, h:0.15,
+      fontSize:7.5, bold:true, color:'FFFFFF', align:'center', margin:0
     });
   }
 
@@ -388,8 +423,8 @@
       var lowest = sectors.slice().sort(function (a, b) { return a.percent - b.percent; })[0];
       var maxBacklog = sectors.slice().sort(function (a, b) { return b.backlog - a.backlog; })[0];
       var minBacklog = sectors.slice().sort(function (a, b) { return a.backlog - b.backlog; })[0];
-      slide.addText('OBSERVATIONS', {
-        x: 0.65, y: 1.5, w: 4, h: 0.35,
+      addSectionTitle(slide, 'KEY OBSERVATIONS', 0.65, 1.35, 4.5);\n      slide.addText('OBSERVATIONS', {
+        x: 0.65, y: 1.72, w: 4, h: 0.25,
         fontSize: 20, bold: true, color: '0F766E', margin: 0
       });
       slide.addText([
@@ -401,7 +436,7 @@
         '• Largest positive sector backlog: ' + (maxBacklog ? maxBacklog.sector : 'N/A') + ' (' + (maxBacklog ? maxBacklog.backlog : 0) + ').',
         '• Lowest sector backlog: ' + (minBacklog ? minBacklog.sector : 'N/A') + ' (' + (minBacklog ? minBacklog.backlog : 0) + ').'
       ].join('\n'), {
-        x: 0.75, y: 2.0, w: 11.5, h: 3.2,
+        x: 0.75, y: 2.15, w: 11.5, h: 3.15,
         fontSize: 15, color: '172033',
         breakLine: false, margin: 0.03, fit: 'shrink'
       });
