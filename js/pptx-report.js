@@ -262,72 +262,10 @@ function addModuleAnalysis(pptx,mod){
 }
 
 async function generate(){
-  const btn=document.getElementById('pptxGenerateBtn');
-  if(btn){btn.disabled=true;btn.textContent='⏳ PPTX बन रहा है...';}
-  try{
-    await loadPptxLib();
-    const pptx=new window.PptxGenJS();
-    window._kharsiaPptx=pptx;
-    // Keep the active presentation available to helper functions.
-    pptx.layout='LAYOUT_WIDE';
-    pptx.author='Kharsia Health Dashboard';
-    pptx.subject='Kharsia Health Programme Data Analysis';
-    pptx.title='Kharsia Health Programme — Data Analysis';
-    pptx.company='Kharsia Health Dashboard';
-    pptx.lang='hi-IN';
-
-    let progress=document.getElementById('pptxProgress');
-    if(progress)progress.style.display='block';
-
-    const modules=[];
-    for(let i=0;i<MODULES.length;i++){
-      if(progress)progress.textContent='📊 '+MODULES[i]+' data collect हो रहा है ('+(i+1)+'/'+MODULES.length+')';
-      if(!clickModule(MODULES[i])) continue;
-      await waitForModule(MODULES[i]);
-      await wait(700);
-      modules.push(collectModule(MODULES[i]));
-    }
-
-    let slide=pptx.addSlide(); slide.background={color:'075985'};
-    slide.addText('KHARSIA HEALTH DASHBOARD',{x:.7,y:1.35,w:11.9,h:.7,fontSize:34,bold:true,color:'FFFFFF',align:'center',margin:0,charSpacing:1});
-    slide.addText('HEALTH PROGRAMME PERFORMANCE REVIEW',{x:1.2,y:2.25,w:10.9,h:.5,fontSize:23,bold:true,color:'99F6E4',align:'center',margin:0});
-    slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh',{x:1.2,y:3.0,w:10.9,h:.35,fontSize:15,color:'E2E8F0',align:'center',margin:0});
-    slide.addText('DATA ANALYSIS PRESENTATION  •  '+new Date().toLocaleDateString('en-IN'),{x:3.4,y:6.45,w:5.2,h:.3,fontSize:10,bold:true,color:'CBD5E1',align:'center',margin:0});
-
-    slide=pptx.addSlide(); slide.background={color:'F8FAFC'};
-    addTitle(slide,'PROGRAMME COVERAGE','Modules loaded from the live dashboard',true);
-    const summary=modules.map((m,i)=>[String(i+1),m.name,String(m.tables.length),m.heading||m.title]);
-    slide.addTable([
-      [{text:'S.No.',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Programme',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Tables',options:{bold:true,color:'FFFFFF',fill:'075985'}},{text:'Report heading / update',options:{bold:true,color:'FFFFFF',fill:'075985'}}],
-      ...summary.map(r=>r.map((v,j)=>({text:v,options:{fontSize:9,fill:j===0?'DBEAFE':'FFFFFF',color:'172033',margin:2}})))
-    ],{x:.45,y:1.35,w:12.2,h:5.6,colW:[.65,2.3,.8,8.45],border:{type:'solid',color:'CBD5E1',pt:1},rowH:.28});
-
-    for(const mod of modules){
-      if(mod.name==='Ayushman Card'){
-        addAyushmanHeroSlide(pptx,mod);
-        addAyushmanVisualSlide(pptx,mod);
-        for(const table of mod.tables.slice(0,1)) addTableSlide(pptx,mod,table,0);
-      }else{
-        addGraphSlide(pptx,mod);
-        addModuleAnalysis(pptx,mod);
-        for(const table of mod.tables.slice(0,2)) addTableSlide(pptx,mod,table,0);
-      }
-    }
-
-    slide=pptx.addSlide(); slide.background={color:'0B3558'};
-    slide.addText('MEETING REVIEW & ACTION POINTS',{x:.7,y:.7,w:11.8,h:.5,fontSize:28,bold:true,color:'FFFFFF',align:'center',margin:0});
-    slide.addText('• Module-wise figures and percentages are taken from the live dashboard at generation time.\n• Review low/zero percentage indicators, backlog values and programme-specific gaps from the corresponding module slides.\n• Use the dashboard Refresh button before generating the PPTX for the latest Google Sheet data.',{x:1.1,y:1.8,w:10.8,h:2.2,fontSize:16,color:'E2E8F0',breakLine:false,margin:.02});
-    slide.addText('Generated automatically from Kharsia Health Dashboard',{x:1.1,y:6.55,w:10.8,h:.3,fontSize:10,color:'94A3B8',align:'center',margin:0});
-
-    const file='Kharsia_Health_Data_Analysis_'+new Date().toISOString().slice(0,10)+'.pptx';
-    await pptx.writeFile({fileName:file});
-    if(progress){progress.textContent='✅ PPTX तैयार है — download शुरू हो गया।';setTimeout(()=>progress.style.display='none',5000);}
-  }catch(e){
-    console.error(e);
-    alert('PPTX बनाने में समस्या: '+(e.message||e));
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='📊 Generate PPTX';}
-  }
+  // Master dashboard PPTX button: only modules that are currently completed
+  // are included. At present that means Cover + Index + RCH 2.0.
+  // Future modules will be added here as their PPTX sections are completed.
+  await generateRCHPPTX();
 }
 
 /* ============================================================
@@ -371,7 +309,7 @@ async function generateRCHPPTX(){
   if(!window.PptxGenJS){
     try{ await loadPptxLib(); }catch(e){ alert('PowerPoint library load नहीं हुई। Internet connection check करें।'); return; }
   }
-  if(!window.currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
+  if(typeof currentRCHData==='undefined' || !currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
     alert('RCH 2.0 data अभी load नहीं हुआ है। पहले RCH 2.0 खोलें और Refresh करें।');
     return;
   }
@@ -516,7 +454,7 @@ function mountRCHPPTXButton(){
   document.body.appendChild(b);
   const update=()=>{
     const title=rchText(document.getElementById('reportTitle')?.innerText);
-    const active=title.toLowerCase().includes('rch 2.0') || (window.currentReportIndex!=null && window.REPORTS?.[window.currentReportIndex]?.name==='RCH 2.0');
+    const active=false;
     b.style.display=active?'block':'none';
   };
   update();
@@ -531,5 +469,5 @@ function mount(){
   btn.onclick=generate; document.body.appendChild(btn);
   const p=document.createElement('div');p.id='pptxProgress';p.textContent='';Object.assign(p.style,{display:'none',position:'fixed',right:'22px',top:'64px',zIndex:99999,background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'9px 12px',fontSize:'12px',color:'#334155',boxShadow:'0 4px 12px rgba(0,0,0,.15)',maxWidth:'380px'});document.body.appendChild(p);
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();mountRCHPPTXButton();});else{mount();mountRCHPPTXButton();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();});else{mount();}
 })();
