@@ -3183,17 +3183,17 @@ function parseAyushmanData(data){
     This supports Hindi/English headings and date formats,
     so changing the Sheet heading/date changes the dashboard too.
   */
-  if(isVay && !isNumberLike(row[0])){
+  if(isVay){
    section="vay";
-   if(text && (hasDate(text) || row.filter(Boolean).length>=1)){
+   if(text){
     vayTitle=text;
    }
    return;
   }
 
-  if(isAyushman && !isNumberLike(row[0])){
+  if(isAyushman){
    section="ayushman";
-   if(text && (hasDate(text) || row.filter(Boolean).length>=1)){
+   if(text){
     ayushmanTitle=text;
    }
    return;
