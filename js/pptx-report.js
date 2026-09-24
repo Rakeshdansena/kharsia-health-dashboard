@@ -5,6 +5,7 @@
 (function(){
 'use strict';
 
+const PPTX_SHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
 const MODULES=[
   'Ayushman Card','RCH 2.0','NCD','JAS Meeting','Health & Wellness Center',
   'Ayushman Shivir','Wellness Activity','RBSK','NRC Kharsia',
@@ -289,7 +290,7 @@ async function generate(){
 
     const query=new google.visualization.Query(
       'https://docs.google.com/spreadsheets/d/'+
-      encodeURIComponent(SPREADSHEET_ID)+
+      encodeURIComponent(PPTX_SHEET_ID)+
       '/gviz/tq?gid=1044088930&headers=0'
     );
     query.setQuery('select *');
