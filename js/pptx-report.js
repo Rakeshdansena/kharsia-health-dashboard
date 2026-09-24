@@ -330,6 +330,199 @@ async function generate(){
   }
 }
 
+/* ============================================================
+   RCH 2.0 — DEDICATED PPTX EXPORT
+   Cover + Index + Block Summary + Sector Graph +
+   Sector-wise Facility Data + Analysis
+============================================================ */
+
+function rchText(v){ return String(v==null?'':v).replace(/\s+/g,' ').trim(); }
+function rchNum(v){ const n=Number(String(v==null?'':v).replace(/,/g,'')); return Number.isFinite(n)?n:0; }
+function rchPct(v){ return Math.round(rchNum(v))+'%'; }
+
+function rchAnalysis(row){
+  const p=rchNum(row.percent), b=rchNum(row.backlog), h=rchNum(row.highRisk);
+  const a=[];
+  if(p>=90) a.push('Registration achievement is 90% or above.');
+  else if(p>=70) a.push('Registration achievement is in the 70–89% range.');
+  else a.push('Registration achievement is below 70%; facility-level gaps should be reviewed.');
+  if(b<0) a.push('Backlog is negative.');
+  else if(b===0) a.push('Backlog is zero.');
+  else a.push('Positive backlog is recorded and should be followed up.');
+  if(h>0) a.push('High-risk cases are reported in this sector.');
+  return a;
+}
+
+function rchHeader(slide,title,sub){
+  slide.background={color:'F7FAFC'};
+  slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:.55,fill:{color:'075985'},line:{color:'075985'}});
+  slide.addText(title,{x:.45,y:.72,w:12.3,h:.42,fontSize:22,bold:true,color:'0F172A',margin:0});
+  slide.addText(sub||'',{x:.45,y:1.15,w:12.2,h:.28,fontSize:10,color:'475569',margin:0});
+  slide.addText('Kharsia Health Dashboard | Block Kharsia | District Raigarh | Chhattisgarh',{x:.45,y:7.14,w:11.8,h:.18,fontSize:7.5,color:'64748B',align:'right',margin:0});
+}
+
+function rchCard(slide,x,y,w,h,label,value){
+  slide.addShape(pptx.ShapeType.roundRect,{x,y,w,h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:1}});
+  slide.addText(label,{x:x+.1,y:y+.12,w:w-.2,h:.22,fontSize:8.5,bold:true,color:'64748B',align:'center',margin:0,fit:'shrink'});
+  slide.addText(String(value),{x:x+.1,y:y+.43,w:w-.2,h:.4,fontSize:19,bold:true,color:'075985',align:'center',margin:0,fit:'shrink'});
+}
+
+async function generateRCHPPTX(){
+  if(!window.PptxGenJS){
+    try{ await loadPptxLib(); }catch(e){ alert('PowerPoint library load नहीं हुई। Internet connection check करें।'); return; }
+  }
+  if(!window.currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
+    alert('RCH 2.0 data अभी load नहीं हुआ है। पहले RCH 2.0 खोलें और Refresh करें।');
+    return;
+  }
+
+  const pptx=new window.PptxGenJS();
+  pptx.layout='LAYOUT_WIDE';
+  pptx.author='Kharsia Health Dashboard';
+  pptx.company='Kharsia Health Dashboard';
+  pptx.subject='RCH 2.0 PW Registration Performance';
+  pptx.title='RCH 2.0 — Kharsia';
+  pptx.lang='en-IN';
+
+  const parsed=currentRCHData;
+  const sectors=buildSectorData(parsed);
+  const total=calculateRCHTotals(sectors);
+  const facilities=parsed.facilityRows;
+  const date=parsed.asOnDate||'Current Date';
+
+  // 1. COVER
+  let slide=pptx.addSlide();
+  slide.background={color:'075985'};
+  slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:7.5,fill:{color:'075985'},line:{color:'075985'}});
+  slide.addText('KHARSIA HEALTH DASHBOARD',{x:.7,y:1.0,w:11.9,h:.35,fontSize:14,bold:true,color:'BAE6FD',align:'center',charSpacing:2,margin:0});
+  slide.addText('RCH 2.0',{x:.7,y:1.75,w:11.9,h:.75,fontSize:40,bold:true,color:'FFFFFF',align:'center',margin:0});
+  slide.addText('PW Registration Performance Report',{x:.7,y:2.6,w:11.9,h:.42,fontSize:21,color:'E0F2FE',align:'center',margin:0});
+  slide.addText('FY 2026–27',{x:.7,y:3.2,w:11.9,h:.35,fontSize:16,bold:true,color:'FFFFFF',align:'center',margin:0});
+  slide.addShape(pptx.ShapeType.roundRect,{x:4.05,y:4.15,w:5.25,h:1.05,fill:{color:'FFFFFF',transparency:8},line:{color:'FFFFFF',transparency:65,pt:1}});
+  slide.addText('As On Date',{x:4.2,y:4.36,w:4.95,h:.22,fontSize:10,bold:true,color:'DBEAFE',align:'center',margin:0});
+  slide.addText(date,{x:4.2,y:4.64,w:4.95,h:.36,fontSize:18,bold:true,color:'FFFFFF',align:'center',margin:0});
+  slide.addText('Block Kharsia | District Raigarh | Chhattisgarh',{x:.7,y:6.55,w:11.9,h:.28,fontSize:12,color:'BAE6FD',align:'center',margin:0});
+
+  // 2. INDEX
+  slide=pptx.addSlide();
+  rchHeader(slide,'INDEX','RCH 2.0 report structure');
+  [
+    ['01','Cover Page'],
+    ['02','Index'],
+    ['03','Block Summary Dashboard'],
+    ['04','Sector Wise Data + Graph'],
+    ['05 onward','Sector-wise Facility Data + Analysis'],
+    ['Last','Overall Data Analysis']
+  ].forEach((it,i)=>{
+    const y=1.55+i*.78;
+    slide.addShape(pptx.ShapeType.roundRect,{x:1,y,w:.95,h:.45,fill:{color:'0F766E'},line:{color:'0F766E'}});
+    slide.addText(it[0],{x:1,y:y+.1,w:.95,h:.2,fontSize:9,bold:true,color:'FFFFFF',align:'center',margin:0});
+    slide.addText(it[1],{x:2.2,y:y+.05,w:9.7,h:.28,fontSize:15,bold:i===2,color:'0F172A',margin:0});
+  });
+  slide.addText('All values are taken from the RCH 2.0 data currently loaded by the website.',{x:1,y:6.35,w:10.8,h:.3,fontSize:9,color:'64748B',margin:0});
+
+  // 3. BLOCK SUMMARY
+  slide=pptx.addSlide();
+  rchHeader(slide,'RCH 2.0 — Block Summary Dashboard',`PW Registration Detail FY 2026–27 | As On Date : ${date}`);
+  [
+    ['HMIS PW Registration',total.hmis],
+    ['RCH 2.0 PW Registration',total.rch],
+    ['Overall %',rchPct(total.percent)],
+    ['Temporary Registration',total.temp],
+    ['Backlog',total.backlog],
+    ['High Risk',total.highRisk]
+  ].forEach((c,i)=>rchCard(slide,.55+(i%3)*4.18,1.62+Math.floor(i/3)*1.22,3.82,.96,c[0],c[1]));
+  const obs=[
+    total.percent>=90?'Overall registration achievement is 90% or above.':total.percent>=70?'Overall registration achievement is in the 70–89% range.':'Overall registration achievement is below 70%.',
+    `${sectors.length} sectors and ${facilities.length} facilities are included in the loaded RCH 2.0 data.`,
+    total.backlog<0?'Overall backlog is negative.':total.backlog===0?'Overall backlog is zero.':'Overall backlog is positive.',
+    total.highRisk>0?`${total.highRisk} high-risk cases are recorded in the loaded data.`:'No high-risk count is recorded in the loaded data.'
+  ];
+  slide.addText('KEY OBSERVATIONS',{x:.65,y:4.35,w:2.8,h:.25,fontSize:12,bold:true,color:'075985',margin:0});
+  obs.forEach((t,i)=>slide.addText('• '+t,{x:.8,y:4.78+i*.45,w:11.6,h:.3,fontSize:12,color:'334155',margin:0}));
+
+  // 4. SECTOR DATA + GRAPH
+  slide=pptx.addSlide();
+  rchHeader(slide,'RCH 2.0 — Sector Wise Data with Graph',`As On Date : ${date}`);
+  try{
+    slide.addChart(pptx.ChartType.bar,[{name:'RCH 2.0 %',labels:sectors.map(r=>rchText(r.sector)),values:sectors.map(r=>rchNum(r.percent))}],{
+      x:.45,y:1.5,w:5.05,h:5.0,showLegend:false,showValue:true,showTitle:false,
+      catAxisLabelFontSize:8,valAxisLabelFontSize:8,valAxisMinVal:0,valAxisMaxVal:100,valAxisMajorUnit:20,
+      chartColors:['0F766E'],dataLabelPosition:'outEnd'
+    });
+  }catch(e){}
+  const sectorRows=[
+    ['Sector','Facilities','HMIS PW','RCH PW','%','Backlog'],
+    ...sectors.map(r=>[rchText(r.sector),r.facility,r.hmis,r.rch,rchPct(r.percent),r.backlog]),
+    ['Total',total.facility,total.hmis,total.rch,rchPct(total.percent),total.backlog]
+  ];
+  slide.addTable(sectorRows.map((r,ri)=>r.map(v=>({text:String(v),options:{fontSize:8,bold:ri===0||ri===sectorRows.length-1,color:ri===0?'FFFFFF':'334155',fill:ri===0?'075985':ri===sectorRows.length-1?'DBEAFE':'FFFFFF',align:'center',margin:.04}})),{
+    x:5.75,y:1.5,w:7.05,h:5.0,border:{type:'solid',color:'CBD5E1',pt:.7},colW:[1.8,.8,1.0,1.0,.65,.85],rowH:.33
+  });
+
+  // 5+. FACILITY-WISE BY SECTOR
+  [...new Set(facilities.map(r=>r.sector))].forEach(sector=>{
+    const fr=facilities.filter(r=>r.sector===sector);
+    const sr=sectors.find(r=>r.sector===sector)||{facility:fr.length,hmis:0,rch:0,percent:0,temp:0,backlog:0,highRisk:0};
+    for(let start=0;start<fr.length;start+=18){
+      const chunk=fr.slice(start,start+18);
+      slide=pptx.addSlide();
+      rchHeader(slide,`RCH 2.0 — ${sector} — Facility Wise`,`${start+1}–${start+chunk.length} of ${fr.length} facilities | As On Date : ${date}`);
+      const rows=[
+        ['Sn','Facility','HMIS PW','RCH PW','%','Temporary','Backlog','High Risk'],
+        ...chunk.map((r,i)=>[r.sn||start+i+1,rchText(r.facility),r.hmis,r.rch,rchPct(r.hmis>0?r.rch/r.hmis*100:0),r.temp,r.backlog,r.highRisk])
+      ];
+      slide.addTable(rows.map((r,ri)=>r.map(v=>({text:String(v),options:{fontSize:7.3,bold:ri===0,color:ri===0?'FFFFFF':'334155',fill:ri===0?'0F766E':'FFFFFF',align:'center',margin:.035}})),{
+        x:.45,y:1.5,w:12.4,h:4.2,border:{type:'solid',color:'CBD5E1',pt:.7},colW:[.45,3.25,1,1,.7,.95,.85,.9],rowH:.23
+      });
+      const high=fr.reduce((a,b)=>a.percent>b.percent?a:b,fr[0]);
+      const low=fr.reduce((a,b)=>a.percent<b.percent?a:b,fr[0]);
+      const notes=[
+        `Sector achievement: ${rchPct(sr.percent)} | Facilities: ${sr.facility} | Sector backlog: ${sr.backlog}.`,
+        `Highest facility achievement: ${rchText(high.facility)} (${rchPct(high.percent)}).`,
+        `Lowest facility achievement: ${rchText(low.facility)} (${rchPct(low.percent)}).`,
+        ...rchAnalysis(sr)
+      ];
+      slide.addText('SECTOR ANALYSIS',{x:.55,y:5.95,w:2.1,h:.24,fontSize:11,bold:true,color:'075985',margin:0});
+      notes.slice(0,5).forEach((t,i)=>slide.addText('• '+t,{x:.7,y:6.25+i*.25,w:12,h:.2,fontSize:8.5,color:'334155',margin:0}));
+    }
+  });
+
+  // FINAL ANALYSIS
+  slide=pptx.addSlide();
+  rchHeader(slide,'RCH 2.0 — Overall Data Analysis',`Block Kharsia | As On Date : ${date}`);
+  const maxS=sectors.reduce((a,b)=>a.percent>b.percent?a:b,sectors[0]);
+  const minS=sectors.reduce((a,b)=>a.percent<b.percent?a:b,sectors[0]);
+  [
+    `Overall PW registration achievement: ${rchPct(total.percent)}.`,
+    `Highest sector achievement in the loaded data: ${rchText(maxS?.sector)} (${rchPct(maxS?.percent)}).`,
+    `Lowest sector achievement in the loaded data: ${rchText(minS?.sector)} (${rchPct(minS?.percent)}).`,
+    `Total facilities reported: ${facilities.length}; temporary registrations: ${total.temp}.`,
+    total.backlog<0?'Overall backlog is negative.':total.backlog===0?'Overall backlog is zero.':'Overall backlog is positive.',
+    total.highRisk>0?`High-risk count in the loaded data: ${total.highRisk}.`:'No high-risk count is recorded in the loaded data.'
+  ].forEach((t,i)=>slide.addText('• '+t,{x:.85,y:1.6+i*.68,w:11.5,h:.4,fontSize:14,color:'334155',margin:0}));
+  slide.addText('Note: This analysis is descriptive and calculated from the data currently loaded by the website.',{x:.85,y:6.25,w:11.5,h:.3,fontSize:9,italic:true,color:'64748B',margin:0});
+
+  await pptx.writeFile({fileName:`RCH_2.0_Kharsia_FY_2026-27_${String(date).replace(/[\\/]/g,'-')}.pptx`});
+}
+
+function mountRCHPPTXButton(){
+  if(document.getElementById('rchPptxGenerateBtn')) return;
+  const b=document.createElement('button');
+  b.id='rchPptxGenerateBtn';
+  b.textContent='📽️ RCH 2.0 PPTX';
+  Object.assign(b.style,{position:'fixed',right:'22px',top:'64px',zIndex:99999,border:0,borderRadius:'9px',padding:'10px 14px',background:'#7c3aed',color:'#fff',fontWeight:'800',fontSize:'13px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,.2)',display:'none'});
+  b.onclick=generateRCHPPTX;
+  document.body.appendChild(b);
+  const update=()=>{
+    const title=rchText(document.getElementById('reportTitle')?.innerText);
+    const active=title.toLowerCase().includes('rch 2.0') || (window.currentReportIndex!=null && window.REPORTS?.[window.currentReportIndex]?.name==='RCH 2.0');
+    b.style.display=active?'block':'none';
+  };
+  update();
+  setInterval(update,1200);
+}
+
 function mount(){
   if(document.getElementById('pptxGenerateBtn'))return;
   const btn=document.createElement('button');
@@ -338,5 +531,5 @@ function mount(){
   btn.onclick=generate; document.body.appendChild(btn);
   const p=document.createElement('div');p.id='pptxProgress';p.textContent='';Object.assign(p.style,{display:'none',position:'fixed',right:'22px',top:'64px',zIndex:99999,background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'9px 12px',fontSize:'12px',color:'#334155',boxShadow:'0 4px 12px rgba(0,0,0,.15)',maxWidth:'380px'});document.body.appendChild(p);
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();mountRCHPPTXButton();});else{mount();mountRCHPPTXButton();}
 })();
