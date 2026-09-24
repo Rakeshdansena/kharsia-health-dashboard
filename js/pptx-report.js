@@ -464,10 +464,22 @@ function mountRCHPPTXButton(){
 function mount(){
   if(document.getElementById('pptxGenerateBtn'))return;
   const btn=document.createElement('button');
-  btn.id='pptxGenerateBtn'; btn.textContent='📊 Generate PPTX';
-  Object.assign(btn.style,{position:'fixed',right:'22px',top:'18px',zIndex:99999,border:0,borderRadius:'9px',padding:'11px 15px',background:'#b91c1c',color:'#fff',fontWeight:'800',fontSize:'13px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,.2)'});
-  btn.onclick=generate; document.body.appendChild(btn);
-  const p=document.createElement('div');p.id='pptxProgress';p.textContent='';Object.assign(p.style,{display:'none',position:'fixed',right:'22px',top:'64px',zIndex:99999,background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'9px 12px',fontSize:'12px',color:'#334155',boxShadow:'0 4px 12px rgba(0,0,0,.15)',maxWidth:'380px'});document.body.appendChild(p);
+  btn.id='pptxGenerateBtn';
+  btn.textContent='📊 Generate PPTX';
+  Object.assign(btn.style,{display:'none',position:'fixed',right:'22px',top:'18px',zIndex:99999,border:0,borderRadius:'9px',padding:'11px 15px',background:'#b91c1c',color:'#fff',fontWeight:'800',fontSize:'13px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,.2)'});
+  btn.onclick=()=>generate().catch(e=>{console.error(e);alert('PPTX बनाने में समस्या हुई: '+(e&&e.message?e.message:e));});
+  document.body.appendChild(btn);
+  const p=document.createElement('div');
+  p.id='pptxProgress';
+  p.textContent='';
+  Object.assign(p.style,{display:'none',position:'fixed',right:'22px',top:'64px',zIndex:99999,background:'#fff',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'9px 12px',fontSize:'12px',color:'#334155',boxShadow:'0 4px 12px rgba(0,0,0,.15)',maxWidth:'380px'});
+  document.body.appendChild(p);
+  const sync=()=>{
+    const dashboard=document.getElementById('dashboardPage');
+    btn.style.display=dashboard&&dashboard.classList.contains('active')?'block':'none';
+  };
+  sync();
+  setInterval(sync,500);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();});else{mount();}
 })();
