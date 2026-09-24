@@ -262,11 +262,17 @@ function addModuleAnalysis(pptx,mod){
 }
 
 async function generate(){
+  const dashboardBtn=document.getElementById('dashboardPptxBtn');
+  const setBtn=(msg,busy)=>{ if(dashboardBtn){ dashboardBtn.disabled=!!busy; dashboardBtn.textContent=msg; dashboardBtn.style.opacity=busy?'0.75':'1'; } };
   try{
-    // Load Janani Portal (RCH 2.0) data directly from the configured Google Sheet.
+    setBtn('⏳ PPTX तैयार हो रहा है...',true);
     if(typeof google==='undefined' || !google.visualization){
-      alert('Google Sheets service अभी तैयार नहीं है। कृपया 2 सेकंड बाद फिर दबाएँ।');
-      return;
+      await new Promise((resolve,reject)=>{
+        if(typeof google!=='undefined' && google.charts){
+          try{ google.charts.load('current',{packages:['corechart','table']}); google.charts.setOnLoadCallback(resolve); }
+          catch(e){ reject(e); }
+        } else reject(new Error('Google Sheets service उपलब्ध नहीं है'));
+      });
     }
     const query=new google.visualization.Query(
       'https://docs.google.com/spreadsheets/d/'+
@@ -286,13 +292,17 @@ async function generate(){
           return;
         }
         await generateRCHPPTX();
+        setBtn('✅ PPTX तैयार — Download करें',false);
+        setTimeout(()=>setBtn('📊 Generate PPTX',false),5000);
       }catch(e){
         console.error('PPTX generation error',e);
+        setBtn('❌ PPTX में error — फिर प्रयास करें',false);
         alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
       }
     });
   }catch(e){
     console.error(e);
+    setBtn('❌ PPTX में error — फिर प्रयास करें',false);
     alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
   }
 }
@@ -471,7 +481,18 @@ async function generateRCHPPTX(){
   ].forEach((t,i)=>slide.addText('• '+t,{x:.85,y:1.6+i*.68,w:11.5,h:.4,fontSize:14,color:'334155',margin:0}));
   slide.addText('Note: This analysis is descriptive and calculated from the data currently loaded by the website.',{x:.85,y:6.25,w:11.5,h:.3,fontSize:9,italic:true,color:'64748B',margin:0});
 
-  await pptx.writeFile({fileName:`Kharsia Health Progressive Report_${String(date).replace(/[\\/]/g,'-')}.pptx`});
+  const fileName=`Kharsia Health Progressive Report_${String(date).replace(/[\\/]/g,'-')}.pptx`;
+  const blob=await pptx.write({outputType:'blob'});
+  if(!(blob instanceof Blob) || blob.size<1000) throw new Error('PPTX file generate नहीं हुई या खाली है।');
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=fileName; a.textContent='⬇️ Download Kharsia Health Progressive Report';
+  a.style.cssText='display:inline-block;margin:12px 0;padding:10px 16px;border-radius:8px;background:#b91c1c;color:#fff;font-weight:800;text-decoration:none;cursor:pointer;';
+  const host=document.getElementById('dashboardPptxBtn')?.parentElement || document.body;
+  const old=document.getElementById('pptxDownloadFallback'); if(old) old.remove();
+  a.id='pptxDownloadFallback'; host.appendChild(a);
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 
 function mountRCHPPTXButton(){
