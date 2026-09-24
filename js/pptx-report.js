@@ -262,11 +262,10 @@ function addModuleAnalysis(pptx,mod){
 }
 
 async function generate(){
-  // Master dashboard PPTX button: only modules that are currently completed
-  // are included. At present that means Cover + Index + RCH 2.0.
-  // Future modules will be added here as their PPTX sections are completed.
+  // Master dashboard PPTX button: only completed modules are included.
   await generateRCHPPTX();
 }
+window.generate=generate;
 
 /* ============================================================
    RCH 2.0 — DEDICATED PPTX EXPORT
