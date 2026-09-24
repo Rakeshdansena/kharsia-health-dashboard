@@ -187,6 +187,25 @@
     });
   }
 
+
+  function showProgress(title, percent, detail) {
+    var host = document.getElementById('dashboardPptxBtn');
+    if (!host) return;
+    var box = document.getElementById('pptxProgressBox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'pptxProgressBox';
+      box.style.cssText = 'margin:12px 0;padding:14px 16px;background:#eff6ff;border:2px solid #3b82f6;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);font-weight:700;';
+      host.parentElement.appendChild(box);
+    }
+    box.innerHTML =
+      '<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:7px">' +
+      '<span>' + title + '</span><span>' + percent + '%</span></div>' +
+      '<div style="height:12px;background:#dbeafe;border-radius:8px;overflow:hidden">' +
+      '<div style="height:100%;width:' + percent + '%;background:#2563eb;transition:width .25s"></div></div>' +
+      '<div style="margin-top:7px;font-size:12px;font-weight:500;color:#475569">' + detail + '</div>';
+  }
+
   async function generate() {
     setButton('⏳ PPTX तैयार हो रहा है...', true);
     try {
@@ -195,6 +214,7 @@
       var parsed = await getRchData();
       var rows = parsed.facilityRows || [];
       var sectors = groupSectors(rows);
+      showProgress('Data तैयार है', 45, rows.length + ' facility records और ' + sectors.length + ' sectors मिले।');
       var total = { hmis: 0, rch: 0, temp: 0, backlog: 0, highRisk: 0, facilities: rows.length };
       rows.forEach(function (r) {
         total.hmis += number(r.hmis);
@@ -275,6 +295,7 @@
         });
       });
 
+      showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
       // 3. BLOCK SUMMARY
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'BLOCK SUMMARY DASHBOARD | FY 2026–27');
@@ -300,6 +321,7 @@
         breakLine: false, margin: 0.03
       });
 
+      showProgress('Slides बन रही हैं', 65, 'Sector Wise graph और table तैयार हो रहे हैं...');
       // 4. SECTOR WISE + GRAPH
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'SECTOR WISE DATA + GRAPH');
@@ -327,8 +349,10 @@
       });
       addTable(slide, sectorTable, 7.9, 1.5, 4.85, 4.95);
 
+      showProgress('Slides बन रही हैं', 75, 'Sector-wise Facility Data और Analysis तैयार हो रहा है...');
       // 5 onward. FACILITY WISE BY SECTOR + ANALYSIS
-      sectors.forEach(function (s) {
+      sectors.forEach(function (s, sectorIndex) {
+        showProgress('Facility slides बन रही हैं', Math.min(90, 75 + Math.round((sectorIndex / Math.max(sectors.length,1)) * 15)), 'Sector ' + (sectorIndex + 1) + '/' + sectors.length + ': ' + s.sector);
         slide = pptx.addSlide();
         addHeader(slide, 'Sector: ' + s.sector, 'FACILITY WISE DATA + ANALYSIS');
         var facilityRows = rows.filter(function (r) { return clean(r.sector) === s.sector; });
@@ -356,6 +380,7 @@
         addCard(slide, 10.75, 5.1, 1.75, 1.05, 'Facilities', s.facilities);
       });
 
+      showProgress('Final analysis', 92, 'Overall Data Analysis slide तैयार हो रही है...');
       // LAST. OVERALL ANALYSIS
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'OVERALL DATA ANALYSIS');
@@ -387,6 +412,7 @@
 
       var date = new Date().toISOString().slice(0, 10);
       var fileName = 'Kharsia Health Progressive Report_' + date + '.pptx';
+      showProgress('PPTX file बन रही है', 96, 'PowerPoint file को final .pptx format में बनाया जा रहा है...');
       var blob = await pptx.write({ outputType: 'blob' });
       var url = URL.createObjectURL(blob);
       var old = document.getElementById('pptxDownloadFallback');
@@ -405,9 +431,12 @@
       box.appendChild(link);
       host.appendChild(box);
 
+      showProgress('PPTX तैयार है', 100, 'Download link नीचे दिखाई दे रहा है।');
       setButton('📊 Generate PPTX', false);
       alert('PPTX तैयार है। नीचे दिख रहे Download link पर क्लिक करें।');
     } catch (e) {
+      var pb = document.getElementById('pptxProgressBox');
+      if (pb) { pb.style.background='#fef2f2'; pb.style.borderColor='#ef4444'; }
       console.error(e);
       setButton('❌ PPTX में error — फिर प्रयास करें', false);
       alert('PPTX download नहीं हुआ: ' + (e && e.message ? e.message : e));
