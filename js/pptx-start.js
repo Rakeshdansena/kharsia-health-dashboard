@@ -25,7 +25,7 @@
       }
       const s=document.createElement('script');
       s.id='pptx-report-runtime-loader';
-      s.src='js/pptx-report.js?v=20260924-pptx-18';
+      s.src='js/pptx-report.js?v=20260924-pptx-19';
       s.onload=()=>resolve();
       s.onerror=()=>reject(new Error('PPTX report script load failed'));
       document.head.appendChild(s);
