@@ -104,11 +104,11 @@
     });
     slide.addText(title, {
       x: 0.48, y: 0.16, w: 8.8, h: 0.34,
-      fontSize: 21, bold: true, color: 'FFFFFF', margin: 0
+      fontSize: 25, bold: true, color: 'FFFFFF', margin: 0
     });
     slide.addText(subtitle || '', {
       x: 9.0, y: 0.20, w: 3.75, h: 0.25,
-      fontSize: 9.5, bold: true, color: 'DFF7F3', align: 'right', margin: 0
+      fontSize: 11, bold: true, color: 'DFF7F3', align: 'right', margin: 0
     });
     slide.addText('KHARSIA HEALTH DASHBOARD  •  BLOCK KHARSIA  •  DISTRICT RAIGARH', {
       x: 0.48, y: 7.12, w: 9.5, h: 0.18,
@@ -122,7 +122,7 @@
 
   function addSectionTitle(slide, text, x, y, w) {
     slide.addText(text, {
-      x:x, y:y, w:w, h:0.32, fontSize:15, bold:true,
+      x:x, y:y, w:w, h:0.32, fontSize:19, bold:true,
       color:'0B4F6C', margin:0
     });
     slide.addShape('rect', {
@@ -145,11 +145,11 @@
     });
     slide.addText(label, {
       x:x+0.22, y:y+0.15, w:w-0.35, h:0.25,
-      fontSize:8.5, bold:true, color:'64748B', margin:0, fit:'shrink'
+      fontSize:11, bold:true, color:'475569', margin:0, fit:'shrink'
     });
     slide.addText(String(value), {
       x:x+0.22, y:y+0.48, w:w-0.35, h:0.42,
-      fontSize:22, bold:true, color:'0B4F6C', margin:0, fit:'shrink'
+      fontSize:28, bold:true, color:'075985', margin:0, fit:'shrink'
     });
   }
 
@@ -352,7 +352,7 @@
         '• High-risk cases: ' + total.highRisk + '.'
       ].join('\n'), {
         x: 0.75, y: 5.65, w: 11.2, h: 1.05,
-        fontSize: 14, bold: true, color: '172033',
+        fontSize: 17, bold: true, color: '172033',
         breakLine: false, margin: 0.03
       });
 
@@ -369,8 +369,8 @@
         }], {
           x: 0.55, y: 1.5, w: 7.1, h: 4.9,
           showLegend: false, showTitle: false, showValue: true,
-          catAxisLabelFontSize: 11, valAxisLabelFontSize: 9,
-          chartColors: ['0F766E'], valGridLine: { color: 'D6E3EC', pt: 1 },
+          catAxisLabelFontSize: 15, valAxisLabelFontSize: 12,
+          chartColors: ['0F766E','2563EB','F59E0B','DC2626','7C3AED','059669','EA580C','0891B2'], valGridLine: { color: 'D6E3EC', pt: 1 },
           valAxisMinVal: 0, dataLabelPosition: 'outEnd'
         });
       } catch (e) {
@@ -408,7 +408,7 @@
         });
         slide.addText(analysis(s).map(function (x) { return '• ' + x; }).join('\n'), {
           x: 8.75, y: 2.0, w: 3.9, h: 2.9,
-          fontSize: 13, bold: true, color: '172033',
+          fontSize: 16, bold: true, color: '172033',
           breakLine: false, margin: 0.03, fit: 'shrink'
         });
         addCard(slide, 8.8, 5.1, 1.75, 1.05, 'Achievement', s.percent + '%');
@@ -437,7 +437,7 @@
         '• Lowest sector backlog: ' + (minBacklog ? minBacklog.sector : 'N/A') + ' (' + (minBacklog ? minBacklog.backlog : 0) + ').'
       ].join('\n'), {
         x: 0.75, y: 2.15, w: 11.5, h: 3.15,
-        fontSize: 15, color: '172033',
+        fontSize: 17, color: '172033',
         breakLine: false, margin: 0.03, fit: 'shrink'
       });
       slide.addText('Source: live Google Sheet data | Generated from the Dashboard PPTX button', {
