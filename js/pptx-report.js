@@ -368,71 +368,59 @@
       pptx.title = 'Kharsia Health Progressive Report';
       pptx.lang = 'en-IN';
 
-      // 1. COVER — approved sample-style Janani Portal cover
+      // 1. COVER — exact approved sample style for the COMPLETE Health Programme Report
       var coverPhoto = null;
       try { coverPhoto = await fetchImageData(COVER_PHOTO_URL); } catch (photoErr) { console.warn(photoErr); }
       var slide = pptx.addSlide();
       slide.background = { color:'F8FBFF' };
 
-      // Header / branding
+      // Sample header
       slide.addShape('rect',{x:0,y:0,w:13.333,h:0.10,fill:{color:'14B8A6'},line:{color:'14B8A6'}});
       slide.addText('Kharsia Health Dashboard',{
-        x:0.55,y:0.32,w:7.2,h:0.55,fontSize:28,bold:true,color:'073B75',margin:0
+        x:0.55,y:0.34,w:7.4,h:0.55,fontSize:28,bold:true,color:'073B75',margin:0
       });
       slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh',{
-        x:0.58,y:0.91,w:7.4,h:0.24,fontSize:12,bold:true,color:'334155',margin:0
+        x:0.58,y:0.92,w:7.5,h:0.24,fontSize:12,bold:true,color:'334155',margin:0
       });
 
-      // RCH badge
-      slide.addShape('roundRect',{x:10.65,y:0.28,w:2.15,h:0.72,fill:{color:'FFFFFF'},line:{color:'DB2777',pt:1.5}});
-      slide.addText('RCH 2.0',{
-        x:10.83,y:0.38,w:1.8,h:0.28,fontSize:18,bold:true,color:'DB2777',align:'center',margin:0
-      });
-      slide.addText('Reproductive & Child Health',{
-        x:10.77,y:0.70,w:1.9,h:0.15,fontSize:6.8,bold:true,color:'475569',align:'center',margin:0
-      });
-
-      // Main title banners
+      // Main sample banners — NO Janani Portal on cover
       slide.addShape('roundRect',{x:0.55,y:1.42,w:7.35,h:0.72,fill:{color:'073B75'},line:{color:'073B75'}});
       slide.addText('PROGRESSIVE REPORT',{
         x:0.75,y:1.60,w:6.95,h:0.30,fontSize:28,bold:true,color:'FFFFFF',align:'center',margin:0
       });
       slide.addShape('roundRect',{x:0.55,y:2.14,w:7.35,h:0.72,fill:{color:'14B8A6'},line:{color:'14B8A6'}});
-      slide.addText('JANANI PORTAL (RCH 2.0)',{
-        x:0.75,y:2.34,w:6.95,h:0.30,fontSize:25,bold:true,color:'FFFFFF',align:'center',margin:0
+      slide.addText('MONTHLY HEALTH PERFORMANCE REPORT',{
+        x:0.72,y:2.34,w:6.98,h:0.30,fontSize:20,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'
       });
 
-      // Photo — prominent, like the approved sample
+      // Healthcare photo on right
       if(coverPhoto){
         slide.addImage({data:coverPhoto,x:8.12,y:1.28,w:4.70,h:4.62});
         slide.addShape('roundRect',{x:8.12,y:1.28,w:4.70,h:4.62,fill:{color:'FFFFFF',transparency:100},line:{color:'14B8A6',pt:2}});
       } else {
         slide.addShape('roundRect',{x:8.12,y:1.28,w:4.70,h:4.62,fill:{color:'E0F2FE'},line:{color:'14B8A6',pt:2}});
-        slide.addText('MATERNAL • NEWBORN • CHILD HEALTH',{x:8.40,y:3.25,w:4.15,h:0.55,fontSize:18,bold:true,color:'075985',align:'center',margin:0,fit:'shrink'});
+        slide.addText('HEALTH PROGRAMMES',{x:8.40,y:3.30,w:4.15,h:0.45,fontSize:24,bold:true,color:'075985',align:'center',margin:0});
       }
 
-      // Metadata row
+      // FY / Current Date / Block panels
       slide.addShape('roundRect',{x:0.68,y:3.24,w:2.55,h:0.82,fill:{color:'EFF6FF'},line:{color:'60A5FA',pt:1}});
       slide.addText('FINANCIAL YEAR',{x:0.85,y:3.40,w:2.2,h:0.18,fontSize:9,bold:true,color:'475569',align:'center',margin:0});
       slide.addText('FY 2026 – 27',{x:0.85,y:3.66,w:2.2,h:0.25,fontSize:19,bold:true,color:'075985',align:'center',margin:0});
 
       slide.addShape('roundRect',{x:3.42,y:3.24,w:3.15,h:0.82,fill:{color:'FFF1F8'},line:{color:'F472B6',pt:1}});
       slide.addText('AS ON DATE',{x:3.62,y:3.40,w:2.75,h:0.18,fontSize:9,bold:true,color:'475569',align:'center',margin:0});
-      slide.addText(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}),{x:3.58,y:3.65,w:2.83,h:0.25,fontSize:16,bold:true,color:'BE185D',align:'center',margin:0,fit:'shrink'});
+      slide.addText(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}),{
+        x:3.58,y:3.65,w:2.83,h:0.25,fontSize:16,bold:true,color:'BE185D',align:'center',margin:0,fit:'shrink'
+      });
 
       slide.addShape('roundRect',{x:6.78,y:3.24,w:1.12,h:0.82,fill:{color:'FFF7ED'},line:{color:'FB923C',pt:1}});
       slide.addText('BLOCK',{x:6.90,y:3.40,w:0.88,h:0.15,fontSize:8,bold:true,color:'64748B',align:'center',margin:0});
       slide.addText('Kharsia',{x:6.88,y:3.65,w:0.92,h:0.22,fontSize:13,bold:true,color:'C2410C',align:'center',margin:0});
 
-      slide.addShape('roundRect',{x:8.05,y:6.05,w:4.77,h:0.55,fill:{color:'073B75',transparency:3},line:{color:'073B75'}});
-      slide.addText('Maternal • Newborn • Child • Family Health',{
-        x:8.22,y:6.21,w:4.43,h:0.18,fontSize:9.5,bold:true,color:'FFFFFF',align:'center',margin:0
-      });
-
-      // Bottom visual strip
+      // Programme visual strip — whole dashboard, not one module
       var coverItems=[
-        ['Maternal Health','EC4899'],['Newborn Health','F59E0B'],['Child Health','2563EB'],
-        ['Family Health','7C3AED'],['Women Health','DC2626']
+        ['Ayushman Card','2563EB'],['Janani / RCH','DB2777'],['NCD','DC2626'],
+        ['JAS Meeting','F59E0B'],['Wellness','0F766E']
       ];
       coverItems.forEach(function(it,i){
         var x=0.65+i*1.43;
@@ -441,6 +429,12 @@
         slide.addText(it[0],{x:x-0.18,y:5.24,w:0.98,h:0.35,fontSize:8,bold:true,color:'172033',align:'center',margin:0,fit:'shrink'});
       });
 
+      slide.addShape('roundRect',{x:8.12,y:6.05,w:4.70,h:0.55,fill:{color:'073B75'},line:{color:'073B75'}});
+      slide.addText('ALL HEALTH PROGRAMMES • PROGRESS • COVERAGE • QUALITY',{
+        x:8.30,y:6.21,w:4.35,h:0.18,fontSize:8.8,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'
+      });
+
+      // Sample footer
       slide.addShape('rect',{x:0,y:6.82,w:13.333,h:0.68,fill:{color:'062E49'},line:{color:'062E49'}});
       slide.addText('Health Department  |  District Raigarh  |  Chhattisgarh',{
         x:0.55,y:7.04,w:6.7,h:0.20,fontSize:11,bold:true,color:'FFFFFF',margin:0
