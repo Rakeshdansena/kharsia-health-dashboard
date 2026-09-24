@@ -484,15 +484,33 @@ async function generateRCHPPTX(){
   const fileName=`Kharsia Health Progressive Report_${String(date).replace(/[\\/]/g,'-')}.pptx`;
   const blob=await pptx.write({outputType:'blob'});
   if(!(blob instanceof Blob) || blob.size<1000) throw new Error('PPTX file generate नहीं हुई या खाली है।');
+
+  // Browser download fix:
+  // The Google Sheet callback is asynchronous, so an automatic a.click()
+  // can lose the original user-gesture and be blocked by the browser.
+  // Keep a real download control visible so the user can click it directly.
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=fileName; a.textContent='⬇️ Download Kharsia Health Progressive Report';
-  a.style.cssText='display:inline-block;margin:12px 0;padding:10px 16px;border-radius:8px;background:#b91c1c;color:#fff;font-weight:800;text-decoration:none;cursor:pointer;';
   const host=document.getElementById('dashboardPptxBtn')?.parentElement || document.body;
   const old=document.getElementById('pptxDownloadFallback'); if(old) old.remove();
-  a.id='pptxDownloadFallback'; host.appendChild(a);
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
+
+  const box=document.createElement('div');
+  box.id='pptxDownloadFallback';
+  box.style.cssText='margin:12px 0 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;';
+
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=fileName;
+  a.textContent='⬇️ Download Kharsia Health Progressive Report';
+  a.style.cssText='display:inline-block;padding:11px 18px;border-radius:8px;background:#15803d;color:#fff;font-weight:800;text-decoration:none;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12);';
+
+  const info=document.createElement('span');
+  info.textContent='PPTX तैयार है — Download पर क्लिक करें';
+  info.style.cssText='font-size:13px;font-weight:700;color:#15803d;';
+
+  a.addEventListener('click',()=>setTimeout(()=>URL.revokeObjectURL(url),120000),{once:true});
+  box.appendChild(a);
+  box.appendChild(info);
+  host.appendChild(box);
 }
 
 function mountRCHPPTXButton(){
