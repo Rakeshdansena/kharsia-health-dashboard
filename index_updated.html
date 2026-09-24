@@ -4486,33 +4486,7 @@ google.charts.setOnLoadCallback(
 
 </script>
 
-<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-pptx-23"></script>
-\n<script>
-(function(){
-  function ensurePptx(){
-    if(typeof window.generate==='function') return window.generate();
-    alert('PPTX generator load नहीं हुआ। अब script को दोबारा load किया जा रहा है।');
-    var s=document.createElement('script');
-    s.src='js/pptx-report.js?v=20260924-pptx-23';
-    s.onload=function(){
-      if(typeof window.generate==='function') window.generate();
-      else alert('PPTX generator script load हुआ लेकिन generate function नहीं मिला।');
-    };
-    s.onerror=function(){alert('PPTX script load नहीं हो सका।');};
-    document.head.appendChild(s);
-  }
-  window.ensurePptx=ensurePptx;
-  var b=document.getElementById('dashboardPptxBtn');
-  if(b) b.onclick=ensurePptx;
-  setInterval(function(){
-    var x=document.getElementById('dashboardPptxBtn');
-    if(x && x.dataset.pptxBound!=='1'){
-      x.dataset.pptxBound='1';
-      x.onclick=ensurePptx;
-    }
-  },500);
-})();
-</script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260924-pptx-30"></script>
 <script src="js/ncd.js"></script>
 </body>
 </html>
