@@ -262,8 +262,26 @@ function addModuleAnalysis(pptx,mod){
 }
 
 async function generate(){
-  // Master dashboard PPTX button: only completed modules are included.
-  await generateRCHPPTX();
+  try{
+    // Dashboard button can generate the completed deck without requiring
+    // the user to open Janani Portal first.
+    if(typeof currentRCHData==='undefined' || !currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
+      if(typeof REPORTS!=='undefined' && typeof openReport==='function'){
+        const idx=REPORTS.findIndex(r=>r && r.name==='RCH 2.0');
+        if(idx>=0){
+          openReport(idx);
+          for(let i=0;i<80;i++){
+            await wait(500);
+            if(typeof currentRCHData!=='undefined' && currentRCHData && currentRCHData.facilityRows && currentRCHData.facilityRows.length) break;
+          }
+        }
+      }
+    }
+    await generateRCHPPTX();
+  }catch(e){
+    console.error('PPTX generation error',e);
+    alert('PPTX download नहीं हुआ: '+(e && e.message ? e.message : e));
+  }
 }
 window.generate=generate;
 
