@@ -441,7 +441,7 @@ async function generateRCHPPTX(){
   ].forEach((t,i)=>slide.addText('• '+t,{x:.85,y:1.6+i*.68,w:11.5,h:.4,fontSize:14,color:'334155',margin:0}));
   slide.addText('Note: This analysis is descriptive and calculated from the data currently loaded by the website.',{x:.85,y:6.25,w:11.5,h:.3,fontSize:9,italic:true,color:'64748B',margin:0});
 
-  await pptx.writeFile({fileName:`Janani_Portal_Kharsia_FY_2026-27_${String(date).replace(/[\\/]/g,'-')}.pptx`});
+  await pptx.writeFile({fileName:`Kharsia Health Progressive Report_${String(date).replace(/[\\/]/g,'-')}.pptx`});
 }
 
 function mountRCHPPTXButton(){
