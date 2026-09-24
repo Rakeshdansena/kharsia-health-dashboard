@@ -263,12 +263,34 @@ function addModuleAnalysis(pptx,mod){
 
 async function generate(){
   try{
-    const data = (typeof currentRCHData!=='undefined' && currentRCHData) ? currentRCHData : null;
-    if(!data || !data.facilityRows || !data.facilityRows.length){
-      alert('पहले Dashboard से Janani Portal खोलें और data load होने दें, फिर Dashboard पर वापस आकर Generate PPTX दबाएँ।');
+    // Load Janani Portal (RCH 2.0) data directly from the configured Google Sheet.
+    if(typeof google==='undefined' || !google.visualization){
+      alert('Google Sheets service अभी तैयार नहीं है। कृपया 2 सेकंड बाद फिर दबाएँ।');
       return;
     }
-    await generateRCHPPTX();
+    const query=new google.visualization.Query(
+      'https://docs.google.com/spreadsheets/d/'+
+      encodeURIComponent(SPREADSHEET_ID)+
+      '/gviz/tq?gid=1044088930&headers=0'
+    );
+    query.setQuery('select *');
+    query.send(async response=>{
+      try{
+        if(response.isError()){
+          alert('Janani Portal data load नहीं हुआ: '+response.getMessage());
+          return;
+        }
+        currentRCHData=parseRCHData(response.getDataTable());
+        if(!currentRCHData || !currentRCHData.facilityRows || !currentRCHData.facilityRows.length){
+          alert('Janani Portal में कोई facility data नहीं मिला।');
+          return;
+        }
+        await generateRCHPPTX();
+      }catch(e){
+        console.error('PPTX generation error',e);
+        alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
+      }
+    });
   }catch(e){
     console.error(e);
     alert('PPTX download नहीं हुआ: '+(e&&e.message?e.message:e));
