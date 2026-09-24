@@ -427,6 +427,10 @@
       link.href = url;
       link.download = fileName;
       link.textContent = '⬇️ Download ' + fileName;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.onclick = function () { showProgress('Download शुरू हो रहा है', 100, 'अगर browser पूछे तो download को Allow करें।'); };
+      try { window.open(url, '_blank'); } catch (openErr) { console.warn('Auto-open blocked; use download link.', openErr); }
       link.style.cssText = 'color:#065f46;text-decoration:none;font-size:15px;';
       box.appendChild(link);
       host.appendChild(box);
