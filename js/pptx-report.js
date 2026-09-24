@@ -394,8 +394,8 @@
         x:0.72, y:1.39, w:6.55, h:0.32, fontSize:27, bold:true, color:'FFFFFF', margin:0, align:'center'
       });
       slide.addShape('roundRect', { x:0.45, y:1.98, w:7.10, h:0.68, fill:{color:'14B8A6'}, line:{color:'14B8A6'} });
-      slide.addText('JANANI PORTAL (RCH 2.0)', {
-        x:0.70, y:2.15, w:6.60, h:0.28, fontSize:22, bold:true, color:'FFFFFF', margin:0, align:'center'
+      slide.addText('MONTHLY HEALTH PERFORMANCE REPORT', {
+        x:0.70, y:2.15, w:6.60, h:0.28, fontSize:20, bold:true, color:'FFFFFF', margin:0, align:'center'
       });
 
       // Healthcare image
@@ -416,7 +416,7 @@
       slide.addShape('roundRect', { x:1.30, y:3.05, w:4.55, h:0.66, fill:{color:'E0F2FE'}, line:{color:'38BDF8',pt:1} });
       slide.addText('FY 2026 – 27', { x:1.30,y:3.21,w:4.55,h:0.25,fontSize:21,bold:true,color:'075985',align:'center',margin:0 });
       slide.addText('As On Date', { x:0.68,y:4.00,w:1.55,h:0.24,fontSize:13,bold:true,color:'475569',margin:0 });
-      slide.addText(clean(parsed.asOnDate || 'Current Date'), { x:2.18,y:3.92,w:4.15,h:0.38,fontSize:21,bold:true,color:'0F172A',margin:0 });
+      slide.addText(new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }), { x:2.18,y:3.92,w:4.15,h:0.38,fontSize:21,bold:true,color:'0F172A',margin:0 });
 
       // Health program icons / visual strip
       var coverItems = [
