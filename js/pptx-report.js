@@ -118,6 +118,61 @@ function extractMetrics(mod){
   return out.slice(0,8);
 }
 
+function ayushmanMetrics(mod){
+  const rows=mod.tables.flatMap(t=>t.rows);
+  const totalRow=rows.find(r=>r.some(v=>/^total$|^कुल$|^योग$/i.test(text(v)))) || rows[rows.length-1] || rows[1] || [];
+  const header=rows[0]||[];
+  const out=[];
+  header.forEach((h,i)=>{
+    const label=text(h), raw=text(totalRow[i]), value=num(raw);
+    if(label && Number.isFinite(value) && !/^s\.?\s*no|^sn$/i.test(label)) out.push({label,value,raw});
+  });
+  return out.slice(0,8);
+}
+
+function addAyushmanHeroSlide(pptx,mod){
+  const slide=pptx.addSlide();
+  slide.background={color:'075985'};
+  slide.addShape(pptx.ShapeType.arc,{x:9.5,y:-1.15,w:4.5,h:4.5,line:{color:'14B8A6',pt:3}});
+  slide.addText('AYUSHMAN CARD',{x:.65,y:.55,w:5.2,h:.55,fontSize:30,bold:true,color:'FFFFFF',margin:0,charSpacing:1});
+  slide.addText('Programme Performance Snapshot',{x:.68,y:1.15,w:5.8,h:.35,fontSize:17,bold:true,color:'99F6E4',margin:0});
+  slide.addText(mod.heading||mod.title||'आयुष्मान कार्ड रिपोर्ट',{x:.7,y:1.75,w:11.8,h:.55,fontSize:18,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+  slide.addText('Block Kharsia  •  District Raigarh  •  Chhattisgarh',{x:.7,y:2.35,w:9.5,h:.3,fontSize:12,color:'E2E8F0',margin:0});
+  const metrics=ayushmanMetrics(mod);
+  metrics.slice(0,6).forEach((m,i)=>{
+    const col=i%3,row=Math.floor(i/3),x=.7+col*4.05,y=3.05+row*1.55;
+    slide.addShape(pptx.ShapeType.roundRect,{x,y,w:3.7,h:1.2,rectRadius:.08,fill:{color:'FFFFFF'},line:{color:'D6E3EC',pt:1}});
+    slide.addText(m.label,{x:x+.18,y:y+.16,w:3.3,h:.32,fontSize:11,bold:true,color:'0F766E',margin:0,fit:'shrink'});
+    slide.addText(m.raw,{x:x+.18,y:y+.5,w:3.3,h:.5,fontSize:25,bold:true,color:'0B3558',margin:0,fit:'shrink'});
+  });
+  slide.addText('Live Google Sheet data • Generated from the current dashboard view',{x:.7,y:7.05,w:8,h:.2,fontSize:8,color:'CBD5E1',margin:0});
+}
+
+function addAyushmanVisualSlide(pptx,mod){
+  const metrics=ayushmanMetrics(mod);
+  const slide=pptx.addSlide();
+  slide.background={color:'F4F7FB'};
+  addTitle(slide,'Ayushman Card','VISUAL PERFORMANCE & KEY POINTS',true);
+  if(metrics.length){
+    try{
+      slide.addChart(pptx.ChartType.doughnut,[{name:'Ayushman',labels:metrics.slice(0,6).map(m=>m.label),values:metrics.slice(0,6).map(m=>Math.max(0,m.value))}],{
+        x:.55,y:1.55,w:5.25,h:4.7,holeSize:58,showLegend:true,legendPos:'b',
+        legendFontFace:'Aptos',legendFontSize:10,chartColors:['0F766E','0EA5E9','F59E0B','8B5CF6','14B8A6','64748B'],
+        showTitle:false,showValue:false,showCategoryName:false
+      });
+    }catch(e){}
+  }
+  slide.addText('KEY POINTS',{x:6.15,y:1.55,w:5.8,h:.4,fontSize:22,bold:true,color:'0F766E',margin:0});
+  const facts=analyse(mod);
+  slide.addText(facts.slice(0,5).map(x=>'• '+x).join('\\n'),{x:6.2,y:2.05,w:6.25,h:2.5,fontSize:16,color:'172033',bold:true,breakLine:false,margin:.03,fit:'shrink'});
+  slide.addText('INDICATOR VALUES',{x:6.15,y:4.75,w:5.8,h:.35,fontSize:17,bold:true,color:'0F766E',margin:0});
+  slide.addTable(metrics.slice(0,6).map(m=>[
+    {text:m.label,options:{fontSize:11,bold:true,color:'0B3558',fill:'FFFFFF',margin:3}},
+    {text:m.raw,options:{fontSize:14,bold:true,color:'0F766E',fill:'FFFFFF',align:'center',margin:3}}
+  ]),{x:6.15,y:5.15,w:6.25,h:1.45,colW:[4.5,1.75],rowH:.24,border:{type:'solid',color:'CBD5E1',pt:1},margin:2});
+  slide.addText('Source: live Google Sheet data rendered in the dashboard.',{x:.55,y:7.22,w:8,h:.2,fontSize:7,color:'94A3B8',margin:0});
+}
+
 function addGraphSlide(pptx,mod){
   const metrics=extractMetrics(mod);
   if(!metrics.length) return;
@@ -247,9 +302,15 @@ async function generate(){
     ],{x:.45,y:1.35,w:12.2,h:5.6,colW:[.65,2.3,.8,8.45],border:{type:'solid',color:'CBD5E1',pt:1},rowH:.28});
 
     for(const mod of modules){
-      addGraphSlide(pptx,mod);
-      addModuleAnalysis(pptx,mod);
-      for(const table of mod.tables.slice(0,2)) addTableSlide(pptx,mod,table,0);
+      if(mod.name==='Ayushman Card'){
+        addAyushmanHeroSlide(pptx,mod);
+        addAyushmanVisualSlide(pptx,mod);
+        for(const table of mod.tables.slice(0,1)) addTableSlide(pptx,mod,table,0);
+      }else{
+        addGraphSlide(pptx,mod);
+        addModuleAnalysis(pptx,mod);
+        for(const table of mod.tables.slice(0,2)) addTableSlide(pptx,mod,table,0);
+      }
     }
 
     slide=pptx.addSlide(); slide.background={color:'0B3558'};
