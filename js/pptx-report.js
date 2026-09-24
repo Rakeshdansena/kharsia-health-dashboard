@@ -450,7 +450,7 @@ function mountRCHPPTXButton(){
   b.id='rchPptxGenerateBtn';
   b.textContent='📽️ Janani Portal PPTX';
   Object.assign(b.style,{position:'fixed',right:'22px',top:'64px',zIndex:99999,border:0,borderRadius:'9px',padding:'10px 14px',background:'#7c3aed',color:'#fff',fontWeight:'800',fontSize:'13px',cursor:'pointer',boxShadow:'0 4px 12px rgba(0,0,0,.2)',display:'none'});
-  b.onclick=generateRCHPPTX;
+  b.onclick=()=>{generateRCHPPTX().catch(e=>{console.error(e);alert('PPTX बनाने में समस्या हुई: '+(e?.message||e));});};
   document.body.appendChild(b);
   const update=()=>{
     const title=rchText(document.getElementById('reportTitle')?.innerText);
