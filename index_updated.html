@@ -3144,198 +3144,89 @@ function parseAyushmanData(data){
 
  const rows=[];
 
-
- for(
-  let r=0;
-  r<data.getNumberOfRows();
-  r++
- ){
-
-  rows.push(
-   getSheetRow(
-    data,
-    r
-   )
-  );
-
+ for(let r=0;r<data.getNumberOfRows();r++){
+  rows.push(getSheetRow(data,r));
  }
 
-
- let ayushmanTitle =
-  "आयुष्मान कार्ड रिपोर्ट";
-
-
- let vayTitle =
-  "वय वंदन कार्ड रिपोर्ट";
-
-
+ let ayushmanTitle="आयुष्मान कार्ड रिपोर्ट";
+ let vayTitle="वय वंदन कार्ड रिपोर्ट";
  let ayushmanData=null;
-
  let vayData=null;
-
  let section="";
 
-
- rows.forEach(
-  row=>{
-
-   const text =
-    row.join(" ")
+ const cleanText = row =>
+  row.map(v=>String(v==null?"":v).trim())
+     .filter(Boolean)
+     .join(" ")
      .replace(/\s+/g," ")
      .trim();
 
+ const hasDate = text =>
+  /(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[- ]\d{4})/i.test(text);
 
-   const lower =
-    text.toLowerCase();
+ rows.forEach(row=>{
+  const text=cleanText(row);
+  const lower=text.toLowerCase();
 
+  const isVay =
+   lower.includes("वय वंदन") ||
+   lower.includes("वयवंदन") ||
+   lower.includes("vay vandan") ||
+   lower.includes("vayvandan");
 
-   /* AYUSHMAN TITLE */
+  const isAyushman =
+   lower.includes("आयुष्मान") ||
+   lower.includes("ayushman");
 
-   if(
-    lower.includes(
-     "आयुष्मान कार्ड"
-    )
-   ){
-
-    section="ayushman";
-
-    if(text){
-
-     ayushmanTitle =
-      text;
-
-    }
-
+  /*
+    Heading rows are taken directly from Google Sheet.
+    This supports Hindi/English headings and date formats,
+    so changing the Sheet heading/date changes the dashboard too.
+  */
+  if(isVay && !isNumberLike(row[0])){
+   section="vay";
+   if(text && (hasDate(text) || row.filter(Boolean).length>=1)){
+    vayTitle=text;
    }
-
-
-   /* VAY VANDAN TITLE */
-
-   if(
-    lower.includes(
-     "वय वंदन कार्ड"
-    )
-   ){
-
-    section="vay";
-
-    if(text){
-
-     vayTitle =
-      text;
-
-    }
-
-   }
-
-
-   /*
-    DATA ROW
-    First cell numeric
-    Total 8 columns
-   */
-
-   if(
-    isNumberLike(row[0]) &&
-    row.length>=8
-   ){
-
-    const values =
-     row.slice(0,8);
-
-
-    const useful =
-     values.slice(1)
-      .some(
-       v=>
-        String(v||"").trim()!==""
-      );
-
-
-    if(useful){
-
-     if(
-      section==="ayushman" &&
-      !ayushmanData
-     ){
-
-      ayushmanData =
-       values;
-
-     }
-
-
-     else if(
-      section==="vay" &&
-      !vayData
-     ){
-
-      vayData =
-       values;
-
-     }
-
-    }
-
-   }
-
+   return;
   }
- );
 
+  if(isAyushman && !isNumberLike(row[0])){
+   section="ayushman";
+   if(text && (hasDate(text) || row.filter(Boolean).length>=1)){
+    ayushmanTitle=text;
+   }
+   return;
+  }
 
- /*
-   अगर sheet में data नहीं मिला,
-   तो default values रखेंगे।
- */
+  if(isNumberLike(row[0]) && row.length>=8){
+   const values=row.slice(0,8);
+   const useful=values.slice(1).some(v=>String(v==null?"":v).trim()!=="");
+
+   if(useful){
+    if(section==="ayushman" && !ayushmanData){
+     ayushmanData=values;
+    }else if(section==="vay" && !vayData){
+     vayData=values;
+    }
+   }
+  }
+ });
 
  if(!ayushmanData){
-
-  ayushmanData=[
-   "1",
-   "134488",
-   "17572",
-   "152060",
-   "126274",
-   "16271",
-   "142545",
-   "93.7"
-  ];
-
+  ayushmanData=["1","134488","17572","152060","126274","16271","142545","93.7"];
  }
-
 
  if(!vayData){
-
-  vayData=[
-   "1",
-   "3737",
-   "257",
-   "3994",
-   "3740",
-   "257",
-   "3997",
-   "100.1"
-  ];
-
+  vayData=["1","3737","257","3994","3740","257","3997","100.1"];
  }
 
-
  return {
-
-  ayushmanTitle:
-   ayushmanTitle,
-
-  ayushmanData:
-   ayushmanData,
-
-  vayTitle:
-   vayTitle,
-
-  vayData:
-   vayData
-
+  ayushmanTitle,
+  ayushmanData,
+  vayTitle,
+  vayData
  };
-
 }
 
 
