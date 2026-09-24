@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 
+// Expose the generator immediately; this prevents later optional dashboard setup from hiding it.
+window.generate=generate;
+
 const PPTX_SHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
 const MODULES=[
   'Ayushman Card','RCH 2.0','NCD','JAS Meeting','Health & Wellness Center',
