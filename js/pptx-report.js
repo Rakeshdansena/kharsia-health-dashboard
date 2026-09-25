@@ -442,48 +442,19 @@
         '</g>' +
         '<rect y="820" width="1600" height="80" fill="#073b75"/>' +
         '<text x="70" y="870" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="800" fill="#ffffff">Health Department  |  District Raigarh  |  Chhattisgarh</text>' +
-        '<text x="1530" y="870" text-anchor="end" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="900" fill="#ffd900">Monthly Performance Review</text>' +
+        '<text x="1355" y="870" text-anchor="end" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="900" fill="#ffd900">Monthly Performance Review</text><rect x="1435" y="835" width="120" height="43" rx="18" fill="#ffffff"/><text x="1495" y="864" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="20" font-weight="900" fill="#073b75">Page 01</text>' +
         '</svg>';
 
       var slide = pptx.addSlide();
       slide.background = { color:'F8FBFF' };
       slide.addImage({ data: svgDataUri(coverSvg), x:0, y:0, w:13.333, h:7.5 });
 
-      // 2. INDEX — all dashboard modules
-      slide = pptx.addSlide();
-      addHeader(slide, 'INDEX', 'Progressive Report Modules');
-      var indexItems = [
-        ['01','Cover Page'],
-        ['02','Index'],
-        ['03','Janani Portal (RCH 2.0) — Block Summary'],
-        ['04','Janani Portal — Sector Wise Data + Color Graph'],
-        ['05','Janani Portal — Sector-wise Facility Data + Analysis'],
-        ['06','Janani Portal — Overall Analysis']
-      ];
-      var otherModules = [
-        {name:'Ayushman Card',icon:'💳',gid:'925649620'},
-        {name:'NCD',icon:'❤️',gid:'1254412412'},
-        {name:'JAS Meeting',icon:'🤝',gid:'1018164338'},
-        {name:'Health & Wellness Center',icon:'🏥',gid:'0'},
-        {name:'Ayushman Shivir',icon:'🏕️',gid:'1262815420'},
-        {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
-        {name:'RBSK',icon:'👶',gid:'1502752823'},
-        {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
-        {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
-        {name:'NQAS Certification',icon:'🏅',gid:'728123647'},
-        {name:'Dialysis',icon:'💧',gid:'781496964'},
-        {name:'NLEP',icon:'🦠',gid:'1536656599'}
-      ];
-      otherModules.forEach(function(m,i){ indexItems.push([String(i+7).padStart(2,'0'),m.icon+' '+m.name+' — Color Chart & Report']); });
-      indexItems.forEach(function(item,i){
-        var col=i<9?0:1, row=i<9?i:i-9, x=0.65+col*6.25, y=1.12+row*0.57;
-        slide.addShape('roundRect',{x:x,y:y,w:0.72,h:0.36,fill:{color:i<6?'0F766E':'2563EB'},line:{color:i<6?'0F766E':'2563EB'}});
-        slide.addText(item[0],{x:x,y:y+0.09,w:0.72,h:0.15,fontSize:8.5,bold:true,color:'FFFFFF',align:'center',margin:0});
-        slide.addText(item[1],{x:x+0.9,y:y+0.02,w:5.0,h:0.3,fontSize:12.5,bold:i<6,color:'172033',margin:0,fit:'shrink'});
-      });
-
+      // 2. INDEX — created after all content slides so page ranges are always exact.
+      // The index slide is moved to position 2 after all modules are generated.
+      var moduleRanges = [];
       showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
       // 3. BLOCK SUMMARY
+      var rchStartPage = pptx.slides.length + 2;
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'BLOCK SUMMARY DASHBOARD | FY 2026–27');
       addCard(slide, 0.65, 1.6, 2.7, 1.25, 'Facilities', total.facilities);
@@ -567,18 +538,30 @@
         addCard(slide, 10.75, 5.1, 1.75, 1.05, 'Facilities', s.facilities);
       });
 
+      moduleRanges.push({
+        name: 'RCH 2.0',
+        start: rchStartPage,
+        end: pptx.slides.length + 1
+      });
+
       // 6 onward. OTHER MODULE REPORTS — live Google Sheet + colorful chart
       showProgress('Other module reports', 91, 'बाकी सभी modules के reports और color charts तैयार हो रहे हैं...');
       for (var mi = 0; mi < otherModules.length; mi++) {
         var mod = otherModules[mi];
         var progress = 91 + Math.round((mi / Math.max(otherModules.length,1)) * 4);
         showProgress('Module report ' + (mi + 1) + '/' + otherModules.length, progress, mod.name + ' का live data और color chart तैयार हो रहा है...');
+        var moduleStart = pptx.slides.length + 2;
         var genericData = await queryGenericSheet(mod.gid);
         addGenericModuleSlide(pptx, mod, genericData, mi);
+        var moduleEnd = pptx.slides.length + 1;
+        if (moduleEnd >= moduleStart) {
+          moduleRanges.push({ name: mod.name, start: moduleStart, end: moduleEnd });
+        }
       }
 
       showProgress('Final analysis', 92, 'Overall Data Analysis slide तैयार हो रही है...');
       // LAST. OVERALL ANALYSIS
+      var overallStartPage = pptx.slides.length + 2;
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'OVERALL DATA ANALYSIS');
       var highest = sectors.slice().sort(function (a, b) { return b.percent - a.percent; })[0];
@@ -606,6 +589,80 @@
       slide.addText('Source: live Google Sheet data | Generated from the Dashboard PPTX button', {
         x: 0.65, y: 6.75, w: 8, h: 0.2,
         fontSize: 8, color: '94A3B8', margin: 0
+      });
+
+      moduleRanges.push({
+        name: 'Overall Analysis',
+        start: overallStartPage,
+        end: pptx.slides.length + 1
+      });
+
+      // Build the final Index after all module slides exist.
+      // It is then moved to slide position 2, so all page ranges remain correct.
+      var indexSlide = pptx.addSlide();
+      addHeader(indexSlide, 'INDEX', 'PROGRESSIVE REPORT MODULES');
+      indexSlide.background = { color: 'F8FBFF' };
+
+      var indexItems = moduleRanges.slice();
+      var left = indexItems.filter(function(_, i) { return i % 2 === 0; });
+      var right = indexItems.filter(function(_, i) { return i % 2 === 1; });
+
+      function pageRangeText(item) {
+        return item.start === item.end ? 'Page ' + String(item.start).padStart(2, '0')
+          : 'Page ' + String(item.start).padStart(2, '0') + '–' + String(item.end).padStart(2, '0');
+      }
+
+      function drawIndexColumn(items, x, y0, color) {
+        items.forEach(function(item, i) {
+          var y = y0 + i * 0.62;
+          indexSlide.addShape('roundRect', {
+            x:x, y:y, w:5.65, h:0.48,
+            fill:{color:'FFFFFF'}, line:{color:'D6E3EC', pt:1},
+            shadow:{type:'outer', color:'94A3B8', blur:1, angle:45, distance:1, opacity:0.10}
+          });
+          indexSlide.addShape('roundRect', {
+            x:x+0.10, y:y+0.07, w:0.55, h:0.34,
+            fill:{color:color}, line:{color:color}
+          });
+          indexSlide.addText(String(moduleRanges.indexOf(item)+1).padStart(2,'0'), {
+            x:x+0.10, y:y+0.15, w:0.55, h:0.12,
+            fontSize:8, bold:true, color:'FFFFFF', align:'center', margin:0
+          });
+          indexSlide.addText(item.name, {
+            x:x+0.82, y:y+0.10, w:3.65, h:0.23,
+            fontSize:12.5, bold:true, color:'172033', margin:0, fit:'shrink'
+          });
+          indexSlide.addShape('roundRect', {
+            x:x+4.48, y:y+0.07, w:1.05, h:0.34,
+            fill:{color:'EFF6FF'}, line:{color:'BFDBFE', pt:1}
+          });
+          indexSlide.addText(pageRangeText(item), {
+            x:x+4.48, y:y+0.15, w:1.05, h:0.12,
+            fontSize:7.5, bold:true, color:'075985', align:'center', margin:0, fit:'shrink'
+          });
+        });
+      }
+
+      drawIndexColumn(left, 0.55, 1.15, '0F766E');
+      drawIndexColumn(right, 6.95, 1.15, '2563EB');
+
+      indexSlide.addText('Page range is generated automatically from the final PPTX slide count.', {
+        x:0.65, y:6.62, w:8.0, h:0.18,
+        fontSize:8, italic:true, color:'64748B', margin:0
+      });
+
+      // Move the completed index to slide 2 (after the cover).
+      pptx.slides.splice(1, 0, pptx.slides.pop());
+
+      // Add visible page numbers to every slide. Cover already has its own footer area,
+      // while all report slides use the native PptxGenJS slide-number field.
+      pptx.slides.forEach(function(s, i) {
+        if (i === 0) return;
+        s.slideNumber = {
+          x:12.15, y:7.03, w:0.75, h:0.20,
+          fontFace:'Arial', fontSize:8, bold:true,
+          color:'0B4F6C', align:'right'
+        };
       });
 
       var date = new Date().toISOString().slice(0, 10);
