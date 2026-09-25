@@ -368,80 +368,86 @@
       pptx.title = 'Kharsia Health Progressive Report';
       pptx.lang = 'en-IN';
 
-      // 1. COVER — exact approved sample style for the COMPLETE Health Programme Report
+      // 1. COVER — final approved whole-programme cover.
+      // Render Slide 1 as one SVG image so the downloaded PPTX matches the approved preview.
+      // Only Slide 1 uses this design; all later slides keep their existing layouts.
       var coverPhoto = null;
       try { coverPhoto = await fetchImageData(COVER_PHOTO_URL); } catch (photoErr) { console.warn(photoErr); }
-      var slide = pptx.addSlide();
-      slide.background = { color:'F8FBFF' };
 
-      // Sample header
-      slide.addShape('rect',{x:0,y:0,w:13.333,h:0.10,fill:{color:'14B8A6'},line:{color:'14B8A6'}});
-      slide.addText('Kharsia Health Dashboard',{
-        x:0.55,y:0.34,w:7.4,h:0.55,fontSize:28,bold:true,color:'073B75',margin:0
-      });
-      slide.addText('Block Kharsia  |  District Raigarh  |  Chhattisgarh',{
-        x:0.58,y:0.92,w:7.5,h:0.24,fontSize:12,bold:true,color:'334155',margin:0
+      var coverDate = new Date().toLocaleDateString('en-IN', {
+        day:'2-digit', month:'long', year:'numeric'
       });
 
-      // Main sample banners — NO Janani Portal on cover
-      slide.addShape('roundRect',{x:0.55,y:1.42,w:7.35,h:0.72,fill:{color:'073B75'},line:{color:'073B75'}});
-      slide.addText('PROGRESSIVE REPORT',{
-        x:0.75,y:1.60,w:6.95,h:0.30,fontSize:28,bold:true,color:'FFFFFF',align:'center',margin:0
-      });
-      slide.addShape('roundRect',{x:0.55,y:2.14,w:7.35,h:0.72,fill:{color:'14B8A6'},line:{color:'14B8A6'}});
-      slide.addText('MONTHLY HEALTH PERFORMANCE REPORT',{
-        x:0.72,y:2.34,w:6.98,h:0.30,fontSize:20,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'
-      });
-
-      // Healthcare photo on right
-      if(coverPhoto){
-        slide.addImage({data:coverPhoto,x:8.12,y:1.28,w:4.70,h:4.62});
-        slide.addShape('roundRect',{x:8.12,y:1.28,w:4.70,h:4.62,fill:{color:'FFFFFF',transparency:100},line:{color:'14B8A6',pt:2}});
-      } else {
-        slide.addShape('roundRect',{x:8.12,y:1.28,w:4.70,h:4.62,fill:{color:'E0F2FE'},line:{color:'14B8A6',pt:2}});
-        slide.addText('HEALTH PROGRAMMES',{x:8.40,y:3.30,w:4.15,h:0.45,fontSize:24,bold:true,color:'075985',align:'center',margin:0});
+      function escSvg(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;');
       }
 
-      // FY / Current Date / Block panels
-      slide.addShape('roundRect',{x:0.68,y:3.24,w:2.55,h:0.82,fill:{color:'EFF6FF'},line:{color:'60A5FA',pt:1}});
-      slide.addText('FINANCIAL YEAR',{x:0.85,y:3.40,w:2.2,h:0.18,fontSize:9,bold:true,color:'475569',align:'center',margin:0});
-      slide.addText('FY 2026 – 27',{x:0.85,y:3.66,w:2.2,h:0.25,fontSize:19,bold:true,color:'075985',align:'center',margin:0});
+      function svgDataUri(svg) {
+        return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+      }
 
-      slide.addShape('roundRect',{x:3.42,y:3.24,w:3.15,h:0.82,fill:{color:'FFF1F8'},line:{color:'F472B6',pt:1}});
-      slide.addText('AS ON DATE',{x:3.62,y:3.40,w:2.75,h:0.18,fontSize:9,bold:true,color:'475569',align:'center',margin:0});
-      slide.addText(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}),{
-        x:3.58,y:3.65,w:2.83,h:0.25,fontSize:16,bold:true,color:'BE185D',align:'center',margin:0,fit:'shrink'
-      });
+      var photoHref = coverPhoto || '';
+      var coverSvg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">' +
+        '<defs>' +
+          '<linearGradient id="top" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient>' +
+          '<linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b4f8a"/><stop offset="1" stop-color="#075985"/></linearGradient>' +
+          '<clipPath id="photoClip"><path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z"/></clipPath>' +
+          '<filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".16"/></filter>' +
+        '</defs>' +
+        '<rect width="1600" height="900" fill="#f7fbff"/>' +
+        '<rect width="1600" height="142" fill="url(#top)"/>' +
+        '<rect y="136" width="1600" height="8" fill="#59aee8"/>' +
+        '<text x="68" y="62" font-family="Arial, Noto Sans, sans-serif" font-size="27" font-weight="800" fill="#073b75">छत्तीसगढ़ शासन</text>' +
+        '<text x="68" y="101" font-family="Arial, Noto Sans, sans-serif" font-size="21" font-weight="700" fill="#1f4e79">स्वास्थ्य एवं परिवार कल्याण विभाग</text>' +
+        '<circle cx="31" cy="77" r="25" fill="#ffffff" stroke="#075985" stroke-width="4"/>' +
+        '<text x="31" y="86" text-anchor="middle" font-family="Arial" font-size="25" font-weight="800" fill="#075985">+</text>' +
+        '<text x="1470" y="61" text-anchor="middle" font-family="Arial" font-size="18" font-weight="800" fill="#0b4f6c">NATIONAL HEALTH</text>' +
+        '<text x="1470" y="87" text-anchor="middle" font-family="Arial" font-size="18" font-weight="800" fill="#0b4f6c">MISSION</text>' +
+        '<circle cx="1470" cy="111" r="18" fill="#ef4444"/><text x="1470" y="118" text-anchor="middle" font-family="Arial" font-size="18" fill="#fff">+</text>' +
+        '<path d="M0 185 L1080 185 C1130 185 1160 205 1190 245 L1040 690 L0 690 Z" fill="url(#blue)" opacity=".98"/>' +
+        '<path d="M0 690 C260 620 560 650 850 665 C990 672 1060 635 1110 590 L1045 900 L0 900 Z" fill="#e7f4ff"/>' +
+        '<path d="M100 185 L1080 185 C1110 185 1130 198 1155 220" fill="none" stroke="#4aa8e8" stroke-width="18" opacity=".8"/>' +
+        '<g filter="url(#shadow)">' +
+          '<rect x="110" y="207" width="920" height="102" rx="18" fill="#073b75"/>' +
+          '<text x="570" y="278" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="56" font-weight="900" fill="#ffffff">KHARSIA HEALTH DASHBOARD</text>' +
+          '<rect x="110" y="328" width="920" height="86" rx="18" fill="#ffffff" opacity=".97"/>' +
+          '<text x="570" y="386" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="48" font-weight="900" fill="#18783c">PROGRESSIVE REPORT</text>' +
+          '<rect x="330" y="435" width="480" height="70" rx="18" fill="#0d63c9"/>' +
+          '<text x="570" y="483" text-anchor="middle" font-family="Arial" font-size="38" font-weight="900" fill="#ffffff">FY 2026 – 27</text>' +
+        '</g>' +
+        '<rect x="95" y="530" width="900" height="70" rx="20" fill="#ffffff" opacity=".94"/>' +
+        '<text x="545" y="575" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="29" font-weight="800" fill="#0f2d52">Block Kharsia  |  District Raigarh  |  Chhattisgarh</text>' +
+        '<rect x="265" y="610" width="560" height="56" rx="17" fill="#fff0f3"/>' +
+        '<text x="545" y="648" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="24" font-weight="800" fill="#be185d">As On Date : ' + escSvg(coverDate) + '</text>' +
+        (photoHref ?
+          '<image href="' + photoHref + '" x="1050" y="130" width="550" height="560" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>' :
+          '<path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z" fill="#dff2ff"/>') +
+        '<path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z" fill="none" stroke="#ffffff" stroke-width="12"/>' +
+        '<g font-family="Arial, Noto Sans, sans-serif" font-weight="800" font-size="18" text-anchor="middle">' +
+          '<g><rect x="45" y="706" width="116" height="76" rx="16" fill="#eadcff"/><text x="103" y="750" fill="#4338ca">RCH 2.0</text></g>' +
+          '<g><rect x="173" y="706" width="116" height="76" rx="16" fill="#ffd7e8"/><text x="231" y="750" fill="#be185d">Ayushman</text></g>' +
+          '<g><rect x="301" y="706" width="116" height="76" rx="16" fill="#d8f0ff"/><text x="359" y="750" fill="#075985">NCD</text></g>' +
+          '<g><rect x="429" y="706" width="116" height="76" rx="16" fill="#dcfce7"/><text x="487" y="750" fill="#166534">AAM</text></g>' +
+          '<g><rect x="557" y="706" width="116" height="76" rx="16" fill="#fff1b8"/><text x="615" y="750" fill="#92400e">JAS Meeting</text></g>' +
+          '<g><rect x="685" y="706" width="116" height="76" rx="16" fill="#ffe0cf"/><text x="743" y="750" fill="#c2410c">Ayushman Shivir</text></g>' +
+          '<g><rect x="813" y="706" width="116" height="76" rx="16" fill="#f6d7ff"/><text x="871" y="750" fill="#7e22ce">Wellness Activity</text></g>' +
+          '<g><rect x="941" y="706" width="116" height="76" rx="16" fill="#e2dcff"/><text x="999" y="750" fill="#4338ca">RBSK</text></g>' +
+          '<g><rect x="1069" y="706" width="116" height="76" rx="16" fill="#d9efff"/><text x="1127" y="750" fill="#075985">Dialysis</text></g>' +
+          '<g><rect x="1197" y="706" width="116" height="76" rx="16" fill="#efffbf"/><text x="1255" y="750" fill="#3f6212">Blindness</text></g>' +
+          '<g><rect x="1325" y="706" width="116" height="76" rx="16" fill="#fff1b8"/><text x="1383" y="750" fill="#854d0e">NQAS</text></g>' +
+          '<g><rect x="1453" y="706" width="116" height="76" rx="16" fill="#d9f7fb"/><text x="1511" y="750" fill="#155e75">NLEP</text></g>' +
+        '</g>' +
+        '<rect y="820" width="1600" height="80" fill="#073b75"/>' +
+        '<text x="70" y="870" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="800" fill="#ffffff">Health Department  |  District Raigarh  |  Chhattisgarh</text>' +
+        '<text x="1530" y="870" text-anchor="end" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="900" fill="#ffd900">Monthly Performance Review</text>' +
+        '</svg>';
 
-      slide.addShape('roundRect',{x:6.78,y:3.24,w:1.12,h:0.82,fill:{color:'FFF7ED'},line:{color:'FB923C',pt:1}});
-      slide.addText('BLOCK',{x:6.90,y:3.40,w:0.88,h:0.15,fontSize:8,bold:true,color:'64748B',align:'center',margin:0});
-      slide.addText('Kharsia',{x:6.88,y:3.65,w:0.92,h:0.22,fontSize:13,bold:true,color:'C2410C',align:'center',margin:0});
-
-      // Programme visual strip — whole dashboard, not one module
-      var coverItems=[
-        ['Ayushman Card','2563EB'],['Janani / RCH','DB2777'],['NCD','DC2626'],
-        ['JAS Meeting','F59E0B'],['Wellness','0F766E']
-      ];
-      coverItems.forEach(function(it,i){
-        var x=0.65+i*1.43;
-        slide.addShape('ellipse',{x:x,y:4.55,w:0.62,h:0.62,fill:{color:it[1]},line:{color:it[1]}});
-        slide.addText(String(i+1),{x:x,y:4.72,w:0.62,h:0.18,fontSize:13,bold:true,color:'FFFFFF',align:'center',margin:0});
-        slide.addText(it[0],{x:x-0.18,y:5.24,w:0.98,h:0.35,fontSize:8,bold:true,color:'172033',align:'center',margin:0,fit:'shrink'});
-      });
-
-      slide.addShape('roundRect',{x:8.12,y:6.05,w:4.70,h:0.55,fill:{color:'073B75'},line:{color:'073B75'}});
-      slide.addText('ALL HEALTH PROGRAMMES • PROGRESS • COVERAGE • QUALITY',{
-        x:8.30,y:6.21,w:4.35,h:0.18,fontSize:8.8,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'
-      });
-
-      // Sample footer
-      slide.addShape('rect',{x:0,y:6.82,w:13.333,h:0.68,fill:{color:'062E49'},line:{color:'062E49'}});
-      slide.addText('Health Department  |  District Raigarh  |  Chhattisgarh',{
-        x:0.55,y:7.04,w:6.7,h:0.20,fontSize:11,bold:true,color:'FFFFFF',margin:0
-      });
-      slide.addText('Monthly Performance Review',{
-        x:8.45,y:7.04,w:4.35,h:0.20,fontSize:11,bold:true,color:'DFF7F3',align:'right',margin:0
-      });
+      var slide = pptx.addSlide();
+      slide.background = { color:'F8FBFF' };
+      slide.addImage({ data: svgDataUri(coverSvg), x:0, y:0, w:13.333, h:7.5 });
 
       // 2. INDEX — all dashboard modules
       slide = pptx.addSlide();
