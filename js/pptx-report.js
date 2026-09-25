@@ -612,177 +612,103 @@
         end: pptx.slides.length + 1
       });
 
-      // Build the final Index after all content slides exist.
-      // Designed as a visual programme directory; page ranges come from the final slide count.
+      // Build the final Index as a full-bleed visual slide to match the approved sample style.
       var indexSlide = pptx.addSlide();
-      indexSlide.background = { color: 'F4F9FD' };
-
-      // Top government-style band
-      indexSlide.addShape('rect', {
-        x:0, y:0, w:13.333, h:0.34,
-        fill:{color:'075985'}, line:{color:'075985'}
-      });
-      indexSlide.addShape('rect', {
-        x:0, y:0.34, w:13.333, h:0.05,
-        fill:{color:'14B8A6'}, line:{color:'14B8A6'}
-      });
-      indexSlide.addText('INDEX', {
-        x:0.52, y:0.60, w:4.2, h:0.62,
-        fontSize:31, bold:true, color:'073B75', margin:0
-      });
-      indexSlide.addText('PROGRESSIVE REPORT  •  FY 2026–27', {
-        x:8.05, y:0.77, w:4.75, h:0.22,
-        fontSize:10.5, bold:true, color:'0B4F6C', align:'right', margin:0
-      });
-      indexSlide.addShape('rect', {
-        x:0.52, y:1.27, w:9.65, h:0.055,
-        fill:{color:'58AEE8'}, line:{color:'58AEE8'}
-      });
+      indexSlide.background = { color:'F7FBFF' };
 
       function pageRangeText(item) {
         return item.start === item.end
-          ? 'Page ' + String(item.start).padStart(2, '0')
-          : 'Page ' + String(item.start).padStart(2, '0') + '–' + String(item.end).padStart(2, '0');
+          ? 'Page ' + String(item.start).padStart(2,'0')
+          : 'Page ' + String(item.start).padStart(2,'0') + '–' + String(item.end).padStart(2,'0');
       }
 
-      // Keep the complete programme list visible even when a module has no live sheet rows.
-      // Missing generated content is shown as Data Pending rather than inventing page numbers.
       var desiredModules = [
-        {name:'RCH 2.0', icon:'👩‍🍼', color:'7C3AED'},
-        {name:'Ayushman Card', icon:'💳', color:'EC4899'},
-        {name:'NCD', icon:'❤️', color:'0EA5E9'},
-        {name:'Ayushman Arogya Mandir (AAM)', icon:'🏥', color:'16A34A'},
-        {name:'JAS Meeting', icon:'🤝', color:'F59E0B'},
-        {name:'Health & Wellness Centre', icon:'🏥', color:'F97316'},
-        {name:'Ayushman Shivir', icon:'🏕️', color:'DB2777'},
-        {name:'Wellness Activity', icon:'🩺', color:'9333EA'},
-        {name:'RBSK', icon:'👶', color:'2563EB'},
-        {name:'NRC Kharsia', icon:'🏥', color:'16A34A'},
-        {name:'Blindness Control', icon:'👁️', color:'CA8A04'},
-        {name:'NQAS Certification', icon:'🏅', color:'EA580C'},
-        {name:'Dialysis', icon:'💧', color:'DB2777'},
-        {name:'NLEP', icon:'🦠', color:'0284C7'},
-        {name:'Overall Analysis', icon:'📊', color:'0F766E'}
+        {name:'RCH 2.0', icon:'R', color:'#7C3AED', fill:'#EDE9FE'},
+        {name:'Ayushman Card', icon:'A', color:'#DB2777', fill:'#FCE7F3'},
+        {name:'NCD', icon:'♥', color:'#0284C7', fill:'#E0F2FE'},
+        {name:'Ayushman Arogya Mandir (AAM)', icon:'+', color:'#16A34A', fill:'#DCFCE7'},
+        {name:'JAS Meeting', icon:'J', color:'#D97706', fill:'#FEF3C7'},
+        {name:'Health & Wellness Centre', icon:'H', color:'#EA580C', fill:'#FFEDD5'},
+        {name:'Ayushman Shivir', icon:'S', color:'#DB2777', fill:'#FCE7F3'},
+        {name:'Wellness Activity', icon:'W', color:'#9333EA', fill:'#F3E8FF'},
+        {name:'RBSK', icon:'B', color:'#2563EB', fill:'#DBEAFE'},
+        {name:'NRC Kharsia', icon:'N', color:'#16A34A', fill:'#DCFCE7'},
+        {name:'Blindness Control', icon:'E', color:'#CA8A04', fill:'#FEF9C3'},
+        {name:'NQAS Certification', icon:'Q', color:'#EA580C', fill:'#FFEDD5'},
+        {name:'Dialysis', icon:'D', color:'#DB2777', fill:'#FCE7F3'},
+        {name:'NLEP', icon:'L', color:'#0284C7', fill:'#E0F2FE'},
+        {name:'Overall Analysis', icon:'P', color:'#0F766E', fill:'#CCFBF1'}
       ];
 
       var indexItems = desiredModules.map(function(dm) {
-        var found = moduleRanges.find(function(r) { return r.name === dm.name; });
-        return {
-          name: dm.name, icon: dm.icon, color: dm.color,
-          start: found ? found.start : null,
-          end: found ? found.end : null
-        };
+        var found = moduleRanges.find(function(r){ return r.name === dm.name; });
+        return {name:dm.name, icon:dm.icon, color:dm.color, fill:dm.fill,
+                start:found ? found.start : null, end:found ? found.end : null};
       });
 
-      // If the report contains any additional generated module, append it safely.
-      moduleRanges.forEach(function(r) {
-        if (!indexItems.some(function(x){ return x.name === r.name; })) {
-          indexItems.push({name:r.name, icon:'📌', color:'2563EB', start:r.start, end:r.end});
-        }
-      });
-
-      function drawIndexCard(item, x, y, w) {
-        indexSlide.addShape('roundRect', {
-          x:x, y:y, w:w, h:0.54,
-          fill:{color:'FFFFFF'},
-          line:{color:'D8E6F0', pt:1},
-          shadow:{type:'outer', color:'94A3B8', blur:1, angle:45, distance:1, opacity:0.12}
-        });
-        indexSlide.addShape('roundRect', {
-          x:x+0.08, y:y+0.08, w:0.56, h:0.38,
-          fill:{color:item.color}, line:{color:item.color}
-        });
-        indexSlide.addText(String(indexItems.indexOf(item)+1).padStart(2,'0'), {
-          x:x+0.08, y:y+0.18, w:0.56, h:0.12,
-          fontSize:8.5, bold:true, color:'FFFFFF', align:'center', margin:0
-        });
-        indexSlide.addText(item.icon, {
-          x:x+0.77, y:y+0.10, w:0.34, h:0.25,
-          fontSize:15, margin:0, fit:'shrink'
-        });
-        indexSlide.addText(item.name, {
-          x:x+1.18, y:y+0.14, w:w-2.72, h:0.20,
-          fontSize:11.5, bold:true, color:'172033', margin:0, fit:'shrink'
-        });
-        indexSlide.addShape('roundRect', {
-          x:x+w-1.43, y:y+0.08, w:1.30, h:0.38,
-          fill:{color:item.start ? 'EAF4FF' : 'FFF7ED'},
-          line:{color:item.start ? 'B7D8F5' : 'FED7AA', pt:1}
-        });
-        indexSlide.addText(item.start ? pageRangeText(item) : 'Data Pending', {
-          x:x+w-1.43, y:y+0.18, w:1.30, h:0.12,
-          fontSize:7.2, bold:true,
-          color:item.start ? '075985' : 'C2410C',
-          align:'center', margin:0, fit:'shrink'
-        });
+      function esc(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;');
       }
 
-      // 8 + 7 layout leaves room for the right-side photo panel.
-      var leftItems = indexItems.slice(0, 8);
-      var rightItems = indexItems.slice(8, 15);
-      leftItems.forEach(function(item,i){ drawIndexCard(item, 0.55, 1.55 + i*0.61, 4.72); });
-      rightItems.forEach(function(item,i){ drawIndexCard(item, 5.48, 1.55 + i*0.61, 4.72); });
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">' +
+        '<defs>' +
+          '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FCFF"/><stop offset="1" stop-color="#EAF5FF"/></linearGradient>' +
+          '<linearGradient id="navy" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#073B75"/><stop offset="1" stop-color="#075985"/></linearGradient>' +
+          '<filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-opacity=".14"/></filter>' +
+          '<clipPath id="idxPhoto"><path d="M1190 165 C1370 115 1515 145 1600 235 L1600 690 C1480 750 1320 720 1190 650 Z"/></clipPath>' +
+        '</defs>' +
+        '<rect width="1600" height="900" fill="url(#bg)"/>' +
+        '<rect width="1600" height="138" fill="#FFFFFF"/>' +
+        '<rect y="132" width="1600" height="7" fill="#59AEE8"/>' +
+        '<text x="70" y="57" font-family="Arial, Noto Sans, sans-serif" font-size="28" font-weight="800" fill="#073B75">छत्तीसगढ़ शासन</text>' +
+        '<text x="70" y="99" font-family="Arial, Noto Sans, sans-serif" font-size="22" font-weight="700" fill="#1F4E79">स्वास्थ्य एवं परिवार कल्याण विभाग</text>' +
+        '<circle cx="35" cy="77" r="27" fill="#FFFFFF" stroke="#075985" stroke-width="4"/><text x="35" y="87" text-anchor="middle" font-family="Arial" font-size="28" font-weight="900" fill="#075985">+</text>' +
+        '<text x="1470" y="53" text-anchor="middle" font-family="Arial" font-size="17" font-weight="800" fill="#0B4F6C">NATIONAL HEALTH MISSION</text>' +
+        '<circle cx="1470" cy="91" r="22" fill="#EF4444"/><text x="1470" y="99" text-anchor="middle" font-family="Arial" font-size="22" font-weight="900" fill="#FFFFFF">+</text>' +
+        '<rect x="65" y="166" width="1020" height="86" rx="24" fill="url(#navy)" filter="url(#shadow)"/>' +
+        '<text x="575" y="228" text-anchor="middle" font-family="Arial" font-size="54" font-weight="900" fill="#FFFFFF">INDEX</text>' +
+        '<text x="1110" y="222" text-anchor="middle" font-family="Arial" font-size="17" font-weight="800" fill="#075985">PROGRESSIVE REPORT • FY 2026–27</text>';
 
-      // Photo / visual panel for the attractive sample-style look.
-      indexSlide.addShape('roundRect', {
-        x:10.48, y:1.55, w:2.30, h:4.95,
-        fill:{color:'DDF2FF'}, line:{color:'FFFFFF', pt:2},
-        shadow:{type:'outer', color:'64748B', blur:2, angle:45, distance:2, opacity:0.18}
-      });
-      if (photoHref) {
-        indexSlide.addImage({
-          data:photoHref, x:10.50, y:1.57, w:2.26, h:4.91,
-          transparency:0
-        });
-      }
-      indexSlide.addShape('roundRect', {
-        x:10.66, y:5.62, w:1.94, h:0.60,
-        fill:{color:'075985', transparency:5},
-        line:{color:'075985', transparency:100}
-      });
-      indexSlide.addText('BLOCK KHARSIA\nDISTRICT RAIGARH', {
-        x:10.75, y:5.75, w:1.76, h:0.25,
-        fontSize:8.5, bold:true, color:'FFFFFF', align:'center',
-        margin:0, fit:'shrink'
+      indexItems.forEach(function(item,i){
+        var col = i < 8 ? 0 : 1;
+        var row = i < 8 ? i : i - 8;
+        var x = col === 0 ? 55 : 590;
+        var y = 278 + row * 65;
+        var page = item.start ? pageRangeText(item) : 'Data Pending';
+        svg += '<g filter="url(#shadow)">' +
+          '<rect x="'+x+'" y="'+y+'" width="510" height="53" rx="14" fill="'+item.fill+'" stroke="'+item.color+'" stroke-opacity=".28" stroke-width="2"/>' +
+          '<rect x="'+(x+9)+'" y="'+(y+8)+'" width="42" height="37" rx="10" fill="'+item.color+'"/>' +
+          '<text x="'+(x+30)+'" y="'+(y+32)+'" text-anchor="middle" font-family="Arial" font-size="16" font-weight="900" fill="#FFFFFF">'+String(i+1).padStart(2,'0')+'</text>' +
+          '<circle cx="'+(x+76)+'" cy="'+(y+26)+'" r="18" fill="#FFFFFF" stroke="'+item.color+'" stroke-width="2"/>' +
+          '<text x="'+(x+76)+'" y="'+(y+33)+'" text-anchor="middle" font-family="Arial" font-size="18" font-weight="900" fill="'+item.color+'">'+esc(item.icon)+'</text>' +
+          '<text x="'+(x+108)+'" y="'+(y+33)+'" font-family="Arial, Noto Sans, sans-serif" font-size="'+(item.name.length>25?18:20)+'" font-weight="800" fill="#0F2D52">'+esc(item.name)+'</text>' +
+          '<rect x="'+(x+395)+'" y="'+(y+9)+'" width="105" height="35" rx="11" fill="#FFFFFF" stroke="'+item.color+'" stroke-opacity=".30"/>' +
+          '<text x="'+(x+447)+'" y="'+(y+31)+'" text-anchor="middle" font-family="Arial" font-size="12" font-weight="800" fill="'+(item.start?'#075985':'#C2410C')+'">'+esc(page)+'</text>' +
+        '</g>';
       });
 
-      // Decorative health icons
-      indexSlide.addShape('roundRect', {
-        x:10.72, y:6.66, w:0.58, h:0.42,
-        fill:{color:'E0F2FE'}, line:{color:'BAE6FD',pt:1}
-      });
-      indexSlide.addText('♥', {x:10.72,y:6.77,w:0.58,h:0.12,fontSize:13,bold:true,color:'0284C7',align:'center',margin:0});
-      indexSlide.addShape('roundRect', {
-        x:11.39, y:6.66, w:0.58, h:0.42,
-        fill:{color:'DCFCE7'}, line:{color:'BBF7D0',pt:1}
-      });
-      indexSlide.addText('✚', {x:11.39,y:6.77,w:0.58,h:0.12,fontSize:13,bold:true,color:'16A34A',align:'center',margin:0});
-      indexSlide.addShape('roundRect', {
-        x:12.06, y:6.66, w:0.58, h:0.42,
-        fill:{color:'FEF3C7'}, line:{color:'FDE68A',pt:1}
-      });
-      indexSlide.addText('⚕', {x:12.06,y:6.77,w:0.58,h:0.12,fontSize:13,bold:true,color:'B45309',align:'center',margin:0});
+      svg += '__PHOTO__' +
+        '<path d="M1190 165 C1370 115 1515 145 1600 235 L1600 690 C1480 750 1320 720 1190 650 Z" fill="none" stroke="#FFFFFF" stroke-width="12"/>' +
+        '<rect x="1170" y="570" width="360" height="72" rx="18" fill="#073B75" fill-opacity=".93"/>' +
+        '<text x="1350" y="600" text-anchor="middle" font-family="Arial" font-size="18" font-weight="900" fill="#FFFFFF">BLOCK KHARSIA</text>' +
+        '<text x="1350" y="626" text-anchor="middle" font-family="Arial" font-size="16" font-weight="700" fill="#D9F2FF">DISTRICT RAIGARH • CHHATTISGARH</text>' +
+        '<path d="M1080 690 C1250 625 1450 680 1600 610 L1600 820 L1080 820 Z" fill="#DCEFFF" opacity=".9"/>' +
+        '<rect y="820" width="1600" height="80" fill="#073B75"/>' +
+        '<text x="65" y="869" font-family="Arial" font-size="21" font-weight="800" fill="#FFFFFF">Health Department | District Raigarh | Chhattisgarh</text>' +
+        '<text x="1255" y="869" text-anchor="end" font-family="Arial" font-size="19" font-weight="900" fill="#FFD900">Monthly Performance Review | FY 2026–27</text>' +
+        '<rect x="1390" y="838" width="145" height="42" rx="16" fill="#FFFFFF"/><text x="1462" y="865" text-anchor="middle" font-family="Arial" font-size="19" font-weight="900" fill="#073B75">Page 02</text>' +
+        '</svg>';
 
-      // Footer with explicit page number.
-      indexSlide.addShape('rect', {
-        x:0, y:7.12, w:13.333, h:0.38,
-        fill:{color:'073B75'}, line:{color:'073B75'}
-      });
-      indexSlide.addText('Health Department  |  District Raigarh  |  Chhattisgarh', {
-        x:0.52, y:7.23, w:6.7, h:0.12,
-        fontSize:8.5, bold:true, color:'FFFFFF', margin:0
-      });
-      indexSlide.addText('Monthly Performance Review  |  FY 2026–27', {
-        x:7.0, y:7.23, w:4.9, h:0.12,
-        fontSize:8.5, bold:true, color:'FFD900', align:'right', margin:0
-      });
-      indexSlide.addShape('roundRect', {
-        x:12.02, y:7.17, w:0.85, h:0.25,
-        fill:{color:'FFFFFF'}, line:{color:'FFFFFF'}
-      });
-      indexSlide.addText('Page 02', {
-        x:12.02, y:7.24, w:0.85, h:0.10,
-        fontSize:7.2, bold:true, color:'073B75', align:'center', margin:0
+      var photoSvg = photoHref
+        ? '<image href="'+photoHref+'" x="1115" y="150" width="485" height="540" preserveAspectRatio="xMidYMid slice" clip-path="url(#idxPhoto)"/>'
+        : '<path d="M1190 165 C1370 115 1515 145 1600 235 L1600 690 C1480 750 1320 720 1190 650 Z" fill="#DDF2FF"/>';
+      svg = svg.replace('__PHOTO__', photoSvg);
+
+      indexSlide.addImage({
+        data:'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg))),
+        x:0, y:0, w:13.333, h:7.5
       });
 
       // Move the completed index to slide 2 (after the cover).
