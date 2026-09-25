@@ -623,43 +623,7 @@
       }
 
       showProgress('Final analysis', 92, 'Overall Data Analysis slide तैयार हो रही है...');
-      // LAST. OVERALL ANALYSIS
-      var overallStartPage = pptx.slides.length + 2;
-      slide = pptx.addSlide();
-      addHeader(slide, 'Janani Portal (RCH 2.0)', 'OVERALL DATA ANALYSIS');
-      var highest = sectors.slice().sort(function (a, b) { return b.percent - a.percent; })[0];
-      var lowest = sectors.slice().sort(function (a, b) { return a.percent - b.percent; })[0];
-      var maxBacklog = sectors.slice().sort(function (a, b) { return b.backlog - a.backlog; })[0];
-      var minBacklog = sectors.slice().sort(function (a, b) { return a.backlog - b.backlog; })[0];
-      addSectionTitle(slide, 'KEY OBSERVATIONS', 0.65, 1.35, 4.5);
-      slide.addText('OBSERVATIONS', {
-        x: 0.65, y: 1.72, w: 4, h: 0.25,
-        fontSize: 20, bold: true, color: '0F766E', margin: 0
-      });
-      slide.addText([
-        '• Block achievement: ' + total.percent + '%.',
-        '• Total facilities: ' + total.facilities + '.',
-        '• Sector-wise achievement values range from ' + (lowest ? lowest.percent : 0) + '% to ' + (highest ? highest.percent : 0) + '%.',
-        '• Highest reported sector achievement: ' + (highest ? highest.sector : 'N/A') + ' (' + (highest ? highest.percent : 0) + '%).',
-        '• Lowest reported sector achievement: ' + (lowest ? lowest.sector : 'N/A') + ' (' + (lowest ? lowest.percent : 0) + '%).',
-        '• Largest positive sector backlog: ' + (maxBacklog ? maxBacklog.sector : 'N/A') + ' (' + (maxBacklog ? maxBacklog.backlog : 0) + ').',
-        '• Lowest sector backlog: ' + (minBacklog ? minBacklog.sector : 'N/A') + ' (' + (minBacklog ? minBacklog.backlog : 0) + ').'
-      ].join('\n'), {
-        x: 0.75, y: 2.15, w: 11.5, h: 3.15,
-        fontSize: 17, color: '172033',
-        breakLine: false, margin: 0.03, fit: 'shrink'
-      });
-      slide.addText('Source: live Google Sheet data | Generated from the Dashboard PPTX button', {
-        x: 0.65, y: 6.75, w: 8, h: 0.2,
-        fontSize: 8, color: '94A3B8', margin: 0
-      });
-
-      moduleRanges.push({
-        name: 'Overall Analysis',
-        start: overallStartPage,
-        end: pptx.slides.length + 1
-      });
-
+      // OVERALL ANALYSIS / KEY OBSERVATIONS slide removed as requested.
       // Build the final Index as a full-bleed visual slide to match the approved sample style.
       var indexSlide = pptx.addSlide();
       indexSlide.background = { color:'F7FBFF' };
@@ -685,7 +649,6 @@
         {name:'NQAS Certification', icon:'Q', color:'#EA580C', fill:'#FFEDD5'},
         {name:'Dialysis', icon:'D', color:'#DB2777', fill:'#FCE7F3'},
         {name:'NLEP', icon:'L', color:'#0284C7', fill:'#E0F2FE'},
-        {name:'Overall Analysis', icon:'P', color:'#0F766E', fill:'#CCFBF1'}
       ];
 
       var indexItems = desiredModules.map(function(dm) {
