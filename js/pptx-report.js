@@ -110,7 +110,7 @@
       x: 9.0, y: 0.20, w: 3.75, h: 0.25,
       fontSize: 11, bold: true, color: 'DFF7F3', align: 'right', margin: 0
     });
-    slide.addText('KHARSIA HEALTH DASHBOARD  •  BLOCK KHARSIA  •  DISTRICT RAIGARH', {
+    slide.addText('KHARSIA HEALTH DEPARTMENT  •  BLOCK KHARSIA  •  DISTRICT RAIGARH', {
       x: 0.48, y: 7.12, w: 9.5, h: 0.18,
       fontSize: 7, color: '64748B', margin: 0
     });
@@ -412,7 +412,7 @@
         '<path d="M100 185 L1080 185 C1110 185 1130 198 1155 220" fill="none" stroke="#4aa8e8" stroke-width="18" opacity=".8"/>' +
         '<g filter="url(#shadow)">' +
           '<rect x="110" y="207" width="920" height="102" rx="18" fill="#073b75"/>' +
-          '<text x="570" y="278" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="56" font-weight="900" fill="#ffffff">KHARSIA HEALTH DASHBOARD</text>' +
+          '<text x="570" y="278" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="56" font-weight="900" fill="#ffffff">KHARSIA HEALTH DEPARTMENT</text>' +
           '<rect x="110" y="328" width="920" height="86" rx="18" fill="#ffffff" opacity=".97"/>' +
           '<text x="570" y="386" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="48" font-weight="900" fill="#18783c">PROGRESSIVE REPORT</text>' +
           '<rect x="330" y="435" width="480" height="70" rx="18" fill="#0d63c9"/>' +
