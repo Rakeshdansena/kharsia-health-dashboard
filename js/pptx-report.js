@@ -468,8 +468,99 @@
       ];
 
       showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
-      // 3. BLOCK SUMMARY
+      // 3. SECTOR WISE DATA — first RCH 2.0 content slide (Page 03).
       var rchStartPage = pptx.slides.length + 2;
+      showProgress('Slides बन रही हैं', 60, 'RCH 2.0 Sector Wise Data और color coding तैयार हो रही है...');
+
+      slide = pptx.addSlide();
+      addHeader(slide, 'Janani Portal (RCH 2.0)', 'SECTOR WISE DATA | FY 2026–27');
+      addSectionTitle(slide, 'SECTOR PERFORMANCE — COLOR CODED', 0.55, 1.02, 5.8);
+
+      var chartRows = sectors.slice().sort(function (a, b) { return b.percent - a.percent; });
+
+      // Summary strip
+      addCard(slide, 0.55, 1.48, 2.85, 1.05, 'Total Sectors', chartRows.length);
+      addCard(slide, 3.55, 1.48, 2.85, 1.05, 'Block Achievement', total.percent + '%');
+      addCard(slide, 6.55, 1.48, 2.85, 1.05, 'Total RCH 2.0 PW', total.rch);
+      addCard(slide, 9.55, 1.48, 3.15, 1.05, 'Total Backlog', total.backlog);
+
+      // Colored sector table
+      var tx = 0.55, ty = 2.82, tw = 12.18;
+      var rowH = 0.48;
+      var widths = [2.65, 1.55, 1.65, 1.35, 1.55, 1.45, 1.98];
+      var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk', 'Status'];
+      var cx = tx;
+      headers.forEach(function(h, i) {
+        slide.addShape('rect', {
+          x:cx, y:ty, w:widths[i], h:rowH,
+          fill:{color:'075985'}, line:{color:'FFFFFF', pt:1}
+        });
+        slide.addText(h, {
+          x:cx+0.04, y:ty+0.16, w:widths[i]-0.08, h:0.12,
+          fontSize:9, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
+        });
+        cx += widths[i];
+      });
+
+      chartRows.forEach(function(s, ri) {
+        var y = ty + rowH + ri * rowH;
+        var pct = s.percent;
+        var pctColor = pct >= 90 ? '16A34A' : (pct >= 70 ? 'F59E0B' : 'DC2626');
+        var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
+        var backlogColor = s.backlog > 0 ? '16A34A' : (s.backlog === 0 ? 'CA8A04' : 'DC2626');
+        var backlogFill = s.backlog > 0 ? 'DCFCE7' : (s.backlog === 0 ? 'FEF9C3' : 'FEE2E2');
+        var status = pct >= 90 ? 'Good Achievement' : (pct >= 70 ? 'Needs Attention' : 'Priority Review');
+
+        var vals = [s.sector, s.hmis, s.rch, pct + '%', s.backlog, s.highRisk, status];
+        cx = tx;
+        vals.forEach(function(v, i) {
+          var fill = ri % 2 === 0 ? 'FFFFFF' : 'F8FBFF';
+          slide.addShape('rect', {
+            x:cx, y:y, w:widths[i], h:rowH,
+            fill:{color:fill}, line:{color:'D7E2EA', pt:0.8}
+          });
+          if (i === 3) {
+            slide.addShape('roundRect', {
+              x:cx+0.23, y:y+0.075, w:widths[i]-0.46, h:0.33,
+              fill:{color:pctFill}, line:{color:pctColor, pt:1}
+            });
+            slide.addText(String(v), {
+              x:cx+0.23, y:y+0.17, w:widths[i]-0.46, h:0.10,
+              fontSize:9, bold:true, color:pctColor, align:'center', margin:0
+            });
+          } else if (i === 4) {
+            slide.addShape('roundRect', {
+              x:cx+0.25, y:y+0.075, w:widths[i]-0.5, h:0.33,
+              fill:{color:backlogFill}, line:{color:backlogColor, pt:1}
+            });
+            slide.addText(String(v), {
+              x:cx+0.25, y:y+0.17, w:widths[i]-0.5, h:0.10,
+              fontSize:9, bold:true, color:backlogColor, align:'center', margin:0
+            });
+          } else {
+            slide.addText(String(v), {
+              x:cx+0.05, y:y+0.17, w:widths[i]-0.10, h:0.10,
+              fontSize:i===0?9.5:9, bold:i===0, color:'172033',
+              align:i===0?'left':'center', margin:0, fit:'shrink'
+            });
+          }
+          cx += widths[i];
+        });
+      });
+
+      // Legend
+      var ly = 6.72;
+      slide.addText('Achievement:', {x:0.55,y:ly,w:0.85,h:0.12,fontSize:8.5,bold:true,color:'475569',margin:0});
+      [['90%+','DCFCE7','16A34A'],['70–89%','FEF3C7','F59E0B'],['Below 70%','FEE2E2','DC2626']].forEach(function(item,i){
+        var x=1.42+i*1.55;
+        slide.addShape('roundRect',{x:x,y:ly-0.04,w:1.35,h:0.28,fill:{color:item[1]},line:{color:item[2],pt:1}});
+        slide.addText(item[0],{x:x,y:ly+0.04,w:1.35,h:0.09,fontSize:7.5,bold:true,color:item[2],align:'center',margin:0});
+      });
+      slide.addText('Backlog: Green = Positive  |  Yellow = Zero  |  Red = Negative', {
+        x:6.25,y:ly,w:6.45,h:0.16,fontSize:8.5,bold:true,color:'475569',align:'right',margin:0
+      });
+
+      // 4. BLOCK SUMMARY
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'BLOCK SUMMARY DASHBOARD | FY 2026–27');
       addCard(slide, 0.65, 1.6, 2.7, 1.25, 'Facilities', total.facilities);
@@ -488,41 +579,14 @@
         '• Total RCH 2.0 registrations: ' + total.rch + '.',
         '• Total backlog: ' + total.backlog + '.',
         '• High-risk cases: ' + total.highRisk + '.'
-      ].join('\n'), {
+      ].join('\\n'), {
         x: 0.75, y: 5.65, w: 11.2, h: 1.05,
         fontSize: 17, bold: true, color: '172033',
         breakLine: false, margin: 0.03
       });
 
-      showProgress('Slides बन रही हैं', 65, 'Sector Wise graph और table तैयार हो रहे हैं...');
-      // 4. SECTOR WISE + GRAPH
-      slide = pptx.addSlide();
-      addHeader(slide, 'Janani Portal (RCH 2.0)', 'SECTOR WISE DATA + GRAPH');
-      var chartRows = sectors.slice().sort(function (a, b) { return b.percent - a.percent; });
-      try {
-        slide.addChart(pptx.ChartType.bar, [{
-          name: 'Achievement %',
-          labels: chartRows.map(function (s) { return s.sector; }),
-          values: chartRows.map(function (s) { return s.percent; })
-        }], {
-          x: 0.55, y: 1.5, w: 7.1, h: 4.9,
-          showLegend: false, showTitle: false, showValue: true,
-          catAxisLabelFontSize: 15, valAxisLabelFontSize: 12,
-          chartColors: ['0F766E','2563EB','F59E0B','DC2626','7C3AED','059669','EA580C','0891B2'], valGridLine: { color: 'D6E3EC', pt: 1 },
-          valAxisMinVal: 0, dataLabelPosition: 'outEnd'
-        });
-      } catch (e) {
-        addTable(slide, [['Sector', 'Achievement %']].concat(chartRows.map(function (s) {
-          return [s.sector, s.percent + '%'];
-        })), 0.65, 1.55, 6.7, 4.7);
-      }
-      var sectorTable = [['Sector', 'HMIS PW', 'RCH 2.0 PW', '%', 'Backlog', 'High Risk']];
-      chartRows.forEach(function (s) {
-        sectorTable.push([s.sector, s.hmis, s.rch, s.percent + '%', s.backlog, s.highRisk]);
-      });
-      addTable(slide, sectorTable, 7.9, 1.5, 4.85, 4.95);
-
-      showProgress('Slides बन रही हैं', 75, 'Sector-wise Facility Data और Analysis तैयार हो रहा है...');
+      // 5. FACILITY WISE / GRAPH
+      showProgress('Slides बन रही हैं', 70, 'Sector-wise graph और facility analysis तैयार हो रहे हैं...');
       // 5 onward. FACILITY WISE BY SECTOR + ANALYSIS
       sectors.forEach(function (s, sectorIndex) {
         showProgress('Facility slides बन रही हैं', Math.min(90, 75 + Math.round((sectorIndex / Math.max(sectors.length,1)) * 15)), 'Sector ' + (sectorIndex + 1) + '/' + sectors.length + ': ' + s.sector);
