@@ -568,31 +568,7 @@
         cx += widths[i];
       });
 
-      // 4. BLOCK SUMMARY
-      slide = pptx.addSlide();
-      addHeader(slide, 'Janani Portal (RCH 2.0)', 'BLOCK SUMMARY DASHBOARD | FY 2026–27');
-      addCard(slide, 0.65, 1.6, 2.7, 1.25, 'Facilities', total.facilities);
-      addCard(slide, 3.55, 1.6, 2.7, 1.25, 'HMIS PW Registration', total.hmis);
-      addCard(slide, 6.45, 1.6, 2.7, 1.25, 'RCH 2.0 PW Registration', total.rch);
-      addCard(slide, 9.35, 1.6, 2.7, 1.25, 'Achievement %', total.percent + '%');
-      addCard(slide, 2.1, 3.35, 2.7, 1.25, 'Temporary Registration', total.temp);
-      addCard(slide, 5.25, 3.35, 2.7, 1.25, 'Backlog', total.backlog);
-      addCard(slide, 8.4, 3.35, 2.7, 1.25, 'High Risk', total.highRisk);
-      slide.addText('KEY POINTS', {
-        x: 0.65, y: 5.15, w: 3.2, h: 0.35,
-        fontSize: 18, bold: true, color: '0F766E', margin: 0
-      });
-      slide.addText([
-        '• Registration achievement: ' + total.percent + '%.',
-        '• Total RCH 2.0 registrations: ' + total.rch + '.',
-        '• Total backlog: ' + total.backlog + '.',
-        '• High-risk cases: ' + total.highRisk + '.'
-      ].join('\\n'), {
-        x: 0.75, y: 5.65, w: 11.2, h: 1.05,
-        fontSize: 17, bold: true, color: '172033',
-        breakLine: false, margin: 0.03
-      });
-
+      // 4. BLOCK SUMMARY REMOVED — RCH Sector Wise is now the first RCH detail slide.
       // 5. FACILITY WISE / GRAPH
       showProgress('Slides बन रही हैं', 70, 'Sector-wise graph और facility analysis तैयार हो रहे हैं...');
       // 5 onward. FACILITY WISE BY SECTOR + ANALYSIS
