@@ -486,9 +486,9 @@
 
       // Colored sector table
       var tx = 0.55, ty = 2.82, tw = 12.18;
-      var rowH = 0.48;
-      var widths = [2.65, 1.55, 1.65, 1.35, 1.55, 1.45, 1.98];
-      var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk', 'Status'];
+      var rowH = 0.58;
+      var widths = [2.85, 1.65, 1.85, 1.55, 1.65, 1.65];
+      var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk'];
       var cx = tx;
       headers.forEach(function(h, i) {
         slide.addShape('rect', {
@@ -497,7 +497,7 @@
         });
         slide.addText(h, {
           x:cx+0.04, y:ty+0.16, w:widths[i]-0.08, h:0.12,
-          fontSize:9, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
+          fontSize:11, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
         });
         cx += widths[i];
       });
@@ -509,9 +509,7 @@
         var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
         var backlogColor = s.backlog > 0 ? '16A34A' : (s.backlog === 0 ? 'CA8A04' : 'DC2626');
         var backlogFill = s.backlog > 0 ? 'DCFCE7' : (s.backlog === 0 ? 'FEF9C3' : 'FEE2E2');
-        var status = pct >= 90 ? 'Good Achievement' : (pct >= 70 ? 'Needs Attention' : 'Priority Review');
-
-        var vals = [s.sector, s.hmis, s.rch, pct + '%', s.backlog, s.highRisk, status];
+        var vals = [s.sector, s.hmis, s.rch, pct + '%', s.backlog, s.highRisk];
         cx = tx;
         vals.forEach(function(v, i) {
           var fill = ri % 2 === 0 ? 'FFFFFF' : 'F8FBFF';
@@ -526,7 +524,7 @@
             });
             slide.addText(String(v), {
               x:cx+0.23, y:y+0.17, w:widths[i]-0.46, h:0.10,
-              fontSize:9, bold:true, color:pctColor, align:'center', margin:0
+              fontSize:11, bold:true, color:pctColor, align:'center', margin:0
             });
           } else if (i === 4) {
             slide.addShape('roundRect', {
@@ -535,12 +533,12 @@
             });
             slide.addText(String(v), {
               x:cx+0.25, y:y+0.17, w:widths[i]-0.5, h:0.10,
-              fontSize:9, bold:true, color:backlogColor, align:'center', margin:0
+              fontSize:11, bold:true, color:backlogColor, align:'center', margin:0
             });
           } else {
             slide.addText(String(v), {
               x:cx+0.05, y:y+0.17, w:widths[i]-0.10, h:0.10,
-              fontSize:i===0?9.5:9, bold:i===0, color:'172033',
+              fontSize:i===0?12:11, bold:i===0, color:'172033',
               align:i===0?'left':'center', margin:0, fit:'shrink'
             });
           }
@@ -550,7 +548,7 @@
 
       // Legend
       var ly = 6.72;
-      slide.addText('Achievement:', {x:0.55,y:ly,w:0.85,h:0.12,fontSize:8.5,bold:true,color:'475569',margin:0});
+      slide.addText('Achievement:', {x:0.55,y:ly,w:0.85,h:0.12,fontSize:10,bold:true,color:'475569',margin:0});
       [['90%+','DCFCE7','16A34A'],['70–89%','FEF3C7','F59E0B'],['Below 70%','FEE2E2','DC2626']].forEach(function(item,i){
         var x=1.42+i*1.55;
         slide.addShape('roundRect',{x:x,y:ly-0.04,w:1.35,h:0.28,fill:{color:item[1]},line:{color:item[2],pt:1}});
