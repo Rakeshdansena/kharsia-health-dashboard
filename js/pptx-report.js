@@ -571,35 +571,114 @@
       // 4. BLOCK SUMMARY REMOVED — RCH Sector Wise is now the first RCH detail slide.
       // 5. FACILITY WISE / GRAPH
       showProgress('Slides बन रही हैं', 70, 'Sector-wise graph और facility analysis तैयार हो रहे हैं...');
-      // 5 onward. FACILITY WISE BY SECTOR + ANALYSIS
-      sectors.forEach(function (s, sectorIndex) {
-        showProgress('Facility slides बन रही हैं', Math.min(90, 75 + Math.round((sectorIndex / Math.max(sectors.length,1)) * 15)), 'Sector ' + (sectorIndex + 1) + '/' + sectors.length + ': ' + s.sector);
+      // 5. FACILITY WISE — grouped exactly as requested.
+      // Group 1: Barra + Jobi + Gorpar
+      // Group 2: Sarwani + Turekela
+      // Group 3: Sondka + Binjkot
+      var facilityGroups = [
+        { title:'Barra • Jobi • Gorpar', names:['barra','bara','jobi','gorpar'] },
+        { title:'Sarwani • Turekela', names:['sarwani','turekela'] },
+        { title:'Sondka • Binjkot', names:['sondka','binjkot'] }
+      ];
+
+      function facilityMatchesGroup(facilityName, group) {
+        var n = clean(facilityName).toLowerCase();
+        return group.names.some(function(name){ return n.indexOf(name) >= 0; });
+      }
+
+      var assignedFacilities = {};
+      facilityGroups.forEach(function(group, groupIndex) {
+        showProgress('Facility slides बन रही हैं', 75 + groupIndex * 5, group.title + ' का Facility Wise Data तैयार हो रहा है...');
+
+        var groupRows = rows.filter(function(r) {
+          if (!clean(r.facility)) return false;
+          if (!facilityMatchesGroup(r.facility, group)) return false;
+          assignedFacilities[clean(r.facility).toLowerCase()] = true;
+          return true;
+        });
+
         slide = pptx.addSlide();
-        addHeader(slide, 'Sector: ' + s.sector, 'FACILITY WISE DATA + ANALYSIS');
-        var facilityRows = rows.filter(function (r) { return clean(r.sector) === s.sector; });
-        var tableRows = [['SN', 'Facility', 'HMIS PW', 'RCH 2.0 PW', '%', 'Temp.', 'Backlog', 'High Risk']];
-        facilityRows.forEach(function (r, i) {
+        addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | ' + group.title);
+
+        var tx = 0.45, ty = 1.32;
+        var rowH = 0.58;
+        var widths = [3.05, 1.72, 1.90, 1.62, 1.70, 1.62, 1.75];
+        var headers = ['Facility', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk', 'Sector'];
+
+        var cx = tx;
+        headers.forEach(function(h,i) {
+          slide.addShape('rect',{x:cx,y:ty,w:widths[i],h:rowH,fill:{color:'075985'},line:{color:'FFFFFF',pt:1}});
+          slide.addText(h,{x:cx+0.04,y:ty+0.16,w:widths[i]-0.08,h:0.14,fontSize:13,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+          cx += widths[i];
+        });
+
+        groupRows.forEach(function(r,ri) {
+          var y = ty + rowH + ri * rowH;
           var hmis = number(r.hmis);
           var rch = number(r.rch);
           var pct = hmis > 0 ? Math.round(rch / hmis * 100) : 0;
-          tableRows.push([
-            i + 1, clean(r.facility), hmis, rch, pct + '%',
-            number(r.temp), number(r.backlog), number(r.highRisk)
-          ]);
+          var backlog = number(r.backlog);
+          var highRisk = number(r.highRisk);
+          var pctColor = pct >= 90 ? '16A34A' : (pct >= 70 ? 'F59E0B' : 'DC2626');
+          var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
+          var backlogColor = backlog > 0 ? '16A34A' : (backlog === 0 ? 'CA8A04' : 'DC2626');
+          var backlogFill = backlog > 0 ? 'DCFCE7' : (backlog === 0 ? 'FEF9C3' : 'FEE2E2');
+          var vals = [clean(r.facility), hmis, rch, pct + '%', backlog, highRisk, clean(r.sector)];
+          cx = tx;
+
+          vals.forEach(function(v,i) {
+            var fill = ri % 2 === 0 ? 'FFFFFF' : 'F8FBFF';
+            slide.addShape('rect',{x:cx,y:y,w:widths[i],h:rowH,fill:{color:fill},line:{color:'D7E2EA',pt:0.8}});
+            if(i===3) {
+              slide.addShape('roundRect',{x:cx+0.24,y:y+0.075,w:widths[i]-0.48,h:0.33,fill:{color:pctFill},line:{color:pctColor,pt:1}});
+              slide.addText(String(v),{x:cx+0.24,y:y+0.17,w:widths[i]-0.48,h:0.11,fontSize:14,bold:true,color:pctColor,align:'center',margin:0});
+            } else if(i===4) {
+              slide.addShape('roundRect',{x:cx+0.25,y:y+0.075,w:widths[i]-0.50,h:0.33,fill:{color:backlogFill},line:{color:backlogColor,pt:1}});
+              slide.addText(String(v),{x:cx+0.25,y:y+0.17,w:widths[i]-0.50,h:0.11,fontSize:14,bold:true,color:backlogColor,align:'center',margin:0});
+            } else {
+              slide.addText(String(v),{x:cx+0.05,y:y+0.17,w:widths[i]-0.10,h:0.11,fontSize:i===0?14:13,bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
+            }
+            cx += widths[i];
+          });
         });
-        addTable(slide, tableRows.slice(0, 20), 0.45, 1.45, 8.0, 5.35);
-        slide.addText('ANALYSIS', {
-          x: 8.75, y: 1.5, w: 3.5, h: 0.35,
-          fontSize: 19, bold: true, color: '0F766E', margin: 0
+
+        var groupTotal = groupRows.reduce(function(acc,r) {
+          acc.hmis += number(r.hmis); acc.rch += number(r.rch);
+          acc.backlog += number(r.backlog); acc.highRisk += number(r.highRisk);
+          return acc;
+        }, {hmis:0,rch:0,backlog:0,highRisk:0});
+        var groupPct = groupTotal.hmis > 0 ? Math.round(groupTotal.rch / groupTotal.hmis * 100) : 0;
+        var totalY = ty + rowH + groupRows.length * rowH;
+        var totalVals = ['GROUP TOTAL', groupTotal.hmis, groupTotal.rch, groupPct + '%', groupTotal.backlog, groupTotal.highRisk, groupRows.length + ' Facilities'];
+        cx = tx;
+        totalVals.forEach(function(v,i) {
+          slide.addShape('rect',{x:cx,y:totalY,w:widths[i],h:rowH,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
+          slide.addText(String(v),{x:cx+0.05,y:totalY+0.17,w:widths[i]-0.10,h:0.12,fontSize:13,bold:true,color:'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'});
+          cx += widths[i];
         });
-        slide.addText(analysis(s).map(function (x) { return '• ' + x; }).join('\n'), {
-          x: 8.75, y: 2.0, w: 3.9, h: 2.9,
-          fontSize: 16, bold: true, color: '172033',
-          breakLine: false, margin: 0.03, fit: 'shrink'
-        });
-        addCard(slide, 8.8, 5.1, 1.75, 1.05, 'Achievement', s.percent + '%');
-        addCard(slide, 10.75, 5.1, 1.75, 1.05, 'Facilities', s.facilities);
       });
+
+      // Any facility not covered by the three requested groups is shown in its own slide,
+      // so no source facility disappears from the report.
+      var remainingRows = rows.filter(function(r) {
+        var key = clean(r.facility).toLowerCase();
+        return clean(r.facility) && !assignedFacilities[key];
+      });
+      if (remainingRows.length) {
+        showProgress('Facility slides बन रही हैं', 90, 'बाकी Facility Wise Data तैयार हो रहा है...');
+        slide = pptx.addSlide();
+        addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | OTHER FACILITIES');
+        var tx2=0.45, ty2=1.32, rh2=0.52;
+        var w2=[3.05,1.72,1.90,1.62,1.70,1.62,1.75];
+        var h2=['Facility','HMIS PW','RCH 2.0 PW','Achievement','Backlog','High Risk','Sector'];
+        var cx2=tx2;
+        h2.forEach(function(h,i){slide.addShape('rect',{x:cx2,y:ty2,w:w2[i],h:rh2,fill:{color:'075985'},line:{color:'FFFFFF',pt:1}});slide.addText(h,{x:cx2+0.04,y:ty2+0.14,w:w2[i]-0.08,h:0.12,fontSize:12,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});cx2+=w2[i];});
+        remainingRows.forEach(function(r,ri){
+          var y=ty2+rh2+ri*rh2,hmis=number(r.hmis),rch=number(r.rch),pct=hmis>0?Math.round(rch/hmis*100):0,backlog=number(r.backlog);
+          var vals=[clean(r.facility),hmis,rch,pct+'%',backlog,number(r.highRisk),clean(r.sector)];cx2=tx2;
+          vals.forEach(function(v,i){slide.addShape('rect',{x:cx2,y:y,w:w2[i],h:rh2,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'D7E2EA',pt:0.8}});slide.addText(String(v),{x:cx2+0.05,y:y+0.15,w:w2[i]-0.1,h:0.1,fontSize:i===0?13:12,bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});cx2+=w2[i];});
+        });
+      }
 
       moduleRanges.push({
         name: 'RCH 2.0',
