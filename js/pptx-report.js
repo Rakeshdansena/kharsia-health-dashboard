@@ -452,6 +452,21 @@
       // 2. INDEX — created after all content slides so page ranges are always exact.
       // The index slide is moved to position 2 after all modules are generated.
       var moduleRanges = [];
+      var otherModules = [
+        {name:'Ayushman Card',icon:'💳',gid:'925649620'},
+        {name:'NCD',icon:'❤️',gid:'1254412412'},
+        {name:'JAS Meeting',icon:'🤝',gid:'1018164338'},
+        {name:'Health & Wellness Center',icon:'🏥',gid:'0'},
+        {name:'Ayushman Shivir',icon:'🏕️',gid:'1262815420'},
+        {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
+        {name:'RBSK',icon:'👶',gid:'1502752823'},
+        {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
+        {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
+        {name:'NQAS Certification',icon:'🏅',gid:'728123647'},
+        {name:'Dialysis',icon:'💧',gid:'781496964'},
+        {name:'NLEP',icon:'🦠',gid:'1536656599'}
+      ];
+
       showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
       // 3. BLOCK SUMMARY
       var rchStartPage = pptx.slides.length + 2;
