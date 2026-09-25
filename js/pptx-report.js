@@ -477,9 +477,9 @@
       var chartRows = sectors.slice().sort(function (a, b) { return b.percent - a.percent; });
 
       // Colored sector table
-      var tx = 0.55, ty = 1.32, tw = 12.18;
-      var rowH = 0.50;
-      var widths = [2.85, 1.65, 1.85, 1.55, 1.65, 1.65];
+      var tx = 0.45, ty = 1.18, tw = 12.45;
+      var rowH = 0.59;
+      var widths = [3.05, 1.78, 2.00, 1.68, 1.92, 2.02];
       var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk'];
       var cx = tx;
       headers.forEach(function(h, i) {
@@ -489,7 +489,7 @@
         });
         slide.addText(h, {
           x:cx+0.04, y:ty+0.16, w:widths[i]-0.08, h:0.12,
-          fontSize:13, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
+          fontSize:14, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
         });
         cx += widths[i];
       });
@@ -516,7 +516,7 @@
             });
             slide.addText(String(v), {
               x:cx+0.23, y:y+0.17, w:widths[i]-0.46, h:0.10,
-              fontSize:13, bold:true, color:pctColor, align:'center', margin:0
+              fontSize:14, bold:true, color:pctColor, align:'center', margin:0
             });
           } else if (i === 4) {
             slide.addShape('roundRect', {
@@ -525,12 +525,12 @@
             });
             slide.addText(String(v), {
               x:cx+0.25, y:y+0.17, w:widths[i]-0.5, h:0.10,
-              fontSize:13, bold:true, color:backlogColor, align:'center', margin:0
+              fontSize:14, bold:true, color:backlogColor, align:'center', margin:0
             });
           } else {
             slide.addText(String(v), {
               x:cx+0.05, y:y+0.17, w:widths[i]-0.10, h:0.10,
-              fontSize:i===0?13:12, bold:i===0, color:'172033',
+              fontSize:i===0?14:13, bold:i===0, color:'172033',
               align:i===0?'left':'center', margin:0, fit:'shrink'
             });
           }
@@ -550,7 +550,7 @@
         if (i === 3) {
           slide.addText(String(v), {
             x:cx+0.05, y:totalY+0.17, w:widths[i]-0.10, h:0.12,
-            fontSize:13, bold:true, color:'FFFFFF', align:'center', margin:0
+            fontSize:14, bold:true, color:'FFFFFF', align:'center', margin:0
           });
         } else if (i === 4) {
           var totalBacklogColor = total.backlog > 0 ? '86EFAC' : (total.backlog === 0 ? 'FDE68A' : 'FCA5A5');
