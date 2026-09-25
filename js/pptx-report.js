@@ -474,13 +474,11 @@
 
       slide = pptx.addSlide();
       addHeader(slide, 'Janani Portal (RCH 2.0)', 'SECTOR WISE DATA | FY 2026–27');
-      addSectionTitle(slide, 'SECTOR PERFORMANCE — COLOR CODED', 0.55, 1.02, 5.8);
-
       var chartRows = sectors.slice().sort(function (a, b) { return b.percent - a.percent; });
 
       // Colored sector table
-      var tx = 0.55, ty = 1.58, tw = 12.18;
-      var rowH = 0.58;
+      var tx = 0.55, ty = 1.32, tw = 12.18;
+      var rowH = 0.50;
       var widths = [2.85, 1.65, 1.85, 1.55, 1.65, 1.65];
       var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk'];
       var cx = tx;
@@ -491,7 +489,7 @@
         });
         slide.addText(h, {
           x:cx+0.04, y:ty+0.16, w:widths[i]-0.08, h:0.12,
-          fontSize:11, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
+          fontSize:13, bold:true, color:'FFFFFF', align:'center', margin:0, fit:'shrink'
         });
         cx += widths[i];
       });
@@ -518,7 +516,7 @@
             });
             slide.addText(String(v), {
               x:cx+0.23, y:y+0.17, w:widths[i]-0.46, h:0.10,
-              fontSize:11, bold:true, color:pctColor, align:'center', margin:0
+              fontSize:13, bold:true, color:pctColor, align:'center', margin:0
             });
           } else if (i === 4) {
             slide.addShape('roundRect', {
@@ -527,12 +525,12 @@
             });
             slide.addText(String(v), {
               x:cx+0.25, y:y+0.17, w:widths[i]-0.5, h:0.10,
-              fontSize:11, bold:true, color:backlogColor, align:'center', margin:0
+              fontSize:13, bold:true, color:backlogColor, align:'center', margin:0
             });
           } else {
             slide.addText(String(v), {
               x:cx+0.05, y:y+0.17, w:widths[i]-0.10, h:0.10,
-              fontSize:i===0?12:11, bold:i===0, color:'172033',
+              fontSize:i===0?13:12, bold:i===0, color:'172033',
               align:i===0?'left':'center', margin:0, fit:'shrink'
             });
           }
@@ -552,7 +550,7 @@
         if (i === 3) {
           slide.addText(String(v), {
             x:cx+0.05, y:totalY+0.17, w:widths[i]-0.10, h:0.12,
-            fontSize:12, bold:true, color:'FFFFFF', align:'center', margin:0
+            fontSize:13, bold:true, color:'FFFFFF', align:'center', margin:0
           });
         } else if (i === 4) {
           var totalBacklogColor = total.backlog > 0 ? '86EFAC' : (total.backlog === 0 ? 'FDE68A' : 'FCA5A5');
@@ -568,18 +566,6 @@
           });
         }
         cx += widths[i];
-      });
-
-      // Legend
-      var ly = Math.min(6.78, totalY + 0.72);
-      slide.addText('Achievement:', {x:0.55,y:ly,w:0.85,h:0.12,fontSize:10,bold:true,color:'475569',margin:0});
-      [['90%+','DCFCE7','16A34A'],['70–89%','FEF3C7','F59E0B'],['Below 70%','FEE2E2','DC2626']].forEach(function(item,i){
-        var x=1.42+i*1.55;
-        slide.addShape('roundRect',{x:x,y:ly-0.04,w:1.35,h:0.28,fill:{color:item[1]},line:{color:item[2],pt:1}});
-        slide.addText(item[0],{x:x,y:ly+0.04,w:1.35,h:0.09,fontSize:7.5,bold:true,color:item[2],align:'center',margin:0});
-      });
-      slide.addText('Backlog: Green = Positive  |  Yellow = Zero  |  Red = Negative', {
-        x:6.25,y:ly,w:6.45,h:0.16,fontSize:8.5,bold:true,color:'475569',align:'right',margin:0
       });
 
       // 4. BLOCK SUMMARY
