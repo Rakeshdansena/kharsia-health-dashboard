@@ -478,14 +478,8 @@
 
       var chartRows = sectors.slice().sort(function (a, b) { return b.percent - a.percent; });
 
-      // Summary strip
-      addCard(slide, 0.55, 1.48, 2.85, 1.05, 'Total Sectors', chartRows.length);
-      addCard(slide, 3.55, 1.48, 2.85, 1.05, 'Block Achievement', total.percent + '%');
-      addCard(slide, 6.55, 1.48, 2.85, 1.05, 'Total RCH 2.0 PW', total.rch);
-      addCard(slide, 9.55, 1.48, 3.15, 1.05, 'Total Backlog', total.backlog);
-
       // Colored sector table
-      var tx = 0.55, ty = 2.82, tw = 12.18;
+      var tx = 0.55, ty = 1.58, tw = 12.18;
       var rowH = 0.58;
       var widths = [2.85, 1.65, 1.85, 1.55, 1.65, 1.65];
       var headers = ['Sector', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk'];
@@ -546,8 +540,38 @@
         });
       });
 
+      // Block Total row at the bottom of the sector table
+      var totalY = ty + rowH + chartRows.length * rowH;
+      var totalVals = ['BLOCK TOTAL', total.hmis, total.rch, total.percent + '%', total.backlog, total.highRisk];
+      cx = tx;
+      totalVals.forEach(function(v, i) {
+        slide.addShape('rect', {
+          x:cx, y:totalY, w:widths[i], h:rowH,
+          fill:{color:'073B75'}, line:{color:'FFFFFF', pt:1}
+        });
+        if (i === 3) {
+          slide.addText(String(v), {
+            x:cx+0.05, y:totalY+0.17, w:widths[i]-0.10, h:0.12,
+            fontSize:12, bold:true, color:'FFFFFF', align:'center', margin:0
+          });
+        } else if (i === 4) {
+          var totalBacklogColor = total.backlog > 0 ? '86EFAC' : (total.backlog === 0 ? 'FDE68A' : 'FCA5A5');
+          slide.addText(String(v), {
+            x:cx+0.05, y:totalY+0.17, w:widths[i]-0.10, h:0.12,
+            fontSize:12, bold:true, color:totalBacklogColor, align:'center', margin:0
+          });
+        } else {
+          slide.addText(String(v), {
+            x:cx+0.05, y:totalY+0.17, w:widths[i]-0.10, h:0.12,
+            fontSize:12, bold:true, color:'FFFFFF',
+            align:i===0?'left':'center', margin:0, fit:'shrink'
+          });
+        }
+        cx += widths[i];
+      });
+
       // Legend
-      var ly = 6.72;
+      var ly = Math.min(6.78, totalY + 0.72);
       slide.addText('Achievement:', {x:0.55,y:ly,w:0.85,h:0.12,fontSize:10,bold:true,color:'475569',margin:0});
       [['90%+','DCFCE7','16A34A'],['70–89%','FEF3C7','F59E0B'],['Below 70%','FEE2E2','DC2626']].forEach(function(item,i){
         var x=1.42+i*1.55;
