@@ -663,7 +663,10 @@
         // the last sector (Gorpar) never runs outside the slide.
         var lineCount = 1;
         orderedSectors.forEach(function(k) { lineCount += grouped[k].length + 2; });
-        var rowH = Math.max(0.25, Math.min(0.38, 5.95 / Math.max(lineCount,1)));
+        // Fit the complete facility-wise table inside the 7.5in slide.
+        // Keep rows as large as possible while reserving room for header/footer.
+        var availableH = 5.72;
+        var rowH = Math.max(0.30, Math.min(0.46, availableH / Math.max(lineCount,1)));
         var sectionH = rowH;
 
         var cx = tx;
@@ -708,12 +711,12 @@
               slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:fill},line:{color:'D7E2EA',pt:0.7}});
               if(i===3) {
                 slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:pctFill},line:{color:pctColor,pt:0.8}});
-                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
+                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(9,Math.min(14,rowH*34)),bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
               } else if(i===4) {
                 slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:backlogFill},line:{color:backlogColor,pt:0.8}});
-                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:backlogColor,align:'center',margin:0,fit:'shrink'});
+                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(9,Math.min(14,rowH*34)),bold:true,color:backlogColor,align:'center',margin:0,fit:'shrink'});
               } else {
-                slide.addText(String(v),{x:cx+0.04,y:currentY+rowH*0.31,w:widths[i]-0.08,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
+                slide.addText(String(v),{x:cx+0.04,y:currentY+rowH*0.31,w:widths[i]-0.08,h:rowH*0.30,fontSize:Math.max(9,Math.min(14,rowH*34)),bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
               }
               cx += widths[i];
             });
@@ -729,12 +732,12 @@
             slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
             slide.addText(String(v),{
               x:cx+0.04,y:currentY+rowH*0.29,w:widths[i]-0.08,h:rowH*0.34,
-              fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,
+              fontSize:Math.max(9,Math.min(14,rowH*34)),bold:true,
               color:i===3 ? 'FFFFFF' : 'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'
             });
             if (i === 3) {
               slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:fillColor},line:{color:'FFFFFF',pt:0.8}});
-              slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+              slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(9,Math.min(14,rowH*34)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
             }
             cx += widths[i];
           });
@@ -874,7 +877,6 @@
         {name:'NQAS Certification', icon:'Q', color:'#EA580C', fill:'#FFEDD5'},
         {name:'Dialysis', icon:'D', color:'#DB2777', fill:'#FCE7F3'},
       ];
-      desiredModules.push({name:'NLEP', icon:'L', color:'#0284C7', fill:'#E0F2FE'});
 
       var indexItems = desiredModules.map(function(dm) {
         var found = moduleRanges.find(function(r){ return r.name === dm.name; });
