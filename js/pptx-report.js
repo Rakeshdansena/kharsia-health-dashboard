@@ -46,19 +46,56 @@
 
   function waitForGoogle() {
     return new Promise(function (resolve, reject) {
+      function ready() {
+        return !!(window.google && google.visualization && google.visualization.Query);
+      }
+
+      // The dashboard page does not need to preload Google Charts.
+      // Load it here when the user clicks Generate PPTX, then wait until
+      // the Visualization Query API is actually ready.
+      if (ready()) {
+        resolve();
+        return;
+      }
+
+      var existing = document.querySelector('script[data-kharsia-google-charts="1"]');
+      if (!existing) {
+        existing = document.createElement('script');
+        existing.src = 'https://www.gstatic.com/charts/loader.js';
+        existing.async = true;
+        existing.setAttribute('data-kharsia-google-charts', '1');
+        document.head.appendChild(existing);
+      }
+
       var tries = 0;
+      var chartLoadStarted = false;
+
       function check() {
-        if (window.google && google.visualization && google.visualization.Query) {
+        if (ready()) {
           resolve();
           return;
         }
+
+        if (window.google && google.charts && !chartLoadStarted) {
+          chartLoadStarted = true;
+          try {
+            google.charts.load('current', { packages: ['corechart', 'table'] });
+            google.charts.setOnLoadCallback(function () {
+              if (ready()) resolve();
+            });
+          } catch (e) {
+            // Keep polling; the loader can become ready asynchronously.
+          }
+        }
+
         tries++;
-        if (tries > 60) {
-          reject(new Error('Google Sheets service उपलब्ध नहीं है।'));
+        if (tries > 120) {
+          reject(new Error('Google Sheets service उपलब्ध नहीं है। Internet connection या Google Charts loading check करें।'));
           return;
         }
         setTimeout(check, 250);
       }
+
       check();
     });
   }
