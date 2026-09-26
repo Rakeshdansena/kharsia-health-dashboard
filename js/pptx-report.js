@@ -575,8 +575,10 @@
       // Grouping is based on r.sector (not facility name), so every facility remains under its correct sector.
       var facilityGroups = [
         { title:'Barra • Jobi • Gorpar', sectors:['barra','jobi','gorpar'] },
-        { title:'Sarwani • Turekela', sectors:['sarwani','turekela'] },
-        { title:'Sondka • Binjkot', sectors:['sondka','binjkot'] }
+        { title:'Sarwani', sectors:['sarwani'] },
+        { title:'Turekela', sectors:['turekela'] },
+        { title:'Sondka', sectors:['sondka'] },
+        { title:'Binjkot', sectors:['binjkot'] }
       ];
 
       function sectorMatchesGroup(sectorName, group) {
