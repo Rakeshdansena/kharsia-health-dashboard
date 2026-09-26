@@ -599,8 +599,8 @@
         addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | ' + group.title);
 
         var tx = 0.38, ty = 1.05;
-        var widths = [3.00, 1.55, 1.68, 1.48, 1.50, 1.48, 1.80];
-        var headers = ['Facility', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk', 'Sector'];
+        var widths = [3.45, 1.75, 1.90, 1.70, 1.75, 1.94];
+        var headers = ['Facility', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk'];
         var sectorOrder = group.sectors;
         var grouped = {};
         groupRows.forEach(function(r) {
@@ -658,7 +658,7 @@
             var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
             var backlogColor = backlog > 0 ? '16A34A' : (backlog === 0 ? 'CA8A04' : 'DC2626');
             var backlogFill = backlog > 0 ? 'DCFCE7' : (backlog === 0 ? 'FEF9C3' : 'FEE2E2');
-            var vals = [clean(r.facility), hmis, rch, pct + '%', backlog, highRisk, clean(r.sector)];
+            var vals = [clean(r.facility), hmis, rch, pct + '%', backlog, highRisk];
             cx = tx;
 
             vals.forEach(function(v,i) {
@@ -680,7 +680,7 @@
 
           // Mandatory TOTAL row for every sector, including its sector Achievement %.
           var sectorPct = sectorTotal.hmis > 0 ? Math.round(sectorTotal.rch / sectorTotal.hmis * 100) : 0;
-          var totalVals = [sectorName.toUpperCase() + ' TOTAL', sectorTotal.hmis, sectorTotal.rch, sectorPct + '%', sectorTotal.backlog, sectorTotal.highRisk, sectorRows.length + ' Facilities'];
+          var totalVals = [sectorName.toUpperCase() + ' TOTAL', sectorTotal.hmis, sectorTotal.rch, sectorPct + '%', sectorTotal.backlog, sectorTotal.highRisk];
           cx = tx;
           totalVals.forEach(function(v,i) {
             var fillColor = i === 3 ? (sectorPct >= 90 ? '16A34A' : (sectorPct >= 70 ? 'F59E0B' : 'DC2626')) : '073B75';
@@ -716,8 +716,8 @@
         addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | OTHER SECTORS');
 
         var tx2=0.38, ty2=1.05;
-        var w2=[3.00,1.55,1.68,1.48,1.50,1.48,1.80];
-        var h2=['Facility','HMIS PW','RCH 2.0 PW','Achievement','Backlog','High Risk','Sector'];
+        var w2=[3.45,1.75,1.90,1.70,1.75,1.94];
+        var h2=['Facility','HMIS PW','RCH 2.0 PW','Achievement','Backlog','High Risk'];
         var groupedOther={};
         remainingRows.forEach(function(r){
           var key=clean(r.sector)||'Other';
@@ -749,7 +749,7 @@
             var pf=pct>=90?'DCFCE7':(pct>=70?'FEF3C7':'FEE2E2');
             var bc=backlog>0?'16A34A':(backlog===0?'CA8A04':'DC2626');
             var bf=backlog>0?'DCFCE7':(backlog===0?'FEF9C3':'FEE2E2');
-            var vals=[clean(r.facility),hmis,rch,pct+'%',backlog,hr,clean(r.sector)];
+            var vals=[clean(r.facility),hmis,rch,pct+'%',backlog,hr];
             cx2=tx2;
             vals.forEach(function(v,i){
               slide.addShape('rect',{x:cx2,y:cy2,w:w2[i],h:rh2,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'D7E2EA',pt:0.7}});
@@ -767,7 +767,7 @@
             cy2+=rh2;
           });
           var sp=st.hmis>0?Math.round(st.rch/st.hmis*100):0;
-          var tv=[sectorName.toUpperCase()+' TOTAL',st.hmis,st.rch,sp+'%',st.backlog,st.highRisk,sr.length+' Facilities'];
+          var tv=[sectorName.toUpperCase()+' TOTAL',st.hmis,st.rch,sp+'%',st.backlog,st.highRisk];
           cx2=tx2;
           tv.forEach(function(v,i){
             slide.addShape('rect',{x:cx2,y:cy2,w:w2[i],h:rh2,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
@@ -831,8 +831,8 @@
         {name:'Blindness Control', icon:'E', color:'#CA8A04', fill:'#FEF9C3'},
         {name:'NQAS Certification', icon:'Q', color:'#EA580C', fill:'#FFEDD5'},
         {name:'Dialysis', icon:'D', color:'#DB2777', fill:'#FCE7F3'},
-        {name:'NLEP', icon:'L', color:'#0284C7', fill:'#E0F2FE'},
       ];
+      desiredModules.push({name:'NLEP', icon:'L', color:'#0284C7', fill:'#E0F2FE'});
 
       var indexItems = desiredModules.map(function(dm) {
         var found = moduleRanges.find(function(r){ return r.name === dm.name; });
@@ -866,8 +866,8 @@
         '<text x="1110" y="222" text-anchor="middle" font-family="Arial" font-size="17" font-weight="800" fill="#075985">PROGRESSIVE REPORT • FY 2026–27</text>';
 
       indexItems.forEach(function(item,i){
-        var col = i < 8 ? 0 : 1;
-        var row = i < 8 ? i : i - 8;
+        var col = i < 7 ? 0 : 1;
+        var row = i < 7 ? i : i - 7;
         var x = col === 0 ? 55 : 590;
         var y = 278 + row * 65;
         var page = item.start ? pageRangeText(item) : 'Data Pending';
