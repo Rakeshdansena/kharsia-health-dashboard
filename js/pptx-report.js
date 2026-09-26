@@ -658,9 +658,12 @@
           if (orderedSectors.indexOf(k) < 0) orderedSectors.push(k);
         });
 
+        // Each sector uses: 1 sector band + facility rows + 1 TOTAL row.
+        // Include both the sector band and TOTAL in the height calculation so
+        // the last sector (Gorpar) never runs outside the slide.
         var lineCount = 1;
-        orderedSectors.forEach(function(k) { lineCount += grouped[k].length + 1; });
-        var rowH = Math.max(0.25, Math.min(0.42, 5.95 / Math.max(lineCount,1)));
+        orderedSectors.forEach(function(k) { lineCount += grouped[k].length + 2; });
+        var rowH = Math.max(0.25, Math.min(0.38, 5.95 / Math.max(lineCount,1)));
         var sectionH = rowH;
 
         var cx = tx;
