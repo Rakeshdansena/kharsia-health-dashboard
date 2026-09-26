@@ -571,28 +571,26 @@
       // 4. BLOCK SUMMARY REMOVED — RCH Sector Wise is now the first RCH detail slide.
       // 5. FACILITY WISE / GRAPH
       showProgress('Slides बन रही हैं', 70, 'Sector-wise graph और facility analysis तैयार हो रहे हैं...');
-      // 5. FACILITY WISE — grouped exactly as requested.
-      // Group 1: Barra + Jobi + Gorpar
-      // Group 2: Sarwani + Turekela
-      // Group 3: Sondka + Binjkot
+      // 5. FACILITY WISE — grouped by SECTOR, with a TOTAL + Achievement % row after every sector.
+      // Grouping is based on r.sector (not facility name), so every facility remains under its correct sector.
       var facilityGroups = [
-        { title:'Barra • Jobi • Gorpar', names:['barra','bara','jobi','gorpar'] },
-        { title:'Sarwani • Turekela', names:['sarwani','turekela'] },
-        { title:'Sondka • Binjkot', names:['sondka','binjkot'] }
+        { title:'Barra • Jobi • Gorpar', sectors:['barra','jobi','gorpar'] },
+        { title:'Sarwani • Turekela', sectors:['sarwani','turekela'] },
+        { title:'Sondka • Binjkot', sectors:['sondka','binjkot'] }
       ];
 
-      function facilityMatchesGroup(facilityName, group) {
-        var n = clean(facilityName).toLowerCase();
-        return group.names.some(function(name){ return n.indexOf(name) >= 0; });
+      function sectorMatchesGroup(sectorName, group) {
+        var n = clean(sectorName).toLowerCase();
+        return group.sectors.some(function(name){ return n === name || n.indexOf(name) >= 0; });
       }
 
       var assignedFacilities = {};
       facilityGroups.forEach(function(group, groupIndex) {
-        showProgress('Facility slides बन रही हैं', 75 + groupIndex * 5, group.title + ' का Facility Wise Data तैयार हो रहा है...');
+        showProgress('Facility slides बन रही हैं', 75 + groupIndex * 5, group.title + ' का Sector-wise Facility Data तैयार हो रहा है...');
 
         var groupRows = rows.filter(function(r) {
           if (!clean(r.facility)) return false;
-          if (!facilityMatchesGroup(r.facility, group)) return false;
+          if (!sectorMatchesGroup(r.sector, group)) return false;
           assignedFacilities[clean(r.facility).toLowerCase()] = true;
           return true;
         });
@@ -600,61 +598,109 @@
         slide = pptx.addSlide();
         addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | ' + group.title);
 
-        var tx = 0.45, ty = 1.32;
-        var rowH = 0.58;
-        var widths = [3.05, 1.72, 1.90, 1.62, 1.70, 1.62, 1.75];
+        var tx = 0.38, ty = 1.05;
+        var widths = [3.00, 1.55, 1.68, 1.48, 1.50, 1.48, 1.80];
         var headers = ['Facility', 'HMIS PW', 'RCH 2.0 PW', 'Achievement', 'Backlog', 'High Risk', 'Sector'];
+        var sectorOrder = group.sectors;
+        var grouped = {};
+        groupRows.forEach(function(r) {
+          var key = clean(r.sector) || 'Other';
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(r);
+        });
+
+        var orderedSectors = [];
+        sectorOrder.forEach(function(s) {
+          Object.keys(grouped).forEach(function(k) {
+            if (k.toLowerCase() === s) orderedSectors.push(k);
+          });
+        });
+        Object.keys(grouped).forEach(function(k) {
+          if (orderedSectors.indexOf(k) < 0) orderedSectors.push(k);
+        });
+
+        var lineCount = 1;
+        orderedSectors.forEach(function(k) { lineCount += grouped[k].length + 1; });
+        var rowH = Math.max(0.25, Math.min(0.42, 5.95 / Math.max(lineCount,1)));
+        var sectionH = rowH;
 
         var cx = tx;
         headers.forEach(function(h,i) {
           slide.addShape('rect',{x:cx,y:ty,w:widths[i],h:rowH,fill:{color:'075985'},line:{color:'FFFFFF',pt:1}});
-          slide.addText(h,{x:cx+0.04,y:ty+0.16,w:widths[i]-0.08,h:0.14,fontSize:13,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+          slide.addText(h,{x:cx+0.03,y:ty+rowH*0.28,w:widths[i]-0.06,h:rowH*0.38,fontSize:Math.max(9,Math.min(12,rowH*30)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
           cx += widths[i];
         });
 
-        groupRows.forEach(function(r,ri) {
-          var y = ty + rowH + ri * rowH;
-          var hmis = number(r.hmis);
-          var rch = number(r.rch);
-          var pct = hmis > 0 ? Math.round(rch / hmis * 100) : 0;
-          var backlog = number(r.backlog);
-          var highRisk = number(r.highRisk);
-          var pctColor = pct >= 90 ? '16A34A' : (pct >= 70 ? 'F59E0B' : 'DC2626');
-          var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
-          var backlogColor = backlog > 0 ? '16A34A' : (backlog === 0 ? 'CA8A04' : 'DC2626');
-          var backlogFill = backlog > 0 ? 'DCFCE7' : (backlog === 0 ? 'FEF9C3' : 'FEE2E2');
-          var vals = [clean(r.facility), hmis, rch, pct + '%', backlog, highRisk, clean(r.sector)];
-          cx = tx;
+        var currentY = ty + rowH;
+        orderedSectors.forEach(function(sectorName) {
+          var sectorRows = grouped[sectorName] || [];
+          // Sector band
+          slide.addShape('rect',{x:tx,y:currentY,w:12.49,h:sectionH,fill:{color:'E0F2FE'},line:{color:'B6D7EA',pt:1}});
+          slide.addText('SECTOR: ' + sectorName.toUpperCase(),{
+            x:tx+0.08,y:currentY+rowH*0.26,w:12.25,h:rowH*0.38,
+            fontSize:Math.max(8,Math.min(11,rowH*28)),bold:true,color:'075985',margin:0,fit:'shrink'
+          });
+          currentY += sectionH;
 
-          vals.forEach(function(v,i) {
-            var fill = ri % 2 === 0 ? 'FFFFFF' : 'F8FBFF';
-            slide.addShape('rect',{x:cx,y:y,w:widths[i],h:rowH,fill:{color:fill},line:{color:'D7E2EA',pt:0.8}});
-            if(i===3) {
-              slide.addShape('roundRect',{x:cx+0.24,y:y+0.075,w:widths[i]-0.48,h:0.33,fill:{color:pctFill},line:{color:pctColor,pt:1}});
-              slide.addText(String(v),{x:cx+0.24,y:y+0.17,w:widths[i]-0.48,h:0.11,fontSize:14,bold:true,color:pctColor,align:'center',margin:0});
-            } else if(i===4) {
-              slide.addShape('roundRect',{x:cx+0.25,y:y+0.075,w:widths[i]-0.50,h:0.33,fill:{color:backlogFill},line:{color:backlogColor,pt:1}});
-              slide.addText(String(v),{x:cx+0.25,y:y+0.17,w:widths[i]-0.50,h:0.11,fontSize:14,bold:true,color:backlogColor,align:'center',margin:0});
-            } else {
-              slide.addText(String(v),{x:cx+0.05,y:y+0.17,w:widths[i]-0.10,h:0.11,fontSize:i===0?14:13,bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
+          var sectorTotal = {hmis:0,rch:0,backlog:0,highRisk:0};
+          sectorRows.forEach(function(r,ri) {
+            var hmis = number(r.hmis);
+            var rch = number(r.rch);
+            var backlog = number(r.backlog);
+            var highRisk = number(r.highRisk);
+            sectorTotal.hmis += hmis;
+            sectorTotal.rch += rch;
+            sectorTotal.backlog += backlog;
+            sectorTotal.highRisk += highRisk;
+
+            var pct = hmis > 0 ? Math.round(rch / hmis * 100) : 0;
+            var pctColor = pct >= 90 ? '16A34A' : (pct >= 70 ? 'F59E0B' : 'DC2626');
+            var pctFill = pct >= 90 ? 'DCFCE7' : (pct >= 70 ? 'FEF3C7' : 'FEE2E2');
+            var backlogColor = backlog > 0 ? '16A34A' : (backlog === 0 ? 'CA8A04' : 'DC2626');
+            var backlogFill = backlog > 0 ? 'DCFCE7' : (backlog === 0 ? 'FEF9C3' : 'FEE2E2');
+            var vals = [clean(r.facility), hmis, rch, pct + '%', backlog, highRisk, clean(r.sector)];
+            cx = tx;
+
+            vals.forEach(function(v,i) {
+              var fill = ri % 2 === 0 ? 'FFFFFF' : 'F8FBFF';
+              slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:fill},line:{color:'D7E2EA',pt:0.7}});
+              if(i===3) {
+                slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:pctFill},line:{color:pctColor,pt:0.8}});
+                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
+              } else if(i===4) {
+                slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:backlogFill},line:{color:backlogColor,pt:0.8}});
+                slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:backlogColor,align:'center',margin:0,fit:'shrink'});
+              } else {
+                slide.addText(String(v),{x:cx+0.04,y:currentY+rowH*0.31,w:widths[i]-0.08,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
+              }
+              cx += widths[i];
+            });
+            currentY += rowH;
+          });
+
+          // Mandatory TOTAL row for every sector, including its sector Achievement %.
+          var sectorPct = sectorTotal.hmis > 0 ? Math.round(sectorTotal.rch / sectorTotal.hmis * 100) : 0;
+          var totalVals = [sectorName.toUpperCase() + ' TOTAL', sectorTotal.hmis, sectorTotal.rch, sectorPct + '%', sectorTotal.backlog, sectorTotal.highRisk, sectorRows.length + ' Facilities'];
+          cx = tx;
+          totalVals.forEach(function(v,i) {
+            var fillColor = i === 3 ? (sectorPct >= 90 ? '16A34A' : (sectorPct >= 70 ? 'F59E0B' : 'DC2626')) : '073B75';
+            slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
+            slide.addText(String(v),{
+              x:cx+0.04,y:currentY+rowH*0.29,w:widths[i]-0.08,h:rowH*0.34,
+              fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,
+              color:i===3 ? 'FFFFFF' : 'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'
+            });
+            if (i === 3) {
+              slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:fillColor},line:{color:'FFFFFF',pt:0.8}});
+              slide.addText(String(v),{x:cx+0.18,y:currentY+rowH*0.31,w:widths[i]-0.36,h:rowH*0.30,fontSize:Math.max(8,Math.min(12,rowH*28)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
             }
             cx += widths[i];
           });
+          currentY += rowH;
         });
 
-        var groupTotal = groupRows.reduce(function(acc,r) {
-          acc.hmis += number(r.hmis); acc.rch += number(r.rch);
-          acc.backlog += number(r.backlog); acc.highRisk += number(r.highRisk);
-          return acc;
-        }, {hmis:0,rch:0,backlog:0,highRisk:0});
-        var groupPct = groupTotal.hmis > 0 ? Math.round(groupTotal.rch / groupTotal.hmis * 100) : 0;
-        var totalY = ty + rowH + groupRows.length * rowH;
-        var totalVals = ['GROUP TOTAL', groupTotal.hmis, groupTotal.rch, groupPct + '%', groupTotal.backlog, groupTotal.highRisk, groupRows.length + ' Facilities'];
-        cx = tx;
-        totalVals.forEach(function(v,i) {
-          slide.addShape('rect',{x:cx,y:totalY,w:widths[i],h:rowH,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
-          slide.addText(String(v),{x:cx+0.05,y:totalY+0.17,w:widths[i]-0.10,h:0.12,fontSize:13,bold:true,color:'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'});
-          cx += widths[i];
+        slide.addText('Each sector includes facility-wise details followed by Sector TOTAL and Achievement %.', {
+          x:0.42,y:6.72,w:9.8,h:0.18,fontSize:7.5,color:'64748B',margin:0
         });
       });
 
