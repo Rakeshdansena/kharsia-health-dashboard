@@ -704,25 +704,83 @@
         });
       });
 
-      // Any facility not covered by the three requested groups is shown in its own slide,
-      // so no source facility disappears from the report.
+      // Any facility not covered by the three requested groups is shown separately,
+      // with the same sector-total format. This includes Urban Kharsia.
       var remainingRows = rows.filter(function(r) {
         var key = clean(r.facility).toLowerCase();
         return clean(r.facility) && !assignedFacilities[key];
       });
       if (remainingRows.length) {
-        showProgress('Facility slides बन रही हैं', 90, 'बाकी Facility Wise Data तैयार हो रहा है...');
+        showProgress('Facility slides बन रही हैं', 90, 'बाकी Facility Wise Data और Sector Total तैयार हो रहा है...');
         slide = pptx.addSlide();
-        addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | OTHER FACILITIES');
-        var tx2=0.45, ty2=1.32, rh2=0.52;
-        var w2=[3.05,1.72,1.90,1.62,1.70,1.62,1.75];
+        addHeader(slide, 'Janani Portal (RCH 2.0)', 'FACILITY WISE DATA | OTHER SECTORS');
+
+        var tx2=0.38, ty2=1.05;
+        var w2=[3.00,1.55,1.68,1.48,1.50,1.48,1.80];
         var h2=['Facility','HMIS PW','RCH 2.0 PW','Achievement','Backlog','High Risk','Sector'];
+        var groupedOther={};
+        remainingRows.forEach(function(r){
+          var key=clean(r.sector)||'Other';
+          if(!groupedOther[key]) groupedOther[key]=[];
+          groupedOther[key].push(r);
+        });
+        var otherKeys=Object.keys(groupedOther);
+        var totalLines=1;
+        otherKeys.forEach(function(k){ totalLines += groupedOther[k].length + 2; });
+        var rh2=Math.max(0.28,Math.min(0.42,5.95/Math.max(totalLines,1)));
         var cx2=tx2;
-        h2.forEach(function(h,i){slide.addShape('rect',{x:cx2,y:ty2,w:w2[i],h:rh2,fill:{color:'075985'},line:{color:'FFFFFF',pt:1}});slide.addText(h,{x:cx2+0.04,y:ty2+0.14,w:w2[i]-0.08,h:0.12,fontSize:12,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});cx2+=w2[i];});
-        remainingRows.forEach(function(r,ri){
-          var y=ty2+rh2+ri*rh2,hmis=number(r.hmis),rch=number(r.rch),pct=hmis>0?Math.round(rch/hmis*100):0,backlog=number(r.backlog);
-          var vals=[clean(r.facility),hmis,rch,pct+'%',backlog,number(r.highRisk),clean(r.sector)];cx2=tx2;
-          vals.forEach(function(v,i){slide.addShape('rect',{x:cx2,y:y,w:w2[i],h:rh2,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'D7E2EA',pt:0.8}});slide.addText(String(v),{x:cx2+0.05,y:y+0.15,w:w2[i]-0.1,h:0.1,fontSize:i===0?13:12,bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});cx2+=w2[i];});
+        h2.forEach(function(h,i){
+          slide.addShape('rect',{x:cx2,y:ty2,w:w2[i],h:rh2,fill:{color:'075985'},line:{color:'FFFFFF',pt:1}});
+          slide.addText(h,{x:cx2+0.03,y:ty2+rh2*0.28,w:w2[i]-0.06,h:rh2*0.38,fontSize:Math.max(9,Math.min(12,rh2*30)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+          cx2+=w2[i];
+        });
+        var cy2=ty2+rh2;
+        otherKeys.forEach(function(sectorName){
+          var sr=groupedOther[sectorName];
+          slide.addShape('rect',{x:tx2,y:cy2,w:12.49,h:rh2,fill:{color:'E0F2FE'},line:{color:'B6D7EA',pt:1}});
+          slide.addText('SECTOR: '+sectorName.toUpperCase(),{x:tx2+0.08,y:cy2+rh2*0.26,w:12.25,h:rh2*0.38,fontSize:Math.max(8,Math.min(11,rh2*28)),bold:true,color:'075985',margin:0,fit:'shrink'});
+          cy2+=rh2;
+          var st={hmis:0,rch:0,backlog:0,highRisk:0};
+          sr.forEach(function(r,ri){
+            var hmis=number(r.hmis),rch=number(r.rch),backlog=number(r.backlog),hr=number(r.highRisk);
+            st.hmis+=hmis;st.rch+=rch;st.backlog+=backlog;st.highRisk+=hr;
+            var pct=hmis>0?Math.round(rch/hmis*100):0;
+            var pc=pct>=90?'16A34A':(pct>=70?'F59E0B':'DC2626');
+            var pf=pct>=90?'DCFCE7':(pct>=70?'FEF3C7':'FEE2E2');
+            var bc=backlog>0?'16A34A':(backlog===0?'CA8A04':'DC2626');
+            var bf=backlog>0?'DCFCE7':(backlog===0?'FEF9C3':'FEE2E2');
+            var vals=[clean(r.facility),hmis,rch,pct+'%',backlog,hr,clean(r.sector)];
+            cx2=tx2;
+            vals.forEach(function(v,i){
+              slide.addShape('rect',{x:cx2,y:cy2,w:w2[i],h:rh2,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'D7E2EA',pt:0.7}});
+              if(i===3){
+                slide.addShape('roundRect',{x:cx2+0.18,y:cy2+rh2*0.13,w:w2[i]-0.36,h:rh2*0.70,fill:{color:pf},line:{color:pc,pt:0.8}});
+                slide.addText(String(v),{x:cx2+0.18,y:cy2+rh2*0.31,w:w2[i]-0.36,h:rh2*0.30,fontSize:Math.max(8,Math.min(12,rh2*28)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
+              } else if(i===4){
+                slide.addShape('roundRect',{x:cx2+0.18,y:cy2+rh2*0.13,w:w2[i]-0.36,h:rh2*0.70,fill:{color:bf},line:{color:bc,pt:0.8}});
+                slide.addText(String(v),{x:cx2+0.18,y:cy2+rh2*0.31,w:w2[i]-0.36,h:rh2*0.30,fontSize:Math.max(8,Math.min(12,rh2*28)),bold:true,color:bc,align:'center',margin:0,fit:'shrink'});
+              } else {
+                slide.addText(String(v),{x:cx2+0.04,y:cy2+rh2*0.31,w:w2[i]-0.08,h:rh2*0.30,fontSize:Math.max(8,Math.min(12,rh2*28)),bold:i===0,color:'172033',align:i===0?'left':'center',margin:0,fit:'shrink'});
+              }
+              cx2+=w2[i];
+            });
+            cy2+=rh2;
+          });
+          var sp=st.hmis>0?Math.round(st.rch/st.hmis*100):0;
+          var tv=[sectorName.toUpperCase()+' TOTAL',st.hmis,st.rch,sp+'%',st.backlog,st.highRisk,sr.length+' Facilities'];
+          cx2=tx2;
+          tv.forEach(function(v,i){
+            slide.addShape('rect',{x:cx2,y:cy2,w:w2[i],h:rh2,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
+            if(i===3){
+              var tc=sp>=90?'16A34A':(sp>=70?'F59E0B':'DC2626');
+              slide.addShape('roundRect',{x:cx2+0.18,y:cy2+rh2*0.13,w:w2[i]-0.36,h:rh2*0.70,fill:{color:tc},line:{color:'FFFFFF',pt:0.8}});
+              slide.addText(String(v),{x:cx2+0.18,y:cy2+rh2*0.31,w:w2[i]-0.36,h:rh2*0.30,fontSize:Math.max(8,Math.min(12,rh2*28)),bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+            } else {
+              slide.addText(String(v),{x:cx2+0.04,y:cy2+rh2*0.31,w:w2[i]-0.08,h:rh2*0.30,fontSize:Math.max(8,Math.min(12,rh2*28)),bold:true,color:'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'});
+            }
+            cx2+=w2[i];
+          });
+          cy2+=rh2;
         });
       }
 
