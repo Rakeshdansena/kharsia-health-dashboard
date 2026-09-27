@@ -379,6 +379,855 @@
   }
 
 
+  function queryNCDSheet() {
+    return new Promise(function(resolve, reject) {
+      var gid = '1254412412';
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + gid + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function(response) {
+        try {
+          if (response.isError()) throw new Error('NCD data load नहीं हुआ: ' + response.getMessage());
+          var dt = response.getDataTable(), rs = [];
+          for (var r=0;r<dt.getNumberOfRows();r++) {
+            var row=[];
+            for (var col=0;col<dt.getNumberOfColumns();col++) {
+              row.push(clean(dt.getFormattedValue(r,col) || dt.getValue(r,col) || ''));
+            }
+            rs.push(row);
+          }
+          resolve(rs);
+        } catch(e) { reject(e); }
+      });
+    });
+  }
+
+  function ncdIsTitle(r) {
+    return /NCD\s*status\s*2026-27/i.test((r||[]).join(' '));
+  }
+  function ncdIsHeader(r) {
+    return /subcenter|sector|facility|total\s+population|screening\s+target|enrollment\s*30|abha\s*link|estimated|under\s+treatment|follow.?up|under\s+control/i.test((r||[]).join(' ').toLowerCase());
+  }
+  function ncdIsTotal(r) {
+    return /^(total|योग|कुल)$/i.test(clean((r||[])[0]));
+  }
+  function ncdUpdated(rs) {
+    for (var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {
+      var t=clean(rs[i].join(' '));
+      return t || 'NCD Status 2026-27';
+    }
+    return 'NCD Status 2026-27';
+  }
+  function ncdRowsAfterHeader(rs, start, end) {
+    var data=[], total=null;
+    for(var i=start;i<end;i++) {
+      if(!rs[i] || !rs[i].some(function(v){return clean(v)!=='';})) continue;
+      if(ncdIsHeader(rs[i])) continue;
+      if(ncdIsTotal(rs[i])) { total=rs[i]; break; }
+      if(rs[i].length>=2) data.push(rs[i]);
+    }
+    return {data:data,total:total};
+  }
+  function ncdLabels(rs, hi, fallback) {
+    var labels=[];
+    for(var c=0;c<25;c++) labels[c]=clean((rs[hi]||[])[c]) || fallback[c] || ('Column '+(c+1));
+    return labels;
+  }
+
+  function addNCDTableSlide(pptx, title, subtitle, labels, dataRows, totalRow, part, groupTotals) {
+    var slide=pptx.addSlide();
+    addHeader(slide, '❤️ NCD — '+title, subtitle);
+    var idx = part==='enroll' ? [0,1,2,3,4,5,6] :
+              part==='htn' ? [0,7,8,9,10,11,12,13,14,15] :
+              [0,16,17,18,19,20,21,22,23,24];
+    var fallback = part==='enroll'
+      ? ['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %']
+      : part==='htn'
+      ? ['Sector / Facility','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %']
+      : ['Sector / Facility','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
+    var head = idx.map(function(i,k){ return clean((labels||[])[i]) || fallback[k]; });
+    var rows=[head];
+    (dataRows||[]).forEach(function(r){ rows.push(idx.map(function(i){return clean(r[i]);})); });
+    if(groupTotals && groupTotals.length){
+      // groupTotals are already placed in dataRows in the desired order.
+    } else if(totalRow) {
+      rows.push(idx.map(function(i){return clean(totalRow[i]);}));
+    }
+    if(rows.length<=1) return slide;
+
+    var x=0.34, w=12.66, y=1.10;
+    var dataCount=Math.max(1,rows.length-1);
+    var headerH=0.70;
+    // Keep every Facility Wise row, including each Sector Total, inside the slide.
+    // This is especially important for the combined Barra + Jobi + Gorpar slide.
+    var availableH=5.55-headerH;
+    var dataH=Math.min(0.46,Math.max(0.31,availableH/dataCount));
+    if (dataH * dataCount > availableH) dataH=availableH/dataCount;
+
+    var colW=part==='enroll'
+      ? [2.65,1.55,1.55,1.55,1.20,1.45,1.35]
+      : [2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
+    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum;
+    colW=colW.map(function(v){return v*scale;});
+
+    var yy=y;
+    rows.forEach(function(row,ri){
+      var rowH=ri===0?headerH:dataH, xx=x;
+      var isGroupTotal = ri>0 && /\bTotal\b/i.test(String(row[0]||''));
+      row.forEach(function(v,ci){
+        var fill=ri===0?'075985':(isGroupTotal?'0F766E':(ri%2?'FFFFFF':'F8FBFF'));
+        slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
+        var isPct=/%/.test(head[ci])||/percent/i.test(head[ci]);
+        var txtColor=ri===0?'FFFFFF':'172033';
+        slide.addText(String(v||''),{
+          x:xx+0.035,y:yy+0.04,w:colW[ci]-0.07,h:rowH-0.08,
+          fontSize:ri===0?11.5:Math.max(11,Math.min(14,dataH*30)),
+          bold:ri===0||isGroupTotal||ci===0,
+          color:isGroupTotal?'FFFFFF':txtColor,align:ci===0?'left':'center',valign:'mid',margin:0.01,fit:'shrink',breakLine:false
+        });
+        if(ri>0&&!isGroupTotal&&isPct&&v!==''){
+          var n=number(String(v).replace('%',''));
+          var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
+          var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
+          slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
+          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(10,Math.min(13,dataH*30)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
+        }
+        xx+=colW[ci];
+      });
+      yy+=rowH;
+    });
+    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]),{x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0});
+    return slide;
+  }
+
+  function ncdSectorTotalRow(rows, sectorName, sectorTotals) {
+    var target=ncdNormalizeFacility(sectorName);
+    var found=(sectorTotals||[]).find(function(r){return ncdNormalizeFacility(r&&r[0])===target;});
+    if(found) {
+      // Always mark the row explicitly as a Sector Total so the PPT renderer
+      // can apply the dark-teal total-row styling.
+      var foundOut=found.slice ? found.slice() : Array.prototype.slice.call(found);
+      foundOut[0]=sectorName+' Total';
+      return foundOut;
+    }
+    var out=new Array(25).fill('');
+    out[0]=sectorName+' Total';
+    var numeric=[1,2,3,5,7,9,10,12,14,16,18,19,21,23];
+    numeric.forEach(function(c){out[c]=(rows||[]).reduce(function(sum,r){return sum+number(r[c]);},0);});
+    function pct(num,den){return den?Math.round(num/den*100)+'%':'-';}
+    out[4]=pct(out[3],out[2]);
+    out[6]=pct(out[5],out[3]);
+    out[8]=pct(out[7],out[9]);
+    out[11]=pct(out[10],out[9]);
+    out[13]=pct(out[12],out[10]);
+    out[15]=pct(out[14],out[9]);
+    out[17]=pct(out[16],out[18]);
+    out[20]=pct(out[19],out[18]);
+    out[22]=pct(out[21],out[19]);
+    out[24]=pct(out[23],out[18]);
+    return out;
+  }
+
+  function addNCDPerformanceSlide(pptx, facilityRows, mode) {
+    var isTop = mode === 'top';
+    var slide=pptx.addSlide();
+    slide.background={color:'F7FBFF'};
+
+    slide.addShape('roundRect',{x:0.35,y:0.22,w:12.63,h:0.78,fill:{color:isTop?'166534':'073B75'},line:{color:isTop?'166534':'073B75'}});
+    slide.addText(isTop?'🏆  NCD — TOP 10 FACILITIES':'❤️  NCD — LOWEST 10 FACILITIES',{x:0.65,y:0.36,w:7.1,h:0.32,fontSize:25,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+    slide.addText('ABHA LINK • HTN SCREENING • DM SCREENING',{x:7.55,y:0.42,w:5.0,h:0.22,fontSize:11,bold:true,color:'D9F2FF',align:'right',margin:0,fit:'shrink'});
+    slide.addText('FY 2026–27  |  Facility-wise percentage analysis',{x:0.65,y:0.77,w:7.0,h:0.14,fontSize:8.5,bold:true,color:'BFE8FF',margin:0});
+
+    var metrics=[
+      {title:'ABHA LINK %',sub:isTop?'Top 10':'Lowest 10',col:6,accent:isTop?'16A34A':'7C3AED',soft:isTop?'DCFCE7':'F3E8FF'},
+      {title:'HTN SCREENING %',sub:isTop?'Top 10':'Lowest 10',col:8,accent:isTop?'0F766E':'EA580C',soft:isTop?'CCFBF1':'FFEDD5'},
+      {title:'DM SCREENING %',sub:isTop?'Top 10':'Lowest 10',col:17,accent:isTop?'2563EB':'DC2626',soft:isTop?'DBEAFE':'FEE2E2'}
+    ];
+    var groups=ncdGroupFacilities(facilityRows||[]);
+    var all=[];
+    Object.keys(groups).forEach(function(k){(groups[k]||[]).forEach(function(r){all.push(r);});});
+    var seen={};
+    all=all.filter(function(r){
+      var n=ncdNormalizeFacility(r&&r[0]);
+      if(!n||NCD_EXCLUDED_FACILITIES[n]||n.indexOf('CHAPLE')>=0||n.indexOf('CHC CHAPLE')>=0||seen[n]) return false;
+      seen[n]=true; return true;
+    });
+
+    var positions=[0.35,4.49,8.63], boxW=3.86, boxY=1.20, boxH=5.62;
+    metrics.forEach(function(metric,mi){
+      var rows=all.filter(function(r){
+        return r && r[metric.col]!=='' && !isNaN(number(String(r[metric.col]).replace('%','')));
+      }).sort(function(a,b){
+        var av=number(String(a[metric.col]).replace('%','')), bv=number(String(b[metric.col]).replace('%',''));
+        return isTop ? bv-av : av-bv;
+      }).slice(0,10);
+
+      var x=positions[mi];
+      slide.addShape('roundRect',{x:x,y:boxY,w:boxW,h:boxH,rectRadius:0.08,fill:{color:'FFFFFF'},line:{color:metric.accent,pt:1.4},shadow:{type:'outer',color:'94A3B8',blur:1,angle:45,distance:1,opacity:0.13}});
+      slide.addShape('roundRect',{x:x+0.04,y:boxY+0.04,w:boxW-0.08,h:0.62,rectRadius:0.06,fill:{color:metric.accent},line:{color:metric.accent}});
+      slide.addText(metric.title,{x:x+0.18,y:boxY+0.15,w:2.5,h:0.24,fontSize:16,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+      slide.addText(metric.sub,{x:x+2.55,y:boxY+0.18,w:1.05,h:0.18,fontSize:9,bold:true,color:'FFFFFF',align:'right',margin:0});
+
+      var rh=0.46, y=boxY+0.78;
+      rows.forEach(function(r,ri){
+        var pct=number(String(r[metric.col]).replace('%',''));
+        var pctFill=isTop?(pct>=90?'DCFCE7':(pct>=70?'FEF3C7':'FEE2E2')):(pct<30?'FEE2E2':(pct<50?'FEF3C7':'FFF7ED'));
+        var pctColor=isTop?(pct>=90?'15803D':(pct>=70?'A16207':'B91C1C')):(pct<30?'B91C1C':(pct<50?'A16207':'C2410C'));
+
+        slide.addShape('rect',{x:x+0.10,y:y,w:boxW-0.20,h:rh,fill:{color:ri%2?'FFFFFF':'F8FBFF'},line:{color:'E2E8F0',pt:0.45}});
+        slide.addShape('ellipse',{x:x+0.16,y:y+0.065,w:0.32,h:0.32,fill:{color:ri<3?metric.accent:'E2E8F0'},line:{color:ri<3?metric.accent:'CBD5E1',pt:0.5}});
+        slide.addText(String(ri+1),{x:x+0.16,y:y+0.115,w:0.32,h:0.12,fontSize:8.5,bold:true,color:ri<3?'FFFFFF':'475569',align:'center',margin:0});
+        slide.addText(clean(r[0]),{x:x+0.58,y:y+0.07,w:2.18,h:0.30,fontSize:14,bold:true,color:'172033',margin:0,fit:'shrink'});
+        slide.addShape('roundRect',{x:x+2.82,y:y+0.055,w:0.86,h:0.34,fill:{color:pctFill},line:{color:pctColor,pt:0.8}});
+        slide.addText(String(r[metric.col]),{x:x+2.86,y:y+0.105,w:0.78,h:0.16,fontSize:13,bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
+        y+=rh;
+      });
+      if(!rows.length) slide.addText('No facility data available',{x:x+0.35,y:3.55,w:3.15,h:0.35,fontSize:14,bold:true,color:'64748B',align:'center',margin:0});
+    });
+
+    slide.addShape('roundRect',{x:0.48,y:6.90,w:12.35,h:0.30,fill:{color:isTop?'ECFDF5':'EAF5FF'},line:{color:isTop?'BBF7D0':'CFE8F8',pt:0.6}});
+    slide.addText(isTop
+      ? 'Higher percentage = stronger performance  •  CHC Chaple Kharsia excluded  •  Source: live Google Sheet'
+      : 'Lower percentage = higher priority for review  •  CHC Chaple Kharsia excluded  •  Source: live Google Sheet',
+      {x:0.62,y:6.98,w:12.05,h:0.12,fontSize:8.5,bold:true,color:isTop?'166534':'075985',align:'center',margin:0,fit:'shrink'});
+    return slide;
+  }
+
+  function addNCDLowest10Slide(pptx, facilityRows) {
+    return addNCDPerformanceSlide(pptx, facilityRows, 'low');
+  }
+
+  function addNCDTop10Slide(pptx, facilityRows) {
+    return addNCDPerformanceSlide(pptx, facilityRows, 'top');
+  }
+
+  function addNCDSummarySlide(pptx, labels, facilityTotal, sectorTotal, updated) {
+    var slide=pptx.addSlide();
+    addHeader(slide,'❤️ NCD — Summary Dashboard','NCD STATUS 2026–27');
+    addSectionTitle(slide,'LAST UPDATED',0.55,1.02,3.0);
+    slide.addText(updated,{x:0.55,y:1.42,w:12.1,h:0.35,fontSize:14,bold:true,color:'075985',margin:0,fit:'shrink'});
+    var row=sectorTotal||facilityTotal||[];
+    var cards=[
+      ['30+ Population',row[1]],['Screening Target',row[2]],['Enrollment 30+',row[3]],['Enrollment %',row[4]],
+      ['ABHA Link',row[5]],['ABHA Link %',row[6]],['HTN Screening',row[7]],['HTN Treatment',row[10]],
+      ['HTN Control',row[14]],['DM Screening',row[16]],['DM Treatment',row[19]],['DM Control',row[23]]
+    ];
+    cards.forEach(function(c,i){
+      var col=i%4, rr=Math.floor(i/4);
+      addCard(slide,0.55+col*3.15,1.98+rr*1.05,2.82,0.82,c[0],c[1]||'-');
+    });
+    addSectionTitle(slide,'NCD PRESENTATION',0.55,5.30,4.0);
+    slide.addText('Part 1 — Enrollment & ABHA\nPart 2 — Hypertension (HTN)\nPart 3 — Diabetes Mellitus (DM)\nSector Wise + Facility Wise data with percentage analysis',{
+      x:0.62,y:5.75,w:6.2,h:1.0,fontSize:16,bold:true,color:'172033',breakLine:false,fit:'shrink',margin:0
+    });
+    slide.addText('Source: live Google Sheet',{x:8.0,y:6.62,w:4.0,h:0.2,fontSize:9,color:'64748B',align:'right',margin:0});
+    return slide;
+  }
+
+  // Exact NCD Sector -> Facility mapping supplied by the user.
+  // Exact NCD Sector -> Facility mapping supplied by the user.
+  var NCD_SECTOR_FACILITY_ORDER = {
+    'Barra':['FARKANARA','BARRA','DEHJARI'],
+    'Binjkot':['BHUPDEOPUR','LODHAJHAR','PAMGARH','BADE DUMARPALI','BARBHAUNA','BINJKOT','GURDA','MURA','NAHARPALI'],
+    'Gorpar':['KHADGAON','GANDAPALI','GORPAR'],
+    'Jobi':['NAGOI','KHAMAR','NANDGAON'],
+    'Sarwani':['AURDA','BARGARH','PARASKOL','BOTALDA','CHHOTE DEOGAON','MADANPUR','SARWANI','TIUR'],
+    'Sondka':['BANIPATHAR','GIDHA','JAIMURA','BASNAJHAR','KUNKUNI','SONDAKA','SONBARSA','TEMTEMA'],
+    'Turekela':['BAKELI','MAHUAPALI','DUMARBHATA','HALAHULI','MAKARI','TELIKOT','TUREKELA']
+  };
+
+  // Chaple is explicitly excluded from NCD Facility Wise reporting.
+  var NCD_EXCLUDED_FACILITIES = {'CHAPLE':true};
+
+  function ncdNormalizeFacility(v) {
+    return clean(v).toUpperCase()
+      .replace(/[^A-Z0-9]+/g,' ')
+      .replace(/\b(SHC|SUBCENTER|SUB CENTRE|HEALTH FACILITY|FACILITY|SC)\b/g,' ')
+      .replace(/\s+/g,' ')
+      .trim();
+  }
+
+  function ncdGroupFacilities(rows) {
+    var groups = {};
+    var used = {};
+    Object.keys(NCD_SECTOR_FACILITY_ORDER).forEach(function(sector){ groups[sector]=[]; });
+
+    Object.keys(NCD_SECTOR_FACILITY_ORDER).forEach(function(sector){
+      NCD_SECTOR_FACILITY_ORDER[sector].forEach(function(target){
+        var targetN = ncdNormalizeFacility(target);
+        for(var i=0;i<rows.length;i++){
+          if(used[i]) continue;
+          var rowN = ncdNormalizeFacility(rows[i] && rows[i][0]);
+          if(NCD_EXCLUDED_FACILITIES[rowN] || rowN.indexOf('CHAPLE') === 0 || rowN.indexOf('CHAPLE') >= 0) { used[i]=true; continue; }
+
+          // Exact match after removing SHC/punctuation, plus the two spelling variants
+          // present in the user's mapping.
+          var match = rowN === targetN;
+          if(!match && ((rowN==='KHAMHAR' && targetN==='KHAMAR') || (rowN==='KHAMAR' && targetN==='KHAMHAR'))) match=true;
+          if(!match && ((rowN==='DUMARBHANTHA' && targetN==='DUMARBHATA') || (rowN==='DUMARBHATA' && targetN==='DUMARBHANTHA'))) match=true;
+          if(!match && ((rowN==='MAKRI' && targetN==='MAKARI') || (rowN==='MAKARI' && targetN==='MAKRI'))) match=true;
+          if(!match && ((rowN==='SONDKA' && targetN==='SONDAKA') || (rowN==='SONDAKA' && targetN==='SONDKA'))) match=true;
+
+          if(match){
+            groups[sector].push(rows[i]);
+            used[i]=true;
+            break;
+          }
+        }
+      });
+    });
+
+    // Unmatched facilities are intentionally omitted from NCD Facility Wise PPT.
+    // Only the seven approved sectors are shown; Chaple is excluded.
+    return groups;
+  }
+
+  async function addNCDPresentation(pptx) {
+    var rs=await queryNCDSheet();
+    window.__ncdRawRows=rs;
+
+    var titleIdx=-1,nextTitle=rs.length;
+    for(var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {titleIdx=i;break;}
+    if(titleIdx<0) titleIdx=0;
+    for(var j=titleIdx+1;j<rs.length;j++) if(ncdIsTitle(rs[j])) {nextTitle=j;break;}
+
+    var h1=-1,h2=-1;
+    for(var k=titleIdx+1;k<nextTitle;k++) if(ncdIsHeader(rs[k])) {h1=k;break;}
+    for(var m=nextTitle+1;m<rs.length;m++) if(ncdIsHeader(rs[m])) {h2=m;break;}
+    if(h1<0) throw new Error('NCD Facility Wise header नहीं मिला।');
+    if(h2<0) h2=rs.length;
+
+    var facility=ncdRowsAfterHeader(rs,h1+1,nextTitle);
+    var sector=ncdRowsAfterHeader(rs,h2+1,rs.length);
+    var fallback=['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
+    var fl=ncdLabels(rs,h1,fallback), sl=ncdLabels(rs,Math.min(h2,rs.length-1),fallback);
+    var grouped=ncdGroupFacilities(facility.data);
+    var sectorTotals=sector.data||[];
+
+    function rowsWithSectorTotal(sectorName){
+      var data=(grouped[sectorName]||[]).slice();
+      if(data.length) data.push(ncdSectorTotalRow(data,sectorName,sectorTotals));
+      return data;
+    }
+    function combinedWithTotals(){
+      var out=[];
+      ['Barra','Jobi','Gorpar'].forEach(function(sec){
+        out=out.concat(rowsWithSectorTotal(sec));
+      });
+      return out;
+    }
+
+    ['enroll','htn','dm'].forEach(function(part){
+      var name=part==='enroll'?'Enrollment & ABHA':part==='htn'?'Hypertension (HTN)':'Diabetes Mellitus (DM)';
+      addNCDTableSlide(pptx,name+' — Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
+
+      // Barra + Jobi + Gorpar in one slide, each with its own Sector Total.
+      var combined=combinedWithTotals();
+      if(combined.length) addNCDTableSlide(pptx,name+' — Facility Wise | Barra • Jobi • Gorpar','FACILITY WISE DATA | FY 2026–27',fl,combined,null,part);
+
+      ['Binjkot','Sarwani','Sondka','Turekela'].forEach(function(sec){
+        var data=rowsWithSectorTotal(sec);
+        if(data.length) addNCDTableSlide(pptx,name+' — Facility Wise | '+sec,'FACILITY WISE DATA | FY 2026–27',fl,data,null,part);
+      });
+    });
+
+    // Final slide: lowest 10 facilities for ABHA Link %, HTN Screening %, and DM Screening %.
+    addNCDLowest10Slide(pptx,facility.data);
+    addNCDTop10Slide(pptx,facility.data);
+    return true;
+  }
+
+  
+  // ---------------- JAS MEETING PPTX ----------------
+  function queryJASSheet() {
+    return new Promise(function(resolve, reject) {
+      var gid = '1018164338';
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + gid + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function(response) {
+        try {
+          if (response.isError()) throw new Error('JAS Meeting data load नहीं हुआ: ' + response.getMessage());
+          var dt=response.getDataTable(), rs=[];
+          for(var r=0;r<dt.getNumberOfRows();r++){
+            var row=[];
+            for(var c=0;c<dt.getNumberOfColumns();c++) row.push(clean(dt.getFormattedValue(r,c) || dt.getValue(r,c) || ''));
+            rs.push(row);
+          }
+          resolve(rs);
+        } catch(e){ reject(e); }
+      });
+    });
+  }
+
+  function jasTitle(rs) {
+    for(var i=0;i<rs.length;i++){
+      for(var c=0;c<(rs[i]||[]).length;c++){
+        var s=clean(rs[i][c]);
+        if(/jan\s*arogya\s*samiti\s*meeting/i.test(s)) return s;
+      }
+    }
+    return 'Jan Arogya Samiti Meeting FY 2026-27';
+  }
+
+  function jasIsFacilityHeader(r){
+    var x=(r||[]).slice(0,7).join(' ').toLowerCase();
+    return /sn/.test(x) && /nin/.test(x) && /sector/.test(x) && /facility/.test(x) && /target/.test(x) && /achiev/.test(x);
+  }
+
+  function jasIsSectorHeader(r){
+    var x=(r||[]).slice(0,7).join(' ').toLowerCase();
+    return /sn/.test(x) && /sector/.test(x) && /aam/.test(x) && /target/.test(x) && /achiev/.test(x);
+  }
+
+  function jasIsTotal(r){
+    return /^(total|योग|कुल)$/i.test(clean((r||[])[0]));
+  }
+
+  function jasLooksNumber(v){
+    var t=clean(v).replace(/,/g,'').replace('%','');
+    return t!=='' && Number.isFinite(Number(t));
+  }
+
+  function jasNorm(v){ return clean(v).toLowerCase().replace(/[^a-z0-9]+/g,' '); }
+
+  function jasHeaderMap(row, facilityMode){
+    var m={sn:-1,nin:-1,sector:-1,facility:-1,aam:-1,target:-1,achievement:-1,pct:-1};
+    (row||[]).forEach(function(v,i){
+      var x=jasNorm(v);
+      if(m.sn<0 && /^(sn|s no|s no\.)$/.test(x)) m.sn=i;
+      if(m.nin<0 && /\\bnin\\b/.test(x)) m.nin=i;
+      // "AAM Facility" appears in the Sector header too. Do not treat
+      // that as the Facility-name column.
+      if(m.facility<0 && /^(name of facility|facility name|facility)$/.test(x)) m.facility=i;
+      if(m.sector<0 && /sector/.test(x) && !/facility/.test(x)) m.sector=i;
+      if(m.aam<0 && /aam/.test(x)) m.aam=i;
+      if(m.target<0 && /target/.test(x)) m.target=i;
+      if(m.achievement<0 && /achiev/.test(x)) m.achievement=i;
+      if(m.pct<0 && /^(%|percent|percentage|achievement %|achievement percentage)$/.test(x)) m.pct=i;
+    });
+    if(m.pct<0){
+      for(var j=0;j<(row||[]).length;j++){ if(j!==m.target&&j!==m.achievement&&/%/.test(clean(row[j]))) {m.pct=j;break;} }
+    }
+    var valid=facilityMode
+      ? m.sn>=0&&m.nin>=0&&m.sector>=0&&m.facility>=0&&m.target>=0&&m.achievement>=0
+      : m.sn>=0&&m.sector>=0&&m.nin>=0&&m.aam>=0&&m.target>=0&&m.achievement>=0;
+    return valid?m:null;
+  }
+
+  function getJASRows(rs){
+    var facility=[], sector=[], facilityMap=null, sectorMap=null;
+    // Prefer explicit header mapping so inserted/title/blank columns do not break PPTX.
+    for(var i=0;i<rs.length;i++){
+      var fm=jasHeaderMap(rs[i],true), sm=jasHeaderMap(rs[i],false);
+      if(fm && !facilityMap) facilityMap=fm;
+      if(sm && !sectorMap) sectorMap=sm;
+    }
+
+    function parseMapped(map, mode, out){
+      if(!map) return;
+      for(var r=0;r<rs.length;r++){
+        var row=rs[r]||[];
+        var sn=clean(row[map.sn]);
+        if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+        var target=clean(row[map.target]), ach=clean(row[map.achievement]);
+        if(!jasLooksNumber(target)||!jasLooksNumber(ach)) continue;
+        var pct=map.pct>=0?clean(row[map.pct]):'';
+        if(!jasLooksNumber(pct)) pct=number(target)>0?(number(ach)/number(target)*100):0;
+        if(mode==='facility'){
+          var v=[sn,clean(row[map.nin]),clean(row[map.sector]),clean(row[map.facility]),target,ach,String(Math.round(number(pct)*10)/10)];
+          if(v[1]&&v[2]&&v[3]) out.push(v);
+        }else{
+          var sv=[sn,clean(row[map.sector]),clean(row[map.nin]),clean(row[map.aam]),target,ach,String(Math.round(number(pct)*10)/10)];
+          if(sv[1]&&jasLooksNumber(sv[3])) out.push(sv);
+        }
+      }
+    }
+    parseMapped(facilityMap,'facility',facility);
+    parseMapped(sectorMap,'sector',sector);
+
+    // Use the same robust 7-column scan as the working JAS web module.
+    // Header mapping can miss rows when Google Sheets has merged/variant headers.
+    var scannedFacility=[], scannedSector=[];
+    for(var k=0;k<rs.length;k++){
+      var v=(rs[k]||[]).slice(0,7); while(v.length<7)v.push('');
+      var sn2=clean(v[0]); if(!/^\\d+(?:\\.0+)?$/.test(sn2)) continue;
+      if(clean(v[1])&&clean(v[2])&&clean(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])){
+        scannedFacility.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
+      } else if(clean(v[1])&&jasLooksNumber(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])){
+        scannedSector.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
+      }
+    }
+    if(scannedFacility.length>facility.length) facility=scannedFacility;
+    if(scannedSector.length>sector.length) sector=scannedSector;
+    return {facility:facility,sector:sector};
+  }
+
+  function jasPctColor(p) {
+    return p >= 100 ? '16A34A' : (p > 90 ? 'EAB308' : 'DC2626');
+  }
+  function jasPctSoft(p) {
+    return p >= 100 ? 'DCFCE7' : (p > 90 ? 'FEF3C7' : 'FEE2E2');
+  }
+
+  function jasGroupFacilities(rows){
+    var map={};
+    (rows||[]).forEach(function(r){
+      var s=clean(r[2])||'Other';
+      if(!map[s]) map[s]=[];
+      map[s].push(r);
+    });
+    return map;
+  }
+
+  function jasAddPctCell(slide,x,y,w,h,value){
+    var p=number(value);
+    var c=jasPctColor(p), soft=jasPctSoft(p);
+    slide.addShape('roundRect',{x:x+0.10,y:y+h*0.13,w:w-0.20,h:h*0.74,fill:{color:soft},line:{color:c,pt:0.8}});
+    slide.addText(String(value)+'%',{x:x+0.10,y:y+h*0.31,w:w-0.20,h:h*0.30,fontSize:Math.max(9,Math.min(15,h*34)),bold:true,color:'000000',align:'center',valign:'mid',margin:0,fit:'shrink'});
+  }
+
+  function jasAddSummarySlide(pptx, title, sectorRows, facilityRows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting','JAN AROGYA SAMITI | FY 2026–27');
+    addSectionTitle(slide,'SUMMARY DASHBOARD',0.55,1.02,3.5);
+
+    var sectors=sectorRows.length;
+    var facilities=facilityRows.length;
+    var target=sectorRows.reduce(function(s,r){return s+number(r[4]);},0);
+    var ach=sectorRows.reduce(function(s,r){return s+number(r[5]);},0);
+    var overall=target?ach/target*100:0;
+
+    addCard(slide,0.55,1.45,2.35,1.12,'SECTORS',sectors);
+    addCard(slide,3.05,1.45,2.35,1.12,'FACILITIES',facilities);
+    addCard(slide,5.55,1.45,2.35,1.12,'TARGET',target);
+    addCard(slide,8.05,1.45,2.35,1.12,'ACHIEVEMENT',ach);
+    addCard(slide,10.55,1.45,2.25,1.12,'OVERALL %',overall.toFixed(1)+'%');
+
+    addSectionTitle(slide,'SECTOR PERFORMANCE',0.55,2.95,4.0);
+    var chartData=(sectorRows||[]).map(function(r){return {name:clean(r[1]),value:number(r[6])};});
+    try{
+      slide.addChart(pptx.ChartType.bar,[{
+        name:'Achievement %',
+        labels:chartData.map(function(x){return x.name;}),
+        values:chartData.map(function(x){return x.value;})
+      }],{
+        x:0.48,y:3.35,w:7.15,h:3.05,showLegend:false,showTitle:false,showValue:true,
+        catAxisLabelFontSize:12,valAxisLabelFontSize:10,chartColors:['0F766E'],
+        valGridLine:{color:'D6E3EC',pt:1},valAxisMinVal:0,valAxisMaxVal:120,
+        dataLabelPosition:'outEnd'
+      });
+    }catch(e){}
+
+    addSectionTitle(slide,'KEY OBSERVATIONS',7.95,2.95,4.4);
+    var obs=[];
+    (sectorRows||[]).forEach(function(r){
+      var p=number(r[6]);
+      obs.push('• '+clean(r[1])+': '+p+'% achievement.');
+    });
+    obs.push('• Overall achievement: '+overall.toFixed(1)+'%.');
+    obs.push('• 100% achievement: '+sectorRows.filter(function(r){return number(r[6])>=100;}).length+' sector(s).');
+    obs.push('• Above 90% but below 100%: '+sectorRows.filter(function(r){var p=number(r[6]);return p>90&&p<100;}).length+' sector(s).');
+    obs.push('• 90% or below: '+sectorRows.filter(function(r){return number(r[6])<=90;}).length+' sector(s).');
+    slide.addText(obs.join('\n'),{
+      x:8.0,y:3.38,w:4.65,h:2.85,fontSize:13,bold:true,color:'172033',margin:0.03,breakLine:false,fit:'shrink'
+    });
+    slide.addText('Source: live Google Sheet • '+title,{
+      x:0.55,y:6.78,w:12.1,h:0.18,fontSize:8,color:'64748B',margin:0,fit:'shrink'
+    });
+    return slide;
+  }
+
+  function jasAddSectorSlide(pptx,title,sectorRows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting — Sector Wise','SECTOR WISE DATA | FY 2026–27');
+    addSectionTitle(slide,'SECTOR WISE DATA',0.34,0.94,4.2);
+
+    // Fit the complete sector table on one slide with larger, readable fonts.
+    var x=0.24, y=1.34;
+    var w=[0.62,2.20,1.15,2.00,2.08,2.08,1.86];
+    var headers=['SN','Sector','NIN','No of AAM Facility','Target till Aug 26','Achievement','%'];
+    var headerH=0.70, dataH=0.57, totalH=0.60;
+    var cx=x;
+
+    headers.forEach(function(h,i){
+      slide.addShape('rect',{
+        x:cx,y:y,w:w[i],h:headerH,
+        fill:{color:'075985'},line:{color:'FFFFFF',pt:1}
+      });
+      slide.addText(h,{
+        x:cx+0.03,y:y+0.12,w:w[i]-0.06,h:headerH-0.18,
+        fontSize:15,bold:true,color:'FFFFFF',
+        align:'center',valign:'mid',margin:0,fit:'shrink'
+      });
+      cx+=w[i];
+    });
+
+    sectorRows.forEach(function(r,ri){
+      var cy=y+headerH+(ri*dataH), vals=[
+        r[0],r[1],r[2],number(r[3]),number(r[4]),number(r[5])
+      ];
+      cx=x;
+      vals.forEach(function(v,ci){
+        slide.addShape('rect',{
+          x:cx,y:cy,w:w[ci],h:dataH,
+          fill:{color:ri%2?'F8FBFF':'FFFFFF'},
+          line:{color:'CBD5E1',pt:0.8}
+        });
+        slide.addText(String(v),{
+          x:cx+0.04,y:cy+0.10,w:w[ci]-0.08,h:dataH-0.17,
+          fontSize:14,bold:ci===1,
+          color:'172033',align:ci===1?'left':'center',
+          valign:'mid',margin:0,fit:'shrink'
+        });
+        cx+=w[ci];
+      });
+
+      slide.addShape('rect',{
+        x:cx,y:cy,w:w[6],h:dataH,
+        fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}
+      });
+      jasAddPctCell(slide,cx,cy,w[6],dataH,r[6]);
+    });
+
+    var target=sectorRows.reduce(function(s,r){return s+number(r[4]);},0);
+    var ach=sectorRows.reduce(function(s,r){return s+number(r[5]);},0);
+    var totalPct=target?ach/target*100:0;
+    var ty=y+headerH+(sectorRows.length*dataH), tc=x;
+    var tv=['TOTAL','',sectorRows.reduce(function(s,r){return s+number(r[3]);},0),target,ach,totalPct.toFixed(1)];
+    var totalCols=[2.82,1.15,2.00,2.08,2.08,1.86];
+
+    tv.forEach(function(v,ci){
+      slide.addShape('rect',{
+        x:tc,y:ty,w:totalCols[ci],h:totalH,
+        fill:{color:'0F766E'},line:{color:'FFFFFF',pt:1}
+      });
+      if(ci===5){
+        jasAddPctCell(slide,tc,ty,totalCols[ci],totalH,v);
+      }else{
+        slide.addText(String(v),{
+          x:tc+0.04,y:ty+0.12,w:totalCols[ci]-0.08,h:totalH-0.18,
+          fontSize:14,bold:true,color:'FFFFFF',
+          align:ci===0?'left':'center',valign:'mid',
+          margin:0,fit:'shrink'
+        });
+      }
+      tc+=totalCols[ci];
+    });
+
+    slide.addText(
+      'Performance: '+sectorRows.map(function(r){
+        return clean(r[1])+' '+number(r[6])+'%';
+      }).join('  •  '),
+      {
+        x:0.30,y:6.86,w:12.70,h:0.20,
+        fontSize:11,bold:true,color:'475569',
+        margin:0,fit:'shrink',align:'center'
+      }
+    );
+    slide.addText('Source: live Google Sheet • '+title,{
+      x:0.45,y:7.10,w:12.0,h:0.14,
+      fontSize:7.5,color:'64748B',margin:0,fit:'shrink'
+    });
+    return slide;
+  }
+
+  function jasAddAllFacilitySlide(pptx,title,rows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting — Analysis Report','BLOCK SUMMARY + FACILITY MEETING LIST | FY 2026–27');
+    addSectionTitle(slide,'JAS MEETING — BLOCK SUMMARY',0.34,0.92,5.5);
+
+    var data=(rows||[]).filter(function(r){
+      return clean(r[3]) && (jasLooksNumber(r[4]) || jasLooksNumber(r[5]));
+    }).map(function(r){
+      var target=jasLooksNumber(r[4])?number(r[4]):0;
+      var held=jasLooksNumber(r[5])?number(r[5]):0;
+      return {facility:clean(r[3]),target:target,held:held,gap:Math.max(target-held,0)};
+    });
+
+    var groups={};
+    data.forEach(function(r){
+      var k=String(Math.round(r.held));
+      if(!groups[k]) groups[k]=[];
+      groups[k].push(r);
+    });
+
+    var facilityCount=data.length;
+    var totalTarget=data.reduce(function(s,r){return s+r.target;},0);
+    var totalHeld=data.reduce(function(s,r){return s+r.held;},0);
+    var totalGap=Math.max(totalTarget-totalHeld,0);
+    var overall=totalTarget?totalHeld/totalTarget*100:0;
+
+    addCard(slide,0.34,1.22,2.32,0.88,'TOTAL FACILITIES',facilityCount);
+    addCard(slide,2.80,1.22,2.32,0.88,'TARGET MEETINGS',totalTarget);
+    addCard(slide,5.26,1.22,2.32,0.88,'MEETINGS HELD',totalHeld);
+    addCard(slide,7.72,1.22,2.32,0.88,'GAP',totalGap);
+    addCard(slide,10.18,1.22,2.80,0.88,'OVERALL %',overall.toFixed(1)+'%');
+
+    addSectionTitle(slide,'FACILITY LIST BY MEETINGS HELD',0.34,2.30,6.0);
+
+    function titleColor(k){ return k===0?'DC2626':(k<=4?'CA8A04':'16A34A'); }
+    function softColor(k){ return k===0?'FEE2E2':(k<=4?'FEF3C7':'DCFCE7'); }
+
+    function drawSmallGroup(k,x,y,w,h){
+      var list=(groups[String(k)]||[]).slice().sort(function(a,b){
+        return a.facility.localeCompare(b.facility);
+      });
+      slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
+      slide.addShape('rect',{x:x,y:y,w:1.14,h:h,fill:{color:softColor(k)},line:{color:softColor(k)}});
+      slide.addText(String(k)+' meetings',{x:x+0.06,y:y+0.12,w:1.02,h:0.24,fontSize:13,bold:true,color:titleColor(k),align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(list.length)+' facilities',{x:x+0.06,y:y+0.44,w:1.02,h:0.20,fontSize:10.5,bold:true,color:'475569',align:'center',margin:0,fit:'shrink'});
+      var names=list.map(function(r){return '• '+r.facility;}).join('\n');
+      slide.addText(names||'• No facility',{
+        x:x+1.28,y:y+0.10,w:w-1.42,h:h-0.18,
+        fontSize:11,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.02,fit:'shrink',
+        breakLine:false
+      });
+    }
+
+    function drawFiveGroup(x,y,w,h){
+      var list=(groups['5']||[]).slice().sort(function(a,b){
+        return a.facility.localeCompare(b.facility);
+      });
+      slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.9}});
+      slide.addShape('rect',{x:x,y:y,w:1.42,h:h,fill:{color:'DCFCE7'},line:{color:'DCFCE7'}});
+      slide.addText('5 meetings',{x:x+0.10,y:y+0.22,w:1.22,h:0.26,fontSize:15,bold:true,color:'16A34A',align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(list.length)+' facilities',{x:x+0.10,y:y+0.62,w:1.22,h:0.22,fontSize:11,bold:true,color:'166534',align:'center',margin:0,fit:'shrink'});
+      var mid=Math.ceil(list.length/2);
+      var left=list.slice(0,mid), right=list.slice(mid);
+      slide.addText(left.map(function(r){return '• '+r.facility;}).join('\n'),{
+        x:x+1.62,y:y+0.12,w:(w-1.86)/2,h:h-0.22,
+        fontSize:11.5,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.01,fit:'shrink'
+      });
+      slide.addText(right.map(function(r){return '• '+r.facility;}).join('\n'),{
+        x:x+1.72+(w-1.86)/2,y:y+0.12,w:(w-2.00)/2,h:h-0.22,
+        fontSize:11.5,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.01,fit:'shrink'
+      });
+    }
+
+    // 0–4 meetings in compact boxes; 5 meetings gets the full lower area
+    // so the facility names can be displayed at a genuinely readable size.
+    var smallY=2.68, boxH=0.80, gap=0.12;
+    drawSmallGroup(0,0.34,smallY,6.08,boxH);
+    drawSmallGroup(1,0.34,smallY+boxH+gap,6.08,boxH);
+    drawSmallGroup(2,0.34,smallY+2*(boxH+gap),6.08,boxH);
+
+    drawSmallGroup(3,6.72,smallY,6.08,boxH);
+    drawSmallGroup(4,6.72,smallY+boxH+gap,6.08,boxH);
+
+    drawFiveGroup(6.72,smallY+2*(boxH+gap),6.08,1.84);
+    slide.addShape('roundRect',{x:0.34,y:smallY+2*(boxH+gap),w:6.08,h:1.84,fill:{color:'F8FBFF'},line:{color:'CBD5E1',pt:0.8}});
+    slide.addText('MEETING GAP SUMMARY',{
+      x:0.56,y:smallY+2*(boxH+gap)+0.18,w:5.65,h:0.22,
+      fontSize:13,bold:true,color:'075985',margin:0,fit:'shrink'
+    });
+    slide.addText(
+      '0 meetings: '+(groups['0']||[]).length+' facilities\n'+
+      '1 meeting: '+(groups['1']||[]).length+' facilities\n'+
+      '2 meetings: '+(groups['2']||[]).length+' facilities\n'+
+      '3 meetings: '+(groups['3']||[]).length+' facilities\n'+
+      '4 meetings: '+(groups['4']||[]).length+' facilities\n'+
+      '5 meetings: '+(groups['5']||[]).length+' facilities',
+      {
+        x:0.56,y:smallY+2*(boxH+gap)+0.52,w:5.55,h:1.15,
+        fontSize:12,bold:true,color:'172033',
+        margin:0.02,fit:'shrink',breakLine:false
+      }
+    );
+
+    slide.addText('NIN number excluded • Facility names only • Meeting Held = Achievement column',{
+      x:0.42,y:7.05,w:12.0,h:0.15,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'
+    });
+    slide.addText('Source: live Google Sheet • '+title,{
+      x:0.42,y:7.22,w:12.0,h:0.13,fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'
+    });
+    return slide;
+  }
+
+  async function addJASPresentation(pptx){
+    var live=null;
+
+    // First use the exact data already parsed by the dashboard's JAS module.
+    if(typeof window.getJASPresentationData==='function'){
+      live=await window.getJASPresentationData();
+    }
+    if((!live || (!(live.sector&&live.sector.length) && !(live.facility&&live.facility.length))) &&
+       typeof window.__loadJASForPPTX==='function'){
+      live=await window.__loadJASForPPTX();
+    }
+    if(!live && window.__jasPptxData){
+      live=window.__jasPptxData;
+    }
+
+    var title=live && live.title ? live.title : '';
+    var parsed={
+      sector:(live && live.sector)||[],
+      facility:(live && live.facility)||[]
+    };
+
+    // Last-resort fallback for environments where the live JAS bridge is unavailable.
+    if(!parsed.sector.length && !parsed.facility.length &&
+       typeof window.__openJASForPPTX==='function'){
+      live=await window.__openJASForPPTX();
+      title=live && live.title ? live.title : title;
+      parsed={
+        sector:(live && live.sector)||[],
+        facility:(live && live.facility)||[]
+      };
+    }
+
+    // Final fallback: read the exact rendered JAS tables from the dashboard DOM.
+    if(!parsed.sector.length && !parsed.facility.length){
+      var jasModule=document.getElementById('jasMeetingModule');
+      if(jasModule){
+        var tables=jasModule.querySelectorAll('.jas-table');
+        for(var ti=0;ti<tables.length;ti++){
+          var trs=tables[ti].querySelectorAll('tbody tr');
+          for(var tr=0;tr<trs.length;tr++){
+            var cells=trs[tr].querySelectorAll('td');
+            if(cells.length<7) continue;
+            var vals=[];
+            for(var ci=0;ci<cells.length;ci++) vals.push(clean(cells[ci].innerText));
+            if(!/^\\d+(?:\\.0+)?$/.test(vals[0])) continue;
+            if(tables[ti].innerText.indexOf('Name of Facility')>=0){
+              parsed.facility.push(vals.slice(0,7));
+            }else{
+              parsed.sector.push(vals.slice(0,7));
+            }
+          }
+        }
+      }
+    }
+
+    if(!parsed.sector.length && !parsed.facility.length){
+      var rs=await queryJASSheet();
+      title=jasTitle(rs);
+      parsed=getJASRows(rs);
+    }
+
+    if(!parsed.sector.length && !parsed.facility.length) throw new Error('JAS Meeting में कोई data नहीं मिला।');
+
+    var start=pptx.slides.length+1;
+
+    // JAS PPTX requested layout:
+    // 1) Sector Wise — large font, full slide
+    // 2) All Facility Wise — one slide, globally ranked highest to lowest
+    jasAddSectorSlide(pptx,title,parsed.sector);
+
+    jasAddAllFacilitySlide(pptx,title,parsed.facility);
+
+    return {start:start,end:pptx.slides.length};
+  }
+
+
+
   // ---------------- AYUSHMAN SHIVIR PPTX ----------------
   function queryAyushmanShivirSheet() {
     return new Promise(function(resolve, reject) {
