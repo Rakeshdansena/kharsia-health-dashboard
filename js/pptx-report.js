@@ -825,7 +825,6 @@
           '<g><rect x="941" y="706" width="116" height="76" rx="16" fill="#e2dcff"/><text x="999" y="750" fill="#4338ca">RBSK</text></g>' +
           '<g><rect x="1197" y="706" width="116" height="76" rx="16" fill="#efffbf"/><text x="1255" y="750" fill="#3f6212">Blindness</text></g>' +
           '<g><rect x="1325" y="706" width="116" height="76" rx="16" fill="#fff1b8"/><text x="1383" y="750" fill="#854d0e">NQAS</text></g>' +
-          '<g><rect x="1453" y="706" width="116" height="76" rx="16" fill="#d9f7fb"/><text x="1511" y="750" fill="#155e75">NLEP</text></g>' +
         '</g>' +
         '<rect y="820" width="1600" height="80" fill="#073b75"/>' +
         '<text x="70" y="870" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="800" fill="#ffffff">Health Department  |  District Raigarh  |  Chhattisgarh</text>' +
@@ -849,7 +848,6 @@
         {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
         {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
         {name:'NQAS Certification',icon:'🏅',gid:'728123647'},
-        {name:'Dialysis',icon:'💧',gid:'781496964'},
 
       ];
 
