@@ -347,7 +347,7 @@ function load(){
     'https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0'
   );
   /* IMPORTANT: JAS uses 7 columns A:G. */
-  q.setQuery('select A,B,C,D,E,F,G,H,I,J,K,L,M where A is not null');
+  q.setQuery('select A,B,C,D,E,F,G where A is not null');
   q.send(r=>{
     if(r.isError()){
       console.error('JAS Sheet error:',r.getMessage());
