@@ -637,11 +637,11 @@
 
   function shivirAddFacilitySlides(pptx,title,facilityRows){
     var slide=pptx.addSlide();
-    addHeader(slide,'🏕️ Ayushman Shivir — Facility Wise','FACILITY WISE DATA | FY 2026–27');
-    addSectionTitle(slide,'FACILITY WISE DATA — ALL FACILITIES',0.25,0.94,6.0);
+    addHeader(slide,'🏕️ Ayushman Shivir — Facility Wise','FACILITY WISE PERFORMANCE | FY 2026–27');
+    addSectionTitle(slide,'FACILITY WISE — HIGHEST TO LOWEST PERFORMANCE',0.25,0.94,7.2);
 
     var rows=facilityRows.slice().sort(function(a,b){
-      return clean(a[2]).localeCompare(clean(b[2])) ||
+      return shivirPptxPct(b)-shivirPptxPct(a) ||
              clean(a[3]).localeCompare(clean(b[3]));
     });
 
@@ -649,22 +649,21 @@
     var rep=rows.reduce(function(s,r){return s+shivirPptxNum(r[5]);},0);
     var foot=rows.reduce(function(s,r){return s+shivirPptxNum(r[7]);},0);
     var overall=target?rep/target*100:0;
-    var avg=rep?foot/rep:0;
 
     addCard(slide,0.25,1.28,2.35,0.78,'FACILITIES',rows.length);
-    addCard(slide,2.75,1.28,2.35,0.78,'TARGET',target);
-    addCard(slide,5.25,1.28,2.35,0.78,'REPORTING',rep);
-    addCard(slide,7.75,1.28,2.35,0.78,'ACHIEVEMENT %',overall.toFixed(1)+'%');
-    addCard(slide,10.25,1.28,2.80,0.78,'FOOTFALL',foot);
+    addCard(slide,2.75,1.28,2.35,0.78,'REPORTING',rep);
+    addCard(slide,5.25,1.28,2.35,0.78,'ACHIEVEMENT %',overall.toFixed(1)+'%');
+    addCard(slide,7.75,1.28,2.35,0.78,'FOOTFALL',foot);
+    addCard(slide,10.25,1.28,2.80,0.78,'AVG / REPORT',rep? (foot/rep).toFixed(1):'0.0');
 
     var cols=2, gap=0.16, panelW=(12.82-gap)/2, panelX=[0.25,0.25+panelW+gap];
     var y=2.25, panelH=4.55, headerH=0.42;
     var per=Math.ceil(rows.length/cols);
 
-    function drawPanel(list,px){
+    function drawPanel(list,px,startRank){
       slide.addShape('roundRect',{x:px,y:y,w:panelW,h:panelH,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
-      var widths=[1.18,2.10,0.90,0.62,0.96,1.04];
-      var heads=['Sector','Facility','Report','%','Footfall','Avg/Shivir'];
+      var widths=[0.40,2.35,0.78,0.66,1.02,1.08];
+      var heads=['#','Facility','Report','%','Footfall','Avg/Shivir'];
       var scale=panelW/widths.reduce(function(a,b){return a+b;},0);
       widths=widths.map(function(v){return v*scale;});
       var rh=Math.min(0.30,(panelH-headerH-0.08)/Math.max(1,per));
@@ -681,7 +680,8 @@
 
       list.forEach(function(r,ri){
         var cy=y+headerH+ri*rh, cx2=px;
-        var vals=[clean(r[2]),clean(r[3]),number(r[5]),shivirPptxPct(r),number(r[7]),number(r[8])];
+        var rank=startRank+ri;
+        var vals=[rank+'.',clean(r[3]),number(r[5]),shivirPptxPct(r),number(r[7]),number(r[8])];
         vals.forEach(function(v,ci){
           slide.addShape('rect',{x:cx2,y:cy,w:widths[ci],h:rh,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'CBD5E1',pt:0.55}});
           if(ci===3){
@@ -691,9 +691,9 @@
           }else{
             slide.addText(String(v),{
               x:cx2+0.015,y:cy+0.035,w:widths[ci]-0.03,h:rh-0.07,
-              fontSize:Math.max(7,Math.min(9.5,rh*30)),
+              fontSize:ci===1?9.5:Math.max(7,Math.min(9.5,rh*30)),
               bold:ci===1,color:'172033',
-              align:ci<2?'left':'center',valign:'mid',margin:0,fit:'shrink'
+              align:ci===1?'left':'center',valign:'mid',margin:0,fit:'shrink'
             });
           }
           cx2+=widths[ci];
@@ -701,10 +701,10 @@
       });
     }
 
-    drawPanel(rows.slice(0,per),panelX[0]);
-    drawPanel(rows.slice(per),panelX[1]);
+    drawPanel(rows.slice(0,per),panelX[0],1);
+    drawPanel(rows.slice(per),panelX[1],per+1);
 
-    slide.addText('NIN excluded • All facilities shown in one slide • Target column removed because target is common to all', {
+    slide.addText('NIN, Sector and Target columns removed • Facilities ranked by Achievement % from highest to lowest • % and Avg Footfall use relative color scale', {
       x:0.35,y:6.93,w:12.6,h:0.15,fontSize:7.5,color:'64748B',margin:0,align:'center'
     });
     slide.addText('Source: live Google Sheet • '+title,{
