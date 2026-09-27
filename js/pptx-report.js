@@ -669,14 +669,8 @@
       });
     });
 
-    // Any unmatched facility is not silently assigned to a sector.
-    // It is shown only in Other Facilities, except Chaple which is excluded.
-    var other=[];
-    rows.forEach(function(row,i){
-      var rn=ncdNormalizeFacility(row && row[0]);
-      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && rn.indexOf('CHAPLE') !== 0 && rn.indexOf('CHAPLE') < 0 && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
-    });
-    if(other.length) groups['Other Facilities']=other;
+    // Unmatched facilities are intentionally omitted from NCD Facility Wise PPT.
+    // Only the seven approved sectors are shown; Chaple is excluded.
     return groups;
   }
 
@@ -723,7 +717,7 @@
       var combined=combinedWithTotals();
       if(combined.length) addNCDTableSlide(pptx,name+' — Facility Wise | Barra • Jobi • Gorpar','FACILITY WISE DATA | FY 2026–27',fl,combined,null,part);
 
-      ['Binjkot','Sarwani','Sondka','Turekela','Other Facilities'].forEach(function(sec){
+      ['Binjkot','Sarwani','Sondka','Turekela'].forEach(function(sec){
         var data=rowsWithSectorTotal(sec);
         if(data.length) addNCDTableSlide(pptx,name+' — Facility Wise | '+sec,'FACILITY WISE DATA | FY 2026–27',fl,data,null,part);
       });
