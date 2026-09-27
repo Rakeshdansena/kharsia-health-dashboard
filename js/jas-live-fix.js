@@ -294,19 +294,56 @@ function buildSectorRowsFromFacilities(facilityRows){
   ]);
 }
 
+function scanJASRows(a){
+  const facilityRows=[];
+  const sectorRows=[];
+  for(let r=0;r<a.length;r++){
+    const v=a[r].slice(0,7);
+    while(v.length<7) v.push('');
+    const sn=clean(v[0]);
+    if(!/^\d+(?:\.0+)?$/.test(sn)) continue;
+
+    const c1=clean(v[1]), c2=clean(v[2]), c3=clean(v[3]);
+    const c4=clean(v[4]), c5=clean(v[5]), c6=clean(v[6]);
+
+    // Facility row: SN, NIN, Sector, Facility, Target, Achievement, %
+    if(c1 && c2 && c3 && looksLikeNumber(c4) && looksLikeNumber(c5)){
+      facilityRows.push(v);
+      continue;
+    }
+
+    // Sector row: SN, Sector, NIN, No. of AAM Facility, Target, Achievement, %
+    if(c1 && looksLikeNumber(c3) && looksLikeNumber(c4) && looksLikeNumber(c5)){
+      sectorRows.push(v);
+    }
+  }
+  return {sectorRows,facilityRows};
+}
+
 function render(dt){
   css();
   const a=getRows(dt);
   const sec=findSections(a);
-  const facilityRows=sec.facilityHeader>=0
+
+  // First use the known section headers.
+  let facilityRows=sec.facilityHeader>=0
     ? collectSection(a,sec.facilityHeader,-1,'facility')
     : [];
 
-  // Current Google Sheet is facility-wise only. Build Sector Wise
-  // automatically from the facility rows so both views are always shown.
   let sectorRows=sec.sectorHeader>=0
     ? collectSection(a,sec.sectorHeader,sec.facilityHeader,'sector')
     : [];
+
+  // Fallback: the JAS sheet layout can change (extra title rows,
+  // merged headers, or different header wording). Scan the actual
+  // 7 data columns instead of depending on header text.
+  if(!facilityRows.length || !sectorRows.length){
+    const scanned=scanJASRows(a);
+    if(!facilityRows.length) facilityRows=scanned.facilityRows;
+    if(!sectorRows.length) sectorRows=scanned.sectorRows;
+  }
+
+  // If the sheet contains only facility-wise data, derive Sector Wise.
   if(!sectorRows.length && facilityRows.length){
     sectorRows=buildSectorRowsFromFacilities(facilityRows);
   }
