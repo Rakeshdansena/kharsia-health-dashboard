@@ -1038,94 +1038,101 @@
 
   function jasAddAllFacilitySlide(pptx,title,rows){
     var slide=pptx.addSlide();
-    addHeader(slide,'🤝 JAS Meeting — Facility Performance','FACILITY WISE | HIGHEST → LOWEST PERFORMANCE');
-    addSectionTitle(slide,'ALL FACILITIES — PERFORMANCE RANKING',0.34,0.94,6.3);
+    addHeader(slide,'🤝 JAS Meeting — Meeting Count Analysis','FACILITY WISE | MEETINGS HELD TILL DATE');
+    addSectionTitle(slide,'FACILITY MEETING COUNT — ANALYSIS',0.34,0.94,6.6);
 
-    // Rank every facility globally by Achievement %, highest to lowest.
-    var data=(rows||[]).filter(function(r){
-      return clean(r[3]) && jasLooksNumber(r[4]) && jasLooksNumber(r[5]);
+    // Group all facilities by the number of meetings actually conducted
+    // (Achievement column). Target remains available for gap analysis.
+    var cleanRows=(rows||[]).filter(function(r){
+      return clean(r[3]) && (jasLooksNumber(r[4]) || jasLooksNumber(r[5]));
     }).map(function(r){
-      var pct=jasLooksNumber(r[6]) ? number(r[6]) : (number(r[4])>0 ? number(r[5])/number(r[4])*100 : 0);
-      return [r[0],clean(r[2]),clean(r[3]),number(r[4]),number(r[5]),pct];
+      var target=jasLooksNumber(r[4])?number(r[4]):0;
+      var ach=jasLooksNumber(r[5])?number(r[5]):0;
+      return {
+        sector:clean(r[2]),
+        facility:clean(r[3]),
+        target:target,
+        ach:ach,
+        gap:Math.max(target-ach,0)
+      };
     });
 
-    data.sort(function(a,b){
-      return b[5]-a[5] || a[1].localeCompare(b[1]) || a[2].localeCompare(b[2]);
+    var groups={};
+    cleanRows.forEach(function(r){
+      var k=String(Math.round(r.ach));
+      if(!groups[k]) groups[k]=[];
+      groups[k].push(r);
     });
 
-    var count=data.length;
-    var colCount=count>48 ? 3 : 2;
-    var gap=0.18;
-    var panelW=(12.82-(gap*(colCount-1)))/colCount;
-    var x0=0.24, y=1.34, bottom=6.93, tableH=bottom-y;
-    var headers=['#','Sector','Facility','Target','Ach.','%'];
-    var ww=[0.42,1.12,2.04,0.82,0.84,0.70];
-    var sumW=ww.reduce(function(a,b){return a+b;},0);
-    var scale=panelW/sumW;
-    ww=ww.map(function(v){return v*scale;});
+    var keys=Object.keys(groups).map(Number).sort(function(a,b){return a-b;});
+    var totalFacilities=cleanRows.length;
+    var totalTarget=cleanRows.reduce(function(s,r){return s+r.target;},0);
+    var totalAch=cleanRows.reduce(function(s,r){return s+r.ach;},0);
+    var overall=totalTarget?totalAch/totalTarget*100:0;
 
-    var perCol=Math.ceil(count/colCount);
-    var headerH=0.46;
-    var rowH=Math.min(0.31, (tableH-headerH)/Math.max(perCol,1));
-    rowH=Math.max(0.18,rowH);
+    // Summary cards
+    addCard(slide,0.34,1.28,2.35,0.98,'FACILITIES',totalFacilities);
+    addCard(slide,2.82,1.28,2.35,0.98,'TARGET MEETINGS',totalTarget);
+    addCard(slide,5.30,1.28,2.35,0.98,'MEETINGS HELD',totalAch);
+    addCard(slide,7.78,1.28,2.35,0.98,'ACHIEVEMENT %',overall.toFixed(1)+'%');
+    addCard(slide,10.26,1.28,2.73,0.98,'MEETING LEVELS',keys.length);
 
-    for(var panel=0; panel<colCount; panel++){
-      var first=panel*perCol, last=Math.min(first+perCol,count);
-      var px=x0+panel*(panelW+gap), cx=px;
+    var x=0.34, y=2.48, w=[1.05,1.18,3.70,2.10,1.70,1.55,1.80];
+    var headers=['Meetings Held','Facility Count','Facilities','Target','Held','Gap','Analysis'];
+    var headerH=0.52, rowH=0.39;
+    var maxRows=Math.max(keys.length,1);
+    rowH=Math.min(0.45,5.12/maxRows);
 
-      headers.forEach(function(h,ci){
-        slide.addShape('rect',{
-          x:cx,y:y,w:ww[ci],h:headerH,
-          fill:{color:'075985'},line:{color:'FFFFFF',pt:0.8}
-        });
-        slide.addText(h,{
-          x:cx+0.02,y:y+0.08,w:ww[ci]-0.04,h:headerH-0.13,
-          fontSize:11.5,bold:true,color:'FFFFFF',
-          align:'center',valign:'mid',margin:0,fit:'shrink'
-        });
-        cx+=ww[ci];
+    var cx=x;
+    headers.forEach(function(h,ci){
+      slide.addShape('rect',{x:cx,y:y,w:w[ci],h:headerH,fill:{color:'075985'},line:{color:'FFFFFF',pt:0.9}});
+      slide.addText(h,{x:cx+0.03,y:y+0.09,w:w[ci]-0.06,h:0.30,fontSize:11.5,bold:true,color:'FFFFFF',align:'center',valign:'mid',margin:0,fit:'shrink'});
+      cx+=w[ci];
+    });
+
+    keys.forEach(function(k,ri){
+      var list=groups[String(k)]||[];
+      list.sort(function(a,b){
+        return a.sector.localeCompare(b.sector) || a.facility.localeCompare(b.facility);
       });
-
-      for(var ri=first;ri<last;ri++){
-        var local=ri-first, r=data[ri], cy=y+headerH+(local*rowH);
-        var vals=[String(ri+1),r[1],r[2],r[3],r[4]];
-        cx=px;
-
-        vals.forEach(function(v,ci){
-          slide.addShape('rect',{
-            x:cx,y:cy,w:ww[ci],h:rowH,
-            fill:{color:local%2?'F8FBFF':'FFFFFF'},
-            line:{color:'CBD5E1',pt:0.6}
-          });
-          slide.addText(String(v),{
-            x:cx+0.02,y:cy+0.03,w:ww[ci]-0.04,h:rowH-0.06,
-            fontSize:Math.max(7.5,Math.min(10.5,rowH*33)),
-            bold:ci===0||ci===2,color:'172033',
-            align:(ci===1||ci===2)?'left':'center',
-            valign:'mid',margin:0,fit:'shrink'
-          });
-          cx+=ww[ci];
+      var target=list.reduce(function(s,r){return s+r.target;},0);
+      var held=list.reduce(function(s,r){return s+r.ach;},0);
+      var gap=list.reduce(function(s,r){return s+r.gap;},0);
+      var names=list.map(function(r){return r.facility+' ('+r.sector+')';}).join(', ');
+      var analysis=k===0 ? 'No meeting held' :
+        (k<3 ? 'Very low meeting count' :
+        (k<5 ? 'Low meeting count' : '5+ meetings held'));
+      var vals=[String(k),String(list.length),names,String(target),String(held),String(gap),analysis];
+      var cy=y+headerH+ri*rowH;
+      cx=x;
+      vals.forEach(function(v,ci){
+        var fill=ri%2?'F8FBFF':'FFFFFF';
+        if(ci===0) fill=(k===0?'FEE2E2':(k<3?'FEF3C7':'DCFCE7'));
+        slide.addShape('rect',{x:cx,y:cy,w:w[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
+        slide.addText(v,{
+          x:cx+0.03,y:cy+0.05,w:w[ci]-0.06,h:rowH-0.09,
+          fontSize:ci===2?7.8:9.5,
+          bold:ci===0||ci===1,
+          color:ci===0?(k===0?'991B1B':(k<3?'92400E':'166534')):'172033',
+          align:ci===2||ci===6?'left':'center',
+          valign:'mid',margin:0.01,fit:'shrink'
         });
-
-        slide.addShape('rect',{
-          x:cx,y:cy,w:ww[5],h:rowH,
-          fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.6}
-        });
-        jasAddPctCell(slide,cx,cy,ww[5],rowH,r[5].toFixed(1));
-      }
-    }
+        cx+=w[ci];
+      });
+    });
 
     slide.addText(
-      'Total Facilities: '+count+'  •  Ranking based on Achievement %  •  Highest performance first',
+      'Analysis: '+keys.map(function(k){
+        var n=(groups[String(k)]||[]).length;
+        return n+' facility'+(n===1?'':'ies')+' with '+k+' meeting'+(k===1?'':'s');
+      }).join('  •  '),
       {
-        x:0.34,y:6.98,w:12.55,h:0.18,
-        fontSize:9,bold:true,color:'475569',
-        margin:0,fit:'shrink',align:'center'
+        x:0.40,y:6.83,w:12.35,h:0.22,
+        fontSize:8.5,bold:true,color:'475569',margin:0,fit:'shrink',align:'center'
       }
     );
-    slide.addText('NIN number is intentionally excluded • Source: live Google Sheet • '+title,{
-      x:0.42,y:7.14,w:12.25,h:0.12,
-      fontSize:7,color:'64748B',margin:0,fit:'shrink',align:'center'
+    slide.addText('NIN number excluded • Meeting Held = Achievement column • Source: live Google Sheet • '+title,{
+      x:0.45,y:7.10,w:12.0,h:0.13,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'
     });
     return slide;
   }
