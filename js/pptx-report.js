@@ -788,25 +788,37 @@
     return /^(total|योग|कुल)$/i.test(clean((r||[])[0]));
   }
 
+  function jasLooksNumber(v){
+    var t=clean(v).replace(/,/g,'').replace('%','');
+    return t!=='' && Number.isFinite(Number(t));
+  }
+
   function getJASRows(rs){
-    var fh=-1, sh=-1;
-    for(var i=0;i<rs.length;i++){
-      if(fh<0 && jasIsFacilityHeader(rs[i])) fh=i;
-      else if(sh<0 && jasIsSectorHeader(rs[i])) sh=i;
-    }
     var facility=[], sector=[];
-    if(fh>=0){
-      for(var r=fh+1;r<(sh>=0?sh:rs.length);r++){
-        var v=(rs[r]||[]).slice(0,7);
-        while(v.length<7) v.push('');
-        if(/^\\d+(?:\\.0+)?$/.test(clean(v[0])) && clean(v[1]) && clean(v[2]) && clean(v[3]) && clean(v[4])!=='' && clean(v[5])!=='') facility.push(v);
+    for(var i=0;i<rs.length;i++){
+      var v=(rs[i]||[]).slice(0,7);
+      while(v.length<7) v.push('');
+      var sn=clean(v[0]);
+      if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+
+      var c1=clean(v[1]), c2=clean(v[2]), c3=clean(v[3]);
+      var c4=clean(v[4]), c5=clean(v[5]), c6=clean(v[6]);
+      if(!c1 || !c2 || !c3 || !jasLooksNumber(c4) || !jasLooksNumber(c5)) continue;
+
+      // Sector row: SN, Sector, NIN, No. of AAM Facility, Target, Achievement, %
+      // The 4th data column is numeric.
+      if(jasLooksNumber(c3)){
+        var sp=jasLooksNumber(c6) ? number(c6) : (number(c4)>0 ? number(c5)/number(c4)*100 : 0);
+        v[6]=String(Math.round(sp*10)/10);
+        sector.push(v);
+        continue;
       }
-    }
-    if(sh>=0){
-      for(var s=sh+1;s<rs.length;s++){
-        var sv=(rs[s]||[]).slice(0,7);
-        while(sv.length<7) sv.push('');
-        if(/^\\d+(?:\\.0+)?$/.test(clean(sv[0])) && clean(sv[1]) && clean(sv[3])!=='' && clean(sv[4])!=='' && clean(sv[5])!=='') sector.push(sv);
+
+      // Facility row: SN, NIN, Sector, Facility, Target, Achievement, %
+      if(!jasLooksNumber(c3)){
+        var fp=jasLooksNumber(c6) ? number(c6) : (number(c4)>0 ? number(c5)/number(c4)*100 : 0);
+        v[6]=String(Math.round(fp*10)/10);
+        facility.push(v);
       }
     }
     return {facility:facility,sector:sector};
