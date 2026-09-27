@@ -1788,6 +1788,19 @@ function loadGoogleSheet(gid){
    }
 
    else if(
+    report.name==="Ayushman Shivir" &&
+    typeof window.renderAyushmanShivirFromData==="function"
+   ){
+
+    window.__ayushmanShivirActive=true;
+
+    window.renderAyushmanShivirFromData(
+     currentData
+    );
+
+   }
+
+   else if(
     report.name==="JAS Meeting" &&
     typeof window.renderJASFromData==="function"
    ){
@@ -4599,7 +4612,7 @@ function startPPTXGeneration(){
   if(!s){
     s=document.createElement('script');
     s.id='pptx-report-script';
-    s.src='js/pptx-report.js?v=20260927-pptx-final-12';
+    s.src='js/pptx-report.js?v=20260927-pptx-final-13';
     s.onload=run;
     s.onerror=function(){
       if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
@@ -4621,7 +4634,7 @@ function startPPTXGeneration(){
   }
 }
 </script>
-<script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-12"></script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-13"></script>
 <script src="js/ncd.js"></script>
 </body>
 </html>
