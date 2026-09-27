@@ -211,7 +211,7 @@ function collectSection(a,start,end,type){
   return rows;
 }
 
-function pctClass(p){ return p>=100?'jas-good':p>=80?'jas-mid':'jas-low'; }
+function pctClass(p){ return p>=100?'jas-good':p>90?'jas-mid':'jas-low'; }
 
 function renderSector(rows){
   let h='<div class="jas-section-title">Sector Wise</div>';
