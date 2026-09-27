@@ -65,6 +65,10 @@ function css(){
  color:#fff;
  font-weight:800;
 }
+.jas-good{background:#16a34a!important;color:#fff!important;font-weight:900!important}
+.jas-mid{background:#eab308!important;color:#111827!important;font-weight:900!important}
+.jas-low{background:#dc2626!important;color:#fff!important;font-weight:900!important}
+
 .jas-table td:nth-child(2),
 .jas-table td:nth-child(3),
 .jas-table td:nth-child(4){
@@ -240,7 +244,7 @@ function renderFacility(rows){
   let h='<div class="jas-section-title">Facility Wise</div>';
   h+='<div class="jas-page"><table class="jas-table"><thead><tr>'+
      '<th>SN</th><th>NIN</th><th>Name of Sector</th><th>Name of Facility</th>'+
-     '<th>Target till July 26</th><th>Achievment</th><th>%</th></tr></thead><tbody>';
+     '<th>Target till Aug 26</th><th>Achievment</th><th>%</th></tr></thead><tbody>';
 
   let target=0,ach=0;
   rows.forEach(v=>{
