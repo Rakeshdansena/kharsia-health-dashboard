@@ -1038,21 +1038,15 @@
 
   function jasAddAllFacilitySlide(pptx,title,rows){
     var slide=pptx.addSlide();
-    addHeader(slide,'🤝 JAS Meeting — Analysis Report','FACILITY MEETING ANALYSIS | FY 2026–27');
-    addSectionTitle(slide,'JAS MEETING — ANALYSIS REPORT',0.34,0.94,6.2);
+    addHeader(slide,'🤝 JAS Meeting — Analysis Report','BLOCK SUMMARY + FACILITY MEETING LIST | FY 2026–27');
+    addSectionTitle(slide,'JAS MEETING — BLOCK SUMMARY',0.34,0.92,5.5);
 
     var data=(rows||[]).filter(function(r){
       return clean(r[3]) && (jasLooksNumber(r[4]) || jasLooksNumber(r[5]));
     }).map(function(r){
       var target=jasLooksNumber(r[4])?number(r[4]):0;
       var held=jasLooksNumber(r[5])?number(r[5]):0;
-      return {
-        sector:clean(r[2]),
-        facility:clean(r[3]),
-        target:target,
-        held:held,
-        gap:Math.max(target-held,0)
-      };
+      return {sector:clean(r[2]),facility:clean(r[3]),target:target,held:held,gap:Math.max(target-held,0)};
     });
 
     var groups={};
@@ -1062,97 +1056,86 @@
       groups[k].push(r);
     });
 
-    var keys=Object.keys(groups).map(Number).sort(function(a,b){return a-b;});
     var facilityCount=data.length;
     var totalTarget=data.reduce(function(s,r){return s+r.target;},0);
     var totalHeld=data.reduce(function(s,r){return s+r.held;},0);
     var totalGap=Math.max(totalTarget-totalHeld,0);
     var overall=totalTarget?totalHeld/totalTarget*100:0;
-    var fullCount=(groups['5']||[]).length;
-    var zeroCount=(groups['0']||[]).length;
 
-    addCard(slide,0.34,1.28,2.35,0.98,'TOTAL FACILITIES',facilityCount);
-    addCard(slide,2.82,1.28,2.35,0.98,'TARGET MEETINGS',totalTarget);
-    addCard(slide,5.30,1.28,2.35,0.98,'MEETINGS HELD',totalHeld);
-    addCard(slide,7.78,1.28,2.35,0.98,'GAP',totalGap);
-    addCard(slide,10.26,1.28,2.73,0.98,'OVERALL %',overall.toFixed(1)+'%');
+    addCard(slide,0.34,1.22,2.32,0.88,'TOTAL FACILITIES',facilityCount);
+    addCard(slide,2.80,1.22,2.32,0.88,'TARGET MEETINGS',totalTarget);
+    addCard(slide,5.26,1.22,2.32,0.88,'MEETINGS HELD',totalHeld);
+    addCard(slide,7.72,1.22,2.32,0.88,'GAP',totalGap);
+    addCard(slide,10.18,1.22,2.80,0.88,'OVERALL %',overall.toFixed(1)+'%');
 
-    addSectionTitle(slide,'MEETING-WISE FACILITY LIST',0.34,2.60,6.1);
+    addSectionTitle(slide,'FACILITY LIST BY MEETINGS HELD',0.34,2.30,6.0);
 
-    // Two-column meeting groups. Every meeting-count group shows the facility names.
-    var leftKeys=keys.filter(function(k){return k<=2;});
-    var rightKeys=keys.filter(function(k){return k>=3;});
+    function colorForMeeting(k){ return k===0?'DC2626':(k<=4?'CA8A04':'16A34A'); }
+    function softForMeeting(k){ return k===0?'FEE2E2':(k<=4?'FEF3C7':'DCFCE7'); }
 
-    function drawGroupColumn(listKeys, x){
-      var top=3.00;
-      var available=3.78;
-      var gapY=0.12;
-      var n=listKeys.length||1;
-      var boxH=(available-(Math.max(0,n-1)*gapY))/n;
-
-      listKeys.forEach(function(k,idx){
-        var list=groups[String(k)]||[];
-        var y=top+idx*(boxH+gapY);
-        var share=facilityCount?list.length/facilityCount*100:0;
-        var titleColor=k===0?'DC2626':(k<5?'CA8A04':'16A34A');
-        var soft=k===0?'FEE2E2':(k<5?'FEF3C7':'DCFCE7');
-
-        slide.addShape('roundRect',{
-          x:x,y:y,w:6.08,h:boxH,
-          fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.9}
-        });
-        slide.addShape('rect',{
-          x:x,y:y,w:1.06,h:boxH,
-          fill:{color:soft},line:{color:soft}
-        });
-        slide.addText(String(k)+' meetings',{
-          x:x+0.08,y:y+0.12,w:0.90,h:0.28,
-          fontSize:13,bold:true,color:titleColor,
-          align:'center',margin:0,fit:'shrink'
-        });
-        slide.addText(String(list.length)+' facilities\n'+share.toFixed(1)+'%',{
-          x:x+0.08,y:y+0.47,w:0.90,h:Math.max(0.34,boxH-0.56),
-          fontSize:9.5,bold:true,color:'475569',
-          align:'center',valign:'mid',margin:0,fit:'shrink'
-        });
-
-        var names=list
-          .slice()
-          .sort(function(a,b){return a.facility.localeCompare(b.facility);})
-          .map(function(r){return r.facility;})
-          .join('  •  ');
-
-        slide.addText(names||'No facility',{
-          x:x+1.20,y:y+0.12,w:4.72,h:Math.max(0.35,boxH-0.22),
-          fontSize:boxH>1.0?10:8.5,
-          bold:true,color:'172033',
-          align:'left',valign:'mid',
-          margin:0.02,fit:'shrink',breakLine:false
-        });
+    function wrapList(text,maxChars){
+      var words=text.split(/\s+/), lines=[], line='';
+      words.forEach(function(word){
+        var test=line?line+' '+word:word;
+        if(line && test.length>maxChars){ lines.push(line); line=word; }
+        else line=test;
       });
+      if(line) lines.push(line);
+      return lines.join('\n');
     }
 
-    drawGroupColumn(leftKeys,0.34);
-    drawGroupColumn(rightKeys,6.72);
+    function drawGroup(k,x,y,w,h){
+      var list=(groups[String(k)]||[]).slice().sort(function(a,b){
+        return a.facility.localeCompare(b.facility);
+      });
+      var names=list.map(function(r){
+        return r.facility+(r.sector?' ('+r.sector+')':'');
+      }).join('  •  ');
+      var titleColor=colorForMeeting(k), soft=softForMeeting(k);
 
-    addSectionTitle(slide,'KEY ANALYSIS / OBSERVATIONS',0.34,6.98,4.1);
-    var bullets=[
-      '• '+fullCount+' of '+facilityCount+' facilities ('+(facilityCount?fullCount/facilityCount*100:0).toFixed(1)+'%) have completed all 5 meetings.',
-      '• '+(groups['4']||[]).length+' facilities are at 4 meetings and need 1 more meeting.',
-      '• '+(groups['3']||[]).length+' at 3 meetings; '+(groups['2']||[]).length+' at 2; '+(groups['1']||[]).length+' at 1.',
-      '• '+zeroCount+' facilities have recorded 0 meetings.',
-      '• Overall achievement is '+overall.toFixed(1)+'%; total gap is '+totalGap+' meetings.'
-    ];
-    slide.addText(bullets.join('\n'),{
-      x:4.25,y:6.90,w:8.45,h:0.38,
-      fontSize:8.5,bold:true,color:'172033',
-      margin:0.01,fit:'shrink',align:'left'
-    });
+      slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
+      slide.addShape('rect',{x:x,y:y,w:1.10,h:h,fill:{color:soft},line:{color:soft}});
+      slide.addText(String(k)+' meetings',{x:x+0.08,y:y+0.11,w:0.94,h:0.22,fontSize:12,bold:true,color:titleColor,align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(list.length)+' facilities',{x:x+0.08,y:y+0.40,w:0.94,h:0.20,fontSize:9.5,bold:true,color:'475569',align:'center',margin:0,fit:'shrink'});
 
-    slide.addText('NIN number excluded • Meeting Held = Achievement column • Source: live Google Sheet • '+title,{
-      x:0.45,y:7.28,w:12.0,h:0.10,
-      fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'
-    });
+      var wrapped=wrapList(names||'No facility',47);
+      var lineCount=(wrapped.match(/\n/g)||[]).length+1;
+      var fs=lineCount>=7?7.6:(lineCount>=5?8.2:9);
+      slide.addText(wrapped,{x:x+1.22,y:y+0.10,w:w-1.35,h:h-0.18,fontSize:fs,bold:true,color:'172033',align:'left',valign:'mid',margin:0.01,fit:'shrink',breakLine:false});
+    }
+
+    var left=[0,1,2], right=[3,4,5];
+    var colW=6.08, leftX=0.34, rightX=6.72, startY=2.68, endY=6.88, gap=0.10, totalH=endY-startY;
+
+    function groupHeight(k){
+      var list=(groups[String(k)]||[]);
+      var names=list.map(function(r){return r.facility+(r.sector?' ('+r.sector+')':'');}).join('  •  ');
+      var lines=names?Math.max(1,Math.ceil(names.length/47)):1;
+      return Math.min(2.20,Math.max(0.72,0.46+lines*0.20));
+    }
+
+    function fitHeights(keys){
+      var hs=keys.map(groupHeight);
+      var sum=hs.reduce(function(a,b){return a+b;},0)+gap*(keys.length-1);
+      if(sum>totalH){
+        var excess=sum-totalH;
+        var reducible=hs.map(function(h){return Math.max(0,h-0.72);});
+        var totalRed=reducible.reduce(function(a,b){return a+b;},0);
+        if(totalRed>0) hs=hs.map(function(h,i){return h-(reducible[i]/totalRed)*excess;});
+      }
+      return hs;
+    }
+
+    function drawColumn(keys,x){
+      var hs=fitHeights(keys), y=startY;
+      keys.forEach(function(k,i){ drawGroup(k,x,y,colW,hs[i]); y+=hs[i]+gap; });
+    }
+
+    drawColumn(left,leftX);
+    drawColumn(right,rightX);
+
+    slide.addText('NIN number excluded • Facility names include sector in brackets • Meeting Held = Achievement column',{x:0.42,y:7.05,w:12.0,h:0.16,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'});
+    slide.addText('Source: live Google Sheet • '+title,{x:0.42,y:7.22,w:12.0,h:0.13,fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'});
     return slide;
   }
 
