@@ -460,7 +460,11 @@
     var x=0.34, w=12.66, y=1.10;
     var dataCount=Math.max(1,rows.length-1);
     var headerH=0.70;
-    var dataH=Math.min(0.48,Math.max(0.38,(5.55-headerH)/dataCount));
+    // Keep every Facility Wise row, including each Sector Total, inside the slide.
+    // This is especially important for the combined Barra + Jobi + Gorpar slide.
+    var availableH=5.55-headerH;
+    var dataH=Math.min(0.46,Math.max(0.31,availableH/dataCount));
+    if (dataH * dataCount > availableH) dataH=availableH/dataCount;
 
     var colW=part==='enroll'
       ? [2.65,1.55,1.55,1.55,1.20,1.45,1.35]
