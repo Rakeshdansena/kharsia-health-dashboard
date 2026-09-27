@@ -473,7 +473,7 @@
       var rowH=ri===0?headerH:dataH, xx=x;
       var isGroupTotal = ri>0 && /\bTotal\b/i.test(String(row[0]||''));
       row.forEach(function(v,ci){
-        var fill=ri===0?'075985':(isGroupTotal?'DCEBFA':(ri%2?'FFFFFF':'F8FBFF'));
+        var fill=ri===0?'075985':(isGroupTotal?'0F766E':(ri%2?'FFFFFF':'F8FBFF'));
         slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
         var isPct=/%/.test(head[ci])||/percent/i.test(head[ci]);
         var txtColor=ri===0?'FFFFFF':'172033';
@@ -481,7 +481,7 @@
           x:xx+0.035,y:yy+0.04,w:colW[ci]-0.07,h:rowH-0.08,
           fontSize:ri===0?11.5:Math.max(11,Math.min(14,dataH*30)),
           bold:ri===0||isGroupTotal||ci===0,
-          color:txtColor,align:ci===0?'left':'center',valign:'mid',margin:0.01,fit:'shrink',breakLine:false
+          color:isGroupTotal?'FFFFFF':txtColor,align:ci===0?'left':'center',valign:'mid',margin:0.01,fit:'shrink',breakLine:false
         });
         if(ri>0&&!isGroupTotal&&isPct&&v!==''){
           var n=number(String(v).replace('%',''));
@@ -520,20 +520,20 @@
     return out;
   }
 
-  function addNCDLowest10Slide(pptx, facilityRows) {
+  function addNCDPerformanceSlide(pptx, facilityRows, mode) {
+    var isTop = mode === 'top';
     var slide=pptx.addSlide();
     slide.background={color:'F7FBFF'};
 
-    // Attractive analysis header
-    slide.addShape('roundRect',{x:0.35,y:0.22,w:12.63,h:0.78,fill:{color:'073B75'},line:{color:'073B75'}});
-    slide.addText('❤️  NCD — LOWEST 10 FACILITIES',{x:0.65,y:0.36,w:7.1,h:0.32,fontSize:25,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+    slide.addShape('roundRect',{x:0.35,y:0.22,w:12.63,h:0.78,fill:{color:isTop?'166534':'073B75'},line:{color:isTop?'166534':'073B75'}});
+    slide.addText(isTop?'🏆  NCD — TOP 10 FACILITIES':'❤️  NCD — LOWEST 10 FACILITIES',{x:0.65,y:0.36,w:7.1,h:0.32,fontSize:25,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
     slide.addText('ABHA LINK • HTN SCREENING • DM SCREENING',{x:7.55,y:0.42,w:5.0,h:0.22,fontSize:11,bold:true,color:'D9F2FF',align:'right',margin:0,fit:'shrink'});
     slide.addText('FY 2026–27  |  Facility-wise percentage analysis',{x:0.65,y:0.77,w:7.0,h:0.14,fontSize:8.5,bold:true,color:'BFE8FF',margin:0});
 
     var metrics=[
-      {title:'ABHA LINK %',sub:'Lowest 10',col:6,accent:'7C3AED',soft:'F3E8FF'},
-      {title:'HTN SCREENING %',sub:'Lowest 10',col:8,accent:'EA580C',soft:'FFEDD5'},
-      {title:'DM SCREENING %',sub:'Lowest 10',col:17,accent:'DC2626',soft:'FEE2E2'}
+      {title:'ABHA LINK %',sub:isTop?'Top 10':'Lowest 10',col:6,accent:isTop?'16A34A':'7C3AED',soft:isTop?'DCFCE7':'F3E8FF'},
+      {title:'HTN SCREENING %',sub:isTop?'Top 10':'Lowest 10',col:8,accent:isTop?'0F766E':'EA580C',soft:isTop?'CCFBF1':'FFEDD5'},
+      {title:'DM SCREENING %',sub:isTop?'Top 10':'Lowest 10',col:17,accent:isTop?'2563EB':'DC2626',soft:isTop?'DBEAFE':'FEE2E2'}
     ];
     var groups=ncdGroupFacilities(facilityRows||[]);
     var all=[];
@@ -541,7 +541,7 @@
     var seen={};
     all=all.filter(function(r){
       var n=ncdNormalizeFacility(r&&r[0]);
-      if(!n||NCD_EXCLUDED_FACILITIES[n]||n.indexOf('CHAPLE')===0||seen[n]) return false;
+      if(!n||NCD_EXCLUDED_FACILITIES[n]||n.indexOf('CHAPLE')>=0||n.indexOf('CHC CHAPLE')>=0||seen[n]) return false;
       seen[n]=true; return true;
     });
 
@@ -550,7 +550,8 @@
       var rows=all.filter(function(r){
         return r && r[metric.col]!=='' && !isNaN(number(String(r[metric.col]).replace('%','')));
       }).sort(function(a,b){
-        return number(String(a[metric.col]).replace('%',''))-number(String(b[metric.col]).replace('%',''));
+        var av=number(String(a[metric.col]).replace('%','')), bv=number(String(b[metric.col]).replace('%',''));
+        return isTop ? bv-av : av-bv;
       }).slice(0,10);
 
       var x=positions[mi];
@@ -562,29 +563,34 @@
       var rh=0.46, y=boxY+0.78;
       rows.forEach(function(r,ri){
         var pct=number(String(r[metric.col]).replace('%',''));
-        var rankFill=ri<3?metric.soft:'F8FAFC';
-        var pctFill=pct<30?'FEE2E2':(pct<50?'FEF3C7':'FFF7ED');
-        var pctColor=pct<30?'B91C1C':(pct<50?'A16207':'C2410C');
+        var pctFill=isTop?(pct>=90?'DCFCE7':(pct>=70?'FEF3C7':'FEE2E2')):(pct<30?'FEE2E2':(pct<50?'FEF3C7':'FFF7ED'));
+        var pctColor=isTop?(pct>=90?'15803D':(pct>=70?'A16207':'B91C1C')):(pct<30?'B91C1C':(pct<50?'A16207':'C2410C'));
 
         slide.addShape('rect',{x:x+0.10,y:y,w:boxW-0.20,h:rh,fill:{color:ri%2?'FFFFFF':'F8FBFF'},line:{color:'E2E8F0',pt:0.45}});
-
         slide.addShape('ellipse',{x:x+0.16,y:y+0.065,w:0.32,h:0.32,fill:{color:ri<3?metric.accent:'E2E8F0'},line:{color:ri<3?metric.accent:'CBD5E1',pt:0.5}});
         slide.addText(String(ri+1),{x:x+0.16,y:y+0.115,w:0.32,h:0.12,fontSize:8.5,bold:true,color:ri<3?'FFFFFF':'475569',align:'center',margin:0});
-
         slide.addText(clean(r[0]),{x:x+0.58,y:y+0.07,w:2.18,h:0.30,fontSize:14,bold:true,color:'172033',margin:0,fit:'shrink'});
         slide.addShape('roundRect',{x:x+2.82,y:y+0.055,w:0.86,h:0.34,fill:{color:pctFill},line:{color:pctColor,pt:0.8}});
         slide.addText(String(r[metric.col]),{x:x+2.86,y:y+0.105,w:0.78,h:0.16,fontSize:13,bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
         y+=rh;
       });
-
-      if(!rows.length){
-        slide.addText('No facility data available',{x:x+0.35,y:3.55,w:3.15,h:0.35,fontSize:14,bold:true,color:'64748B',align:'center',margin:0});
-      }
+      if(!rows.length) slide.addText('No facility data available',{x:x+0.35,y:3.55,w:3.15,h:0.35,fontSize:14,bold:true,color:'64748B',align:'center',margin:0});
     });
 
-    slide.addShape('roundRect',{x:0.48,y:6.90,w:12.35,h:0.30,fill:{color:'EAF5FF'},line:{color:'CFE8F8',pt:0.6}});
-    slide.addText('Lower percentage = higher priority for review  •  CHAPLE excluded  •  Source: live Google Sheet',{x:0.62,y:6.98,w:12.05,h:0.12,fontSize:8.5,bold:true,color:'075985',align:'center',margin:0,fit:'shrink'});
+    slide.addShape('roundRect',{x:0.48,y:6.90,w:12.35,h:0.30,fill:{color:isTop?'ECFDF5':'EAF5FF'},line:{color:isTop?'BBF7D0':'CFE8F8',pt:0.6}});
+    slide.addText(isTop
+      ? 'Higher percentage = stronger performance  •  CHC Chaple Kharsia excluded  •  Source: live Google Sheet'
+      : 'Lower percentage = higher priority for review  •  CHC Chaple Kharsia excluded  •  Source: live Google Sheet',
+      {x:0.62,y:6.98,w:12.05,h:0.12,fontSize:8.5,bold:true,color:isTop?'166534':'075985',align:'center',margin:0,fit:'shrink'});
     return slide;
+  }
+
+  function addNCDLowest10Slide(pptx, facilityRows) {
+    return addNCDPerformanceSlide(pptx, facilityRows, 'low');
+  }
+
+  function addNCDTop10Slide(pptx, facilityRows) {
+    return addNCDPerformanceSlide(pptx, facilityRows, 'top');
   }
 
   function addNCDSummarySlide(pptx, labels, facilityTotal, sectorTotal, updated) {
@@ -644,7 +650,7 @@
         for(var i=0;i<rows.length;i++){
           if(used[i]) continue;
           var rowN = ncdNormalizeFacility(rows[i] && rows[i][0]);
-          if(NCD_EXCLUDED_FACILITIES[rowN] || rowN.indexOf('CHAPLE') === 0) { used[i]=true; continue; }
+          if(NCD_EXCLUDED_FACILITIES[rowN] || rowN.indexOf('CHAPLE') === 0 || rowN.indexOf('CHAPLE') >= 0) { used[i]=true; continue; }
 
           // Exact match after removing SHC/punctuation, plus the two spelling variants
           // present in the user's mapping.
@@ -668,7 +674,7 @@
     var other=[];
     rows.forEach(function(row,i){
       var rn=ncdNormalizeFacility(row && row[0]);
-      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && rn.indexOf('CHAPLE') !== 0 && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
+      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && rn.indexOf('CHAPLE') !== 0 && rn.indexOf('CHAPLE') < 0 && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
     });
     if(other.length) groups['Other Facilities']=other;
     return groups;
@@ -725,6 +731,7 @@
 
     // Final slide: lowest 10 facilities for ABHA Link %, HTN Screening %, and DM Screening %.
     addNCDLowest10Slide(pptx,facility.data);
+    addNCDTop10Slide(pptx,facility.data);
     return true;
   }
 
