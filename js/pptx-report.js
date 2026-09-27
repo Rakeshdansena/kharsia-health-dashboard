@@ -801,7 +801,9 @@
       var x=jasNorm(v);
       if(m.sn<0 && /^(sn|s no|s no\.)$/.test(x)) m.sn=i;
       if(m.nin<0 && /\\bnin\\b/.test(x)) m.nin=i;
-      if(m.facility<0 && /facility/.test(x)) m.facility=i;
+      // "AAM Facility" appears in the Sector header too. Do not treat
+      // that as the Facility-name column.
+      if(m.facility<0 && /^(name of facility|facility name|facility)$/.test(x)) m.facility=i;
       if(m.sector<0 && /sector/.test(x) && !/facility/.test(x)) m.sector=i;
       if(m.aam<0 && /aam/.test(x)) m.aam=i;
       if(m.target<0 && /target/.test(x)) m.target=i;
@@ -823,7 +825,7 @@
     for(var i=0;i<rs.length;i++){
       var fm=jasHeaderMap(rs[i],true), sm=jasHeaderMap(rs[i],false);
       if(fm && !facilityMap) facilityMap=fm;
-      if(sm && !sectorMap && !fm) sectorMap=sm;
+      if(sm && !sectorMap) sectorMap=sm;
     }
 
     function parseMapped(map, mode, out){
