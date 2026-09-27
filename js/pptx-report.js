@@ -739,7 +739,273 @@
     return true;
   }
 
-  async function generate() {
+  
+  // ---------------- JAS MEETING PPTX ----------------
+  function queryJASSheet() {
+    return new Promise(function(resolve, reject) {
+      var gid = '1018164338';
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + gid + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function(response) {
+        try {
+          if (response.isError()) throw new Error('JAS Meeting data load नहीं हुआ: ' + response.getMessage());
+          var dt=response.getDataTable(), rs=[];
+          for(var r=0;r<dt.getNumberOfRows();r++){
+            var row=[];
+            for(var c=0;c<dt.getNumberOfColumns();c++) row.push(clean(dt.getFormattedValue(r,c) || dt.getValue(r,c) || ''));
+            rs.push(row);
+          }
+          resolve(rs);
+        } catch(e){ reject(e); }
+      });
+    });
+  }
+
+  function jasTitle(rs) {
+    for(var i=0;i<rs.length;i++){
+      for(var c=0;c<(rs[i]||[]).length;c++){
+        var s=clean(rs[i][c]);
+        if(/jan\\s*arogya\\s*samiti\\s*meeting/i.test(s)) return s;
+      }
+    }
+    return 'Jan Arogya Samiti Meeting FY 2026-27';
+  }
+
+  function jasIsFacilityHeader(r){
+    var x=(r||[]).slice(0,7).join(' ').toLowerCase();
+    return /sn/.test(x) && /nin/.test(x) && /sector/.test(x) && /facility/.test(x) && /target/.test(x) && /achiev/.test(x);
+  }
+
+  function jasIsSectorHeader(r){
+    var x=(r||[]).slice(0,7).join(' ').toLowerCase();
+    return /sn/.test(x) && /sector/.test(x) && /aam/.test(x) && /target/.test(x) && /achiev/.test(x);
+  }
+
+  function jasIsTotal(r){
+    return /^(total|योग|कुल)$/i.test(clean((r||[])[0]));
+  }
+
+  function getJASRows(rs){
+    var fh=-1, sh=-1;
+    for(var i=0;i<rs.length;i++){
+      if(fh<0 && jasIsFacilityHeader(rs[i])) fh=i;
+      else if(sh<0 && jasIsSectorHeader(rs[i])) sh=i;
+    }
+    var facility=[], sector=[];
+    if(fh>=0){
+      for(var r=fh+1;r<(sh>=0?sh:rs.length);r++){
+        var v=(rs[r]||[]).slice(0,7);
+        while(v.length<7) v.push('');
+        if(/^\\d+(?:\\.0+)?$/.test(clean(v[0])) && clean(v[1]) && clean(v[2]) && clean(v[3]) && clean(v[4])!=='' && clean(v[5])!=='') facility.push(v);
+      }
+    }
+    if(sh>=0){
+      for(var s=sh+1;s<rs.length;s++){
+        var sv=(rs[s]||[]).slice(0,7);
+        while(sv.length<7) sv.push('');
+        if(/^\\d+(?:\\.0+)?$/.test(clean(sv[0])) && clean(sv[1]) && clean(sv[3])!=='' && clean(sv[4])!=='' && clean(sv[5])!=='') sector.push(sv);
+      }
+    }
+    return {facility:facility,sector:sector};
+  }
+
+  function jasPctColor(p) {
+    return p >= 100 ? '16A34A' : (p > 90 ? 'EAB308' : 'DC2626');
+  }
+  function jasPctSoft(p) {
+    return p >= 100 ? 'DCFCE7' : (p > 90 ? 'FEF3C7' : 'FEE2E2');
+  }
+
+  function jasGroupFacilities(rows){
+    var map={};
+    (rows||[]).forEach(function(r){
+      var s=clean(r[2])||'Other';
+      if(!map[s]) map[s]=[];
+      map[s].push(r);
+    });
+    return map;
+  }
+
+  function jasAddPctCell(slide,x,y,w,h,value){
+    var p=number(value);
+    var c=jasPctColor(p), soft=jasPctSoft(p);
+    slide.addShape('roundRect',{x:x+0.10,y:y+h*0.13,w:w-0.20,h:h*0.74,fill:{color:soft},line:{color:c,pt:0.8}});
+    slide.addText(String(value)+'%',{x:x+0.10,y:y+h*0.31,w:w-0.20,h:h*0.30,fontSize:Math.max(9,Math.min(15,h*34)),bold:true,color:'000000',align:'center',valign:'mid',margin:0,fit:'shrink'});
+  }
+
+  function jasAddSummarySlide(pptx, title, sectorRows, facilityRows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting','JAN AROGYA SAMITI | FY 2026–27');
+    addSectionTitle(slide,'SUMMARY DASHBOARD',0.55,1.02,3.5);
+
+    var sectors=sectorRows.length;
+    var facilities=facilityRows.length;
+    var target=sectorRows.reduce(function(s,r){return s+number(r[4]);},0);
+    var ach=sectorRows.reduce(function(s,r){return s+number(r[5]);},0);
+    var overall=target?ach/target*100:0;
+
+    addCard(slide,0.55,1.45,2.35,1.12,'SECTORS',sectors);
+    addCard(slide,3.05,1.45,2.35,1.12,'FACILITIES',facilities);
+    addCard(slide,5.55,1.45,2.35,1.12,'TARGET',target);
+    addCard(slide,8.05,1.45,2.35,1.12,'ACHIEVEMENT',ach);
+    addCard(slide,10.55,1.45,2.25,1.12,'OVERALL %',overall.toFixed(1)+'%');
+
+    addSectionTitle(slide,'SECTOR PERFORMANCE',0.55,2.95,4.0);
+    var chartData=(sectorRows||[]).map(function(r){return {name:clean(r[1]),value:number(r[6])};});
+    try{
+      slide.addChart(pptx.ChartType.bar,[{
+        name:'Achievement %',
+        labels:chartData.map(function(x){return x.name;}),
+        values:chartData.map(function(x){return x.value;})
+      }],{
+        x:0.48,y:3.35,w:7.15,h:3.05,showLegend:false,showTitle:false,showValue:true,
+        catAxisLabelFontSize:12,valAxisLabelFontSize:10,chartColors:['0F766E'],
+        valGridLine:{color:'D6E3EC',pt:1},valAxisMinVal:0,valAxisMaxVal:120,
+        dataLabelPosition:'outEnd'
+      });
+    }catch(e){}
+
+    addSectionTitle(slide,'KEY OBSERVATIONS',7.95,2.95,4.4);
+    var obs=[];
+    (sectorRows||[]).forEach(function(r){
+      var p=number(r[6]);
+      obs.push('• '+clean(r[1])+': '+p+'% achievement.');
+    });
+    obs.push('• Overall achievement: '+overall.toFixed(1)+'%.');
+    obs.push('• 100% achievement: '+sectorRows.filter(function(r){return number(r[6])>=100;}).length+' sector(s).');
+    obs.push('• Above 90% but below 100%: '+sectorRows.filter(function(r){var p=number(r[6]);return p>90&&p<100;}).length+' sector(s).');
+    obs.push('• 90% or below: '+sectorRows.filter(function(r){return number(r[6])<=90;}).length+' sector(s).');
+    slide.addText(obs.join('\n'),{
+      x:8.0,y:3.38,w:4.65,h:2.85,fontSize:13,bold:true,color:'172033',margin:0.03,breakLine:false,fit:'shrink'
+    });
+    slide.addText('Source: live Google Sheet • '+title,{
+      x:0.55,y:6.78,w:12.1,h:0.18,fontSize:8,color:'64748B',margin:0,fit:'shrink'
+    });
+    return slide;
+  }
+
+  function jasAddSectorSlide(pptx,title,sectorRows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting — Sector Wise','SECTOR WISE DATA | FY 2026–27');
+    addSectionTitle(slide,'SECTOR WISE',0.42,0.98,3.2);
+
+    var x=0.42,y=1.42,w=[0.65,2.0,1.0,1.65,1.75,1.75,1.45], headers=['SN','Sector','NIN','No of AAM Facility','Target till Aug 26','Achievement','%'];
+    var totalH=5.25, rowH=Math.min(0.52,totalH/(sectorRows.length+1));
+    var cx=x;
+    headers.forEach(function(h,i){
+      slide.addShape('rect',{x:cx,y:y,w:w[i],h:rowH,fill:{color:'075985'},line:{color:'FFFFFF',pt:0.8}});
+      slide.addText(h,{x:cx+0.02,y:y+rowH*0.27,w:w[i]-0.04,h:rowH*0.40,fontSize:Math.max(9,Math.min(12,rowH*27)),bold:true,color:'FFFFFF',align:'center',valign:'mid',margin:0,fit:'shrink'});
+      cx+=w[i];
+    });
+    sectorRows.forEach(function(r,ri){
+      var vals=[r[0],r[1],r[2],r[3],number(r[4]),number(r[5])];
+      var cy=y+rowH*(ri+1); cx=x;
+      vals.forEach(function(v,ci){
+        slide.addShape('rect',{x:cx,y:cy,w:w[ci],h:rowH,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'CBD5E1',pt:0.7}});
+        slide.addText(String(v),{x:cx+0.03,y:cy+rowH*0.27,w:w[ci]-0.06,h:rowH*0.42,fontSize:Math.max(9,Math.min(13,rowH*28)),bold:ci===1,color:'172033',align:ci===1?'left':'center',valign:'mid',margin:0,fit:'shrink'});
+        cx+=w[ci];
+      });
+      slide.addShape('rect',{x:cx,y:cy,w:w[6],h:rowH,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.7}});
+      jasAddPctCell(slide,cx,cy,w[6],rowH,r[6]);
+    });
+
+    var target=sectorRows.reduce(function(s,r){return s+number(r[4]);},0);
+    var ach=sectorRows.reduce(function(s,r){return s+number(r[5]);},0);
+    var totalPct=target?ach/target*100:0;
+    var ty=y+rowH*(sectorRows.length+1), tc=x;
+    var tv=['Total','',sectorRows.reduce(function(s,r){return s+number(r[3]);},0),target,ach,totalPct.toFixed(1)];
+    var tw=[0.65+2.0,1.0,1.65,1.75,1.75,1.45];
+    var labels=['Total','',tv[2],tv[3],tv[4],tv[5]];
+    // Total row: Sector/NIN combined, AAM facilities, Target, Achievement, %.
+    var totalCols=[2.65,1.0,1.65,1.75,1.75,1.45], tx2=x;
+    labels.forEach(function(v,i){
+      slide.addShape('rect',{x:tx2,y:ty,w:totalCols[i],h:rowH,fill:{color:'DCE9F8'},line:{color:'FFFFFF',pt:0.8}});
+      if(i===5) jasAddPctCell(slide,tx2,ty,totalCols[i],rowH,v);
+      else slide.addText(String(v),{x:tx2+0.03,y:ty+rowH*0.27,w:totalCols[i]-0.06,h:rowH*0.42,fontSize:Math.max(9,Math.min(13,rowH*28)),bold:true,color:'172033',align:i===0?'left':'center',valign:'mid',margin:0,fit:'shrink'});
+      tx2+=totalCols[i];
+    });
+
+    addSectionTitle(slide,'ANALYSIS',0.55,6.30,2.0);
+    var obs=sectorRows.map(function(r){return clean(r[1])+': '+number(r[6])+'%';});
+    slide.addText('Achievement by sector — '+obs.join('  •  '),{x:2.0,y:6.30,w:10.5,h:0.28,fontSize:10,bold:true,color:'475569',margin:0,fit:'shrink'});
+    slide.addText('Source: live Google Sheet • '+title,{x:0.55,y:6.82,w:12.0,h:0.15,fontSize:7.5,color:'64748B',margin:0,fit:'shrink'});
+    return slide;
+  }
+
+  function jasAddFacilitySlide(pptx,title,sectorName,rows){
+    var slide=pptx.addSlide();
+    addHeader(slide,'🤝 JAS Meeting — Facility Wise','FACILITY WISE DATA | '+sectorName.toUpperCase());
+    addSectionTitle(slide,'FACILITY WISE | '+sectorName.toUpperCase(),0.42,0.98,5.0);
+
+    var x=0.42,y=1.42,w=[0.60,1.65,1.45,2.25,1.45,1.45,1.35], headers=['SN','NIN','Name of Sector','Name of Facility','Target till Aug 26','Achievement','%'];
+    var rowH=Math.min(0.55,5.20/(rows.length+2));
+    var cx=x;
+    headers.forEach(function(h,i){
+      slide.addShape('rect',{x:cx,y:y,w:w[i],h:rowH,fill:{color:'075985'},line:{color:'FFFFFF',pt:0.8}});
+      slide.addText(h,{x:cx+0.02,y:y+rowH*0.24,w:w[i]-0.04,h:rowH*0.45,fontSize:Math.max(8,Math.min(11,rowH*25)),bold:true,color:'FFFFFF',align:'center',valign:'mid',margin:0,fit:'shrink'});
+      cx+=w[i];
+    });
+
+    var target=0,ach=0;
+    rows.forEach(function(r,ri){
+      var cy=y+rowH*(ri+1), vals=[r[0],r[1],r[2],r[3],number(r[4]),number(r[5])]; cx=x;
+      vals.forEach(function(v,ci){
+        slide.addShape('rect',{x:cx,y:cy,w:w[ci],h:rowH,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'CBD5E1',pt:0.7}});
+        slide.addText(String(v),{x:cx+0.03,y:cy+rowH*0.24,w:w[ci]-0.06,h:rowH*0.45,fontSize:Math.max(8,Math.min(12,rowH*27)),bold:ci===3,color:'172033',align:ci===3?'left':'center',valign:'mid',margin:0,fit:'shrink'});
+        cx+=w[ci];
+      });
+      target+=number(r[4]); ach+=number(r[5]);
+      slide.addShape('rect',{x:cx,y:cy,w:w[6],h:rowH,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.7}});
+      jasAddPctCell(slide,cx,cy,w[6],rowH,r[6]);
+    });
+
+    var p=target?ach/target*100:0, ty=y+rowH*(rows.length+1), tc=x;
+    var total=[sectorName.toUpperCase()+' TOTAL','', '', '',target,ach];
+    for(var ci=0;ci<6;ci++){
+      var ww=w[ci];
+      slide.addShape('rect',{x:tc,y:ty,w:ww,h:rowH,fill:{color:'DCE9F8'},line:{color:'FFFFFF',pt:0.8}});
+      slide.addText(String(total[ci]),{x:tc+0.03,y:ty+rowH*0.24,w:ww-0.06,h:rowH*0.45,fontSize:Math.max(8,Math.min(12,rowH*27)),bold:true,color:'172033',align:ci===0?'left':'center',valign:'mid',margin:0,fit:'shrink'});
+      tc+=ww;
+    }
+    slide.addShape('rect',{x:tc,y:ty,w:w[6],h:rowH,fill:{color:'DCE9F8'},line:{color:'FFFFFF',pt:0.8}});
+    jasAddPctCell(slide,tc,ty,w[6],rowH,p.toFixed(1));
+
+    addSectionTitle(slide,'ANALYSIS',0.55,6.18,2.0);
+    var analysisText = p>=100
+      ? 'Achievement is 100% or above. Sector target has been achieved.'
+      : p>90
+      ? 'Achievement is above 90% and below 100%. Follow-up may be needed for the remaining gap.'
+      : 'Achievement is 90% or below. Facility-wise review is required to identify the remaining gap.';
+    slide.addText(analysisText,{x:2.0,y:6.18,w:10.5,h:0.35,fontSize:11,bold:true,color:'172033',margin:0,fit:'shrink'});
+    slide.addText('Source: live Google Sheet • '+title,{x:0.55,y:6.82,w:12.0,h:0.15,fontSize:7.5,color:'64748B',margin:0,fit:'shrink'});
+    return slide;
+  }
+
+  async function addJASPresentation(pptx){
+    var rs=await queryJASSheet();
+    var title=jasTitle(rs);
+    var parsed=getJASRows(rs);
+    if(!parsed.sector.length && !parsed.facility.length) throw new Error('JAS Meeting में कोई data नहीं मिला।');
+
+    var start=pptx.slides.length+1;
+    jasAddSummarySlide(pptx,title,parsed.sector,parsed.facility);
+    jasAddSectorSlide(pptx,title,parsed.sector);
+
+    var groups=jasGroupFacilities(parsed.facility);
+    var order=['Barra','Jobi','Gorpar','Binjkot','Sarwani','Sondka','Turekela'];
+    var combined=[];
+    ['Barra','Jobi','Gorpar'].forEach(function(s){combined=combined.concat(groups[s]||[]);});
+    if(combined.length) jasAddFacilitySlide(pptx,title,'Barra • Jobi • Gorpar',combined);
+    ['Binjkot','Sarwani','Sondka','Turekela'].forEach(function(s){
+      if((groups[s]||[]).length) jasAddFacilitySlide(pptx,title,s,groups[s]);
+    });
+    return {start:start,end:pptx.slides.length};
+  }
+
+async function generate() {
     setButton('⏳ PPTX तैयार हो रहा है...', true);
     try {
       await waitForGoogle();
@@ -1200,7 +1466,11 @@
         showProgress('Module report ' + (mi + 1) + '/' + otherModules.length, progress, mod.name + ' का live data और color chart तैयार हो रहा है...');
         var moduleStart = pptx.slides.length + 2;
         var genericData = await queryGenericSheet(mod.gid);
-        if (mod.name === 'NCD') { await addNCDPresentation(pptx); } else { addGenericModuleSlide(pptx, mod, genericData, mi); }
+        if (mod.name === 'NCD') { await addNCDPresentation(pptx); }
+        else if (mod.name === 'JAS Meeting') {
+          var jasRange = await addJASPresentation(pptx);
+          moduleRanges.push({ name:'JAS Meeting', start:jasRange.start, end:jasRange.end });
+        } else { addGenericModuleSlide(pptx, mod, genericData, mi); }
         var moduleEnd = pptx.slides.length + 1;
         if (moduleEnd >= moduleStart) {
           moduleRanges.push({ name: mod.name, start: moduleStart, end: moduleEnd });
