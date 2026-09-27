@@ -374,7 +374,7 @@
     data.rows.slice(0, 7).forEach(function(row){ table.push(row.slice(0,6)); });
     addTable(slide, table, 8.05, 5.35, 4.65, 1.2);
     slide.addText('Source: live Google Sheet | Module: ' + module.name, {
-      x:8.05,y:6.7,w:4.5,h:0.2,fontSize:7.5,color:'64748B',margin:0
+      x:8.05,y:6.7,w:4.5,h:0.2,fontSize:8,color:'64748B',margin:0
     });
   }
 
@@ -477,7 +477,7 @@
           var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
           var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
           slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
-          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(8,Math.min(10,fs)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
+          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(10,Math.min(13,fs)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
         }
         xx+=colW[ci];
       });
@@ -530,12 +530,10 @@
     var fallback=['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
     var fl=ncdLabels(rs,h1,fallback), sl=ncdLabels(rs,Math.min(h2,rs.length-1),fallback);
     var updated=ncdUpdated(rs);
-    addNCDSummarySlide(pptx,fl,facility.total,sector.total,updated);
-
     ['enroll','htn','dm'].forEach(function(part){
       var name=part==='enroll'?'Enrollment & ABHA':part==='htn'?'Hypertension (HTN)':'Diabetes Mellitus (DM)';
       addNCDTableSlide(pptx,name+' — Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
-      var pageSize=11;
+      var pageSize=8;
       for(var p=0;p<facility.data.length;p+=pageSize){
         var chunk=facility.data.slice(p,p+pageSize);
         var partTitle=name+' — Facility Wise';
@@ -658,7 +656,6 @@
       // The index slide is moved to position 2 after all modules are generated.
       var moduleRanges = [];
       var otherModules = [
-        {name:'Ayushman Card',icon:'💳',gid:'925649620'},
         {name:'NCD',icon:'❤️',gid:'1254412412'},
         {name:'JAS Meeting',icon:'🤝',gid:'1018164338'},
         {name:'Health & Wellness Center',icon:'🏥',gid:'0'},
@@ -669,7 +666,7 @@
         {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
         {name:'NQAS Certification',icon:'🏅',gid:'728123647'},
         {name:'Dialysis',icon:'💧',gid:'781496964'},
-        {name:'NLEP',icon:'🦠',gid:'1536656599'}
+
       ];
 
       showProgress('Slides बन रही हैं', 55, 'Block Summary Dashboard तैयार हो रहा है...');
@@ -1032,7 +1029,6 @@
 
       var desiredModules = [
         {name:'RCH 2.0', icon:'R', color:'#7C3AED', fill:'#EDE9FE'},
-        {name:'Ayushman Card', icon:'A', color:'#DB2777', fill:'#FCE7F3'},
         {name:'NCD', icon:'♥', color:'#0284C7', fill:'#E0F2FE'},
         {name:'Ayushman Arogya Mandir (AAM)', icon:'+', color:'#16A34A', fill:'#DCFCE7'},
         {name:'JAS Meeting', icon:'J', color:'#D97706', fill:'#FEF3C7'},
