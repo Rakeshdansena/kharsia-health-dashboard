@@ -569,8 +569,8 @@
     addSectionTitle(slide,'SECTOR WISE DATA',0.34,0.96,3.5);
 
     var rows=sectorRows.slice();
-    var x=0.25,y=1.38,w=[2.15,1.32,1.62,1.50,1.15,1.85,1.75];
-    var heads=['Sector','No. of Facility','Target','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
+    var x=0.25,y=1.38,w=[2.30,1.55,1.72,1.20,1.95,2.05];
+    var heads=['Sector','No. of Facility','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
     var hh=0.62, rh=Math.min(0.57,5.55/Math.max(1,rows.length+1));
     var pctVals=rows.map(shivirPptxPct), pmin=pctVals.length?Math.min.apply(null,pctVals):0,pmax=pctVals.length?Math.max.apply(null,pctVals):0;
     var avgVals=rows.map(function(r){return shivirPptxNum(r[8]);}), amin=avgVals.length?Math.min.apply(null,avgVals):0,amax=avgVals.length?Math.max.apply(null,avgVals):0;
@@ -583,12 +583,12 @@
     });
     rows.forEach(function(r,ri){
       var cy=y+hh+ri*rh,cx2=x;
-      var vals=[clean(r[1]||r[2]),number(r[3]),number(r[4]),number(r[5]),shivirPptxPct(r).toFixed(1)+'%',number(r[7]),number(r[8]).toFixed(1)];
+      var vals=[clean(r[1]||r[2]),number(r[3]),number(r[5]),shivirPptxPct(r).toFixed(1)+'%',number(r[7]),number(r[8]).toFixed(1)];
       vals.forEach(function(v,ci){
         slide.addShape('rect',{x:cx2,y:cy,w:w[ci],h:rh,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'CBD5E1',pt:0.7}});
-        if(ci===4){
+        if(ci===3){
           shivirAddMetricCell(slide,cx2,cy,w[ci],rh,shivirPptxPct(r).toFixed(1)+'%',pmin,pmax);
-        } else if(ci===6){
+        } else if(ci===5){
           shivirAddMetricCell(slide,cx2,cy,w[ci],rh,number(r[8]).toFixed(1),amin,amax);
         } else {
           slide.addText(String(v),{x:cx2+0.03,y:cy+rh*0.25,w:w[ci]-0.06,h:rh*0.43,fontSize:Math.max(9,Math.min(13,rh*28)),bold:ci===0,color:'172033',align:ci===0?'left':'center',valign:'mid',margin:0,fit:'shrink'});
@@ -597,23 +597,20 @@
       });
     });
 
-    var target=rows.reduce(function(s,r){return s+shivirPptxNum(r[4]);},0);
     var rep=rows.reduce(function(s,r){return s+shivirPptxNum(r[5]);},0);
     var foot=rows.reduce(function(s,r){return s+shivirPptxNum(r[7]);},0);
+    var target=rows.reduce(function(s,r){return s+shivirPptxNum(r[4]);},0);
     var avg=rep?foot/rep:0;
     var ty=y+hh+rows.length*rh,c=x;
-    var tv=['BLOCK TOTAL','',target,rep,target?rep/target*100:0,foot,avg];
-    var tw=[3.47,1.62,1.50,1.15,1.85,1.75];
-    var totalW=[2.15+1.32].concat([1.62,1.50,1.15,1.85,1.75]);
+    var tv=['BLOCK TOTAL','',rep,target?rep/target*100:0,foot,avg];
     tv.forEach(function(v,ci){
-      var ww=ci===0?3.47:totalW[ci];
-      slide.addShape('rect',{x:c,y:ty,w:ww,h:rh,fill:{color:'073B75'},line:{color:'FFFFFF',pt:0.8}});
-      if(ci===4){
-        slide.addText(v.toFixed(1)+'%',{x:c+0.03,y:ty+rh*0.25,w:ww-0.06,h:rh*0.42,fontSize:12,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+      slide.addShape('rect',{x:c,y:ty,w:w[ci],h:rh,fill:{color:'073B75'},line:{color:'FFFFFF',pt:0.8}});
+      if(ci===3){
+        slide.addText(Number(v).toFixed(1)+'%',{x:c+0.03,y:ty+rh*0.25,w:w[ci]-0.06,h:rh*0.42,fontSize:12,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
       }else{
-        slide.addText(String(ci===6?Number(v).toFixed(1):v),{x:c+0.03,y:ty+rh*0.25,w:ww-0.06,h:rh*0.42,fontSize:12,bold:true,color:'FFFFFF',align:ci===0?'left':'center',margin:0,fit:'shrink'});
+        slide.addText(String(ci===5?Number(v).toFixed(1):v),{x:c+0.03,y:ty+rh*0.25,w:w[ci]-0.06,h:rh*0.42,fontSize:12,bold:true,color:'FFFFFF',align:ci===0?'left':'center',margin:0,fit:'shrink'});
       }
-      c+=ww;
+      c+=w[ci];
     });
     slide.addText('Source: live Google Sheet • '+title,{x:0.45,y:6.85,w:12.0,h:0.16,fontSize:7.5,color:'64748B',margin:0});
     return slide;
@@ -666,8 +663,8 @@
 
     function drawPanel(list,px){
       slide.addShape('roundRect',{x:px,y:y,w:panelW,h:panelH,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
-      var widths=[1.10,1.72,0.82,0.80,0.58,0.88,0.92];
-      var heads=['Sector','Facility','Target','Report','%','Footfall','Avg/Shivir'];
+      var widths=[1.18,2.10,0.90,0.62,0.96,1.04];
+      var heads=['Sector','Facility','Report','%','Footfall','Avg/Shivir'];
       var scale=panelW/widths.reduce(function(a,b){return a+b;},0);
       widths=widths.map(function(v){return v*scale;});
       var rh=Math.min(0.30,(panelH-headerH-0.08)/Math.max(1,per));
@@ -684,12 +681,12 @@
 
       list.forEach(function(r,ri){
         var cy=y+headerH+ri*rh, cx2=px;
-        var vals=[clean(r[2]),clean(r[3]),number(r[4]),number(r[5]),shivirPptxPct(r),number(r[7]),number(r[8])];
+        var vals=[clean(r[2]),clean(r[3]),number(r[5]),shivirPptxPct(r),number(r[7]),number(r[8])];
         vals.forEach(function(v,ci){
           slide.addShape('rect',{x:cx2,y:cy,w:widths[ci],h:rh,fill:{color:ri%2?'F8FBFF':'FFFFFF'},line:{color:'CBD5E1',pt:0.55}});
-          if(ci===4){
+          if(ci===3){
             shivirAddMetricCell(slide,cx2,cy,widths[ci],rh,shivirPptxPct(r).toFixed(1)+'%',pmin,pmax);
-          }else if(ci===6){
+          }else if(ci===5){
             shivirAddMetricCell(slide,cx2,cy,widths[ci],rh,number(r[8]).toFixed(1),amin,amax);
           }else{
             slide.addText(String(v),{
@@ -707,7 +704,7 @@
     drawPanel(rows.slice(0,per),panelX[0]);
     drawPanel(rows.slice(per),panelX[1]);
 
-    slide.addText('NIN excluded • All facilities shown in one slide • % and Avg Footfall use relative color scale',{
+    slide.addText('NIN excluded • All facilities shown in one slide • Target column removed because target is common to all', {
       x:0.35,y:6.93,w:12.6,h:0.15,fontSize:7.5,color:'64748B',margin:0,align:'center'
     });
     slide.addText('Source: live Google Sheet • '+title,{
