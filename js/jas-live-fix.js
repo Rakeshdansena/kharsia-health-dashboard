@@ -65,9 +65,9 @@ function css(){
  color:#fff;
  font-weight:800;
 }
-.jas-good{background:#16a34a!important;color:#fff!important;font-weight:900!important}
+.jas-good{background:#16a34a!important;color:#000!important;font-weight:900!important}
 .jas-mid{background:#eab308!important;color:#111827!important;font-weight:900!important}
-.jas-low{background:#dc2626!important;color:#fff!important;font-weight:900!important}
+.jas-low{background:#dc2626!important;color:#000!important;font-weight:900!important}
 
 .jas-table td:nth-child(2),
 .jas-table td:nth-child(3),
@@ -78,15 +78,11 @@ function css(){
  font-weight:800;
  background:#dbeafe;
 }
-.jas-good{
- color:#15803d!important;
- font-weight:900;
-}
-.jas-mid{color:#b45309!important;font-weight:900}
-.jas-low{
- color:#dc2626!important;
- font-weight:900;
-}
+.jas-good,.jas-mid,.jas-low{font-weight:900!important;color:#000!important;}
+.jas-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 12px}
+.jas-tools input{flex:1;min-width:220px;padding:9px 11px;border:1px solid #94a3b8;border-radius:7px;font-size:13px}
+.jas-tools button{padding:9px 12px;border:0;border-radius:7px;background:#075985;color:#fff;font-weight:700;cursor:pointer}
+.jas-tools button:hover{opacity:.9}
 .jas-empty{
  padding:18px;
  text-align:center;
@@ -267,6 +263,49 @@ function renderFacility(rows){
   return h;
 }
 
+function addJASTools(){
+  return '<div class="jas-tools">'+
+    '<input id="jasSearchInput" type="search" placeholder="Search Sector / Facility / NIN...">'+
+    '<button type="button" onclick="window.jasExportExcel&&window.jasExportExcel()">Excel</button>'+
+    '<button type="button" onclick="window.jasExportPDF&&window.jasExportPDF()">PDF</button>'+
+  '</div>';
+}
+
+function filterJASTables(value){
+  const q=clean(value).toLowerCase();
+  document.querySelectorAll('#jasMeetingModule .jas-table tbody tr').forEach(tr=>{
+    const isTotal=tr.classList.contains('jas-total');
+    if(isTotal) return;
+    tr.style.display=!q || tr.innerText.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+function setupJASTools(){
+  const input=document.getElementById('jasSearchInput');
+  if(input) input.oninput=()=>filterJASTables(input.value);
+}
+
+function exportJASTable(format){
+  const mod=document.getElementById('jasMeetingModule');
+  if(!mod) return;
+  const title=findTitle(getRows(window.__jasLastData||{getNumberOfRows:()=>0,getNumberOfColumns:()=>0,getFormattedValue:()=>''}));
+  const tables=Array.from(mod.querySelectorAll('.jas-table')).map(t=>t.outerHTML).join('<br>');
+  if(format==='excel'){
+    const html='<!doctype html><html><head><meta charset="utf-8"></head><body><h2>'+esc(title)+'</h2>'+tables+'</body></html>';
+    const blob=new Blob([html],{type:'application/vnd.ms-excel'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='JAS_Meeting_'+title.replace(/[^a-z0-9]+/gi,'_')+'.xls'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }else{
+    const w=window.open('','_blank');
+    if(!w) return;
+    w.document.write('<html><head><title>'+esc(title)+'</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #333;padding:6px;text-align:center}th{background:#075985;color:#fff}h2{text-align:center}</style></head><body><h2>'+esc(title)+'</h2>'+tables+'</body></html>');
+    w.document.close(); w.focus(); setTimeout(()=>w.print(),400);
+  }
+}
+window.jasExportExcel=()=>exportJASTable('excel');
+window.jasExportPDF=()=>exportJASTable('pdf');
+
 function renderSummary(sectorRows,facilityRows){
   const sectors=sectorRows.filter(r=>clean(r[1]));
   const facilities=facilityRows.filter(r=>clean(r[3]));
@@ -368,9 +407,11 @@ function render(dt){
   }
   if(!q) return;
 
+  window.__jasLastData=dt;
   const title=findTitle(a);
   let h='<div class="jas-title">'+esc(title)+'</div>';
   h+=renderSummary(sectorRows,facilityRows);
+  h+=addJASTools();
   if(!sectorRows.length && !facilityRows.length){
     h+='<div class="jas-empty">JAS Meeting data नहीं मिला। Google Sheet की पहली 7 columns में सही header check करें।</div>';
   }else{
@@ -379,6 +420,7 @@ function render(dt){
     if(facilityRows.length) h+=renderFacility(facilityRows);
   }
   q.innerHTML=h;
+  setupJASTools();
 
   if(rp){
     Array.from(rp.children).forEach(e=>{
