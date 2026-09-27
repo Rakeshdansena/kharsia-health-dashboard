@@ -726,10 +726,7 @@
     return {start:start,end:pptx.slides.length};
   }
 
-
-  }
-
-async function generate() {
+  async function generate() {
     setButton('⏳ PPTX तैयार हो रहा है...', true);
     try {
       await waitForGoogle();
