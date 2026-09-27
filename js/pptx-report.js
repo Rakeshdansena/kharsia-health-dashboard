@@ -1039,7 +1039,7 @@
     return slide;
   }
 
-  async async function addJASPresentation(pptx){
+  async function addJASPresentation(pptx){
     var live=null;
 
     // First use the exact data already parsed by the dashboard's JAS module.
