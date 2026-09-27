@@ -4643,6 +4643,59 @@ function startPPTXGeneration(){
 }
 </script>
 <script id="ayushman-shivir-live-fix-static" src="js/ayushman-shivir-live-fix.js?v=20260927-shivir-final-02"></script>
+<script id="shivir-color-force-fix">
+(function(){
+  function n(v){
+    var x=parseFloat(String(v==null?'':v).replace(/,/g,'').replace('%','').trim());
+    return isFinite(x)?x:0;
+  }
+  function apply(){
+    document.querySelectorAll('.shivir-table').forEach(function(t){
+      var th=[].slice.call(t.querySelectorAll('thead th'));
+      if(!th.length)return;
+      var pct=-1,avg=-1;
+      th.forEach(function(h,i){
+        var s=(h.textContent||'').trim().toLowerCase();
+        if(s==='%' || s.indexOf('achievement')>=0 && s.indexOf('%')>=0)pct=i;
+        if(s.indexOf('avg footfall')>=0)avg=i;
+      });
+      function scale(v,min,max){
+        if(max<=min)return 'hsl(60,78%,70%)';
+        var q=Math.max(0,Math.min(1,(v-min)/(max-min)));
+        return 'hsl('+(120*q)+',78%,48%)';
+      }
+      if(pct>=0){
+        var vals=[].slice.call(t.querySelectorAll('tbody tr:not(.shivir-total)')).map(function(r){return n(r.children[pct]&&r.children[pct].textContent)}).filter(function(v){return isFinite(v)});
+        var min=vals.length?Math.min.apply(null,vals):0,max=vals.length?Math.max.apply(null,vals):0;
+        t.querySelectorAll('tbody tr').forEach(function(r){
+          var cell=r.children[pct]; if(!cell)return;
+          var v=n(cell.textContent);
+          cell.style.setProperty('background',scale(v,min,max),'important');
+          cell.style.setProperty('color',v>=min+(max-min)*0.58?'#fff':'#111827','important');
+          cell.style.setProperty('font-weight','800','important');
+        });
+      }
+      if(avg>=0){
+        var av=[].slice.call(t.querySelectorAll('tbody tr:not(.shivir-total)')).map(function(r){return n(r.children[avg]&&r.children[avg].textContent)}).filter(function(v){return v>0});
+        var amin=av.length?Math.min.apply(null,av):0,amax=av.length?Math.max.apply(null,av):0;
+        t.querySelectorAll('tbody tr').forEach(function(r){
+          var cell=r.children[avg]; if(!cell)return;
+          var v=n(cell.textContent);
+          cell.style.setProperty('background',scale(v,amin,amax),'important');
+          cell.style.setProperty('color',v>=amin+(amax-amin)*0.58?'#fff':'#111827','important');
+          cell.style.setProperty('font-weight','800','important');
+        });
+      }
+    });
+  }
+  var mo=new MutationObserver(apply);
+  document.addEventListener('DOMContentLoaded',function(){
+    apply();
+    mo.observe(document.body,{subtree:true,childList:true});
+  });
+  setInterval(apply,1000);
+})();
+</script>
 <script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-17"></script>
 <script src="js/ncd.js"></script>
 </body>
