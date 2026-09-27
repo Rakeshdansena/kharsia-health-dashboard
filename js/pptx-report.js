@@ -436,7 +436,7 @@
     return labels;
   }
 
-  function addNCDTableSlide(pptx, title, subtitle, labels, dataRows, totalRow, part) {
+  function addNCDTableSlide(pptx, title, subtitle, labels, dataRows, totalRow, part, groupTotals) {
     var slide=pptx.addSlide();
     addHeader(slide, '❤️ NCD — '+title, subtitle);
     var idx = part==='enroll' ? [0,1,2,3,4,5,6] :
@@ -450,42 +450,106 @@
     var head = idx.map(function(i,k){ return clean((labels||[])[i]) || fallback[k]; });
     var rows=[head];
     (dataRows||[]).forEach(function(r){ rows.push(idx.map(function(i){return clean(r[i]);})); });
-    if(totalRow) rows.push(idx.map(function(i){return clean(totalRow[i]);}));
-    if(rows.length<=1) return;
-    var y=1.10, x=0.34, w=12.66;
-    var rowCount=rows.length, rowH=Math.max(0.30,Math.min(0.47,5.55/rowCount));
-    var colW;
-    if(part==='enroll') colW=[2.65,1.55,1.55,1.55,1.20,1.45,1.35];
-    else colW=[2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
-    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum; colW=colW.map(function(v){return v*scale;});
+    if(groupTotals && groupTotals.length){
+      // groupTotals are already placed in dataRows in the desired order.
+    } else if(totalRow) {
+      rows.push(idx.map(function(i){return clean(totalRow[i]);}));
+    }
+    if(rows.length<=1) return slide;
+
+    var x=0.34, w=12.66, y=1.10;
+    var dataCount=Math.max(1,rows.length-1);
+    var headerH=0.70;
+    var dataH=Math.min(0.48,Math.max(0.38,(5.55-headerH)/dataCount));
+
+    var colW=part==='enroll'
+      ? [2.65,1.55,1.55,1.55,1.20,1.45,1.35]
+      : [2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
+    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum;
+    colW=colW.map(function(v){return v*scale;});
+
     var yy=y;
     rows.forEach(function(row,ri){
-      var xx=x;
+      var rowH=ri===0?headerH:dataH, xx=x;
+      var isGroupTotal = ri>0 && /\bTotal\b/i.test(String(row[0]||''));
       row.forEach(function(v,ci){
-        var fill=ri===0?'075985':(ri===rows.length-1 && totalRow?'073B75':(ri%2?'FFFFFF':'F8FBFF'));
+        var fill=ri===0?'075985':(isGroupTotal?'DCEBFA':(ri%2?'FFFFFF':'F8FBFF'));
         slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
-        var isPct = /%/.test(head[ci]) || /percent/i.test(head[ci]);
-        var txtColor=ri===0||ri===rows.length-1&&totalRow?'FFFFFF':'172033';
-        var fs=ri===0?Math.max(11.5,Math.min(15,rowH*32)):Math.max(11,Math.min(14,rowH*30));
+        var isPct=/%/.test(head[ci])||/percent/i.test(head[ci]);
+        var txtColor=ri===0?'FFFFFF':'172033';
         slide.addText(String(v||''),{
-          x:xx+0.035,y:yy+rowH*0.23,w:colW[ci]-0.07,h:rowH*0.48,
-          fontSize:fs,bold:ri===0||ri===rows.length-1&&totalRow||ci===0,
-          color:txtColor,align:ci===0?'left':'center',valign:'mid',margin:0,fit:'shrink'
+          x:xx+0.035,y:yy+0.04,w:colW[ci]-0.07,h:rowH-0.08,
+          fontSize:ri===0?11.5:Math.max(11,Math.min(14,dataH*30)),
+          bold:ri===0||isGroupTotal||ci===0,
+          color:txtColor,align:ci===0?'left':'center',valign:'mid',margin:0.01,fit:'shrink',breakLine:false
         });
-        if(ri>0 && !(ri===rows.length-1&&totalRow) && isPct && v!==''){
+        if(ri>0&&!isGroupTotal&&isPct&&v!==''){
           var n=number(String(v).replace('%',''));
           var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
           var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
           slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
-          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(10,Math.min(13,fs)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
+          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(10,Math.min(13,dataH*30)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
         }
         xx+=colW[ci];
       });
       yy+=rowH;
     });
-    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]) ,{
-      x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0
+    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]),{x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0});
+    return slide;
+  }
+
+  function ncdSectorTotalRow(rows, sectorName, sectorTotals) {
+    var target=ncdNormalizeFacility(sectorName);
+    var found=(sectorTotals||[]).find(function(r){return ncdNormalizeFacility(r&&r[0])===target;});
+    if(found) return found;
+    var out=new Array(25).fill('');
+    out[0]=sectorName+' Total';
+    var numeric=[1,2,3,5,7,9,10,12,14,16,18,19,21,23];
+    numeric.forEach(function(c){out[c]=(rows||[]).reduce(function(sum,r){return sum+number(r[c]);},0);});
+    function pct(num,den){return den?Math.round(num/den*100)+'%':'-';}
+    out[4]=pct(out[3],out[2]);
+    out[6]=pct(out[5],out[3]);
+    out[8]=pct(out[7],out[9]);
+    out[11]=pct(out[10],out[9]);
+    out[13]=pct(out[12],out[10]);
+    out[15]=pct(out[14],out[9]);
+    out[17]=pct(out[16],out[18]);
+    out[20]=pct(out[19],out[18]);
+    out[22]=pct(out[21],out[19]);
+    out[24]=pct(out[23],out[18]);
+    return out;
+  }
+
+  function addNCDLowest10Slide(pptx, facilityRows) {
+    var slide=pptx.addSlide();
+    addHeader(slide,'❤️ NCD — Lowest 10 Facility Screening / ABHA','BOTTOM 10 FACILITIES BY PERCENTAGE | FY 2026–27');
+    var metrics=[
+      {title:'ABHA Link %',col:6},
+      {title:'HTN Screening %',col:8},
+      {title:'DM Screening %',col:17}
+    ];
+    var groups=ncdGroupFacilities(facilityRows||[]);
+    var all=[];
+    Object.keys(groups).forEach(function(k){(groups[k]||[]).forEach(function(r){all.push(r);});});
+    var seen={}; all=all.filter(function(r){var n=ncdNormalizeFacility(r&&r[0]);if(!n||NCD_EXCLUDED_FACILITIES[n]||seen[n])return false;seen[n]=true;return true;});
+    var positions=[0.34,4.48,8.62], boxW=3.86;
+    metrics.forEach(function(metric,mi){
+      var rows=all.filter(function(r){return r && r[metric.col]!=='' && !isNaN(number(String(r[metric.col]).replace('%','')));})
+        .sort(function(a,b){return number(String(a[metric.col]).replace('%',''))-number(String(b[metric.col]).replace('%',''));})
+        .slice(0,10);
+      slide.addShape('roundRect',{x:positions[mi],y:1.12,w:boxW,h:5.72,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:1}});
+      slide.addShape('rect',{x:positions[mi],y:1.12,w:boxW,h:0.48,fill:{color:'075985'},line:{color:'075985'}});
+      slide.addText(metric.title,{x:positions[mi]+0.08,y:1.22,w:boxW-0.16,h:0.25,fontSize:13,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+      var rh=0.48, y=1.68;
+      rows.forEach(function(r,ri){
+        slide.addShape('rect',{x:positions[mi]+0.06,y:y,w:boxW-0.12,h:rh,fill:{color:ri%2?'FFFFFF':'F8FBFF'},line:{color:'E2E8F0',pt:0.5}});
+        slide.addText(String(ri+1),{x:positions[mi]+0.10,y:y+0.08,w:0.25,h:0.25,fontSize:9,bold:true,color:'64748B',margin:0});
+        slide.addText(clean(r[0]),{x:positions[mi]+0.40,y:y+0.06,w:2.48,h:0.30,fontSize:10,bold:true,color:'172033',margin:0,fit:'shrink'});
+        slide.addText(String(r[metric.col]),{x:positions[mi]+2.92,y:y+0.06,w:0.72,h:0.30,fontSize:11,bold:true,color:'DC2626',align:'right',margin:0,fit:'shrink'});
+        y+=rh;
+      });
     });
+    slide.addText('Source: live Google Sheet • Facility Wise data • '+ncdUpdated(window.__ncdRawRows||[]),{x:0.38,y:6.91,w:12.0,h:0.16,fontSize:7.5,color:'64748B',margin:0,align:'right'});
     return slide;
   }
 
@@ -580,7 +644,7 @@
     var rs=await queryNCDSheet();
     window.__ncdRawRows=rs;
 
-    var titleIdx=-1, nextTitle=rs.length;
+    var titleIdx=-1,nextTitle=rs.length;
     for(var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {titleIdx=i;break;}
     if(titleIdx<0) titleIdx=0;
     for(var j=titleIdx+1;j<rs.length;j++) if(ncdIsTitle(rs[j])) {nextTitle=j;break;}
@@ -596,25 +660,37 @@
     var fallback=['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
     var fl=ncdLabels(rs,h1,fallback), sl=ncdLabels(rs,Math.min(h2,rs.length-1),fallback);
     var grouped=ncdGroupFacilities(facility.data);
+    var sectorTotals=sector.data||[];
+
+    function rowsWithSectorTotal(sectorName){
+      var data=(grouped[sectorName]||[]).slice();
+      if(data.length) data.push(ncdSectorTotalRow(data,sectorName,sectorTotals));
+      return data;
+    }
+    function combinedWithTotals(){
+      var out=[];
+      ['Barra','Jobi','Gorpar'].forEach(function(sec){
+        out=out.concat(rowsWithSectorTotal(sec));
+      });
+      return out;
+    }
 
     ['enroll','htn','dm'].forEach(function(part){
       var name=part==='enroll'?'Enrollment & ABHA':part==='htn'?'Hypertension (HTN)':'Diabetes Mellitus (DM)';
-
-      // Sector Wise
       addNCDTableSlide(pptx,name+' — Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
 
-      // Exactly one slide for Barra + Jobi + Gorpar.
-      var combined=(grouped['Barra']||[]).concat(grouped['Jobi']||[],grouped['Gorpar']||[]);
-      if(combined.length) {
-        addNCDTableSlide(pptx,name+' — Facility Wise | Barra • Jobi • Gorpar','FACILITY WISE DATA | FY 2026–27',fl,combined,null,part);
-      }
+      // Barra + Jobi + Gorpar in one slide, each with its own Sector Total.
+      var combined=combinedWithTotals();
+      if(combined.length) addNCDTableSlide(pptx,name+' — Facility Wise | Barra • Jobi • Gorpar','FACILITY WISE DATA | FY 2026–27',fl,combined,null,part);
 
-      // One slide per remaining sector.
-      ['Binjkot','Sarwani','Sondka','Turekela','Other Facilities'].forEach(function(sectorName){
-        var data=grouped[sectorName]||[];
-        if(data.length) addNCDTableSlide(pptx,name+' — Facility Wise | '+sectorName,'FACILITY WISE DATA | FY 2026–27',fl,data,null,part);
+      ['Binjkot','Sarwani','Sondka','Turekela','Other Facilities'].forEach(function(sec){
+        var data=rowsWithSectorTotal(sec);
+        if(data.length) addNCDTableSlide(pptx,name+' — Facility Wise | '+sec,'FACILITY WISE DATA | FY 2026–27',fl,data,null,part);
       });
     });
+
+    // Final slide: lowest 10 facilities for ABHA Link %, HTN Screening %, and DM Screening %.
+    addNCDLowest10Slide(pptx,facility.data);
     return true;
   }
 
