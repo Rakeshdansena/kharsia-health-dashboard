@@ -1823,6 +1823,58 @@ function loadGoogleSheet(gid){
 /* =====================================================
    JAS PPTX NATIVE DATA BRIDGE
 ===================================================== */
+window.__openJASForPPTX = async function(){
+  try{
+    if(typeof window.__loadJASForPPTX==='function'){
+      var direct=await window.__loadJASForPPTX();
+      if(direct && ((direct.sector&&direct.sector.length)||(direct.facility&&direct.facility.length))) return direct;
+    }
+    var list = (typeof REPORTS!=='undefined' && REPORTS) ? REPORTS : [];
+    var idx=-1;
+    for(var i=0;i<list.length;i++){
+      if(list[i] && list[i].name==='JAS Meeting'){ idx=i; break; }
+    }
+    if(idx>=0 && typeof window.openReport==='function'){
+      window.openReport(idx);
+      await new Promise(function(resolve){setTimeout(resolve,1200);});
+    }
+    return window.__jasPptxData || null;
+  }catch(e){
+    console.error('JAS PPTX open/render error:',e);
+    return window.__jasPptxData || null;
+  }
+};
+window.__loadJASForPPTX = function(){
+  return new Promise(function(resolve){
+    if(!window.google || !window.google.visualization || !window.google.visualization.Query){
+      resolve(null);
+      return;
+    }
+    const q = new google.visualization.Query(
+      "https://docs.google.com/spreadsheets/d/" +
+      SPREADSHEET_ID +
+      "/gviz/tq?gid=1018164338&headers=0"
+    );
+    q.setQuery("select *");
+    q.send(function(response){
+      if(response.isError()){
+        console.error("JAS PPTX native load error:", response.getMessage());
+        resolve(null);
+        return;
+      }
+      try{
+        window.__jasNativeData = response.getDataTable();
+        if(typeof window.renderJASFromData==="function"){
+          window.renderJASFromData(window.__jasNativeData);
+        }
+        resolve(window.__jasPptxData || null);
+      }catch(e){
+        console.error("JAS PPTX native parse error:", e);
+        resolve(null);
+      }
+    });
+  });
+};
 window.__loadJASForPPTX = function(){
   return new Promise(function(resolve){
     if(!window.google || !window.google.visualization || !window.google.visualization.Query){
