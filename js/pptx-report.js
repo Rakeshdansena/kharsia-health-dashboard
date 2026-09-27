@@ -522,34 +522,68 @@
 
   function addNCDLowest10Slide(pptx, facilityRows) {
     var slide=pptx.addSlide();
-    addHeader(slide,'❤️ NCD — Lowest 10 Facility Screening / ABHA','BOTTOM 10 FACILITIES BY PERCENTAGE | FY 2026–27');
+    slide.background={color:'F7FBFF'};
+
+    // Attractive analysis header
+    slide.addShape('roundRect',{x:0.35,y:0.22,w:12.63,h:0.78,fill:{color:'073B75'},line:{color:'073B75'}});
+    slide.addText('❤️  NCD — LOWEST 10 FACILITIES',{x:0.65,y:0.36,w:7.1,h:0.32,fontSize:25,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+    slide.addText('ABHA LINK • HTN SCREENING • DM SCREENING',{x:7.55,y:0.42,w:5.0,h:0.22,fontSize:11,bold:true,color:'D9F2FF',align:'right',margin:0,fit:'shrink'});
+    slide.addText('FY 2026–27  |  Facility-wise percentage analysis',{x:0.65,y:0.77,w:7.0,h:0.14,fontSize:8.5,bold:true,color:'BFE8FF',margin:0});
+
     var metrics=[
-      {title:'ABHA Link %',col:6},
-      {title:'HTN Screening %',col:8},
-      {title:'DM Screening %',col:17}
+      {title:'ABHA LINK %',sub:'Lowest 10',col:6,accent:'7C3AED',soft:'F3E8FF'},
+      {title:'HTN SCREENING %',sub:'Lowest 10',col:8,accent:'EA580C',soft:'FFEDD5'},
+      {title:'DM SCREENING %',sub:'Lowest 10',col:17,accent:'DC2626',soft:'FEE2E2'}
     ];
     var groups=ncdGroupFacilities(facilityRows||[]);
     var all=[];
     Object.keys(groups).forEach(function(k){(groups[k]||[]).forEach(function(r){all.push(r);});});
-    var seen={}; all=all.filter(function(r){var n=ncdNormalizeFacility(r&&r[0]);if(!n||NCD_EXCLUDED_FACILITIES[n]||seen[n])return false;seen[n]=true;return true;});
-    var positions=[0.34,4.48,8.62], boxW=3.86;
+    var seen={};
+    all=all.filter(function(r){
+      var n=ncdNormalizeFacility(r&&r[0]);
+      if(!n||NCD_EXCLUDED_FACILITIES[n]||n.indexOf('CHAPLE')===0||seen[n]) return false;
+      seen[n]=true; return true;
+    });
+
+    var positions=[0.35,4.49,8.63], boxW=3.86, boxY=1.20, boxH=5.62;
     metrics.forEach(function(metric,mi){
-      var rows=all.filter(function(r){return r && r[metric.col]!=='' && !isNaN(number(String(r[metric.col]).replace('%','')));})
-        .sort(function(a,b){return number(String(a[metric.col]).replace('%',''))-number(String(b[metric.col]).replace('%',''));})
-        .slice(0,10);
-      slide.addShape('roundRect',{x:positions[mi],y:1.12,w:boxW,h:5.72,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:1}});
-      slide.addShape('rect',{x:positions[mi],y:1.12,w:boxW,h:0.48,fill:{color:'075985'},line:{color:'075985'}});
-      slide.addText(metric.title,{x:positions[mi]+0.08,y:1.22,w:boxW-0.16,h:0.25,fontSize:13,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
-      var rh=0.48, y=1.68;
+      var rows=all.filter(function(r){
+        return r && r[metric.col]!=='' && !isNaN(number(String(r[metric.col]).replace('%','')));
+      }).sort(function(a,b){
+        return number(String(a[metric.col]).replace('%',''))-number(String(b[metric.col]).replace('%',''));
+      }).slice(0,10);
+
+      var x=positions[mi];
+      slide.addShape('roundRect',{x:x,y:boxY,w:boxW,h:boxH,rectRadius:0.08,fill:{color:'FFFFFF'},line:{color:metric.accent,pt:1.4},shadow:{type:'outer',color:'94A3B8',blur:1,angle:45,distance:1,opacity:0.13}});
+      slide.addShape('roundRect',{x:x+0.04,y:boxY+0.04,w:boxW-0.08,h:0.62,rectRadius:0.06,fill:{color:metric.accent},line:{color:metric.accent}});
+      slide.addText(metric.title,{x:x+0.18,y:boxY+0.15,w:2.5,h:0.24,fontSize:16,bold:true,color:'FFFFFF',margin:0,fit:'shrink'});
+      slide.addText(metric.sub,{x:x+2.55,y:boxY+0.18,w:1.05,h:0.18,fontSize:9,bold:true,color:'FFFFFF',align:'right',margin:0});
+
+      var rh=0.46, y=boxY+0.78;
       rows.forEach(function(r,ri){
-        slide.addShape('rect',{x:positions[mi]+0.06,y:y,w:boxW-0.12,h:rh,fill:{color:ri%2?'FFFFFF':'F8FBFF'},line:{color:'E2E8F0',pt:0.5}});
-        slide.addText(String(ri+1),{x:positions[mi]+0.10,y:y+0.08,w:0.25,h:0.25,fontSize:9,bold:true,color:'64748B',margin:0});
-        slide.addText(clean(r[0]),{x:positions[mi]+0.40,y:y+0.06,w:2.48,h:0.30,fontSize:10,bold:true,color:'172033',margin:0,fit:'shrink'});
-        slide.addText(String(r[metric.col]),{x:positions[mi]+2.92,y:y+0.06,w:0.72,h:0.30,fontSize:11,bold:true,color:'DC2626',align:'right',margin:0,fit:'shrink'});
+        var pct=number(String(r[metric.col]).replace('%',''));
+        var rankFill=ri<3?metric.soft:'F8FAFC';
+        var pctFill=pct<30?'FEE2E2':(pct<50?'FEF3C7':'FFF7ED');
+        var pctColor=pct<30?'B91C1C':(pct<50?'A16207':'C2410C');
+
+        slide.addShape('rect',{x:x+0.10,y:y,w:boxW-0.20,h:rh,fill:{color:ri%2?'FFFFFF':'F8FBFF'},line:{color:'E2E8F0',pt:0.45}});
+
+        slide.addShape('ellipse',{x:x+0.16,y:y+0.065,w:0.32,h:0.32,fill:{color:ri<3?metric.accent:'E2E8F0'},line:{color:ri<3?metric.accent:'CBD5E1',pt:0.5}});
+        slide.addText(String(ri+1),{x:x+0.16,y:y+0.115,w:0.32,h:0.12,fontSize:8.5,bold:true,color:ri<3?'FFFFFF':'475569',align:'center',margin:0});
+
+        slide.addText(clean(r[0]),{x:x+0.58,y:y+0.07,w:2.18,h:0.30,fontSize:14,bold:true,color:'172033',margin:0,fit:'shrink'});
+        slide.addShape('roundRect',{x:x+2.82,y:y+0.055,w:0.86,h:0.34,fill:{color:pctFill},line:{color:pctColor,pt:0.8}});
+        slide.addText(String(r[metric.col]),{x:x+2.86,y:y+0.105,w:0.78,h:0.16,fontSize:13,bold:true,color:pctColor,align:'center',margin:0,fit:'shrink'});
         y+=rh;
       });
+
+      if(!rows.length){
+        slide.addText('No facility data available',{x:x+0.35,y:3.55,w:3.15,h:0.35,fontSize:14,bold:true,color:'64748B',align:'center',margin:0});
+      }
     });
-    slide.addText('Source: live Google Sheet • Facility Wise data • '+ncdUpdated(window.__ncdRawRows||[]),{x:0.38,y:6.91,w:12.0,h:0.16,fontSize:7.5,color:'64748B',margin:0,align:'right'});
+
+    slide.addShape('roundRect',{x:0.48,y:6.90,w:12.35,h:0.30,fill:{color:'EAF5FF'},line:{color:'CFE8F8',pt:0.6}});
+    slide.addText('Lower percentage = higher priority for review  •  CHAPLE excluded  •  Source: live Google Sheet',{x:0.62,y:6.98,w:12.05,h:0.12,fontSize:8.5,bold:true,color:'075985',align:'center',margin:0,fit:'shrink'});
     return slide;
   }
 
