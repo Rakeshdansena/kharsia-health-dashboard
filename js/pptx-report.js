@@ -1025,7 +1025,7 @@
       }).join('  •  '),
       {
         x:0.30,y:6.86,w:12.70,h:0.20,
-        fontSize:9.5,bold:true,color:'475569',
+        fontSize:11,bold:true,color:'475569',
         margin:0,fit:'shrink',align:'center'
       }
     );
@@ -1095,12 +1095,12 @@
 
       slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
       slide.addShape('rect',{x:x,y:y,w:1.10,h:h,fill:{color:soft},line:{color:soft}});
-      slide.addText(String(k)+' meetings',{x:x+0.08,y:y+0.11,w:0.94,h:0.22,fontSize:12,bold:true,color:titleColor,align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(k)+' meetings',{x:x+0.08,y:y+0.11,w:0.94,h:0.22,fontSize:14,bold:true,color:titleColor,align:'center',margin:0,fit:'shrink'});
       slide.addText(String(list.length)+' facilities',{x:x+0.08,y:y+0.40,w:0.94,h:0.20,fontSize:9.5,bold:true,color:'475569',align:'center',margin:0,fit:'shrink'});
 
       var wrapped=wrapList(names||'No facility',47);
       var lineCount=(wrapped.match(/\n/g)||[]).length+1;
-      var fs=lineCount>=7?7.6:(lineCount>=5?8.2:9);
+      var fs=lineCount>=7?8.5:(lineCount>=5?9.2:10);
       slide.addText(wrapped,{x:x+1.22,y:y+0.10,w:w-1.35,h:h-0.18,fontSize:fs,bold:true,color:'172033',align:'left',valign:'mid',margin:0.01,fit:'shrink',breakLine:false});
     }
 
@@ -1110,7 +1110,7 @@
     function groupHeight(k){
       var list=(groups[String(k)]||[]);
       var names=list.map(function(r){return r.facility;}).join('  •  ');
-      var lines=names?Math.max(1,Math.ceil(names.length/47)):1;
+      var lines=names?Math.max(1,Math.ceil(names.length/43)):1;
       return Math.min(2.20,Math.max(0.72,0.46+lines*0.20));
     }
 
