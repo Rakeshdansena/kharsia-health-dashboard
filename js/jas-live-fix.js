@@ -21,7 +21,7 @@ function css(){
   s.id='jas-sector-css';
   s.textContent=`
 #jasMeetingModule{
- display:block!important;
+ display:none;
  width:100%;
  background:#fff;
  padding:12px;
@@ -420,6 +420,7 @@ function render(dt){
     if(facilityRows.length) h+=renderFacility(facilityRows);
   }
   q.innerHTML=h;
+  q.style.display='block';
   setupJASTools();
 
   if(rp){
