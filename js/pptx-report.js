@@ -451,63 +451,45 @@
     var rows=[head];
     (dataRows||[]).forEach(function(r){ rows.push(idx.map(function(i){return clean(r[i]);})); });
     if(totalRow) rows.push(idx.map(function(i){return clean(totalRow[i]);}));
-    if(rows.length<=1) return;
+    if(rows.length<=1) return slide;
 
     var x=0.34, w=12.66, y=1.10;
     var dataCount=Math.max(1,rows.length-1-(totalRow?1:0));
     var headerH=0.70;
-    var dataH=Math.min(0.48, Math.max(0.38,(5.55-headerH-Math.max(0,(totalRow?1:0)*0.48))/dataCount));
+    var dataH=Math.min(0.48,Math.max(0.38,(5.55-headerH-(totalRow?0.48:0))/dataCount));
+
+    var colW=part==='enroll'
+      ? [2.65,1.55,1.55,1.55,1.20,1.45,1.35]
+      : [2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
+    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum;
+    colW=colW.map(function(v){return v*scale;});
+
     var yy=y;
-
-    var colW;
-    if(part==='enroll') colW=[2.65,1.55,1.55,1.55,1.20,1.45,1.35];
-    else colW=[2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
-    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum; colW=colW.map(function(v){return v*scale;});
-
     rows.forEach(function(row,ri){
-      var rowH=ri===0?headerH:dataH;
-      var xx=x;
+      var rowH=ri===0?headerH:dataH, xx=x;
       row.forEach(function(v,ci){
-        var fill=ri===0?'075985':(ri===rows.length-1 && totalRow?'073B75':(ri%2?'FFFFFF':'F8FBFF'));
+        var fill=ri===0?'075985':(ri===rows.length-1&&totalRow?'073B75':(ri%2?'FFFFFF':'F8FBFF'));
         slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
-        var isPct = /%/.test(head[ci]) || /percent/i.test(head[ci]);
+        var isPct=/%/.test(head[ci])||/percent/i.test(head[ci]);
         var txtColor=ri===0||ri===rows.length-1&&totalRow?'FFFFFF':'172033';
-
-        if(ri===0){
-          slide.addText(String(v||''),{
-            x:xx+0.035,y:yy+0.045,w:colW[ci]-0.07,h:rowH-0.09,
-            fontSize:Math.max(10.5,Math.min(12.5,rowH*17)),
-            bold:true,color:txtColor,align:'center',valign:'mid',
-            margin:0.01,fit:'shrink',breakLine:false
-          });
-        } else {
-          var fs=Math.max(11,Math.min(14,rowH*30));
-          slide.addText(String(v||''),{
-            x:xx+0.035,y:yy+0.045,w:colW[ci]-0.07,h:rowH-0.09,
-            fontSize:fs,bold=(ri===rows.length-1&&totalRow)||ci===0,
-            color:txtColor,align:ci===0?'left':'center',valign:'mid',
-            margin:0,fit:'shrink'
-          });
-          if(!(ri===rows.length-1&&totalRow) && isPct && v!==''){
-            var n=number(String(v).replace('%',''));
-            var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
-            var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
-            slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
-            slide.addText(String(v),{
-              x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,
-              fontSize:Math.max(10,Math.min(13,fs)),bold:true,color:pc,
-              align:'center',margin:0,fit:'shrink'
-            });
-          }
+        slide.addText(String(v||''),{
+          x:xx+0.035,y:yy+0.04,w:colW[ci]-0.07,h:rowH-0.08,
+          fontSize:ri===0?11.5:Math.max(11,Math.min(14,dataH*30)),
+          bold:ri===0||ri===rows.length-1&&totalRow||ci===0,
+          color:txtColor,align:ci===0?'left':'center',valign:'mid',margin:0.01,fit:'shrink',breakLine:false
+        });
+        if(ri>0&&!(ri===rows.length-1&&totalRow)&&isPct&&v!==''){
+          var n=number(String(v).replace('%',''));
+          var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
+          var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
+          slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
+          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(10,Math.min(13,dataH*30)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
         }
         xx+=colW[ci];
       });
       yy+=rowH;
     });
-
-    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]),{
-      x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0
-    });
+    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]),{x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0});
     return slide;
   }
 
@@ -544,20 +526,48 @@
     'Turekela':['BAKELI','DUMARBHANTHA','HALAHULI','MAHUAPALI','MAKRI','TELIKOT','TUREKELA']
   };
 
-  function ncdFacilityName(row){
-    return clean(row && row[0]).toUpperCase().replace(/\\s+/g,' ').trim();
+  function ncdNorm(v){
+    return clean(v).toUpperCase()
+      .replace(/[^A-Z0-9]+/g,' ')
+      .replace(/\b(SUBCENTER|SUB CENTRE|HEALTH FACILITY|FACILITY|SC)\b/g,' ')
+      .replace(/\s+/g,' ').trim();
+  }
+
+  function ncdMatches(rowValue,target){
+    var a=ncdNorm(rowValue), b=ncdNorm(target);
+    return a===b || a.indexOf(b)>=0 || b.indexOf(a)>=0;
   }
 
   function ncdFacilityGroups(rows){
-    var by={};
-    Object.keys(NCD_SECTOR_FACILITY_ORDER).forEach(function(s){by[s]=[  async function addNCDPresentation(pptx) {
+    var by={}, used={};
+    Object.keys(NCD_SECTOR_FACILITY_ORDER).forEach(function(s){by[s]=[];});
+    Object.keys(NCD_SECTOR_FACILITY_ORDER).forEach(function(sector){
+      NCD_SECTOR_FACILITY_ORDER[sector].forEach(function(target){
+        for(var i=0;i<rows.length;i++){
+          if(used[i]) continue;
+          if(ncdMatches(rows[i]&&rows[i][0],target)){
+            by[sector].push(rows[i]);
+            used[i]=true;
+            break;
+          }
+        }
+      });
+    });
+    var other=[];
+    rows.forEach(function(r,i){
+      if(!used[i] && r && r.some(function(v){return clean(v)!=='';})) other.push(r);
+    });
+    if(other.length) by['Other Facilities']=other;
+    return by;
+  }
+
+  async function addNCDPresentation(pptx) {
     var rs=await queryNCDSheet();
     window.__ncdRawRows=rs;
-    var titleIdx=-1, nextTitle=rs.length;
+    var titleIdx=-1,nextTitle=rs.length;
     for(var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {titleIdx=i;break;}
     if(titleIdx<0) titleIdx=0;
     for(var j=titleIdx+1;j<rs.length;j++) if(ncdIsTitle(rs[j])) {nextTitle=j;break;}
-    var headers=[];
     var h1=-1,h2=-1;
     for(var k=titleIdx+1;k<nextTitle;k++) if(ncdIsHeader(rs[k])) {h1=k;break;}
     for(var m=nextTitle+1;m<rs.length;m++) if(ncdIsHeader(rs[m])) {h2=m;break;}
@@ -573,7 +583,7 @@
       var name=part==='enroll'?'Enrollment & ABHA':part==='htn'?'Hypertension (HTN)':'Diabetes Mellitus (DM)';
       addNCDTableSlide(pptx,name+' — Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
 
-      // Barra + Jobi + Gorpar stay together on one full-page slide.
+      // Exact requested grouping: Barra + Jobi + Gorpar on one slide.
       var combined=(grouped['Barra']||[]).concat(grouped['Jobi']||[],grouped['Gorpar']||[]);
       if(combined.length) addNCDTableSlide(pptx,name+' — Facility Wise | Barra • Jobi • Gorpar','FACILITY WISE DATA | FY 2026–27',fl,combined,null,part);
 
@@ -581,17 +591,6 @@
         var data=grouped[sectorName]||[];
         if(data.length) addNCDTableSlide(pptx,name+' — Facility Wise | '+sectorName,'FACILITY WISE DATA | FY 2026–27',fl,data,null,part);
       });
-    });
-    return true;
-  }
- Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
-      var pageSize=8;
-      for(var p=0;p<facility.data.length;p+=pageSize){
-        var chunk=facility.data.slice(p,p+pageSize);
-        var partTitle=name+' — Facility Wise';
-        if(facility.data.length>pageSize) partTitle+=' ('+(Math.floor(p/pageSize)+1)+'/'+Math.ceil(facility.data.length/pageSize)+')';
-        addNCDTableSlide(pptx,partTitle,'FACILITY WISE DATA | FY 2026–27',fl,chunk,null,part);
-      }
     });
     return true;
   }
