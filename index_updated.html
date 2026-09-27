@@ -1792,6 +1792,8 @@ function loadGoogleSheet(gid){
     typeof window.renderJASFromData==="function"
    ){
 
+    window.__jasNativeData = currentData;
+
     window.renderJASFromData(
      currentData
     );
@@ -1816,6 +1818,42 @@ function loadGoogleSheet(gid){
  );
 
 }
+
+
+/* =====================================================
+   JAS PPTX NATIVE DATA BRIDGE
+===================================================== */
+window.__loadJASForPPTX = function(){
+  return new Promise(function(resolve){
+    if(!window.google || !window.google.visualization || !window.google.visualization.Query){
+      resolve(null);
+      return;
+    }
+    const q = new google.visualization.Query(
+      "https://docs.google.com/spreadsheets/d/" +
+      SPREADSHEET_ID +
+      "/gviz/tq?gid=1018164338&headers=0"
+    );
+    q.setQuery("select *");
+    q.send(function(response){
+      if(response.isError()){
+        console.error("JAS PPTX native load error:", response.getMessage());
+        resolve(null);
+        return;
+      }
+      try{
+        window.__jasNativeData = response.getDataTable();
+        if(typeof window.renderJASFromData==="function"){
+          window.renderJASFromData(window.__jasNativeData);
+        }
+        resolve(window.__jasPptxData || null);
+      }catch(e){
+        console.error("JAS PPTX native parse error:", e);
+        resolve(null);
+      }
+    });
+  });
+};
 
 
 /* =====================================================
