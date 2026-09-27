@@ -264,7 +264,22 @@ function renderFacility(rows){
 }
 
 function renderSummary(sectorRows,facilityRows){
-  return '';
+  const sectors=sectorRows.filter(r=>clean(r[1]));
+  const facilities=facilityRows.filter(r=>clean(r[3]));
+  const target=sectors.length
+    ? sectors.reduce((s,r)=>s+num(r[4]),0)
+    : facilities.reduce((s,r)=>s+num(r[4]),0);
+  const achievement=sectors.length
+    ? sectors.reduce((s,r)=>s+num(r[5]),0)
+    : facilities.reduce((s,r)=>s+num(r[5]),0);
+  const overall=target?((achievement/target)*100):0;
+  return '<div class="jas-summary">'+
+    '<div class="jas-card"><b>SECTORS</b><strong>'+sectors.length+'</strong></div>'+
+    '<div class="jas-card"><b>FACILITIES</b><strong>'+facilities.length+'</strong></div>'+
+    '<div class="jas-card"><b>TARGET</b><strong>'+target+'</strong></div>'+
+    '<div class="jas-card"><b>ACHIEVEMENT</b><strong>'+achievement+'</strong></div>'+
+    '<div class="jas-card"><b>OVERALL %</b><strong>'+overall.toFixed(1)+'%</strong></div>'+
+  '</div>';
 }
 
 function buildSectorRowsFromFacilities(facilityRows){
@@ -351,6 +366,7 @@ function render(dt){
 
   const title=findTitle(a);
   let h='<div class="jas-title">'+esc(title)+'</div>';
+  h+=renderSummary(sectorRows,facilityRows);
   if(!sectorRows.length && !facilityRows.length){
     h+='<div class="jas-empty">JAS Meeting data नहीं मिला। Google Sheet की पहली 7 columns में सही header check करें।</div>';
   }else{
