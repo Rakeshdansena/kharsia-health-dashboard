@@ -1788,15 +1788,23 @@ function loadGoogleSheet(gid){
    }
 
    else if(
-    report.name==="Ayushman Shivir" &&
-    typeof window.renderAyushmanShivirFromData==="function"
+    report.name==="Ayushman Shivir"
    ){
 
     window.__ayushmanShivirActive=true;
 
-    window.renderAyushmanShivirFromData(
-     currentData
-    );
+    if(typeof window.renderAyushmanShivirFromData==="function"){
+      window.renderAyushmanShivirFromData(currentData);
+    }else{
+      setStatus("Ayushman Shivir renderer load हो रहा है...");
+      setTimeout(function(){
+        if(typeof window.renderAyushmanShivirFromData==="function"){
+          window.renderAyushmanShivirFromData(currentData);
+        }else{
+          setStatus("Ayushman Shivir renderer load नहीं हुआ।","error");
+        }
+      },300);
+    }
 
    }
 
@@ -4612,7 +4620,7 @@ function startPPTXGeneration(){
   if(!s){
     s=document.createElement('script');
     s.id='pptx-report-script';
-    s.src='js/pptx-report.js?v=20260927-pptx-final-13';
+    s.src='js/pptx-report.js?v=20260927-pptx-final-16';
     s.onload=run;
     s.onerror=function(){
       if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
@@ -4634,7 +4642,8 @@ function startPPTXGeneration(){
   }
 }
 </script>
-<script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-13"></script>
+<script id="ayushman-shivir-live-fix-script" src="js/ayushman-shivir-live-fix.js?v=20260927-shivir-color-02"></script>
+<script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-16"></script>
 <script src="js/ncd.js"></script>
 </body>
 </html>
