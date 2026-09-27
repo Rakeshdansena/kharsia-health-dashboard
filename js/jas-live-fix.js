@@ -354,9 +354,9 @@ function render(dt){
   if(!sectorRows.length && !facilityRows.length){
     h+='<div class="jas-empty">JAS Meeting data नहीं मिला। Google Sheet की पहली 7 columns में सही header check करें।</div>';
   }else{
-    // Source layout: Facility Wise first, Sector Wise second.
-    if(facilityRows.length) h+=renderFacility(facilityRows);
+    // Required layout: Sector Wise first, Facility Wise second.
     if(sectorRows.length) h+=renderSector(sectorRows);
+    if(facilityRows.length) h+=renderFacility(facilityRows);
   }
   q.innerHTML=h;
 
