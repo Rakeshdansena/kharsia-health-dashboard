@@ -610,7 +610,7 @@
         for(var i=0;i<rows.length;i++){
           if(used[i]) continue;
           var rowN = ncdNormalizeFacility(rows[i] && rows[i][0]);
-          if(NCD_EXCLUDED_FACILITIES[rowN]) { used[i]=true; continue; }
+          if(NCD_EXCLUDED_FACILITIES[rowN] || rowN.indexOf('CHAPLE') === 0) { used[i]=true; continue; }
 
           // Exact match after removing SHC/punctuation, plus the two spelling variants
           // present in the user's mapping.
@@ -634,7 +634,7 @@
     var other=[];
     rows.forEach(function(row,i){
       var rn=ncdNormalizeFacility(row && row[0]);
-      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
+      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && rn.indexOf('CHAPLE') !== 0 && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
     });
     if(other.length) groups['Other Facilities']=other;
     return groups;
@@ -788,7 +788,6 @@
           '<g><rect x="685" y="706" width="116" height="76" rx="16" fill="#ffe0cf"/><text x="743" y="750" fill="#c2410c">Ayushman Shivir</text></g>' +
           '<g><rect x="813" y="706" width="116" height="76" rx="16" fill="#f6d7ff"/><text x="871" y="750" fill="#7e22ce">Wellness Activity</text></g>' +
           '<g><rect x="941" y="706" width="116" height="76" rx="16" fill="#e2dcff"/><text x="999" y="750" fill="#4338ca">RBSK</text></g>' +
-          '<g><rect x="1069" y="706" width="116" height="76" rx="16" fill="#d9efff"/><text x="1127" y="750" fill="#075985">Dialysis</text></g>' +
           '<g><rect x="1197" y="706" width="116" height="76" rx="16" fill="#efffbf"/><text x="1255" y="750" fill="#3f6212">Blindness</text></g>' +
           '<g><rect x="1325" y="706" width="116" height="76" rx="16" fill="#fff1b8"/><text x="1383" y="750" fill="#854d0e">NQAS</text></g>' +
           '<g><rect x="1453" y="706" width="116" height="76" rx="16" fill="#d9f7fb"/><text x="1511" y="750" fill="#155e75">NLEP</text></g>' +
@@ -1043,12 +1042,12 @@
           var totalVals = [sectorName.toUpperCase() + ' TOTAL', sectorTotal.hmis, sectorTotal.rch, sectorPct + '%', sectorTotal.backlog, sectorTotal.highRisk];
           cx = tx;
           totalVals.forEach(function(v,i) {
-            var fillColor = i === 3 ? (sectorPct >= 90 ? '16A34A' : (sectorPct >= 70 ? 'F59E0B' : 'DC2626')) : '073B75';
-            slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:'073B75'},line:{color:'FFFFFF',pt:1}});
+            var fillColor = i === 3 ? (sectorPct >= 90 ? '16A34A' : (sectorPct >= 70 ? 'F59E0B' : 'DC2626')) : '0F766E';
+            slide.addShape('rect',{x:cx,y:currentY,w:widths[i],h:rowH,fill:{color:'0F766E'},line:{color:'FFFFFF',pt:1.2}});
             slide.addText(String(v),{
               x:cx+0.04,y:currentY+rowH*0.29,w:widths[i]-0.08,h:rowH*0.34,
               fontSize:Math.max(9,Math.min(14,rowH*34)),bold:true,
-              color:i===3 ? 'FFFFFF' : 'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'
+              color:'FFFFFF',align:i===0?'left':'center',margin:0,fit:'shrink'
             });
             if (i === 3) {
               slide.addShape('roundRect',{x:cx+0.18,y:currentY+rowH*0.13,w:widths[i]-0.36,h:rowH*0.70,fill:{color:fillColor},line:{color:'FFFFFF',pt:0.8}});
@@ -1189,7 +1188,6 @@
         {name:'NRC Kharsia', icon:'N', color:'#16A34A', fill:'#DCFCE7'},
         {name:'Blindness Control', icon:'E', color:'#CA8A04', fill:'#FEF9C3'},
         {name:'NQAS Certification', icon:'Q', color:'#EA580C', fill:'#FFEDD5'},
-        {name:'Dialysis', icon:'D', color:'#DB2777', fill:'#FCE7F3'},
       ];
 
       var indexItems = desiredModules.map(function(dm) {
