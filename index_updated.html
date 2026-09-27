@@ -1784,6 +1784,17 @@ function loadGoogleSheet(gid){
 
    }
 
+   else if(
+    report.name==="JAS Meeting" &&
+    typeof window.renderJASFromData==="function"
+   ){
+
+    window.renderJASFromData(
+     currentData
+    );
+
+   }
+
    else{
 
     renderNormalTable(
