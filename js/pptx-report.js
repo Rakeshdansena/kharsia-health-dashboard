@@ -1032,10 +1032,29 @@
     return slide;
   }
 
-  async function addJASPresentation(pptx){
-    var rs=await queryJASSheet();
-    var title=jasTitle(rs);
-    var parsed=getJASRows(rs);
+  async async function addJASPresentation(pptx){
+    var live=null;
+
+    // First use the exact data already parsed by the dashboard's JAS module.
+    if(typeof window.getJASPresentationData==='function'){
+      live=await window.getJASPresentationData();
+    }else if(window.__jasPptxData){
+      live=window.__jasPptxData;
+    }
+
+    var title=live && live.title ? live.title : '';
+    var parsed={
+      sector:(live && live.sector)||[],
+      facility:(live && live.facility)||[]
+    };
+
+    // Last-resort fallback for environments where the live JAS bridge is unavailable.
+    if(!parsed.sector.length && !parsed.facility.length){
+      var rs=await queryJASSheet();
+      title=jasTitle(rs);
+      parsed=getJASRows(rs);
+    }
+
     if(!parsed.sector.length && !parsed.facility.length) throw new Error('JAS Meeting में कोई data नहीं मिला।');
 
     var start=pptx.slides.length+1;
@@ -1513,12 +1532,16 @@ async function generate() {
         var progress = 91 + Math.round((mi / Math.max(otherModules.length,1)) * 4);
         showProgress('Module report ' + (mi + 1) + '/' + otherModules.length, progress, mod.name + ' का live data और color chart तैयार हो रहा है...');
         var moduleStart = pptx.slides.length + 2;
-        var genericData = await queryGenericSheet(mod.gid);
-        if (mod.name === 'NCD') { await addNCDPresentation(pptx); }
+        if (mod.name === 'NCD') {
+          await addNCDPresentation(pptx);
+        }
         else if (mod.name === 'JAS Meeting') {
           var jasRange = await addJASPresentation(pptx);
           moduleRanges.push({ name:'JAS Meeting', start:jasRange.start, end:jasRange.end });
-        } else { addGenericModuleSlide(pptx, mod, genericData, mi); }
+        } else {
+          var genericData = await queryGenericSheet(mod.gid);
+          addGenericModuleSlide(pptx, mod, genericData, mi);
+        }
         var moduleEnd = pptx.slides.length + 1;
         if (moduleEnd >= moduleStart) {
           moduleRanges.push({ name: mod.name, start: moduleStart, end: moduleEnd });
