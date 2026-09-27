@@ -1279,37 +1279,59 @@
 
   function parseAyushmanShivirRows(rs) {
     var sector=[], facility=[];
+
+    function isNum(v){
+      var t=clean(v).replace(/,/g,'').replace(/%/g,'').trim();
+      return t !== '' && isFinite(Number(t));
+    }
+
     for(var i=0;i<rs.length;i++){
       var r=rs[i]||[];
-      var sn=clean(r[0]);
-      if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
-      if(!clean(r[2]) || !shivirPptxNum(r[4]) && !shivirPptxNum(r[5])) continue;
-      if(shivirIsTotal(r)) continue;
+      while(r.length<9) r.push('');
 
-      // Sector row: column 4 is No. of Facility.
-      if(shivirPptxNum(r[3])>0 && !/[%a-z]/i.test(clean(r[3]))){
-        sector.push(r.slice(0,9));
-      }
-      // Facility row: column 4 contains a facility name.
-      else if(clean(r[3])){
+      var sn=clean(r[0]);
+      var nin=clean(r[1]);
+      var sec=clean(r[2]);
+      var fac=clean(r[3]);
+      var target=shivirPptxNum(r[4]);
+      var report=shivirPptxNum(r[5]);
+
+      // Ignore title/header/separator rows. Keep the parser tolerant of
+      // NIN IDs being text/non-numeric, since the live dashboard accepts them.
+      if(!isNum(sn)) continue;
+      if(!sec) continue;
+      if(shivirIsTotal(r)) continue;
+      if(!isNum(r[4]) && !isNum(r[5])) continue;
+
+      // Facility row: facility name is present in column 4.
+      if(fac){
         facility.push(r.slice(0,9));
+        continue;
+      }
+
+      // Sector row: column 4 is the facility count.
+      if(isNum(r[3])){
+        sector.push(r.slice(0,9));
+        continue;
       }
     }
 
-    // Remove accidental duplicates while preserving source order.
     function uniq(rows,keyIndex){
       var seen={}, out=[];
       rows.forEach(function(r){
         var k=clean(r[keyIndex]||'').toLowerCase();
         if(!k || seen[k]) return;
-        seen[k]=true; out.push(r);
+        seen[k]=true;
+        out.push(r);
       });
       return out;
     }
-    sector=uniq(sector,2);
-    facility=uniq(facility,3);
 
-    // If no explicit sector rows exist, derive sector totals from facilities.
+    facility=uniq(facility,3);
+    sector=uniq(sector,2);
+
+    // Prefer explicit sector rows. If the sheet only contains facility rows,
+    // derive sector totals from the facility data.
     if(!sector.length && facility.length){
       var map={};
       facility.forEach(function(r){
@@ -1330,6 +1352,7 @@
         ]);
       });
     }
+
     return {sector:sector,facility:facility};
   }
 
