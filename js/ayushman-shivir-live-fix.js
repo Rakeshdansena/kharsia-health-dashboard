@@ -24,6 +24,35 @@ function facility(r){return /^\d+$/.test(v(r[0]))&&/^\d{8,}$/.test(v(r[1]))&&v(r
 function sector(r){return /^\d+$/.test(v(r[0]))&&v(r[2])&&/^\d+$/.test(v(r[3]))}
 function isTotal(r){return v(r[0]).toLowerCase()==='total'||v(r[3]).toLowerCase()==='total'||v(r[2]).toLowerCase()==='total'}
 function makeTotal(rows,isSector){const valid=rows.filter(r=>!isTotal(r));const target=valid.reduce((a,r)=>a+num(r[4]),0);const rep=valid.reduce((a,r)=>a+num(r[5]),0);const foot=valid.reduce((a,r)=>a+num(r[7]),0);const pct=target?Math.round(rep/target*100)+'%':'0%';const avg=rep?Math.round(foot/rep):0;if(isSector){const facilities=valid.reduce((a,r)=>a+num(r[3]),0);return ['Total','','Total',String(facilities),String(target),String(rep),pct,String(foot),String(avg)]}return ['Total','','','',''+target,''+rep,pct,''+foot,''+avg]}
+function shivirScale(value,min,max){
+ const n=num(value);
+ if(max<=min) return {bg:'#FEF3C7',fg:'#92400E'};
+ const t=Math.max(0,Math.min(1,(n-min)/(max-min)));
+ // Red -> Yellow -> Green continuous scale.
+ let r,g,b;
+ if(t<=0.5){
+   const q=t*2;
+   r=220+(255-220)*q;
+   g=38+(193-38)*q;
+   b=38+(7-38)*q;
+ }else{
+   const q=(t-0.5)*2;
+   r=255+(22-255)*q;
+   g=193+(163-193)*q;
+   b=7+(74-7)*q;
+ }
+ return {
+   bg:'rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')',
+   fg:t>0.62?'#FFFFFF':'#172033'
+ };
+}
+function pctScale(value){
+ const n=num(value);
+ if(n>=100) return {bg:'#16A34A',fg:'#FFFFFF'};
+ if(n>=90) return {bg:'#FACC15',fg:'#172033'};
+ if(n>0) return {bg:'#FCA5A5',fg:'#7F1D1D'};
+ return {bg:'#FEE2E2',fg:'#991B1B'};
+}
 function box(title,heads,data,isSector){
  const b=document.createElement('section');b.className='shivir-box';
  const h=document.createElement('h3');h.className='shivir-title';h.textContent=title;b.appendChild(h);
@@ -32,11 +61,79 @@ function box(title,heads,data,isSector){
  const hr=document.createElement('tr');heads.slice(0,COLS).forEach(x=>{const e=document.createElement('th');e.textContent=x;hr.appendChild(e)});
  const thead=document.createElement('thead');thead.appendChild(hr);t.appendChild(thead);
  const tb=document.createElement('tbody');
- data.filter(r=>!isTotal(r)).forEach(r=>{const tr=document.createElement('tr');for(let i=0;i<COLS;i++){const td=document.createElement('td');td.textContent=v(r[i]);if(i===6)td.className='shivir-pct';tr.appendChild(td)}tb.appendChild(tr)});
- const totalRow=makeTotal(data,isSector);const tr=document.createElement('tr');tr.className='shivir-total';
- for(let i=0;i<COLS;i++){const td=document.createElement('td');td.textContent=v(totalRow[i]);if(i===6)td.className='shivir-pct';tr.appendChild(td)}
- tb.appendChild(tr);t.appendChild(tb);w.appendChild(t);b.appendChild(w);return b
+ const cleanRows=data.filter(r=>!isTotal(r));
+ const avgVals=cleanRows.map(r=>num(r[8])).filter(n=>n>0);
+ const avgMin=avgVals.length?Math.min.apply(null,avgVals):0;
+ const avgMax=avgVals.length?Math.max.apply(null,avgVals):0;
+
+ cleanRows.forEach(r=>{
+   const tr=document.createElement('tr');
+   for(let i=0;i<COLS;i++){
+     const td=document.createElement('td');
+     td.textContent=v(r[i]);
+
+     if(i===6){
+       td.className='shivir-pct';
+       const sc=pctScale(r[i]);
+       td.style.background=sc.bg;
+       td.style.color=sc.fg;
+       td.style.fontWeight='800';
+     }
+
+     if(i===8){
+       const sc=shivirScale(r[i],avgMin,avgMax);
+       td.className='shivir-avg';
+       td.style.background=sc.bg;
+       td.style.color=sc.fg;
+       td.style.fontWeight='800';
+     }
+
+     tr.appendChild(td);
+   }
+   tb.appendChild(tr);
+ });
+
+ const totalRow=makeTotal(data,isSector);
+ const tr=document.createElement('tr');tr.className='shivir-total';
+ const totalAvg=num(totalRow[8]);
+
+ for(let i=0;i<COLS;i++){
+   const td=document.createElement('td');
+   td.textContent=v(totalRow[i]);
+
+   if(i===6){
+     td.className='shivir-pct';
+     const sc=pctScale(totalRow[i]);
+     td.style.background=sc.bg;
+     td.style.color=sc.fg;
+     td.style.fontWeight='900';
+   }
+
+   if(i===8){
+     const sc=shivirScale(totalAvg,avgMin,avgMax);
+     td.className='shivir-avg';
+     td.style.background=sc.bg;
+     td.style.color=sc.fg;
+     td.style.fontWeight='900';
+   }
+
+   tr.appendChild(td);
+ }
+ tb.appendChild(tr);
+
+ t.appendChild(tb);w.appendChild(t);b.appendChild(w);
+
+ const legend=document.createElement('div');
+ legend.className='shivir-scale-legend';
+ legend.innerHTML=
+   '<span><i style="background:#FCA5A5"></i>Low</span>'+
+   '<span><i style="background:#FACC15"></i>Medium</span>'+
+   '<span><i style="background:#16A34A"></i>High</span>';
+ b.appendChild(legend);
+
+ return b
 }
+
 function summary(f){
  let target=0,rep=0,foot=0;
  f.filter(r=>!isTotal(r)).forEach(r=>{target+=num(r[4]);rep+=num(r[5]);foot+=num(r[7])});
@@ -82,5 +179,8 @@ window.renderAyushmanShivirFromData=render;
 window.__ayushmanShivirActive=false;hookModuleSelection();setInterval(()=>{hookModuleSelection();clearWhenLeavingShivir()},500);
 const css=document.createElement('style');
 css.textContent='.shivir-page-heading{text-align:center;margin:10px 0 16px;padding:4px 8px}.shivir-page-heading .eyebrow{font-size:22px;font-weight:800;color:#075985}.shivir-page-heading .subheading{font-size:18px;font-weight:800;color:#334155;margin-top:4px}.shivir-final{display:block!important}.shivir-summary{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin:0 0 18px}.shivir-card{background:#fff;border:1px solid #dbe3ec;border-radius:12px;padding:10px;text-align:center}.shivir-card span{display:block;font-size:11px;color:#64748b}.shivir-card strong{display:block;font-size:21px;color:#075985;margin-top:4px}.shivir-box{background:#fff;border-radius:12px;padding:10px;margin-bottom:18px}.shivir-title{text-align:center;color:#075985;font-size:18px;font-weight:800;margin:5px}.shivir-wrap{width:100%;overflow-x:auto}.shivir-table{width:100%;min-width:900px;border-collapse:collapse;font-size:13px}.shivir-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:8px;text-align:center}.shivir-table td{border:1px solid #cbd5e1;padding:7px;text-align:center;white-space:nowrap}.shivir-pct{font-weight:800}.shivir-total{font-weight:800;background:#dbeafe!important}@media(max-width:800px){.shivir-summary{grid-template-columns:repeat(2,1fr)}.shivir-page-heading .eyebrow{font-size:18px}.shivir-page-heading .subheading{font-size:15px}}';
+css.textContent += '
+.shivir-scale-legend{display:flex;justify-content:flex-end;gap:14px;margin-top:7px;font-size:11px;color:#64748b}.shivir-scale-legend span{display:flex;align-items:center;gap:4px}.shivir-scale-legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+';
 document.head.appendChild(css);
 })();
