@@ -505,7 +505,13 @@
   function ncdSectorTotalRow(rows, sectorName, sectorTotals) {
     var target=ncdNormalizeFacility(sectorName);
     var found=(sectorTotals||[]).find(function(r){return ncdNormalizeFacility(r&&r[0])===target;});
-    if(found) return found;
+    if(found) {
+      // Always mark the row explicitly as a Sector Total so the PPT renderer
+      // can apply the dark-teal total-row styling.
+      var foundOut=found.slice ? found.slice() : Array.prototype.slice.call(found);
+      foundOut[0]=sectorName+' Total';
+      return foundOut;
+    }
     var out=new Array(25).fill('');
     out[0]=sectorName+' Total';
     var numeric=[1,2,3,5,7,9,10,12,14,16,18,19,21,23];
