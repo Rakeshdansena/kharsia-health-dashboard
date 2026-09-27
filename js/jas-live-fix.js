@@ -359,6 +359,8 @@ function load(){
   });
 }
 
+window.renderJASFromData=render;
+
 function openJAS(){
   const status=document.getElementById('status');
   if(status) status.style.display='none';
@@ -400,8 +402,7 @@ function hook(){
   window.openReport=function(i){
     const b=document.querySelectorAll('#menuButtons .menu-btn')[i];
     if(b && /jas meeting/i.test(b.textContent||'')){
-      openJAS();
-      return;
+      return old.apply(this,arguments);
     }
     return old.apply(this,arguments);
   };
@@ -410,7 +411,11 @@ function hook(){
     if(b && /jas meeting/i.test(b.textContent||'')){
       e.preventDefault();
       e.stopImmediatePropagation();
-      openJAS();
+      const buttons=Array.from(document.querySelectorAll('#menuButtons .menu-btn'));
+      const idx=buttons.indexOf(b);
+      if(idx>=0 && typeof window.openReport==='function'){
+        window.openReport(idx);
+      }
     }
   },true);
 }
