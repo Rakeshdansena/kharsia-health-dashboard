@@ -2,16 +2,21 @@
 (function(){'use strict';
 const FALLBACK_TITLE='Ayushman Shivir Reporting FY 2026-27';
 const COLS=9;
-const FH=['Sn','NIN ID','Sector','Facility Name','Target Upto 18 August 2026','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
-const SH=['Sn','NIN ID','Sector','No. of Facility','Target Upto 18 August 2026','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
+const FH=['Sn','NIN ID','Sector','Facility Name','Target','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
+const SH=['Sn','NIN ID','Sector','No. of Facility','Target','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
 function v(x){return String(x==null?'':x).replace(/\s+/g,' ').trim()}
 function num(x){const n=Number(String(x??'').replace(/,/g,''));return Number.isFinite(n)?n:0}
 function getRows(d){const a=[];for(let r=0;r<d.getNumberOfRows();r++){const x=[];for(let c=0;c<Math.min(d.getNumberOfColumns(),COLS);c++)x.push(v(d.getFormattedValue(r,c)));a.push(x)}return a}
 function shivirHeaders(all,mode){
  const fallback=mode==='sector'?SH:FH;
  for(const row of all){
-   const text=row.map(v).join(' ').toLowerCase();
-   if(/target/.test(text)&&/shivir/.test(text)&&/footfall/.test(text)){
+   const cells=row.map(v).filter(Boolean);
+   const text=cells.join(' ').toLowerCase();
+   const isTarget=/target/.test(text);
+   const isReporting=/shivir\s*reporting/.test(text);
+   const isFootfall=/footfall/.test(text);
+   const isFacility=mode==='sector'?/no\.?\s*of\s*facility/.test(text):/facility\s*name/.test(text);
+   if(isTarget&&isReporting&&isFootfall&&isFacility){
      const out=[];
      for(let i=0;i<COLS;i++) out.push(v(row[i])||fallback[i]);
      return out;
@@ -19,6 +24,7 @@ function shivirHeaders(all,mode){
  }
  return fallback.slice();
 }
+
 function sheetTitle(all){
   if(!all.length)return FALLBACK_TITLE;
   for(const row of all){
@@ -60,23 +66,9 @@ function shivirScale(value,min,max){
 }
 function pctScale(value){
  const n=Math.max(0,Math.min(100,num(value)));
- const t=n/100;
- let r,g,b;
- if(t<=0.5){
-   const q=t*2;
-   r=220+(255-220)*q;
-   g=38+(193-38)*q;
-   b=38+(7-38)*q;
- }else{
-   const q=(t-0.5)*2;
-   r=255+(22-255)*q;
-   g=193+(163-193)*q;
-   b=7+(74-7)*q;
- }
- return {
-   bg:'rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')',
-   fg:n>=63?'#FFFFFF':'#111827'
- };
+ const hue=(n*1.2);
+ const light=n<50?78:68;
+ return {bg:'hsl('+hue+',85%,'+light+'%)',fg:'#111827'};
 }
 function box(title,heads,data,isSector){
  const b=document.createElement('section');b.className='shivir-box';
