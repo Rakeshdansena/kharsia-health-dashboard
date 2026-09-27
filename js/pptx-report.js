@@ -513,19 +513,24 @@
   }
 
   // Exact NCD Sector -> Facility mapping supplied by the user.
+  // Exact NCD Sector -> Facility mapping supplied by the user.
   var NCD_SECTOR_FACILITY_ORDER = {
-    'Barra':['BARRA','DEHJARI','FARKANARA'],
-    'Binjkot':['BADE DUMARPALI','BARBHAUNA','BHUPDEOPUR','BINJKOT','GURDA','LODHAJHAR','MURA','NAHARPALI','PAMGARH'],
-    'Gorpar':['GANDAPALI','GORPAR','KHADGAON'],
-    'Jobi':['KHAMHAR','NAGOI','NANDGAON'],
-    'Sarwani':['AURDA','BARGARH','BOTALDA','CHHOTE DEOGAON','MADANPUR','PARASKOL','SARWANI','TIUR'],
-    'Sondka':['BANIPATHAR','BASNAJHAR','GIDHA','JAIMURA','KUNKUNI','SONBARSA','SONDKA','TEMTEMA'],
-    'Turekela':['BAKELI','DUMARBHANTHA','HALAHULI','MAHUAPALI','MAKRI','TELIKOT','TUREKELA']
+    'Barra':['FARKANARA','BARRA','DEHJARI'],
+    'Binjkot':['BHUPDEOPUR','LODHAJHAR','PAMGARH','BADE DUMARPALI','BARBHAUNA','BINJKOT','GURDA','MURA','NAHARPALI'],
+    'Gorpar':['KHADGAON','GANDAPALI','GORPAR'],
+    'Jobi':['NAGOI','KHAMAR','NANDGAON'],
+    'Sarwani':['AURDA','BARGARH','PARASKOL','BOTALDA','CHHOTE DEOGAON','MADANPUR','SARWANI','TIUR'],
+    'Sondka':['BANIPATHAR','GIDHA','JAIMURA','BASNAJHAR','KUNKUNI','SONDAKA','SONBARSA','TEMTEMA'],
+    'Turekela':['BAKELI','MAHUAPALI','DUMARBHATA','HALAHULI','MAKARI','TELIKOT','TUREKELA']
   };
+
+  // Chaple is explicitly excluded from NCD Facility Wise reporting.
+  var NCD_EXCLUDED_FACILITIES = {'CHAPLE':true};
 
   function ncdNormalizeFacility(v) {
     return clean(v).toUpperCase()
       .replace(/[^A-Z0-9]+/g,' ')
+      .replace(/\b(SHC|SUBCENTER|SUB CENTRE|HEALTH FACILITY|FACILITY|SC)\b/g,' ')
       .replace(/\s+/g,' ')
       .trim();
   }
@@ -541,7 +546,17 @@
         for(var i=0;i<rows.length;i++){
           if(used[i]) continue;
           var rowN = ncdNormalizeFacility(rows[i] && rows[i][0]);
-          if(rowN === targetN){
+          if(NCD_EXCLUDED_FACILITIES[rowN]) { used[i]=true; continue; }
+
+          // Exact match after removing SHC/punctuation, plus the two spelling variants
+          // present in the user's mapping.
+          var match = rowN === targetN;
+          if(!match && ((rowN==='KHAMHAR' && targetN==='KHAMAR') || (rowN==='KHAMAR' && targetN==='KHAMHAR'))) match=true;
+          if(!match && ((rowN==='DUMARBHANTHA' && targetN==='DUMARBHATA') || (rowN==='DUMARBHATA' && targetN==='DUMARBHANTHA'))) match=true;
+          if(!match && ((rowN==='MAKRI' && targetN==='MAKARI') || (rowN==='MAKARI' && targetN==='MAKRI'))) match=true;
+          if(!match && ((rowN==='SONDKA' && targetN==='SONDAKA') || (rowN==='SONDAKA' && targetN==='SONDKA'))) match=true;
+
+          if(match){
             groups[sector].push(rows[i]);
             used[i]=true;
             break;
@@ -550,9 +565,12 @@
       });
     });
 
+    // Any unmatched facility is not silently assigned to a sector.
+    // It is shown only in Other Facilities, except Chaple which is excluded.
     var other=[];
     rows.forEach(function(row,i){
-      if(!used[i] && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
+      var rn=ncdNormalizeFacility(row && row[0]);
+      if(!used[i] && !NCD_EXCLUDED_FACILITIES[rn] && row && row.some(function(v){return clean(v)!=='';})) other.push(row);
     });
     if(other.length) groups['Other Facilities']=other;
     return groups;
