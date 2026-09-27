@@ -489,26 +489,10 @@ function hook(){
   if(window.__jasSectorHook) return;
   const old=window.openReport;
   if(typeof old!=='function') return;
+
+  // Do not intercept menu clicks. The dashboard's native openReport()
+  // must remain the single owner of module switching.
   window.__jasSectorHook=true;
-  window.openReport=function(i){
-    const b=document.querySelectorAll('#menuButtons .menu-btn')[i];
-    if(b && /jas meeting/i.test(b.textContent||'')){
-      return old.apply(this,arguments);
-    }
-    return old.apply(this,arguments);
-  };
-  document.addEventListener('click',e=>{
-    const b=e.target.closest('#menuButtons .menu-btn');
-    if(b && /jas meeting/i.test(b.textContent||'')){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const buttons=Array.from(document.querySelectorAll('#menuButtons .menu-btn'));
-      const idx=buttons.indexOf(b);
-      if(idx>=0 && typeof window.openReport==='function'){
-        window.openReport(idx);
-      }
-    }
-  },true);
 }
 
 css();
