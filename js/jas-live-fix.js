@@ -4,7 +4,7 @@
 
 const SID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
 const GID='1018164338';
-const TITLE_FALLBACK='Jan Arogya Samiti Meeting FY 2026-27 Till July 2026';
+const TITLE_FALLBACK='Jan Arogya Samiti Meeting FY 2026-27 Till August 2026';
 
 const clean=v=>String(v??'').trim();
 const num=v=>{
@@ -213,7 +213,7 @@ function renderSector(rows){
   let h='<div class="jas-section-title">Sector Wise</div>';
   h+='<div class="jas-page"><table class="jas-table"><thead><tr>'+
      '<th>SN</th><th>Sector</th><th>NIN</th><th>No of AAM Facility</th>'+
-     '<th>Target till July 26</th><th>Achievment</th><th>%</th></tr></thead><tbody>';
+     '<th>Target till Aug 26</th><th>Achievment</th><th>%</th></tr></thead><tbody>';
 
   let fac=0,target=0,ach=0;
   rows.forEach(v=>{
@@ -264,15 +264,7 @@ function renderFacility(rows){
 }
 
 function renderSummary(sectorRows,facilityRows){
-  const sT=sectorRows.reduce((a,v)=>a+num(v[4]),0), sA=sectorRows.reduce((a,v)=>a+num(v[5]),0);
-  const pct=sT?((sA/sT)*100):0;
-  return '<div class="jas-summary">'+
-    '<div class="jas-card"><b>SECTORS</b><strong>'+sectorRows.length+'</strong></div>'+
-    '<div class="jas-card"><b>FACILITIES</b><strong>'+facilityRows.length+'</strong></div>'+
-    '<div class="jas-card"><b>TARGET</b><strong>'+sT+'</strong></div>'+
-    '<div class="jas-card"><b>ACHIEVEMENT</b><strong>'+sA+'</strong></div>'+
-    '<div class="jas-card"><b>OVERALL %</b><strong class="'+pctClass(pct)+'">'+pct.toFixed(1)+'%</strong></div>'+
-  '</div>';
+  return '';
 }
 
 function buildSectorRowsFromFacilities(facilityRows){
@@ -359,12 +351,12 @@ function render(dt){
 
   const title=findTitle(a);
   let h='<div class="jas-title">'+esc(title)+'</div>';
-  h+=renderSummary(sectorRows,facilityRows);
   if(!sectorRows.length && !facilityRows.length){
     h+='<div class="jas-empty">JAS Meeting data नहीं मिला। Google Sheet की पहली 7 columns में सही header check करें।</div>';
   }else{
-    if(sectorRows.length) h+=renderSector(sectorRows);
+    // Source layout: Facility Wise first, Sector Wise second.
     if(facilityRows.length) h+=renderFacility(facilityRows);
+    if(sectorRows.length) h+=renderSector(sectorRows);
   }
   q.innerHTML=h;
 
