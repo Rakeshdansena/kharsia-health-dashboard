@@ -378,6 +378,174 @@
     });
   }
 
+
+  function queryNCDSheet() {
+    return new Promise(function(resolve, reject) {
+      var gid = '1254412412';
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + gid + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function(response) {
+        try {
+          if (response.isError()) throw new Error('NCD data load नहीं हुआ: ' + response.getMessage());
+          var dt = response.getDataTable(), rs = [];
+          for (var r=0;r<dt.getNumberOfRows();r++) {
+            var row=[];
+            for (var col=0;col<dt.getNumberOfColumns();col++) {
+              row.push(clean(dt.getFormattedValue(r,col) || dt.getValue(r,col) || ''));
+            }
+            rs.push(row);
+          }
+          resolve(rs);
+        } catch(e) { reject(e); }
+      });
+    });
+  }
+
+  function ncdIsTitle(r) {
+    return /NCD\s*status\s*2026-27/i.test((r||[]).join(' '));
+  }
+  function ncdIsHeader(r) {
+    return /subcenter|sector|facility|total\s+population|screening\s+target|enrollment\s*30|abha\s*link|estimated|under\s+treatment|follow.?up|under\s+control/i.test((r||[]).join(' ').toLowerCase());
+  }
+  function ncdIsTotal(r) {
+    return /^(total|योग|कुल)$/i.test(clean((r||[])[0]));
+  }
+  function ncdUpdated(rs) {
+    for (var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {
+      var t=clean(rs[i].join(' '));
+      return t || 'NCD Status 2026-27';
+    }
+    return 'NCD Status 2026-27';
+  }
+  function ncdRowsAfterHeader(rs, start, end) {
+    var data=[], total=null;
+    for(var i=start;i<end;i++) {
+      if(!rs[i] || !rs[i].some(function(v){return clean(v)!=='';})) continue;
+      if(ncdIsHeader(rs[i])) continue;
+      if(ncdIsTotal(rs[i])) { total=rs[i]; break; }
+      if(rs[i].length>=2) data.push(rs[i]);
+    }
+    return {data:data,total:total};
+  }
+  function ncdLabels(rs, hi, fallback) {
+    var labels=[];
+    for(var c=0;c<25;c++) labels[c]=clean((rs[hi]||[])[c]) || fallback[c] || ('Column '+(c+1));
+    return labels;
+  }
+
+  function addNCDTableSlide(pptx, title, subtitle, labels, dataRows, totalRow, part) {
+    var slide=pptx.addSlide();
+    addHeader(slide, '❤️ NCD — '+title, subtitle);
+    var idx = part==='enroll' ? [0,1,2,3,4,5,6] :
+              part==='htn' ? [0,7,8,9,10,11,12,13,14,15] :
+              [0,16,17,18,19,20,21,22,23,24];
+    var fallback = part==='enroll'
+      ? ['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %']
+      : part==='htn'
+      ? ['Sector / Facility','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %']
+      : ['Sector / Facility','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
+    var head = idx.map(function(i,k){ return clean((labels||[])[i]) || fallback[k]; });
+    var rows=[head];
+    (dataRows||[]).forEach(function(r){ rows.push(idx.map(function(i){return clean(r[i]);})); });
+    if(totalRow) rows.push(idx.map(function(i){return clean(totalRow[i]);}));
+    if(rows.length<=1) return;
+    var y=1.10, x=0.34, w=12.66;
+    var rowCount=rows.length, rowH=Math.max(0.30,Math.min(0.47,5.55/rowCount));
+    var colW;
+    if(part==='enroll') colW=[2.65,1.55,1.55,1.55,1.20,1.45,1.35];
+    else colW=[2.20,1.12,1.05,1.55,1.25,1.00,1.05,1.00,1.05,1.02];
+    var sum=colW.reduce(function(a,b){return a+b;},0), scale=w/sum; colW=colW.map(function(v){return v*scale;});
+    var yy=y;
+    rows.forEach(function(row,ri){
+      var xx=x;
+      row.forEach(function(v,ci){
+        var fill=ri===0?'075985':(ri===rows.length-1 && totalRow?'073B75':(ri%2?'FFFFFF':'F8FBFF'));
+        slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
+        var isPct = /%/.test(head[ci]) || /percent/i.test(head[ci]);
+        var txtColor=ri===0||ri===rows.length-1&&totalRow?'FFFFFF':'172033';
+        var fs=ri===0?Math.max(8.5,Math.min(11.5,rowH*25)):Math.max(8.5,Math.min(11,rowH*24));
+        slide.addText(String(v||''),{
+          x:xx+0.035,y:yy+rowH*0.23,w:colW[ci]-0.07,h:rowH*0.48,
+          fontSize:fs,bold:ri===0||ri===rows.length-1&&totalRow||ci===0,
+          color:txtColor,align:ci===0?'left':'center',valign:'mid',margin:0,fit:'shrink'
+        });
+        if(ri>0 && !(ri===rows.length-1&&totalRow) && isPct && v!==''){
+          var n=number(String(v).replace('%',''));
+          var pc=n>=80?'16A34A':(n>=50?'CA8A04':'DC2626');
+          var pf=n>=80?'DCFCE7':(n>=50?'FEF3C7':'FEE2E2');
+          slide.addShape('roundRect',{x:xx+0.12,y:yy+rowH*0.16,w:colW[ci]-0.24,h:rowH*0.68,fill:{color:pf},line:{color:pc,pt:0.7}});
+          slide.addText(String(v),{x:xx+0.12,y:yy+rowH*0.30,w:colW[ci]-0.24,h:rowH*0.30,fontSize:Math.max(8,Math.min(10,fs)),bold:true,color:pc,align:'center',margin:0,fit:'shrink'});
+        }
+        xx+=colW[ci];
+      });
+      yy+=rowH;
+    });
+    slide.addText('Source: live Google Sheet • '+ncdUpdated(window.__ncdRawRows||[]) ,{
+      x:0.38,y:6.82,w:10.5,h:0.18,fontSize:7.5,color:'64748B',margin:0
+    });
+    return slide;
+  }
+
+  function addNCDSummarySlide(pptx, labels, facilityTotal, sectorTotal, updated) {
+    var slide=pptx.addSlide();
+    addHeader(slide,'❤️ NCD — Summary Dashboard','NCD STATUS 2026–27');
+    addSectionTitle(slide,'LAST UPDATED',0.55,1.02,3.0);
+    slide.addText(updated,{x:0.55,y:1.42,w:12.1,h:0.35,fontSize:14,bold:true,color:'075985',margin:0,fit:'shrink'});
+    var row=sectorTotal||facilityTotal||[];
+    var cards=[
+      ['30+ Population',row[1]],['Screening Target',row[2]],['Enrollment 30+',row[3]],['Enrollment %',row[4]],
+      ['ABHA Link',row[5]],['ABHA Link %',row[6]],['HTN Screening',row[7]],['HTN Treatment',row[10]],
+      ['HTN Control',row[14]],['DM Screening',row[16]],['DM Treatment',row[19]],['DM Control',row[23]]
+    ];
+    cards.forEach(function(c,i){
+      var col=i%4, rr=Math.floor(i/4);
+      addCard(slide,0.55+col*3.15,1.98+rr*1.05,2.82,0.82,c[0],c[1]||'-');
+    });
+    addSectionTitle(slide,'NCD PRESENTATION',0.55,5.30,4.0);
+    slide.addText('Part 1 — Enrollment & ABHA\nPart 2 — Hypertension (HTN)\nPart 3 — Diabetes Mellitus (DM)\nSector Wise + Facility Wise data with percentage analysis',{
+      x:0.62,y:5.75,w:6.2,h:1.0,fontSize:16,bold:true,color:'172033',breakLine:false,fit:'shrink',margin:0
+    });
+    slide.addText('Source: live Google Sheet',{x:8.0,y:6.62,w:4.0,h:0.2,fontSize:9,color:'64748B',align:'right',margin:0});
+    return slide;
+  }
+
+  async function addNCDPresentation(pptx) {
+    var rs=await queryNCDSheet();
+    window.__ncdRawRows=rs;
+    var titleIdx=-1, nextTitle=rs.length;
+    for(var i=0;i<rs.length;i++) if(ncdIsTitle(rs[i])) {titleIdx=i;break;}
+    if(titleIdx<0) titleIdx=0;
+    for(var j=titleIdx+1;j<rs.length;j++) if(ncdIsTitle(rs[j])) {nextTitle=j;break;}
+    var headers=[];
+    var h1=-1,h2=-1;
+    for(var k=titleIdx+1;k<nextTitle;k++) if(ncdIsHeader(rs[k])) {h1=k;break;}
+    for(var m=nextTitle+1;m<rs.length;m++) if(ncdIsHeader(rs[m])) {h2=m;break;}
+    if(h1<0) throw new Error('NCD Facility Wise header नहीं मिला।');
+    if(h2<0) h2=rs.length;
+    var facility=ncdRowsAfterHeader(rs,h1+1,nextTitle);
+    var sector=ncdRowsAfterHeader(rs,h2+1,rs.length);
+    var fallback=['Sector / Facility','30+ Population','Screening Target','Enrollment 30+','Enrollment %','ABHA Link','ABHA Link %','HTN Screening','HTN Screening %','Estimated Hypertensive Patient','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %','DM Screening','DM Screening %','Estimated Diabetes Patients','Under Treatment','Treatment %','Follow-up','Follow-up %','Under Control','Control %'];
+    var fl=ncdLabels(rs,h1,fallback), sl=ncdLabels(rs,Math.min(h2,rs.length-1),fallback);
+    var updated=ncdUpdated(rs);
+    addNCDSummarySlide(pptx,fl,facility.total,sector.total,updated);
+
+    ['enroll','htn','dm'].forEach(function(part){
+      var name=part==='enroll'?'Enrollment & ABHA':part==='htn'?'Hypertension (HTN)':'Diabetes Mellitus (DM)';
+      addNCDTableSlide(pptx,name+' — Sector Wise','SECTOR WISE DATA | FY 2026–27',sl,sector.data,sector.total,part);
+      var pageSize=11;
+      for(var p=0;p<facility.data.length;p+=pageSize){
+        var chunk=facility.data.slice(p,p+pageSize);
+        var partTitle=name+' — Facility Wise';
+        if(facility.data.length>pageSize) partTitle+=' ('+(Math.floor(p/pageSize)+1)+'/'+Math.ceil(facility.data.length/pageSize)+')';
+        addNCDTableSlide(pptx,partTitle,'FACILITY WISE DATA | FY 2026–27',fl,chunk,null,part);
+      }
+    });
+    return true;
+  }
+
   async function generate() {
     setButton('⏳ PPTX तैयार हो रहा है...', true);
     try {
@@ -843,7 +1011,7 @@
         showProgress('Module report ' + (mi + 1) + '/' + otherModules.length, progress, mod.name + ' का live data और color chart तैयार हो रहा है...');
         var moduleStart = pptx.slides.length + 2;
         var genericData = await queryGenericSheet(mod.gid);
-        addGenericModuleSlide(pptx, mod, genericData, mi);
+        if (mod.name === 'NCD') { await addNCDPresentation(pptx); } else { addGenericModuleSlide(pptx, mod, genericData, mi); }
         var moduleEnd = pptx.slides.length + 1;
         if (moduleEnd >= moduleStart) {
           moduleRanges.push({ name: mod.name, start: moduleStart, end: moduleEnd });
