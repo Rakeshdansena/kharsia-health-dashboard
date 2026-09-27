@@ -1,0 +1,208 @@
+/* Ayushman Shivir FINAL - isolated module renderer */
+(function(){'use strict';
+const FALLBACK_TITLE='Ayushman Shivir Reporting FY 2026-27';
+const COLS=9;
+const FH=['Sn','NIN ID','Sector','Facility Name','Target','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
+const SH=['Sn','NIN ID','Sector','No. of Facility','Target','Shivir Reporting','%','Total Footfall','Avg Footfall/Shivir'];
+function v(x){return String(x==null?'':x).replace(/\s+/g,' ').trim()}
+function num(x){const n=Number(String(x??'').replace(/,/g,'').replace(/%/g,'').trim());return Number.isFinite(n)?n:0}
+function getRows(d){const a=[];for(let r=0;r<d.getNumberOfRows();r++){const x=[];for(let c=0;c<Math.min(d.getNumberOfColumns(),COLS);c++)x.push(v(d.getFormattedValue(r,c)));a.push(x)}return a}
+function shivirHeaders(all,mode){
+ const fallback=mode==='sector'?SH:FH;
+ for(const row of all){
+   const cells=row.map(v).filter(Boolean);
+   const text=cells.join(' ').toLowerCase();
+   const isTarget=/target/.test(text);
+   const isReporting=/shivir\s*reporting/.test(text);
+   const isFootfall=/footfall/.test(text);
+   const isFacility=mode==='sector'?/no\.?\s*of\s*facility/.test(text):/facility\s*name/.test(text);
+   if(isTarget&&isReporting&&isFootfall&&isFacility){
+     const out=[];
+     for(let i=0;i<COLS;i++) out.push(v(row[i])||fallback[i]);
+     return out;
+   }
+ }
+ return fallback.slice();
+}
+
+function sheetTitle(all){
+  if(!all.length)return FALLBACK_TITLE;
+  for(const row of all){
+    const cells=row.map(v=>v).filter(Boolean);
+    if(!cells.length)continue;
+    const text=cells.join(' ').replace(/\\s+/g,' ').trim();
+    if(!text)continue;
+    if(/ayushman\\s*shivir|shivir\\s*reporting/i.test(text)) return text;
+    if(/reporting\\s*fy|fy\\s*20\\d\\d|as\\s*on|till\\s+\\d|upto\\s+\\d|updated?/i.test(text)) return text;
+    if(cells.length===1 && text.length>=20 && !/^sn$|^s\\.?no\\.?$/i.test(text)) return text;
+  }
+  return FALLBACK_TITLE;
+}
+function facility(r){return /^\d+$/.test(v(r[0]))&&/^\d{8,}$/.test(v(r[1]))&&v(r[2])&&v(r[3])}
+function sector(r){return /^\d+$/.test(v(r[0]))&&v(r[2])&&/^\d+$/.test(v(r[3]))}
+function isTotal(r){return v(r[0]).toLowerCase()==='total'||v(r[3]).toLowerCase()==='total'||v(r[2]).toLowerCase()==='total'}
+function makeTotal(rows,isSector){const valid=rows.filter(r=>!isTotal(r));const target=valid.reduce((a,r)=>a+num(r[4]),0);const rep=valid.reduce((a,r)=>a+num(r[5]),0);const foot=valid.reduce((a,r)=>a+num(r[7]),0);const pct=target?Math.round(rep/target*100)+'%':'0%';const avg=rep?Math.round(foot/rep):0;if(isSector){const facilities=valid.reduce((a,r)=>a+num(r[3]),0);return ['Total','','Total',String(facilities),String(target),String(rep),pct,String(foot),String(avg)]}return ['Total','','','',''+target,''+rep,pct,''+foot,''+avg]}
+function shivirScale(value,min,max){
+ const n=num(value);
+ if(max<=min) return {bg:'#FEF3C7',fg:'#92400E'};
+ const t=Math.max(0,Math.min(1,(n-min)/(max-min)));
+ // Red -> Yellow -> Green continuous scale.
+ let r,g,b;
+ if(t<=0.5){
+   const q=t*2;
+   r=220+(255-220)*q;
+   g=38+(193-38)*q;
+   b=38+(7-38)*q;
+ }else{
+   const q=(t-0.5)*2;
+   r=255+(22-255)*q;
+   g=193+(163-193)*q;
+   b=7+(74-7)*q;
+ }
+ return {
+   bg:'rgb('+Math.round(r)+','+Math.round(g)+','+Math.round(b)+')',
+   fg:t>0.62?'#FFFFFF':'#172033'
+ };
+}
+function pctScale(value,min,max){
+ const n=num(value);
+ if(max<=min) return {bg:'#FEF3C7',fg:'#172033'};
+ const t=Math.max(0,Math.min(1,(n-min)/(max-min)));
+ const hue=120*t;
+ const light=48;
+ return {bg:'hsl('+hue+',78%,'+light+'%)',fg:t>0.58?'#FFFFFF':'#111827'};
+}
+function box(title,heads,data,isSector){
+ const b=document.createElement('section');b.className='shivir-box';
+ const h=document.createElement('h3');h.className='shivir-title';h.textContent=title;b.appendChild(h);
+ const w=document.createElement('div');w.className='shivir-wrap';
+ const t=document.createElement('table');t.className='shivir-table';
+ const hr=document.createElement('tr');heads.slice(0,COLS).forEach(x=>{const e=document.createElement('th');e.textContent=x;hr.appendChild(e)});
+ const thead=document.createElement('thead');thead.appendChild(hr);t.appendChild(thead);
+ const tb=document.createElement('tbody');
+ const cleanRows=data.filter(r=>!isTotal(r));
+ const pctVals=cleanRows.map(r=>num(r[6])).filter(n=>Number.isFinite(n));
+ const pctMin=pctVals.length?Math.min.apply(null,pctVals):0;
+ const pctMax=pctVals.length?Math.max.apply(null,pctVals):0;
+ const avgVals=cleanRows.map(r=>num(r[8])).filter(n=>n>0);
+ const avgMin=avgVals.length?Math.min.apply(null,avgVals):0;
+ const avgMax=avgVals.length?Math.max.apply(null,avgVals):0;
+
+ cleanRows.forEach(r=>{
+   const tr=document.createElement('tr');
+   for(let i=0;i<COLS;i++){
+     const td=document.createElement('td');
+     td.textContent=v(r[i]);
+
+     if(i===6){
+       td.className='shivir-pct';
+       const sc=pctScale(r[i],pctMin,pctMax);
+       td.style.setProperty('background',sc.bg,'important');
+       td.style.setProperty('color',sc.fg,'important');
+       td.style.fontWeight='800';
+     }
+
+     if(i===8){
+       const sc=shivirScale(r[i],avgMin,avgMax);
+       td.className='shivir-avg';
+       td.style.background=sc.bg;
+       td.style.color=sc.fg;
+       td.style.fontWeight='800';
+     }
+
+     tr.appendChild(td);
+   }
+   tb.appendChild(tr);
+ });
+
+ const totalRow=makeTotal(data,isSector);
+ const tr=document.createElement('tr');tr.className='shivir-total';
+ const totalAvg=num(totalRow[8]);
+
+ for(let i=0;i<COLS;i++){
+   const td=document.createElement('td');
+   td.textContent=v(totalRow[i]);
+
+   if(i===6){
+     td.className='shivir-pct';
+     const sc=pctScale(totalRow[i],pctMin,pctMax);
+     td.style.background=sc.bg;
+     td.style.color=sc.fg;
+     td.style.fontWeight='900';
+   }
+
+   if(i===8){
+     const sc=shivirScale(totalAvg,avgMin,avgMax);
+     td.className='shivir-avg';
+     td.style.background=sc.bg;
+     td.style.color=sc.fg;
+     td.style.fontWeight='900';
+   }
+
+   tr.appendChild(td);
+ }
+ tb.appendChild(tr);
+
+ t.appendChild(tb);w.appendChild(t);b.appendChild(w);
+
+ const legend=document.createElement('div');
+ legend.className='shivir-scale-legend';
+ legend.innerHTML=
+   '<span><i style="background:#FCA5A5"></i>Low</span>'+
+   '<span><i style="background:#FACC15"></i>Medium</span>'+
+   '<span><i style="background:#16A34A"></i>High</span>';
+ b.appendChild(legend);
+
+ return b
+}
+
+function summary(f){
+ let target=0,rep=0,foot=0;
+ f.filter(r=>!isTotal(r)).forEach(r=>{target+=num(r[4]);rep+=num(r[5]);foot+=num(r[7])});
+ const b=document.createElement('div');b.className='shivir-summary';
+ [['Total Facility',f.filter(r=>!isTotal(r)).length],['Target Shivir',target],['Shivir Reporting',rep],['Overall Achievement',target?Math.round(rep/target*100)+'%':'0%'],['Total Footfall',foot],['Avg Footfall/Shivir',rep?Math.round(foot/rep):0]].forEach(a=>{const c=document.createElement('div');c.className='shivir-card';c.innerHTML='<span>'+a[0]+'</span><strong>'+a[1]+'</strong>';b.appendChild(c)});
+ return b
+}
+function render(data){
+  if(!window.__ayushmanShivirActive)return false;
+  if(!data||typeof data.getNumberOfColumns!=='function'||data.getNumberOfColumns()<9)return false;
+  const pdf=document.getElementById('pdfArea');if(!pdf)return false;
+  const all=getRows(data),f=all.filter(facility),s=all.filter(sector);if(!f.length)return false;
+  const facilityHeads=shivirHeaders(all,'facility');
+  const sectorHeads=shivirHeaders(all,'sector');
+  pdf.querySelectorAll('.table-box,.shivir-final').forEach(x=>x.style.display='none');
+
+  let pageHeading=pdf.querySelector('.shivir-page-heading');
+  if(!pageHeading){
+    pageHeading=document.createElement('div');
+    pageHeading.className='shivir-page-heading';
+    const main=document.createElement('div');main.className='eyebrow';main.textContent='🏕️ Ayushman Shivir';
+    const sub=document.createElement('div');sub.className='subheading';sub.textContent=sheetTitle(all)||FALLBACK_TITLE;
+    pageHeading.appendChild(main);pageHeading.appendChild(sub);
+    pdf.appendChild(pageHeading);
+  }else{
+    const sub=pageHeading.querySelector('.subheading');
+    if(sub)sub.textContent=sheetTitle(all)||FALLBACK_TITLE;
+  }
+
+  let root=pdf.querySelector('.shivir-final');
+  if(!root){root=document.createElement('div');root.className='shivir-final';pdf.appendChild(root)}
+  root.innerHTML='';
+  root.appendChild(summary(f));
+  if(s.length)root.appendChild(box('Sector Wise',sectorHeads,s,true));
+  root.appendChild(box('Facility Wise',facilityHeads,f,false));
+  root.style.display='block';
+  pageHeading.style.display='block';
+  return true
+}
+const old=window.renderNormalTable;
+window.renderNormalTable=function(data){if(render(data)){if(typeof window.setStatus==='function')window.setStatus('✓ Ayushman Shivir data loaded','success');return}if(typeof old==='function')return old.apply(this,arguments)};
+function clearWhenLeavingShivir(){if(window.__ayushmanShivirActive)return;document.querySelectorAll('.shivir-final,.shivir-page-heading').forEach(x=>{x.style.display='none';x.innerHTML=''})}
+function hookModuleSelection(){document.querySelectorAll('.menu-btn').forEach(b=>{if(b.dataset.shivirIsolationHook)return;b.dataset.shivirIsolationHook='1';b.addEventListener('click',function(){window.__ayushmanShivirActive=/ayushman\s+shivir/i.test((this.textContent||'').trim());if(!window.__ayushmanShivirActive)clearWhenLeavingShivir()},true)})}
+window.renderAyushmanShivirFromData=render;
+window.__ayushmanShivirActive=false;hookModuleSelection();setInterval(()=>{hookModuleSelection();clearWhenLeavingShivir()},500);
+const css=document.createElement('style');
+css.textContent='.shivir-page-heading{text-align:center;margin:10px 0 16px;padding:4px 8px}.shivir-page-heading .eyebrow{font-size:22px;font-weight:800;color:#075985}.shivir-page-heading .subheading{font-size:18px;font-weight:800;color:#334155;margin-top:4px}.shivir-final{display:block!important}.shivir-summary{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin:0 0 18px}.shivir-card{background:#fff;border:1px solid #dbe3ec;border-radius:12px;padding:10px;text-align:center}.shivir-card span{display:block;font-size:11px;color:#64748b}.shivir-card strong{display:block;font-size:21px;color:#075985;margin-top:4px}.shivir-box{background:#fff;border-radius:12px;padding:10px;margin-bottom:18px}.shivir-title{text-align:center;color:#075985;font-size:18px;font-weight:800;margin:5px}.shivir-wrap{width:100%;overflow-x:auto}.shivir-table{width:100%;min-width:1080px;border-collapse:collapse;font-size:13px;table-layout:fixed}.shivir-table th{background:#075985;color:#fff;border:1px solid #cbd5e1;padding:8px 6px;text-align:center;white-space:normal;word-break:break-word;line-height:1.15}.shivir-table td{border:1px solid #cbd5e1;padding:7px 5px;text-align:center;white-space:normal;word-break:break-word}.shivir-table th:nth-child(1){width:5%}.shivir-table th:nth-child(2){width:8%}.shivir-table th:nth-child(3){width:10%}.shivir-table th:nth-child(4){width:16%}.shivir-table th:nth-child(5){width:16%}.shivir-table th:nth-child(6){width:11%}.shivir-table th:nth-child(7){width:7%}.shivir-table th:nth-child(8){width:12%}.shivir-table th:nth-child(9){width:15%}.shivir-pct,.shivir-avg{font-weight:800}.shivir-total{font-weight:800;background:#dbeafe!important}@media(max-width:800px){.shivir-summary{grid-template-columns:repeat(2,1fr)}.shivir-page-heading .eyebrow{font-size:18px}.shivir-page-heading .subheading{font-size:15px}}';
+css.textContent += '.shivir-scale-legend{display:flex;justify-content:flex-end;gap:14px;margin-top:7px;font-size:11px;color:#64748b}.shivir-scale-legend span{display:flex;align-items:center;gap:4px}.shivir-scale-legend i{display:inline-block;width:12px;height:12px;border-radius:3px}';
+document.head.appendChild(css);
+})();
