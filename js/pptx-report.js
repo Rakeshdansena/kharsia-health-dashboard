@@ -1061,6 +1061,39 @@
     };
 
     // Last-resort fallback for environments where the live JAS bridge is unavailable.
+    if(!parsed.sector.length && !parsed.facility.length &&
+       typeof window.__openJASForPPTX==='function'){
+      live=await window.__openJASForPPTX();
+      title=live && live.title ? live.title : title;
+      parsed={
+        sector:(live && live.sector)||[],
+        facility:(live && live.facility)||[]
+      };
+    }
+
+    // Final fallback: read the exact rendered JAS tables from the dashboard DOM.
+    if(!parsed.sector.length && !parsed.facility.length){
+      var jasModule=document.getElementById('jasMeetingModule');
+      if(jasModule){
+        var tables=jasModule.querySelectorAll('.jas-table');
+        for(var ti=0;ti<tables.length;ti++){
+          var trs=tables[ti].querySelectorAll('tbody tr');
+          for(var tr=0;tr<trs.length;tr++){
+            var cells=trs[tr].querySelectorAll('td');
+            if(cells.length<7) continue;
+            var vals=[];
+            for(var ci=0;ci<cells.length;ci++) vals.push(clean(cells[ci].innerText));
+            if(!/^\\d+(?:\\.0+)?$/.test(vals[0])) continue;
+            if(tables[ti].innerText.indexOf('Name of Facility')>=0){
+              parsed.facility.push(vals.slice(0,7));
+            }else{
+              parsed.sector.push(vals.slice(0,7));
+            }
+          }
+        }
+      }
+    }
+
     if(!parsed.sector.length && !parsed.facility.length){
       var rs=await queryJASSheet();
       title=jasTitle(rs);
