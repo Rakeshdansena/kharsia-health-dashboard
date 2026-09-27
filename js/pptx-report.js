@@ -1089,7 +1089,7 @@
         return a.facility.localeCompare(b.facility);
       });
       var names=list.map(function(r){
-        return r.facility+(r.sector?' ('+r.sector+')':'');
+        return r.facility;
       }).join('  •  ');
       var titleColor=colorForMeeting(k), soft=softForMeeting(k);
 
@@ -1109,7 +1109,7 @@
 
     function groupHeight(k){
       var list=(groups[String(k)]||[]);
-      var names=list.map(function(r){return r.facility+(r.sector?' ('+r.sector+')':'');}).join('  •  ');
+      var names=list.map(function(r){return r.facility;}).join('  •  ');
       var lines=names?Math.max(1,Math.ceil(names.length/47)):1;
       return Math.min(2.20,Math.max(0.72,0.46+lines*0.20));
     }
@@ -1134,7 +1134,7 @@
     drawColumn(left,leftX);
     drawColumn(right,rightX);
 
-    slide.addText('NIN number excluded • Facility names include sector in brackets • Meeting Held = Achievement column',{x:0.42,y:7.05,w:12.0,h:0.16,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'});
+    slide.addText('NIN number excluded • Meeting Held = Achievement column',{x:0.42,y:7.05,w:12.0,h:0.16,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'});
     slide.addText('Source: live Google Sheet • '+title,{x:0.42,y:7.22,w:12.0,h:0.13,fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'});
     return slide;
   }
