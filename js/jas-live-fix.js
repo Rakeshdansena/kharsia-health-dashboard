@@ -423,11 +423,10 @@ function render(dt){
   q.style.display='block';
   setupJASTools();
 
-  if(rp){
-    Array.from(rp.children).forEach(e=>{
-      if(e!==q) e.style.display='none';
-    });
-  }
+  // Keep the normal report page structure intact.
+  // Other modules (Ayushman, Janani/RCH, NCD, etc.) use the existing
+  // report-header/table-box and must remain switchable after JAS is opened.
+  q.style.display='block';
 }
 
 function load(){
