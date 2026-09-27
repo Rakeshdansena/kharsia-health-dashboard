@@ -1042,7 +1042,7 @@ body{
  </div>
 
  <div style="display:flex;justify-content:flex-end;margin:0 0 18px;">
-  <button id="dashboardPptxBtn" class="action-btn" onclick="generate()" style="background:#b91c1c;font-weight:800;font-size:14px;">
+  <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#b91c1c;font-weight:800;font-size:14px;">
    📊 Generate PPTX
   </button>
  </div>
@@ -4588,8 +4588,52 @@ google.charts.setOnLoadCallback(
  }
 );
 
+<script>
+function startPPTXGeneration(){
+  var b=document.getElementById('dashboardPptxBtn');
+  if(b){b.disabled=true;b.textContent='⏳ PPTX Loading...';}
+  function run(){
+    if(typeof window.generatePPTX==='function'){
+      window.generatePPTX();
+      return;
+    }
+    if(typeof window.generate==='function'){
+      window.generate();
+      return;
+    }
+    if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+    alert('PPTX Generator load नहीं हुआ। कृपया एक बार फिर क्लिक करें।');
+  }
+  if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
+    run();
+    return;
+  }
+  var s=document.getElementById('pptx-report-script');
+  if(!s){
+    s=document.createElement('script');
+    s.id='pptx-report-script';
+    s.src='js/pptx-report.js?v=20260927-pptx-final-02';
+    s.onload=run;
+    s.onerror=function(){
+      if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+      alert('PPTX Generator file load नहीं हुई।');
+    };
+    document.head.appendChild(s);
+  }else{
+    var tries=0;
+    var timer=setInterval(function(){
+      tries++;
+      if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
+        clearInterval(timer); run();
+      }else if(tries>40){
+        clearInterval(timer);
+        if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+        alert('PPTX Generator अभी load नहीं हुआ।');
+      }
+    },250);
+  }
+}
 </script>
-
 <script id="pptx-report-script" src="js/pptx-report.js?v=20260927-pptx-final-01"></script>
 <script src="js/ncd.js"></script>
 </body>
