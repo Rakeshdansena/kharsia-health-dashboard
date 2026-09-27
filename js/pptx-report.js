@@ -466,7 +466,7 @@
         slide.addShape('rect',{x:xx,y:yy,w:colW[ci],h:rowH,fill:{color:fill},line:{color:'CBD5E1',pt:0.7}});
         var isPct = /%/.test(head[ci]) || /percent/i.test(head[ci]);
         var txtColor=ri===0||ri===rows.length-1&&totalRow?'FFFFFF':'172033';
-        var fs=ri===0?Math.max(8.5,Math.min(11.5,rowH*25)):Math.max(8.5,Math.min(11,rowH*24));
+        var fs=ri===0?Math.max(11.5,Math.min(15,rowH*32)):Math.max(11,Math.min(14,rowH*30));
         slide.addText(String(v||''),{
           x:xx+0.035,y:yy+rowH*0.23,w:colW[ci]-0.07,h:rowH*0.48,
           fontSize:fs,bold:ri===0||ri===rows.length-1&&totalRow||ci===0,
