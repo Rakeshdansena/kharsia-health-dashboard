@@ -793,32 +793,68 @@
     return t!=='' && Number.isFinite(Number(t));
   }
 
+  function jasNorm(v){ return clean(v).toLowerCase().replace(/[^a-z0-9]+/g,' '); }
+
+  function jasHeaderMap(row, facilityMode){
+    var m={sn:-1,nin:-1,sector:-1,facility:-1,aam:-1,target:-1,achievement:-1,pct:-1};
+    (row||[]).forEach(function(v,i){
+      var x=jasNorm(v);
+      if(m.sn<0 && /^(sn|s no|s no\.)$/.test(x)) m.sn=i;
+      if(m.nin<0 && /\\bnin\\b/.test(x)) m.nin=i;
+      if(m.facility<0 && /facility/.test(x)) m.facility=i;
+      if(m.sector<0 && /sector/.test(x) && !/facility/.test(x)) m.sector=i;
+      if(m.aam<0 && /aam/.test(x)) m.aam=i;
+      if(m.target<0 && /target/.test(x)) m.target=i;
+      if(m.achievement<0 && /achiev/.test(x)) m.achievement=i;
+      if(m.pct<0 && /^(%|percent|percentage|achievement %|achievement percentage)$/.test(x)) m.pct=i;
+    });
+    if(m.pct<0){
+      for(var j=0;j<(row||[]).length;j++){ if(j!==m.target&&j!==m.achievement&&/%/.test(clean(row[j]))) {m.pct=j;break;} }
+    }
+    var valid=facilityMode
+      ? m.sn>=0&&m.nin>=0&&m.sector>=0&&m.facility>=0&&m.target>=0&&m.achievement>=0
+      : m.sn>=0&&m.sector>=0&&m.nin>=0&&m.aam>=0&&m.target>=0&&m.achievement>=0;
+    return valid?m:null;
+  }
+
   function getJASRows(rs){
-    var facility=[], sector=[];
+    var facility=[], sector=[], facilityMap=null, sectorMap=null;
+    // Prefer explicit header mapping so inserted/title/blank columns do not break PPTX.
     for(var i=0;i<rs.length;i++){
-      var v=(rs[i]||[]).slice(0,7);
-      while(v.length<7) v.push('');
-      var sn=clean(v[0]);
-      if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+      var fm=jasHeaderMap(rs[i],true), sm=jasHeaderMap(rs[i],false);
+      if(fm && !facilityMap) facilityMap=fm;
+      if(sm && !sectorMap && !fm) sectorMap=sm;
+    }
 
-      var c1=clean(v[1]), c2=clean(v[2]), c3=clean(v[3]);
-      var c4=clean(v[4]), c5=clean(v[5]), c6=clean(v[6]);
-      if(!c1 || !c2 || !c3 || !jasLooksNumber(c4) || !jasLooksNumber(c5)) continue;
-
-      // Sector row: SN, Sector, NIN, No. of AAM Facility, Target, Achievement, %
-      // The 4th data column is numeric.
-      if(jasLooksNumber(c3)){
-        var sp=jasLooksNumber(c6) ? number(c6) : (number(c4)>0 ? number(c5)/number(c4)*100 : 0);
-        v[6]=String(Math.round(sp*10)/10);
-        sector.push(v);
-        continue;
+    function parseMapped(map, mode, out){
+      if(!map) return;
+      for(var r=0;r<rs.length;r++){
+        var row=rs[r]||[];
+        var sn=clean(row[map.sn]);
+        if(!/^\\d+(?:\\.0+)?$/.test(sn)) continue;
+        var target=clean(row[map.target]), ach=clean(row[map.achievement]);
+        if(!jasLooksNumber(target)||!jasLooksNumber(ach)) continue;
+        var pct=map.pct>=0?clean(row[map.pct]):'';
+        if(!jasLooksNumber(pct)) pct=number(target)>0?(number(ach)/number(target)*100):0;
+        if(mode==='facility'){
+          var v=[sn,clean(row[map.nin]),clean(row[map.sector]),clean(row[map.facility]),target,ach,String(Math.round(number(pct)*10)/10)];
+          if(v[1]&&v[2]&&v[3]) out.push(v);
+        }else{
+          var sv=[sn,clean(row[map.sector]),clean(row[map.nin]),clean(row[map.aam]),target,ach,String(Math.round(number(pct)*10)/10)];
+          if(sv[1]&&jasLooksNumber(sv[3])) out.push(sv);
+        }
       }
+    }
+    parseMapped(facilityMap,'facility',facility);
+    parseMapped(sectorMap,'sector',sector);
 
-      // Facility row: SN, NIN, Sector, Facility, Target, Achievement, %
-      if(!jasLooksNumber(c3)){
-        var fp=jasLooksNumber(c6) ? number(c6) : (number(c4)>0 ? number(c5)/number(c4)*100 : 0);
-        v[6]=String(Math.round(fp*10)/10);
-        facility.push(v);
+    // Last fallback: detect the conventional A:G layout without relying on headers.
+    if(!facility.length && !sector.length){
+      for(var k=0;k<rs.length;k++){
+        var v=(rs[k]||[]).slice(0,7); while(v.length<7)v.push('');
+        var sn2=clean(v[0]); if(!/^\\d+(?:\\.0+)?$/.test(sn2)) continue;
+        if(clean(v[1])&&clean(v[2])&&clean(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])) facility.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
+        else if(clean(v[1])&&clean(v[2])&&jasLooksNumber(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])) sector.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
       }
     }
     return {facility:facility,sector:sector};
