@@ -64,11 +64,13 @@ function shivirScale(value,min,max){
    fg:t>0.62?'#FFFFFF':'#172033'
  };
 }
-function pctScale(value){
- const n=Math.max(0,Math.min(100,num(value)));
- const hue=(n*1.2);
- const light=n<50?78:68;
- return {bg:'hsl('+hue+',85%,'+light+'%)',fg:'#111827'};
+function pctScale(value,min,max){
+ const n=num(value);
+ if(max<=min) return {bg:'#FEF3C7',fg:'#172033'};
+ const t=Math.max(0,Math.min(1,(n-min)/(max-min)));
+ const hue=120*t;
+ const light=48;
+ return {bg:'hsl('+hue+',78%,'+light+'%)',fg:t>0.58?'#FFFFFF':'#111827'};
 }
 function box(title,heads,data,isSector){
  const b=document.createElement('section');b.className='shivir-box';
@@ -79,6 +81,9 @@ function box(title,heads,data,isSector){
  const thead=document.createElement('thead');thead.appendChild(hr);t.appendChild(thead);
  const tb=document.createElement('tbody');
  const cleanRows=data.filter(r=>!isTotal(r));
+ const pctVals=cleanRows.map(r=>num(r[6])).filter(n=>Number.isFinite(n));
+ const pctMin=pctVals.length?Math.min.apply(null,pctVals):0;
+ const pctMax=pctVals.length?Math.max.apply(null,pctVals):0;
  const avgVals=cleanRows.map(r=>num(r[8])).filter(n=>n>0);
  const avgMin=avgVals.length?Math.min.apply(null,avgVals):0;
  const avgMax=avgVals.length?Math.max.apply(null,avgVals):0;
@@ -91,7 +96,7 @@ function box(title,heads,data,isSector){
 
      if(i===6){
        td.className='shivir-pct';
-       const sc=pctScale(r[i]);
+       const sc=pctScale(r[i],pctMin,pctMax);
        td.style.setProperty('background',sc.bg,'important');
        td.style.setProperty('color',sc.fg,'important');
        td.style.fontWeight='800';
@@ -120,7 +125,7 @@ function box(title,heads,data,isSector){
 
    if(i===6){
      td.className='shivir-pct';
-     const sc=pctScale(totalRow[i]);
+     const sc=pctScale(totalRow[i],pctMin,pctMax);
      td.style.background=sc.bg;
      td.style.color=sc.fg;
      td.style.fontWeight='900';
