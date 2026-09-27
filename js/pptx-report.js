@@ -1046,7 +1046,7 @@
     }).map(function(r){
       var target=jasLooksNumber(r[4])?number(r[4]):0;
       var held=jasLooksNumber(r[5])?number(r[5]):0;
-      return {sector:clean(r[2]),facility:clean(r[3]),target:target,held:held,gap:Math.max(target-held,0)};
+      return {facility:clean(r[3]),target:target,held:held,gap:Math.max(target-held,0)};
     });
 
     var groups={};
@@ -1070,72 +1070,84 @@
 
     addSectionTitle(slide,'FACILITY LIST BY MEETINGS HELD',0.34,2.30,6.0);
 
-    function colorForMeeting(k){ return k===0?'DC2626':(k<=4?'CA8A04':'16A34A'); }
-    function softForMeeting(k){ return k===0?'FEE2E2':(k<=4?'FEF3C7':'DCFCE7'); }
+    function titleColor(k){ return k===0?'DC2626':(k<=4?'CA8A04':'16A34A'); }
+    function softColor(k){ return k===0?'FEE2E2':(k<=4?'FEF3C7':'DCFCE7'); }
 
-    function wrapList(text,maxChars){
-      var words=text.split(/\s+/), lines=[], line='';
-      words.forEach(function(word){
-        var test=line?line+' '+word:word;
-        if(line && test.length>maxChars){ lines.push(line); line=word; }
-        else line=test;
-      });
-      if(line) lines.push(line);
-      return lines.join('\n');
-    }
-
-    function drawGroup(k,x,y,w,h){
+    function drawSmallGroup(k,x,y,w,h){
       var list=(groups[String(k)]||[]).slice().sort(function(a,b){
         return a.facility.localeCompare(b.facility);
       });
-      var names=list.map(function(r){
-        return r.facility;
-      }).join('  •  ');
-      var titleColor=colorForMeeting(k), soft=softForMeeting(k);
-
       slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.8}});
-      slide.addShape('rect',{x:x,y:y,w:1.10,h:h,fill:{color:soft},line:{color:soft}});
-      slide.addText(String(k)+' meetings',{x:x+0.08,y:y+0.11,w:0.94,h:0.22,fontSize:14,bold:true,color:titleColor,align:'center',margin:0,fit:'shrink'});
-      slide.addText(String(list.length)+' facilities',{x:x+0.08,y:y+0.40,w:0.94,h:0.20,fontSize:9.5,bold:true,color:'475569',align:'center',margin:0,fit:'shrink'});
-
-      var wrapped=wrapList(names||'No facility',47);
-      var lineCount=(wrapped.match(/\n/g)||[]).length+1;
-      var fs=lineCount>=7?8.5:(lineCount>=5?9.2:10);
-      slide.addText(wrapped,{x:x+1.22,y:y+0.10,w:w-1.35,h:h-0.18,fontSize:fs,bold:true,color:'172033',align:'left',valign:'mid',margin:0.01,fit:'shrink',breakLine:false});
+      slide.addShape('rect',{x:x,y:y,w:1.14,h:h,fill:{color:softColor(k)},line:{color:softColor(k)}});
+      slide.addText(String(k)+' meetings',{x:x+0.06,y:y+0.12,w:1.02,h:0.24,fontSize:13,bold:true,color:titleColor(k),align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(list.length)+' facilities',{x:x+0.06,y:y+0.44,w:1.02,h:0.20,fontSize:10.5,bold:true,color:'475569',align:'center',margin:0,fit:'shrink'});
+      var names=list.map(function(r){return '• '+r.facility;}).join('\n');
+      slide.addText(names||'• No facility',{
+        x:x+1.28,y:y+0.10,w:w-1.42,h:h-0.18,
+        fontSize:11,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.02,fit:'shrink',
+        breakLine:false
+      });
     }
 
-    var left=[0,1,2], right=[3,4,5];
-    var colW=6.08, leftX=0.34, rightX=6.72, startY=2.68, endY=6.88, gap=0.10, totalH=endY-startY;
-
-    function groupHeight(k){
-      var list=(groups[String(k)]||[]);
-      var names=list.map(function(r){return r.facility;}).join('  •  ');
-      var lines=names?Math.max(1,Math.ceil(names.length/43)):1;
-      return Math.min(2.20,Math.max(0.72,0.46+lines*0.20));
+    function drawFiveGroup(x,y,w,h){
+      var list=(groups['5']||[]).slice().sort(function(a,b){
+        return a.facility.localeCompare(b.facility);
+      });
+      slide.addShape('roundRect',{x:x,y:y,w:w,h:h,fill:{color:'FFFFFF'},line:{color:'CBD5E1',pt:0.9}});
+      slide.addShape('rect',{x:x,y:y,w:1.42,h:h,fill:{color:'DCFCE7'},line:{color:'DCFCE7'}});
+      slide.addText('5 meetings',{x:x+0.10,y:y+0.22,w:1.22,h:0.26,fontSize:15,bold:true,color:'16A34A',align:'center',margin:0,fit:'shrink'});
+      slide.addText(String(list.length)+' facilities',{x:x+0.10,y:y+0.62,w:1.22,h:0.22,fontSize:11,bold:true,color:'166534',align:'center',margin:0,fit:'shrink'});
+      var mid=Math.ceil(list.length/2);
+      var left=list.slice(0,mid), right=list.slice(mid);
+      slide.addText(left.map(function(r){return '• '+r.facility;}).join('\n'),{
+        x:x+1.62,y:y+0.12,w:(w-1.86)/2,h:h-0.22,
+        fontSize:11.5,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.01,fit:'shrink'
+      });
+      slide.addText(right.map(function(r){return '• '+r.facility;}).join('\n'),{
+        x:x+1.72+(w-1.86)/2,y:y+0.12,w:(w-2.00)/2,h:h-0.22,
+        fontSize:11.5,bold:true,color:'172033',
+        align:'left',valign:'mid',margin:0.01,fit:'shrink'
+      });
     }
 
-    function fitHeights(keys){
-      var hs=keys.map(groupHeight);
-      var sum=hs.reduce(function(a,b){return a+b;},0)+gap*(keys.length-1);
-      if(sum>totalH){
-        var excess=sum-totalH;
-        var reducible=hs.map(function(h){return Math.max(0,h-0.72);});
-        var totalRed=reducible.reduce(function(a,b){return a+b;},0);
-        if(totalRed>0) hs=hs.map(function(h,i){return h-(reducible[i]/totalRed)*excess;});
+    // 0–4 meetings in compact boxes; 5 meetings gets the full lower area
+    // so the facility names can be displayed at a genuinely readable size.
+    var smallY=2.68, boxH=0.80, gap=0.12;
+    drawSmallGroup(0,0.34,smallY,6.08,boxH);
+    drawSmallGroup(1,0.34,smallY+boxH+gap,6.08,boxH);
+    drawSmallGroup(2,0.34,smallY+2*(boxH+gap),6.08,boxH);
+
+    drawSmallGroup(3,6.72,smallY,6.08,boxH);
+    drawSmallGroup(4,6.72,smallY+boxH+gap,6.08,boxH);
+
+    drawFiveGroup(6.72,smallY+2*(boxH+gap),6.08,1.84);
+    slide.addShape('roundRect',{x:0.34,y:smallY+2*(boxH+gap),w:6.08,h:1.84,fill:{color:'F8FBFF'},line:{color:'CBD5E1',pt:0.8}});
+    slide.addText('MEETING GAP SUMMARY',{
+      x:0.56,y:smallY+2*(boxH+gap)+0.18,w:5.65,h:0.22,
+      fontSize:13,bold:true,color:'075985',margin:0,fit:'shrink'
+    });
+    slide.addText(
+      '0 meetings: '+(groups['0']||[]).length+' facilities\n'+
+      '1 meeting: '+(groups['1']||[]).length+' facilities\n'+
+      '2 meetings: '+(groups['2']||[]).length+' facilities\n'+
+      '3 meetings: '+(groups['3']||[]).length+' facilities\n'+
+      '4 meetings: '+(groups['4']||[]).length+' facilities\n'+
+      '5 meetings: '+(groups['5']||[]).length+' facilities',
+      {
+        x:0.56,y:smallY+2*(boxH+gap)+0.52,w:5.55,h:1.15,
+        fontSize:12,bold:true,color:'172033',
+        margin:0.02,fit:'shrink',breakLine:false
       }
-      return hs;
-    }
+    );
 
-    function drawColumn(keys,x){
-      var hs=fitHeights(keys), y=startY;
-      keys.forEach(function(k,i){ drawGroup(k,x,y,colW,hs[i]); y+=hs[i]+gap; });
-    }
-
-    drawColumn(left,leftX);
-    drawColumn(right,rightX);
-
-    slide.addText('NIN number excluded • Meeting Held = Achievement column',{x:0.42,y:7.05,w:12.0,h:0.16,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'});
-    slide.addText('Source: live Google Sheet • '+title,{x:0.42,y:7.22,w:12.0,h:0.13,fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'});
+    slide.addText('NIN number excluded • Facility names only • Meeting Held = Achievement column',{
+      x:0.42,y:7.05,w:12.0,h:0.15,fontSize:7.2,color:'64748B',margin:0,fit:'shrink',align:'center'
+    });
+    slide.addText('Source: live Google Sheet • '+title,{
+      x:0.42,y:7.22,w:12.0,h:0.13,fontSize:6.8,color:'64748B',margin:0,fit:'shrink',align:'center'
+    });
     return slide;
   }
 
