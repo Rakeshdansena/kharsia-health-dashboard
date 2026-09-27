@@ -7,6 +7,18 @@ const SH=['Sn','NIN ID','Sector','No. of Facility','Target Upto 18 August 2026',
 function v(x){return String(x==null?'':x).replace(/\s+/g,' ').trim()}
 function num(x){const n=Number(String(x??'').replace(/,/g,''));return Number.isFinite(n)?n:0}
 function getRows(d){const a=[];for(let r=0;r<d.getNumberOfRows();r++){const x=[];for(let c=0;c<Math.min(d.getNumberOfColumns(),COLS);c++)x.push(v(d.getFormattedValue(r,c)));a.push(x)}return a}
+function shivirHeaders(all,mode){
+ const fallback=mode==='sector'?SH:FH;
+ for(const row of all){
+   const text=row.map(v).join(' ').toLowerCase();
+   if(/target/.test(text)&&/shivir/.test(text)&&/footfall/.test(text)){
+     const out=[];
+     for(let i=0;i<COLS;i++) out.push(v(row[i])||fallback[i]);
+     return out;
+   }
+ }
+ return fallback.slice();
+}
 function sheetTitle(all){
   if(!all.length)return FALLBACK_TITLE;
   for(const row of all){
@@ -159,6 +171,8 @@ function render(data){
   if(!data||typeof data.getNumberOfColumns!=='function'||data.getNumberOfColumns()<9)return false;
   const pdf=document.getElementById('pdfArea');if(!pdf)return false;
   const all=getRows(data),f=all.filter(facility),s=all.filter(sector);if(!f.length)return false;
+  const facilityHeads=shivirHeaders(all,'facility');
+  const sectorHeads=shivirHeaders(all,'sector');
   pdf.querySelectorAll('.table-box,.shivir-final').forEach(x=>x.style.display='none');
 
   let pageHeading=pdf.querySelector('.shivir-page-heading');
@@ -178,8 +192,8 @@ function render(data){
   if(!root){root=document.createElement('div');root.className='shivir-final';pdf.appendChild(root)}
   root.innerHTML='';
   root.appendChild(summary(f));
-  if(s.length)root.appendChild(box('Sector Wise',SH,s,true));
-  root.appendChild(box('Facility Wise',FH,f,false));
+  if(s.length)root.appendChild(box('Sector Wise',sectorHeads,s,true));
+  root.appendChild(box('Facility Wise',facilityHeads,f,false));
   root.style.display='block';
   pageHeading.style.display='block';
   return true
