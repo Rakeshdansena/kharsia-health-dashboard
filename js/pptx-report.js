@@ -850,15 +850,20 @@
     parseMapped(facilityMap,'facility',facility);
     parseMapped(sectorMap,'sector',sector);
 
-    // Last fallback: detect the conventional A:G layout without relying on headers.
-    if(!facility.length && !sector.length){
-      for(var k=0;k<rs.length;k++){
-        var v=(rs[k]||[]).slice(0,7); while(v.length<7)v.push('');
-        var sn2=clean(v[0]); if(!/^\\d+(?:\\.0+)?$/.test(sn2)) continue;
-        if(clean(v[1])&&clean(v[2])&&clean(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])) facility.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
-        else if(clean(v[1])&&clean(v[2])&&jasLooksNumber(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])) sector.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
+    // Use the same robust 7-column scan as the working JAS web module.
+    // Header mapping can miss rows when Google Sheets has merged/variant headers.
+    var scannedFacility=[], scannedSector=[];
+    for(var k=0;k<rs.length;k++){
+      var v=(rs[k]||[]).slice(0,7); while(v.length<7)v.push('');
+      var sn2=clean(v[0]); if(!/^\\d+(?:\\.0+)?$/.test(sn2)) continue;
+      if(clean(v[1])&&clean(v[2])&&clean(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])){
+        scannedFacility.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
+      } else if(clean(v[1])&&jasLooksNumber(v[3])&&jasLooksNumber(v[4])&&jasLooksNumber(v[5])){
+        scannedSector.push([sn2,clean(v[1]),clean(v[2]),clean(v[3]),clean(v[4]),clean(v[5]),jasLooksNumber(v[6])?clean(v[6]):String(number(v[4])?number(v[5])/number(v[4])*100:0)]);
       }
     }
+    if(scannedFacility.length>facility.length) facility=scannedFacility;
+    if(scannedSector.length>sector.length) sector=scannedSector;
     return {facility:facility,sector:sector};
   }
 
@@ -1040,7 +1045,12 @@
     // First use the exact data already parsed by the dashboard's JAS module.
     if(typeof window.getJASPresentationData==='function'){
       live=await window.getJASPresentationData();
-    }else if(window.__jasPptxData){
+    }
+    if((!live || (!(live.sector&&live.sector.length) && !(live.facility&&live.facility.length))) &&
+       typeof window.__loadJASForPPTX==='function'){
+      live=await window.__loadJASForPPTX();
+    }
+    if(!live && window.__jasPptxData){
       live=window.__jasPptxData;
     }
 
