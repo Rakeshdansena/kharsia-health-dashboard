@@ -111,6 +111,16 @@ function isTotal(v){
   return /^(total|योग|कुल)$/i.test(clean(v));
 }
 
+function looksLikeNumber(v){
+  const t=clean(v).replace(/,/g,'').replace('%','');
+  return t!=='' && Number.isFinite(Number(t));
+}
+
+function isHeaderRow(v){
+  const x=v.slice(0,8).map(norm).join(' ');
+  return /target/.test(x) && /achiev/.test(x);
+}
+
 function findTitle(a){
   for(const r of a){
     for(const v of r){
@@ -149,9 +159,16 @@ function findSections(a){
   let sectorHeader=-1, facilityHeader=-1;
   for(let i=0;i<a.length;i++){
     const x=a[i].map(norm).join(' ');
-    if(/\bsn\b/.test(x) && /target/.test(x) && /achiev/.test(x)){
-      if(/name of facility|facility/.test(x)) facilityHeader=i;
-      else if(sectorHeader<0) sectorHeader=i;
+    if(!isHeaderRow(a[i])) continue;
+
+    const hasFacility=/name of facility|facility name|facility/.test(x);
+    const hasSector=/name of sector|sector/.test(x);
+    const hasNIN=/\bnin\b/.test(x);
+
+    if(hasFacility && hasNIN){
+      facilityHeader=i;
+    }else if(hasSector && !hasFacility && sectorHeader<0){
+      sectorHeader=i;
     }
   }
   return {sectorHeader,facilityHeader};
@@ -161,12 +178,31 @@ function collectSection(a,start,end,type){
   const rows=[];
   const from=start>=0?start+1:0;
   const to=end>=0?end:a.length;
+
   for(let r=from;r<to;r++){
     const v=a[r].slice(0,7);
-    const sn=clean(v[0]), d=clean(v[3]);
+    while(v.length<7) v.push('');
+
+    const sn=clean(v[0]);
     if(!/^\d+(?:\.0+)?$/.test(sn)) continue;
-    if(type==='sector' && v[1] && v[2] && d && Number.isFinite(num(d))) rows.push(v);
-    if(type==='facility' && v[1] && v[2] && d && !Number.isFinite(num(d))) rows.push(v);
+
+    const nin=clean(v[1]);
+    const sector=clean(v[2]);
+    const facility=clean(v[3]);
+    const target=clean(v[4]);
+    const achievement=clean(v[5]);
+
+    if(!target && !achievement) continue;
+
+    if(type==='sector' && sector && looksLikeNumber(v[3]) &&
+       looksLikeNumber(target) && looksLikeNumber(achievement)){
+      rows.push(v);
+    }
+
+    if(type==='facility' && nin && sector && facility &&
+       looksLikeNumber(target) && looksLikeNumber(achievement)){
+      rows.push(v);
+    }
   }
   return rows;
 }
@@ -326,8 +362,33 @@ function load(){
 function openJAS(){
   const status=document.getElementById('status');
   if(status) status.style.display='none';
+
   document.getElementById('dashboardPage')?.classList.remove('active');
   document.getElementById('reportPage')?.classList.add('active');
+
+  const title=document.getElementById('reportTitle');
+  if(title) title.innerText='🤝 JAS Meeting';
+
+  const pdfTitle=document.getElementById('pdfTitle');
+  if(pdfTitle) pdfTitle.innerText='Kharsia Health Dashboard — JAS Meeting';
+
+  const desc=document.getElementById('reportDescription');
+  if(desc) desc.innerText='Jan Arogya Samiti Meeting Reporting';
+
+  const search=document.getElementById('searchBox');
+  if(search) search.value='';
+
+  document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#menuButtons .menu-btn').forEach(b=>{
+    if(/jas meeting/i.test(b.textContent||'')) b.classList.add('active');
+  });
+
+  const tableBox=document.querySelector('.table-box');
+  if(tableBox) tableBox.style.display='none';
+
+  const rch=document.getElementById('rchContainer');
+  if(rch) rch.style.display='none';
+
   load();
 }
 
