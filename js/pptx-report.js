@@ -768,7 +768,7 @@
     for(var i=0;i<rs.length;i++){
       for(var c=0;c<(rs[i]||[]).length;c++){
         var s=clean(rs[i][c]);
-        if(/jan\\s*arogya\\s*samiti\\s*meeting/i.test(s)) return s;
+        if(/jan\s*arogya\s*samiti\s*meeting/i.test(s)) return s;
       }
     }
     return 'Jan Arogya Samiti Meeting FY 2026-27';
