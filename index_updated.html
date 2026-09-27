@@ -1669,6 +1669,9 @@ function openReport(index){
 
  currentRCHData=null;
 
+ // Hide the custom JAS view whenever another module is opened.
+ const jasModule=document.getElementById("jasMeetingModule");
+ if(jasModule) jasModule.style.display = report.name==="JAS Meeting" ? "block" : "none";
 
  setStatus(
   "Google Sheet से data load हो रहा है..."
