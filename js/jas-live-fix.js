@@ -101,7 +101,7 @@ function getRows(dt){
   const out=[];
   for(let r=0;r<dt.getNumberOfRows();r++){
     const row=[];
-    for(let c=0;c<Math.min(13,dt.getNumberOfColumns());c++) row.push(clean(dt.getFormattedValue(r,c))); while(row.length<13) row.push('');
+    for(let c=0;c<dt.getNumberOfColumns();c++) row.push(clean(dt.getFormattedValue(r,c)));
     out.push(row);
   }
   return out;
@@ -409,6 +409,16 @@ function render(dt){
 
   window.__jasLastData=dt;
   const title=findTitle(a);
+
+  // Share the exact live/parsed JAS data with the PPTX generator.
+  // This avoids a second independent JAS parser/query producing a false
+  // "कोई data नहीं मिला" result.
+  window.__jasPptxData={
+    title:title,
+    sector:sectorRows,
+    facility:facilityRows,
+    raw:a
+  };
   let h='<div class="jas-title">'+esc(title)+'</div>';
   h+=renderSummary(sectorRows,facilityRows);
   h+=addJASTools();
@@ -437,8 +447,8 @@ function load(){
   const q=new google.visualization.Query(
     'https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0'
   );
-  /* IMPORTANT: JAS uses 7 columns A:G. */
-  q.setQuery('select A,B,C,D,E,F,G where A is not null');
+  // Use the complete live sheet so inserted/extra columns are preserved.
+  q.setQuery('select *');
   q.send(r=>{
     if(r.isError()){
       console.error('JAS Sheet error:',r.getMessage());
@@ -451,6 +461,48 @@ function load(){
 }
 
 window.renderJASFromData=render;
+
+window.getJASPresentationData=async function(){
+  if(window.__jasPptxData &&
+     ((window.__jasPptxData.sector&&window.__jasPptxData.sector.length) ||
+      (window.__jasPptxData.facility&&window.__jasPptxData.facility.length))){
+    return window.__jasPptxData;
+  }
+
+  if(!window.google?.visualization?.Query){
+    await new Promise(function(resolve){
+      let n=0;
+      const t=setInterval(function(){
+        if(window.google?.visualization?.Query || ++n>80){
+          clearInterval(t); resolve();
+        }
+      },250);
+    });
+  }
+
+  if(!window.google?.visualization?.Query) return null;
+
+  return await new Promise(function(resolve){
+    const q=new google.visualization.Query(
+      'https://docs.google.com/spreadsheets/d/'+SID+'/gviz/tq?gid='+GID+'&headers=0'
+    );
+    q.setQuery('select *');
+    q.send(function(r){
+      if(r.isError()){
+        console.error('JAS PPTX live data error:',r.getMessage());
+        resolve(null);
+        return;
+      }
+      try{
+        render(r.getDataTable());
+        resolve(window.__jasPptxData||null);
+      }catch(e){
+        console.error('JAS PPTX live parse error:',e);
+        resolve(null);
+      }
+    });
+  });
+};
 
 function openJAS(){
   const status=document.getElementById('status');
