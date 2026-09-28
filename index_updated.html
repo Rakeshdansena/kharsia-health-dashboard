@@ -1376,6 +1376,17 @@ const REPORTS=[
  },
 
  {
+  name:"Telemedicine Report",
+  icon:"🩻",
+  gid:"318264987",
+  facilityGid:"1810450627",
+  sheetId:"1pnVA9hfSR6bfKUkyctcDWFYANQmHyWNFL6NfKue3dA4",
+  telemedicine:true,
+  description:
+   "E-Sanjeevani Telemedicine Status FY 2026-27"
+ },
+
+ {
   name:"RBSK",
   icon:"👶",
   gid:"1502752823",
@@ -1532,6 +1543,19 @@ function createMenu(){
    DASHBOARD
 ===================================================== */
 
+function ensureTelemedicineContainer(){
+ if(document.getElementById("telemedicineModule")) return;
+ const host=document.querySelector(".table-box");
+ if(!host) return;
+ const div=document.createElement("div");
+ div.id="telemedicineModule";
+ div.style.display="none";
+ div.style.marginTop="8px";
+ div.innerHTML='<style>.tele-tab{border:1px solid #CBD5E1;background:#fff;color:#334155;padding:9px 14px;border-radius:10px;font-weight:800;cursor:pointer}.tele-tab.active{background:#075985;color:#fff;border-color:#075985}.telemedicine-table tbody tr:hover{background:#f8fafc}</style>';
+ host.appendChild(div);
+}
+ensureTelemedicineContainer();
+
 function showDashboard(){
 
  document
@@ -1666,8 +1690,15 @@ function openReport(index){
   )
   .style.display="block";
 
+ const reportTableEl=document.getElementById("reportTable");
+ if(reportTableEl) reportTableEl.style.display = report.telemedicine ? "none" : "table";
+
 
  currentRCHData=null;
+
+ // Hide custom module views whenever another module is opened.
+ const teleModule=document.getElementById("telemedicineModule");
+ if(teleModule) teleModule.style.display = "none";
 
  // Hide the custom JAS view whenever another module is opened.
  const jasModule=document.getElementById("jasMeetingModule");
@@ -1677,10 +1708,13 @@ function openReport(index){
   "Google Sheet से data load हो रहा है..."
  );
 
-
- loadGoogleSheet(
-  report.gid
- );
+ if(report.telemedicine){
+  loadTelemedicineReport(report);
+ }else{
+  loadGoogleSheet(
+   report.gid
+  );
+ }
 
 }
 
@@ -3770,6 +3804,262 @@ function renderAyushmanTable(
    NORMAL TABLE
 ===================================================== */
 
+/* =====================================================
+   TELEMEDICINE REPORT
+===================================================== */
+
+let telemedicineState = {
+ sector: null,
+ facility: null,
+ active: "sector"
+};
+
+function telemedicineCell(data, r, c){
+ return String(
+  data.getFormattedValue(r,c) ||
+  data.getValue(r,c) ||
+  ""
+ ).replace(/\\s+/g," ").trim();
+}
+
+function telemedicineRows(data){
+ const out=[];
+ for(let r=0;r<data.getNumberOfRows();r++){
+  const row=[];
+  for(let c=0;c<data.getNumberOfColumns();c++){
+   row.push(telemedicineCell(data,r,c));
+  }
+  if(row.some(v=>v!=="")) out.push(row);
+ }
+ return out;
+}
+
+function telemedicineFindHeader(rows){
+ for(let i=0;i<rows.length;i++){
+  const text=rows[i].join(" ").toLowerCase();
+  if(text.includes("facility") || text.includes("sector")){
+   if(text.includes("completed") && text.includes("in process")) return i;
+  }
+ }
+ return -1;
+}
+
+function telemedicineTitle(rows, fallback){
+ for(const row of rows){
+  const t=row.join(" ").trim();
+  if(/e[- ]?sanjeevani|telimedicine|telemedicine/i.test(t)) return t;
+ }
+ return fallback;
+}
+
+function telemedicineDate(rows){
+ for(const row of rows){
+  const t=row.join(" ").trim();
+  if(/as on date/i.test(t)) return t.replace(/^.*?as on date/i,"as on Date").trim();
+ }
+ return "";
+}
+
+function telemedicineNum(v){
+ const n=Number(String(v||"").replace(/,/g,"").replace(/%/g,"").trim());
+ return Number.isFinite(n)?n:0;
+}
+
+function telemedicinePct(target, completed, sourcePct){
+ const t=telemedicineNum(target), c=telemedicineNum(completed);
+ if(t>0) return c/t*100;
+ const p=telemedicineNum(sourcePct);
+ return p;
+}
+
+function telemedicineIsMissing(row){
+ const total = String(row[4]||"").trim();
+ const completed = String(row[5]||"").trim();
+ const inProcess = String(row[6]||"").trim();
+ return total==="" && completed==="" && inProcess==="";
+}
+
+function telemedicineBuildRows(rows, mode){
+ const h=telemedicineFindHeader(rows);
+ if(h<0) return {title:"E-Sanjeevani Telemedicine Status FY 2026-27",date:"",headers:[],rows:[],total:null};
+
+ const headers=rows[h].map(v=>v||"");
+ const data=[];
+ let total=null;
+
+ for(let i=h+1;i<rows.length;i++){
+  const r=rows[i];
+  if(!r.some(v=>String(v||"").trim()!=="")) continue;
+  const first=String(r[0]||"").trim().toLowerCase();
+  if(first==="total" || first==="योग" || first==="कुल"){
+   total=r;
+   continue;
+  }
+  if(r.length<7) continue;
+  data.push(r);
+ }
+
+ return {
+  title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
+  date:telemedicineDate(rows),
+  headers:headers,
+  rows:data,
+  total:total
+ };
+}
+
+function telemedicineColor(p){
+ if(p>=100) return {bg:"#DCFCE7",fg:"#15803D",line:"#86EFAC"};
+ if(p>=90) return {bg:"#FEF3C7",fg:"#A16207",line:"#FACC15"};
+ return {bg:"#FEE2E2",fg:"#B91C1C",line:"#FCA5A5"};
+}
+
+function renderTelemedicineModule(){
+ const report=document.getElementById("telemedicineModule");
+ if(!report) return;
+
+ report.style.display="block";
+ const sector=telemedicineState.sector;
+ const facility=telemedicineState.facility;
+
+ const active=telemedicineState.active;
+ const data=active==="sector"?sector:facility;
+ if(!data){ report.innerHTML="<div style='padding:18px'>Telemedicine data नहीं मिला।</div>"; return; }
+
+ const rows=data.rows;
+ const isSector=active==="sector";
+
+ const targetIdx=3;
+ const totalIdx=4;
+ const completedIdx=5;
+ const processIdx=6;
+
+ let html="";
+ html += '<div class="tele-header" style="background:linear-gradient(135deg,#073B75,#075985);color:#fff;border-radius:14px 14px 0 0;padding:18px 20px;">';
+ html += '<div style="font-size:24px;font-weight:800;">🩻 '+data.title+'</div>';
+ html += '<div style="margin-top:5px;font-size:14px;font-weight:600;opacity:.95;">'+(data.date||"FY 2026-27")+'</div>';
+ html += '</div>';
+
+ html += '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px;background:#f8fafc;border-left:1px solid #d7e2ea;border-right:1px solid #d7e2ea;">';
+ html += '<button type="button" class="tele-tab '+(isSector?"active":"")+'" onclick="telemedicineSwitch(\'sector\')">📊 Sector Wise</button>';
+ html += '<button type="button" class="tele-tab '+(!isSector?"active":"")+'" onclick="telemedicineSwitch(\'facility\')">🏥 Facility Wise</button>';
+ html += '</div>';
+
+ html += '<div style="overflow:auto;border:1px solid #d7e2ea;border-top:0;border-radius:0 0 12px 12px;">';
+ html += '<table class="telemedicine-table" style="width:100%;border-collapse:collapse;min-width:980px;">';
+ html += '<thead><tr>';
+
+ const head = isSector
+  ? ["Sn","Sector","No of AAM Facility","Annual Target (Per Month 25) /Facilty","Total","Completed","In Process","%"]
+  : ["Sn","Facility","Annual Target (Per Month 25)","Total","Completed","In Process","%","Remark"];
+
+ head.forEach(hd=>{
+  html += '<th style="position:sticky;top:0;background:#075985;color:#fff;padding:12px 10px;border:1px solid #d7e2ea;font-size:14px;text-align:center;white-space:nowrap;">'+hd+'</th>';
+ });
+ html += '</tr></thead><tbody>';
+
+ rows.forEach((r,i)=>{
+  const pct=telemedicinePct(r[targetIdx],r[completedIdx],r[7]);
+  const missing=telemedicineIsMissing(r);
+  const idx=String(r[0]||i+1);
+
+  const values = isSector
+   ? [idx,r[1],r[2],r[3],r[4],r[5],r[6]]
+   : [idx,r[1],r[2],r[4],r[5],r[6],pct?pct.toFixed(0):"0",missing?"Not Mapped Portal":""];
+
+  html += '<tr>';
+  values.forEach((v,ci)=>{
+   const text=String(v==null?"":v);
+   if((isSector && ci===7) || (!isSector && ci===6)){
+    const sc=telemedicineColor(pct);
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:800;background:'+sc.bg+';color:'+sc.fg+';">'+text+(text!==""&&text.indexOf("%")<0?"%":"")+'</td>';
+   }else if(!isSector && ci===7){
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:700;color:#B45309;">'+text+'</td>';
+   }else{
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:'+(ci===1?"left":"center")+';font-size:14px;font-weight:'+(ci===1?"700":"500")+';">'+text+'</td>';
+   }
+  });
+  // Sector percentage is appended separately because values array has 7 fields.
+  if(isSector){
+   const sc=telemedicineColor(pct);
+   html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:800;background:'+sc.bg+';color:'+sc.fg+';">'+pct.toFixed(0)+'%</td>';
+  }
+  html += '</tr>';
+ });
+
+ if(data.total){
+  const tr=data.total;
+  const totalPct=telemedicinePct(tr[targetIdx],tr[completedIdx],tr[7]);
+  const totalTarget=tr[targetIdx], totalCompleted=tr[completedIdx];
+  html += '<tr style="background:#073B75;color:#fff;font-weight:800;">';
+  if(isSector){
+   html += '<td colspan="2" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||tr[1]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||tr[2]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
+   const sc=telemedicineColor(totalPct);
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
+  }else{
+   html += '<td colspan="3" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
+   const sc=telemedicineColor(totalPct);
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;"></td>';
+  }
+  html += '</tr>';
+ }
+ html += '</tbody></table></div>';
+
+ html += '<div style="padding:10px 4px 0;color:#64748b;font-size:12px;">% = Completed ÷ Annual Target × 100 • Missing facility data is marked “Not Mapped Portal”.</div>';
+
+ report.innerHTML=html;
+}
+
+function telemedicineSwitch(type){
+ telemedicineState.active=type;
+ renderTelemedicineModule();
+}
+
+async function loadTelemedicineReport(report){
+ try{
+  const querySheet=(gid)=>{
+   return new Promise((resolve,reject)=>{
+    const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(report.sheetId)+"/gviz/tq?gid="+encodeURIComponent(gid)+"&headers=0";
+    const q=new google.visualization.Query(url);
+    q.setQuery("select *");
+    q.send(response=>{
+     if(response.isError()){ reject(new Error(response.getMessage())); return; }
+     resolve(response.getDataTable());
+    });
+   });
+  };
+
+  const [sectorDT,facilityDT]=await Promise.all([
+   querySheet(report.gid),
+   querySheet(report.facilityGid)
+  ]);
+
+  telemedicineState.sector=telemedicineBuildRows(telemedicineRows(sectorDT),"sector");
+  telemedicineState.facility=telemedicineBuildRows(telemedicineRows(facilityDT),"facility");
+  telemedicineState.active="sector";
+
+  document.getElementById("reportTable").style.display="none";
+  const tele=document.getElementById("telemedicineModule");
+  if(tele) tele.style.display="block";
+  renderTelemedicineModule();
+
+  setStatus("✓ Telemedicine Sector Wise + Facility Wise data successfully loaded","success");
+ }catch(e){
+  console.error(e);
+  setStatus("Telemedicine data load नहीं हुआ: "+(e.message||e),"error");
+ }
+}
+
+
 function renderNormalTable(
  data
 ){
@@ -4113,6 +4403,17 @@ function filterTable(){
   return;
  }
 
+ if(
+  currentReportIndex!==null &&
+  REPORTS[currentReportIndex].telemedicine
+ ){
+  const q=document.getElementById("searchBox").value.toLowerCase().trim();
+  document.querySelectorAll("#telemedicineModule tbody tr").forEach(row=>{
+   row.style.display = q==="" || row.innerText.toLowerCase().includes(q) ? "" : "none";
+  });
+  return;
+ }
+
  /*
    Other reports
  */
@@ -4399,6 +4700,40 @@ function downloadExcel(){
 
  }
 
+
+ /* =================================================
+    TELEMEDICINE EXCEL
+ ================================================= */
+ if(
+  report.telemedicine &&
+  telemedicineState.sector &&
+  telemedicineState.facility
+ ){
+  const makeAoa=(state,isSector)=>{
+   const h=isSector
+    ? ["Sn","Sector","No of AAM Facility","Annual Target (Per Month 25) /Facilty","Total","Completed","In Process","%"]
+    : ["Sn","Facility","Annual Target (Per Month 25)","Total","Completed","In Process","%","Remark"];
+   const arr=[h];
+   state.rows.forEach((r,i)=>{
+    const pct=telemedicinePct(r[3],r[5],r[7]);
+    arr.push(isSector
+      ? [r[0],r[1],r[2],r[3],r[4],r[5],r[6],pct.toFixed(0)+"%"]
+      : [r[0]||i+1,r[1],r[2],r[4],r[5],r[6],pct.toFixed(0)+"%",telemedicineIsMissing(r)?"Not Mapped Portal":""]);
+   });
+   if(state.total){
+    const r=state.total, pct=telemedicinePct(r[3],r[5],r[7]);
+    arr.push(isSector
+      ? ["","TOTAL",r[2]||r[1]||"",r[3]||"",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%"]
+      : ["","","",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%",""]);
+   }
+   return arr;
+  };
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(makeAoa(telemedicineState.sector,true)),"Sector Wise");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(makeAoa(telemedicineState.facility,false)),"Facility Wise");
+  XLSX.writeFile(wb,"Telemedicine_Report_Kharsia.xlsx");
+  return;
+ }
 
  /* =================================================
     OTHER REPORTS
