@@ -12,7 +12,7 @@ cat:[
 function css(){
 if(document.getElementById('rbsk-css'))return;
 var s=document.createElement('style');s.id='rbsk-css';
-s.textContent='#rbskPage{display:none!important}#rbskPage.rbsk-visible{display:block!important}.rbsk-box{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);padding:16px;margin-bottom:16px}.rbsk-head{text-align:center;background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:12px;padding:14px;margin-bottom:14px}.rbsk-head h2{margin:0;font-size:21px}.rbsk-head p{margin:5px 0 0;font-size:13px;font-weight:700}.rbsk-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.rbsk-tab{border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}.rbsk-tab.active{background:#0f766e;color:#fff}.rbsk-pane{display:none}.rbsk-pane.active{display:block}.rbsk-title{text-align:center;color:#075985;font-size:18px;font-weight:900;margin:5px}.rbsk-sub{text-align:center;color:#64748b;font-size:12px;font-weight:700;margin-bottom:12px}.rbsk-scroll{overflow:auto;border:1px solid #dbe3ec;border-radius:10px}.rbsk-table{border-collapse:collapse;width:100%;min-width:1550px;font-size:12px}.rbsk-table.cat{min-width:2050px}.rbsk-table th,.rbsk-table td{border:1px solid #cbd5e1;padding:7px 5px;text-align:center;vertical-align:middle;white-space:normal}.rbsk-table th{background:#075985;color:#fff;font-weight:800}.rbsk-table .group th,.rbsk-table th.group{background:#0f766e}.rbsk-table tr:nth-child(even){background:#f8fafc}.rbsk-table tr.total{background:#dbeafe!important;font-weight:900}.rbsk-team{font-weight:900;color:#075985}.rbsk-note{margin-top:10px;padding:9px 12px;background:#f1f5f9;border-radius:8px;color:#475569;font-size:12px}.rbsk-empty{padding:25px;text-align:center;color:#64748b}';
+s.textContent='#rbskPage{display:none!important}#rbskPage.rbsk-visible{display:block!important}.rbsk-box{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);padding:16px;margin-bottom:16px}.rbsk-head{text-align:center;background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:12px;padding:14px;margin-bottom:14px}.rbsk-head h2{margin:0;font-size:21px}.rbsk-head p{margin:5px 0 0;font-size:13px;font-weight:700}.rbsk-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.rbsk-tab{border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}.rbsk-tab.active{background:#0f766e;color:#fff}.rbsk-pane{display:none}.rbsk-pane.active{display:block}.rbsk-title{text-align:center;color:#075985;font-size:18px;font-weight:900;margin:5px}.rbsk-sub{text-align:center;color:#64748b;font-size:12px;font-weight:700;margin-bottom:12px}.rbsk-scroll{overflow:auto;border:1px solid #dbe3ec;border-radius:10px}.rbsk-table{border-collapse:collapse;width:100%;min-width:1550px;font-size:12px}.rbsk-table.cat{min-width:2050px}.rbsk-main-table{min-width:1350px}.rbsk-main-table .rbsk-title-row th{background:#075985;color:#fff;font-size:16px;padding:10px}.rbsk-main-table .group th{background:#0f766e}.rbsk-main-table th{font-size:11px}.rbsk-main-table td{font-size:12px}.rbsk-table th,.rbsk-table td{border:1px solid #cbd5e1;padding:7px 5px;text-align:center;vertical-align:middle;white-space:normal}.rbsk-table th{background:#075985;color:#fff;font-weight:800}.rbsk-table .group th,.rbsk-table th.group{background:#0f766e}.rbsk-table tr:nth-child(even){background:#f8fafc}.rbsk-table tr.total{background:#dbeafe!important;font-weight:900}.rbsk-team{font-weight:900;color:#075985}.rbsk-note{margin-top:10px;padding:9px 12px;background:#f1f5f9;border-radius:8px;color:#475569;font-size:12px}.rbsk-empty{padding:25px;text-align:center;color:#64748b}';
 document.head.appendChild(s)
 }
 
@@ -33,11 +33,21 @@ window.scrollTo(0,0);
 }
 
 function mainTable(){
-var h='<div class="rbsk-box"><div class="rbsk-title">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27</div><div class="rbsk-sub">दिनांक '+D.date+' की स्थिति में</div><div class="rbsk-scroll"><table class="rbsk-table"><thead><tr class="group"><th rowspan="2">क्र.</th><th rowspan="2">टीम</th><th colspan="3">स्कूल जाँच</th><th colspan="3">स्कूल जाँच हेतु लक्ष्य / जाँच</th><th colspan="3">आंगनबाड़ी FIRST VISIT</th><th colspan="3">आंगनबाड़ी जाँच हेतु लक्ष्य / जाँच</th><th colspan="4">Reffer and Treatment</th><th colspan="2">अन्य</th></tr><tr><th>कुल स्कूल</th><th>स्कूल विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल आंगनबाड़ी</th><th>आंगनबाड़ी विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल बीमार बच्चे</th><th>कुल जिनका ईलाज किया गया</th><th>कुल रिफर</th><th>रिफर बच्चों का ईलाज</th><th>शेष</th><th>शेष इलाज</th></tr></tr></thead><tbody>';
-D.main.forEach(function(r){h+='<tr class="'+(r.t==='योग'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.t+'</td>';r.a.forEach(function(v){h+='<td>'+v.toLocaleString('en-IN')+'</td>'});h+='</tr>'});
-return h+'</tbody></table></div><div class="rbsk-note">केवल 2 RBSK Teams हैं। Sector Wise / Facility Wise section नहीं है।</div></div>'
+var h='<div class="rbsk-box"><div class="rbsk-scroll"><table class="rbsk-table rbsk-main-table"><thead>'+
+'<tr class="rbsk-title-row"><th colspan="18">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27 दिनांक 31-08-2026 की स्थिति में</th></tr>'+
+'<tr class="group"><th rowspan="2">क्र</th><th rowspan="2">टीम</th><th colspan="6">स्कूल जाॅच</th><th colspan="6">आगाॅनबाड़ी FIRST VISIT</th><th colspan="4">Reffer and Treatment</th></tr>'+
+'<tr>'+
+'<th>कुल स्कूल</th><th>स्कूल विजिट</th><th>प्रतिशत</th><th>कुल जाॅच हेतु लक्ष्य</th><th>कुल जाॅच</th><th>प्रतिशत</th>'+
+'<th>कुल आगाॅनबाड़ी</th><th>आगाॅनबाड़ी विजिट</th><th>प्रतिशत</th><th>कुल जाॅच हेतु लक्ष्य</th><th>कुल जाॅच</th><th>प्रतिशत</th>'+
+'<th>कुल बीमार बच्चो की संख्या</th><th>कुल जिनका ईलाज किया गया</th><th>कुल रिॅफर</th><th>कुल रिफर किये गये बच्चों का ईलाज किया गया</th>'+
+'</tr></thead><tbody>';
+D.main.forEach(function(r){
+h+='<tr class="'+(r.t==='योग'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.t+'</td>';
+r.a.slice(0,16).forEach(function(v){h+='<td>'+v.toLocaleString('en-IN')+'</td>'});
+h+='</tr>';
+});
+return h+'</tbody></table></div></div>'
 }
-
 function cells(a){var s='';a.forEach(function(v){s+='<td>'+v+'</td>'});return s}
 
 function catTable(){
