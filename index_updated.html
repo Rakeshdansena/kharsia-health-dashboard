@@ -3892,15 +3892,14 @@ function telemedicineBuildRows(rows, mode){
  // Prefer the real header row, but do not depend on exact spelling/spacing.
  let h=telemedicineFindHeader(rows);
 
- // Robust fallback: find the first row after the title/date rows that looks
- // like the actual data header (Sn + Facility/Sector + Target + Total/Completed).
+ // Robust fallback: find the first row after title/date that resembles
+ // the actual Telemedicine header.
  if(h<0){
   for(let i=0;i<rows.length;i++){
    const t=(rows[i]||[]).join(" ").toLowerCase();
-   const hasFirst=/^\s*(sn|s\.?\s*no\.?|क्रम|क्रमांक)\s*$/.test(String((rows[i]||[])[0]||""));
-   const hasEntity=mode==="sector"
-    ? /sector/.test(t)
-    : /facility/.test(t);
+   const first=String((rows[i]||[])[0]||"").trim();
+   const hasFirst=/^(sn|s\.?\s*no\.?|क्रम|क्रमांक)$/i.test(first);
+   const hasEntity=mode==="sector" ? /sector/.test(t) : /facility/.test(t);
    const hasMetrics=/annual\s*target|per\s*month|completed|in\s*process/.test(t);
    if((hasFirst || /\bsn\b/.test(t)) && hasEntity && hasMetrics){
     h=i;
@@ -3909,10 +3908,21 @@ function telemedicineBuildRows(rows, mode){
   }
  }
 
- // Final fallback for the supplied Telemedicine sheet layout:
- // rows after the title/date/blank lines where the first column is a serial
- // number and the second column is a Sector/Facility name.
- if(h<0){
+ let data=[];
+ if(h>=0){
+  for(let i=h+1;i<rows.length;i++){
+   const r=rows[i]||[];
+   if(!r.some(v=>String(v||"").trim()!=="")) continue;
+   const first=String(r[0]||"").trim().toLowerCase();
+   if(telemedicineIsPHCGorpar(r,mode)) continue;
+   // Keep only numbered data rows. Ignore any source Total row because we
+   // will calculate a clean Total from the rows actually displayed.
+   if(r.length>=7 && /^\d+$/.test(first) && String(r[1]||"").trim()!==""){
+    data.push(r);
+   }
+  }
+ }else{
+  // Fallback for the supplied sheet layout.
   let dataStart=-1;
   for(let i=0;i<rows.length;i++){
    const r=rows[i]||[];
@@ -3921,80 +3931,46 @@ function telemedicineBuildRows(rows, mode){
     break;
    }
   }
-
-  const data=[];
-  let total=null;
   if(dataStart>=0){
    for(let i=dataStart;i<rows.length;i++){
     const r=rows[i]||[];
     if(!r.some(v=>String(v||"").trim()!=="")) continue;
     const first=String(r[0]||"").trim().toLowerCase();
-    if(telemedicineIsTotalRow(r)){ total=r; continue; }
     if(telemedicineIsPHCGorpar(r,mode)) continue;
     if(/^\d+$/.test(first) && String(r[1]||"").trim()!=="") data.push(r);
    }
   }
-
-  return {
-   title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
-   date:telemedicineDate(rows),
-   headers:[],
-   rows:data,
-   total:total
-  };
  }
 
- const headers=rows[h].map(v=>v||"");
- const data=[];
- let total=null;
-
- for(let i=h+1;i<rows.length;i++){
-  const r=rows[i]||[];
-  if(!r.some(v=>String(v||"").trim()!=="")) continue;
-  const first=String(r[0]||"").trim().toLowerCase();
-  if(telemedicineIsTotalRow(r)){
-   total=r;
-   continue;
-  }
-  if(telemedicineIsPHCGorpar(r,mode)) continue;
-  // A valid Telemedicine data row has a serial number and an entity name.
-  if(r.length>=7 && /^\d+$/.test(first) && String(r[1]||"").trim()!==""){
-   data.push(r);
-  }
- }
-
- // Always build a Total row from the visible data when the source Total
- // row is missing or was not recognized. This also keeps totals correct after
- // excluding the unwanted PHC Gorpar sector row.
- if(!total){
-  if(mode==="sector"){
-   let aam=0,target=0,totalCount=0,completed=0,inProcess=0;
-   data.forEach(r=>{
-    aam += telemedicineNum(r[2]);
-    target += telemedicineNum(r[3]);
-    totalCount += telemedicineNum(r[4]);
-    completed += telemedicineNum(r[5]);
-    inProcess += telemedicineNum(r[6]);
-   });
-   const p=target>0 ? (completed/target*100) : 0;
-   total=["Total","",aam,target,totalCount,completed,inProcess,p.toFixed(0)];
-  }else{
-   let target=0,totalCount=0,completed=0,inProcess=0;
-   data.forEach(r=>{
-    target += telemedicineNum(r[2]);
-    totalCount += telemedicineNum(r[3]);
-    completed += telemedicineNum(r[4]);
-    inProcess += telemedicineNum(r[5]);
-   });
-   const p=target>0 ? (completed/target*100) : 0;
-   total=["Total","","",target,totalCount,completed,inProcess,p.toFixed(0),""]; 
-  }
+ // Always calculate Total from exactly the rows shown on screen.
+ let total;
+ if(mode==="sector"){
+  let aam=0,target=0,totalCount=0,completed=0,inProcess=0;
+  data.forEach(r=>{
+   aam += telemedicineNum(r[2]);
+   target += telemedicineNum(r[3]);
+   totalCount += telemedicineNum(r[4]);
+   completed += telemedicineNum(r[5]);
+   inProcess += telemedicineNum(r[6]);
+  });
+  const p=target>0 ? completed/target*100 : 0;
+  total=["Total","",aam,target,totalCount,completed,inProcess,p.toFixed(0)];
+ }else{
+  let target=0,totalCount=0,completed=0,inProcess=0;
+  data.forEach(r=>{
+   target += telemedicineNum(r[2]);
+   totalCount += telemedicineNum(r[3]);
+   completed += telemedicineNum(r[4]);
+   inProcess += telemedicineNum(r[5]);
+  });
+  const p=target>0 ? completed/target*100 : 0;
+  total=["Total","",target,totalCount,completed,inProcess,p.toFixed(0),""]; 
  }
 
  return {
   title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
   date:telemedicineDate(rows),
-  headers:headers,
+  headers:h>=0 ? (rows[h]||[]).map(v=>v||[]) : [],
   rows:data,
   total:total
  };
@@ -4087,12 +4063,14 @@ function renderTelemedicineModule(){
 
  if(data.total){
   const tr=data.total;
-  const totalPct=telemedicinePct(tr[2],tr[isSector?4:4],tr[6]);
-  const totalTarget=tr[2], totalCompleted=tr[4];
+  const totalPct=isSector
+   ? telemedicineNum(tr[7])
+   : telemedicineNum(tr[6]);
   html += '<tr style="background:#073B75;color:#fff;font-weight:800;">';
   if(isSector){
    html += '<td colspan="2" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[1]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
