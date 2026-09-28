@@ -3872,10 +3872,13 @@ function telemedicinePct(target, completed, sourcePct){
  return p;
 }
 
-function telemedicineIsMissing(row){
- const total = String(row[4]||"").trim();
- const completed = String(row[5]||"").trim();
- const inProcess = String(row[6]||"").trim();
+function telemedicineIsMissing(row, isSector){
+ const totalIdx = isSector ? 4 : 3;
+ const completedIdx = isSector ? 5 : 4;
+ const inProcessIdx = isSector ? 6 : 5;
+ const total = String(row[totalIdx]||"").trim();
+ const completed = String(row[completedIdx]||"").trim();
+ const inProcess = String(row[inProcessIdx]||"").trim();
  return total==="" && completed==="" && inProcess==="";
 }
 
@@ -3929,10 +3932,10 @@ function renderTelemedicineModule(){
  const rows=data.rows;
  const isSector=active==="sector";
 
- const targetIdx=3;
- const totalIdx=4;
- const completedIdx=5;
- const processIdx=6;
+ const targetIdx=isSector?3:2;
+ const totalIdx=isSector?4:3;
+ const completedIdx=isSector?5:4;
+ const processIdx=isSector?6:5;
 
  let html="";
  html += '<div class="tele-header" style="background:linear-gradient(135deg,#073B75,#075985);color:#fff;border-radius:14px 14px 0 0;padding:18px 20px;">';
@@ -3960,12 +3963,12 @@ function renderTelemedicineModule(){
 
  rows.forEach((r,i)=>{
   const pct=telemedicinePct(r[targetIdx],r[completedIdx],r[7]);
-  const missing=telemedicineIsMissing(r);
+  const missing=telemedicineIsMissing(r,isSector);
   const idx=String(r[0]||i+1);
 
   const values = isSector
    ? [idx,r[1],r[2],r[3],r[4],r[5],r[6]]
-   : [idx,r[1],r[2],r[4],r[5],r[6],pct?pct.toFixed(0):"0",missing?"Not Mapped Portal":""];
+   : [idx,r[1],r[2],r[3],r[4],r[5],pct?pct.toFixed(0):"0",missing?"Not Mapped Portal":""];
 
   html += '<tr>';
   values.forEach((v,ci)=>{
@@ -3989,23 +3992,23 @@ function renderTelemedicineModule(){
 
  if(data.total){
   const tr=data.total;
-  const totalPct=telemedicinePct(tr[targetIdx],tr[completedIdx],tr[7]);
-  const totalTarget=tr[targetIdx], totalCompleted=tr[completedIdx];
+  const totalPct=telemedicinePct(tr[2],tr[isSector?4:4],tr[6]);
+  const totalTarget=tr[2], totalCompleted=tr[4];
   html += '<tr style="background:#073B75;color:#fff;font-weight:800;">';
   if(isSector){
    html += '<td colspan="2" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||tr[1]||"")+'</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||tr[2]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[1]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
    const sc=telemedicineColor(totalPct);
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
   }else{
    html += '<td colspan="3" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
    const sc=telemedicineColor(totalPct);
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;"></td>';
@@ -4715,13 +4718,17 @@ function downloadExcel(){
     : ["Sn","Facility","Annual Target (Per Month 25)","Total","Completed","In Process","%","Remark"];
    const arr=[h];
    state.rows.forEach((r,i)=>{
-    const pct=telemedicinePct(r[3],r[5],r[7]);
+    const pct=isSector
+      ?telemedicinePct(r[3],r[5],r[7])
+      :telemedicinePct(r[2],r[4],r[6]);
     arr.push(isSector
       ? [r[0],r[1],r[2],r[3],r[4],r[5],r[6],pct.toFixed(0)+"%"]
       : [r[0]||i+1,r[1],r[2],r[4],r[5],r[6],pct.toFixed(0)+"%",telemedicineIsMissing(r)?"Not Mapped Portal":""]);
    });
    if(state.total){
-    const r=state.total, pct=telemedicinePct(r[3],r[5],r[7]);
+    const r=state.total, pct=isSector
+     ?telemedicinePct(r[3],r[5],r[6])
+     :telemedicinePct(r[2],r[4],r[6]);
     arr.push(isSector
       ? ["","TOTAL",r[2]||r[1]||"",r[3]||"",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%"]
       : ["","","",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%",""]);
