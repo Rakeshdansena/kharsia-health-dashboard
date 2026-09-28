@@ -987,7 +987,7 @@ body{
 .pptx-select-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 18px;border-top:1px solid #e2e8f0;background:#f8fafc}
 .pptx-select-footer button{border:0;border-radius:10px;padding:10px 16px;font-weight:900;cursor:pointer}
 .pptx-cancel{background:#e2e8f0;color:#334155}
-.pptx-generate-selected{background:#b91c1c;color:#fff}
+.pptx-generate-pdf{background:#0f766e;color:#fff}.pptx-generate-selected{background:#b91c1c;color:#fff}
 .pptx-generate-selected:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:640px){.pptx-program-grid{grid-template-columns:1fr}}
 </style>
@@ -5130,7 +5130,8 @@ function showPPTXProgrammeSelector(){
      '<div class="pptx-program-grid" id="pptxProgramGrid"></div>'+
      '<div class="pptx-select-footer">'+
       '<button type="button" class="pptx-cancel" id="pptxSelCancel">Cancel</button>'+
-      '<button type="button" class="pptx-generate-selected" id="pptxGenerateSelected">📊 Generate Selected PPTX</button>'+
+      '<button type="button" class="pptx-generate-pdf" id="pptxGeneratePDF">📄 Generate PDF</button>'+
+      '<button type="button" class="pptx-generate-selected" id="pptxGenerateSelected">📊 Generate PPTX</button>'+
      '</div>'+
     '</div>'+
    '</div>';
@@ -5196,18 +5197,26 @@ function showPPTXProgrammeSelector(){
   document.getElementById('pptxSelClose').onclick=function(){modal.remove();};
   document.getElementById('pptxSelCancel').onclick=function(){modal.remove();};
 
-  document.getElementById('pptxGenerateSelected').onclick=function(){
+  function getSelectionAndClose(){
     normalizeOrder();
     var selected=selectionOrder.slice();
-
     if(!selected.length){
       alert('कम-से-कम एक Programme select करें।');
-      return;
+      return null;
     }
-
     window.__pptxSelectedPrograms=selected;
     modal.remove();
-    runSelectedPPTXGeneration();
+    return selected;
+  }
+
+  document.getElementById('pptxGenerateSelected').onclick=function(){
+    var selected=getSelectionAndClose();
+    if(selected) runSelectedPPTXGeneration();
+  };
+
+  document.getElementById('pptxGeneratePDF').onclick=function(){
+    var selected=getSelectionAndClose();
+    if(selected) runSelectedProgrammePDF(selected);
   };
 
   document.querySelectorAll('.pptx-program-option').forEach(function(label){
@@ -5225,6 +5234,151 @@ function showPPTXProgrammeSelector(){
 
   updateCount();
 }
+function runSelectedProgrammePDF(selected){
+  var btn=document.getElementById('dashboardPptxBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ PDF तैयार हो रहा है...';}
+
+  var oldDeck=document.getElementById('selectedProgrammePDFDeck');
+  if(oldDeck) oldDeck.remove();
+
+  var deck=document.createElement('div');
+  deck.id='selectedProgrammePDFDeck';
+  deck.style.position='fixed';
+  deck.style.left='-20000px';
+  deck.style.top='0';
+  deck.style.width='1280px';
+  deck.style.background='#fff';
+  deck.style.padding='0';
+  deck.innerHTML=
+    '<style>'+
+    '#selectedProgrammePDFDeck .pdf-deck-page{width:1280px;min-height:720px;box-sizing:border-box;background:#fff;position:relative;page-break-after:always;overflow:hidden;padding:28px 34px 34px;font-family:Arial, sans-serif;color:#0f2d52}'+
+    '#selectedProgrammePDFDeck .pdf-deck-page:last-child{page-break-after:auto}'+
+    '#selectedProgrammePDFDeck .pdf-deck-title{background:linear-gradient(135deg,#073b75,#075985);color:#fff;border-radius:12px;padding:18px 22px;font-size:28px;font-weight:900;margin-bottom:14px}'+
+    '#selectedProgrammePDFDeck .pdf-deck-sub{font-size:15px;color:#475569;font-weight:700;margin-bottom:10px}'+
+    '#selectedProgrammePDFDeck .pdf-index-card{display:flex;justify-content:space-between;align-items:center;border:2px solid #dbe5ef;border-radius:14px;padding:16px 18px;margin:10px 0;background:#f8fbff;font-size:20px;font-weight:800}'+
+    '#selectedProgrammePDFDeck .pdf-index-page{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:7px 12px;font-size:13px;color:#075985;white-space:nowrap}'+
+    '#selectedProgrammePDFDeck .pdf-source{position:absolute;bottom:12px;left:34px;right:34px;font-size:11px;color:#64748b;text-align:center}'+
+    '#selectedProgrammePDFDeck .pdf-clone{font-size:12px!important}'+
+    '#selectedProgrammePDFDeck table{font-size:12px!important;width:100%!important;max-width:none!important}'+
+    '#selectedProgrammePDFDeck th{font-size:12px!important}'+
+    '#selectedProgrammePDFDeck td{font-size:12px!important}'+
+    '</style>';
+
+  function addPage(inner){
+    var p=document.createElement('div');
+    p.className='pdf-deck-page';
+    p.innerHTML=inner;
+    deck.appendChild(p);
+  }
+
+  var today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  addPage(
+    '<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#f7fbff,#eaf6ff);">'+
+      '<div style="font-size:22px;font-weight:800;color:#073b75;">छत्तीसगढ़ शासन • स्वास्थ्य एवं परिवार कल्याण विभाग</div>'+
+      '<div style="margin-top:26px;background:#073b75;color:#fff;border-radius:20px;padding:26px 42px;font-size:42px;font-weight:900;">KHARSIA HEALTH DEPARTMENT</div>'+
+      '<div style="margin-top:16px;font-size:34px;font-weight:900;color:#18783c;">PROGRESSIVE REPORT</div>'+
+      '<div style="margin-top:18px;background:#0d63c9;color:#fff;border-radius:16px;padding:12px 28px;font-size:24px;font-weight:900;">FY 2026 - 27</div>'+
+      '<div style="margin-top:30px;font-size:20px;font-weight:800;color:#0f2d52;">Block Kharsia | District Raigarh | Chhattisgarh</div>'+
+      '<div style="margin-top:12px;font-size:16px;color:#be185d;font-weight:900;">As On Date : '+today+'</div>'+
+    '</div>'
+  );
+
+  var pageNo=3;
+  var indexHtml='<div class="pdf-deck-title">Programme Index</div><div class="pdf-deck-sub">Selected order as generated for the report</div>';
+  selected.forEach(function(name,idx){
+    var pages=1;
+    // Known multi-slide programme counts used by the current PPT generator.
+    if(name==='Janani Portal') pages=1;
+    else if(name==='JAS Meeting') pages=2;
+    else if(name==='Ayushman Shivir') pages=2;
+    else if(name==='Wellness Activity') pages=2;
+    else if(name==='Telemedicine Report') pages=2;
+    else if(name==='NCD') pages=1;
+    indexHtml+='<div class="pdf-index-card"><span>'+(idx+1)+'. '+name+'</span><span class="pdf-index-page">Page '+String(pageNo).padStart(2,'0')+(pages>1?' - '+String(pageNo+pages-1).padStart(2,'0'):'')+'</span></div>';
+    pageNo+=pages;
+  });
+  indexHtml+='<div class="pdf-source">Generated from Kharsia Health Dashboard</div>';
+  addPage(indexHtml);
+
+  var reportLookup={
+    'Janani Portal':'RCH 2.0',
+    'NCD':'NCD',
+    'JAS Meeting':'JAS Meeting',
+    'Ayushman Shivir':'Ayushman Shivir',
+    'Wellness Activity':'Wellness Activity',
+    'Telemedicine Report':'Telemedicine Report'
+  };
+
+  var reportIndexByName={};
+  REPORTS.forEach(function(r,i){reportIndexByName[r.name]=i;});
+
+  function wait(ms){ return new Promise(function(resolve){setTimeout(resolve,ms);}); }
+
+  async function captureReport(name){
+    var realName=reportLookup[name]||name;
+    var idx=reportIndexByName[realName];
+    if(idx==null) return;
+
+    openReport(idx);
+    await wait(1400);
+
+    var source=document.getElementById('pdfArea');
+    var tele=document.getElementById('telemedicineModule');
+    var html='';
+
+    if(realName==='Telemedicine Report' && tele && tele.style.display!=='none'){
+      html='<div class="pdf-deck-title">🩻 Telemedicine Report</div><div class="pdf-clone">'+tele.outerHTML+'</div>';
+    }else if(realName==='JAS Meeting'){
+      var jas=document.getElementById('jasMeetingModule');
+      if(jas){
+        html='<div class="pdf-deck-title">🤝 JAS Meeting</div><div class="pdf-clone">'+jas.outerHTML+'</div>';
+      }else{
+        html='<div class="pdf-deck-title">🤝 JAS Meeting</div><div class="pdf-clone">'+source.outerHTML+'</div>';
+      }
+    }else if(realName==='RCH 2.0'){
+      html='<div class="pdf-deck-title">👩‍🍼 Janani Portal (RCH 2.0)</div><div class="pdf-clone">'+source.outerHTML+'</div>';
+    }else{
+      html='<div class="pdf-deck-title">'+((REPORTS[idx].icon||'📄')+' '+(REPORTS[idx].displayName||REPORTS[idx].name))+'</div><div class="pdf-clone">'+source.outerHTML+'</div>';
+    }
+
+    addPage(html);
+  }
+
+  document.body.appendChild(deck);
+
+  (async function(){
+    try{
+      for(var i=0;i<selected.length;i++){
+        await captureReport(selected[i]);
+      }
+
+      if(typeof html2pdf!=='function'){
+        throw new Error('PDF library load नहीं हुई।');
+      }
+
+      await html2pdf()
+        .set({
+          margin:0,
+          filename:'Kharsia_Health_Progressive_Report_Selected.pdf',
+          image:{type:'jpeg',quality:0.97},
+          html2canvas:{scale:1.2,useCORS:true,backgroundColor:'#ffffff'},
+          jsPDF:{unit:'px',format:[1280,720],orientation:'landscape',compressPDF:true},
+          pagebreak:{mode:['css','legacy']}
+        })
+        .from(deck)
+        .save();
+    }catch(e){
+      console.error('Selected PDF error:',e);
+      alert('PDF generate नहीं हुआ: '+(e.message||e));
+    }finally{
+      deck.remove();
+      if(btn){btn.disabled=false;btn.textContent='📊 Generate PPTX';}
+      showDashboard();
+    }
+  })();
+}
+
 function runSelectedPPTXGeneration(){
   var b=document.getElementById('dashboardPptxBtn');
   if(b){b.disabled=true;b.textContent='⏳ PPTX Loading...';}
