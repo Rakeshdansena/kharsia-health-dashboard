@@ -3963,6 +3963,34 @@ function telemedicineBuildRows(rows, mode){
   }
  }
 
+ // Always build a Total row from the visible data when the source Total
+ // row is missing or was not recognized. This also keeps totals correct after
+ // excluding the unwanted PHC Gorpar sector row.
+ if(!total){
+  if(mode==="sector"){
+   let aam=0,target=0,totalCount=0,completed=0,inProcess=0;
+   data.forEach(r=>{
+    aam += telemedicineNum(r[2]);
+    target += telemedicineNum(r[3]);
+    totalCount += telemedicineNum(r[4]);
+    completed += telemedicineNum(r[5]);
+    inProcess += telemedicineNum(r[6]);
+   });
+   const p=target>0 ? (completed/target*100) : 0;
+   total=["Total","",aam,target,totalCount,completed,inProcess,p.toFixed(0)];
+  }else{
+   let target=0,totalCount=0,completed=0,inProcess=0;
+   data.forEach(r=>{
+    target += telemedicineNum(r[2]);
+    totalCount += telemedicineNum(r[3]);
+    completed += telemedicineNum(r[4]);
+    inProcess += telemedicineNum(r[5]);
+   });
+   const p=target>0 ? (completed/target*100) : 0;
+   total=["Total","","",target,totalCount,completed,inProcess,p.toFixed(0),""]; 
+  }
+ }
+
  return {
   title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
   date:telemedicineDate(rows),
@@ -4084,7 +4112,7 @@ function renderTelemedicineModule(){
  }
  html += '</tbody></table></div>';
 
- html += '<div style="padding:10px 4px 0;color:#64748b;font-size:12px;">% = Completed ÷ Annual Target × 100 • Missing facility data is marked “Not Mapped Portal”.</div>';
+ html += '<div style="padding:10px 4px 0;color:#64748b;font-size:12px;">% = Completed ÷ Annual Target × 100 • Total row is calculated from the displayed rows • Missing facility data is marked “Not Mapped Portal”.</div>';
 
  report.innerHTML=html;
 }
