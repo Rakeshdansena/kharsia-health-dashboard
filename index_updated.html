@@ -5243,18 +5243,20 @@ function runSelectedProgrammePDF(selected){
 
   var deck=document.createElement('div');
   deck.id='selectedProgrammePDFDeck';
-  deck.style.position='absolute';
+  deck.style.position='fixed';
   deck.style.left='0';
   deck.style.top='0';
   deck.style.zIndex='99998';
   deck.style.width='1280px';
   deck.style.background='#fff';
   deck.style.padding='0';
+  deck.style.display='block';
+  deck.style.visibility='visible';
   deck.style.pointerEvents='none';
   deck.innerHTML=
     '<style>'+
-    '#selectedProgrammePDFDeck .pdf-deck-page{width:1280px;min-height:720px;box-sizing:border-box;background:#fff;position:relative;page-break-after:always;overflow:hidden;padding:28px 34px 34px;font-family:Arial, sans-serif;color:#0f2d52}'+
-    '#selectedProgrammePDFDeck .pdf-deck-page:last-child{page-break-after:auto}'+
+    '#selectedProgrammePDFDeck .pdf-deck-page{width:1280px;height:720px;box-sizing:border-box;background:#fff;position:relative;display:block;break-after:page;page-break-after:always;overflow:hidden;padding:28px 34px 34px;font-family:Arial, sans-serif;color:#0f2d52}'+
+    '#selectedProgrammePDFDeck .pdf-deck-page:last-child{page-break-after:auto;break-after:auto}'+
     '#selectedProgrammePDFDeck .pdf-deck-title{background:linear-gradient(135deg,#073b75,#075985);color:#fff;border-radius:12px;padding:18px 22px;font-size:28px;font-weight:900;margin-bottom:14px}'+
     '#selectedProgrammePDFDeck .pdf-deck-sub{font-size:15px;color:#475569;font-weight:700;margin-bottom:10px}'+
     '#selectedProgrammePDFDeck .pdf-index-card{display:flex;justify-content:space-between;align-items:center;border:2px solid #dbe5ef;border-radius:14px;padding:16px 18px;margin:10px 0;background:#f8fbff;font-size:20px;font-weight:800}'+
@@ -5355,17 +5357,39 @@ function runSelectedProgrammePDF(selected){
         throw new Error('PDF library load नहीं हुई।');
       }
 
-      await html2pdf()
-        .set({
-          margin:0,
-          filename:'Kharsia_Health_Progressive_Report_Selected.pdf',
-          image:{type:'jpeg',quality:0.97},
-          html2canvas:{scale:1.2,useCORS:true,backgroundColor:'#ffffff',logging:false,windowWidth:1280,windowHeight:720},
-          jsPDF:{unit:'px',format:[1280,720],orientation:'landscape',compressPDF:true},
-          pagebreak:{mode:['css','legacy'],avoid:'.no-pdf-break'}
-        })
-        .from(deck)
-        .save();
+      // Capture the same selected-programme pages as a landscape PDF.
+      // Keeping the deck visible during capture prevents blank-page PDFs caused
+      // by converting an absolutely positioned/off-screen container.
+      await new Promise(function(resolve,reject){
+        html2pdf()
+          .set({
+            margin:0,
+            filename:'Kharsia_Health_Progressive_Report_Selected.pdf',
+            image:{type:'jpeg',quality:0.98},
+            html2canvas:{
+              scale:1.5,
+              useCORS:true,
+              backgroundColor:'#ffffff',
+              logging:false,
+              allowTaint:true,
+              windowWidth:1280,
+              windowHeight:720,
+              scrollX:0,
+              scrollY:0
+            },
+            jsPDF:{
+              unit:'px',
+              format:[1280,720],
+              orientation:'landscape',
+              compressPDF:true
+            },
+            pagebreak:{mode:['css','legacy']}
+          })
+          .from(deck)
+          .save()
+          .then(resolve)
+          .catch(reject);
+      });
     }catch(e){
       console.error('Selected PDF error:',e);
       alert('PDF generate नहीं हुआ: '+(e.message||e));
