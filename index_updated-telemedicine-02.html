@@ -1,0 +1,5044 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Kharsia Health Dashboard</title>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+<style>
+
+/* =====================================================
+   BASIC
+===================================================== */
+
+*{
+ box-sizing:border-box;
+}
+
+body{
+ margin:0;
+ font-family:Arial,"Noto Sans",sans-serif;
+ background:#f3f6fa;
+ color:#1f2937;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header{
+ min-height:70px;
+ background:linear-gradient(135deg,#075985,#0f766e);
+ color:white;
+ display:flex;
+ align-items:center;
+ padding:14px 25px;
+ box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
+
+.header h1{
+ margin:0;
+ font-size:24px;
+}
+
+.header small{
+ margin-left:15px;
+ opacity:.9;
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+.container{
+ display:flex;
+ min-height:calc(100vh - 70px);
+}
+
+.sidebar{
+ width:255px;
+ background:#0f2942;
+ padding:15px 12px;
+ overflow-y:auto;
+}
+
+.sidebar-title{
+ color:#b9d7ec;
+ font-size:13px;
+ padding:8px 12px;
+ text-transform:uppercase;
+}
+
+.menu-btn{
+ width:100%;
+ border:0;
+ background:transparent;
+ color:#e5eef5;
+ padding:11px 13px;
+ margin:3px 0;
+ border-radius:8px;
+ text-align:left;
+ font-size:14px;
+ cursor:pointer;
+}
+
+.menu-btn:hover{
+ background:#174d78;
+}
+
+.menu-btn.active{
+ background:#0ea5a4;
+ color:white;
+}
+
+
+.content{
+ flex:1;
+ padding:25px;
+ min-width:0;
+}
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.page{
+ display:none;
+}
+
+.page.active{
+ display:block;
+}
+
+
+/* =====================================================
+   COMMON BOX
+===================================================== */
+
+.welcome,
+.report-header,
+.table-box{
+ background:white;
+ border-radius:14px;
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.welcome{
+ padding:25px;
+ margin-bottom:20px;
+}
+
+.welcome h2,
+.report-header h2{
+ margin-top:0;
+ color:#075985;
+}
+
+.welcome p,
+.report-header p{
+ color:#64748b;
+}
+
+
+/* =====================================================
+   DASHBOARD CARDS
+===================================================== */
+
+.cards{
+ display:grid;
+ grid-template-columns:
+ repeat(auto-fit,minmax(210px,1fr));
+ gap:16px;
+}
+
+.card{
+ background:white;
+ border-radius:14px;
+ padding:20px;
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
+ cursor:pointer;
+ transition:.2s;
+}
+
+.card:hover{
+ transform:translateY(-3px);
+ box-shadow:0 7px 20px rgba(0,0,0,.12);
+}
+
+.card-icon{
+ font-size:30px;
+}
+
+.card h3{
+ margin:12px 0 5px;
+ font-size:16px;
+}
+
+.card p{
+ margin:0;
+ color:#64748b;
+ font-size:13px;
+}
+
+
+/* =====================================================
+   REPORT HEADER
+===================================================== */
+
+.report-header{
+ padding:20px;
+ margin-bottom:15px;
+}
+
+.report-header h2{
+ margin:0 0 6px;
+}
+
+.report-actions{
+ display:flex;
+ gap:9px;
+ flex-wrap:wrap;
+ margin-top:15px;
+}
+
+.search{
+ padding:10px 13px;
+ border:1px solid #cbd5e1;
+ border-radius:8px;
+ min-width:250px;
+ font-size:14px;
+ outline:none;
+}
+
+.action-btn{
+ border:0;
+ color:white;
+ padding:10px 14px;
+ border-radius:8px;
+ cursor:pointer;
+ font-size:14px;
+}
+
+.back-btn{
+ background:#475569;
+}
+
+.refresh-btn{
+ background:#0f766e;
+}
+
+.pdf-btn{
+ background:#b91c1c;
+}
+
+.excel-btn{
+ background:#15803d;
+}
+
+.print-btn{
+ background:#334155;
+}
+
+.action-btn:hover{
+ opacity:.88;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status{
+ padding:12px 15px;
+ border-radius:9px;
+ background:#e0f2fe;
+ color:#075985;
+ margin-bottom:15px;
+ font-size:14px;
+}
+
+.status.success{
+ background:#dcfce7;
+ color:#166534;
+}
+
+.status.error{
+ background:#fee2e2;
+ color:#991b1b;
+}
+
+
+/* =====================================================
+   NORMAL TABLE
+===================================================== */
+
+.table-box{
+ padding:12px;
+ overflow:auto;
+}
+
+#reportTable{
+ border-collapse:collapse;
+ width:100%;
+ min-width:900px;
+ font-size:13px;
+}
+
+#reportTable th{
+ background:#075985;
+ color:white;
+ padding:9px 7px;
+ border:1px solid #d1d5db;
+ white-space:normal;
+ text-align:center;
+ vertical-align:middle;
+}
+
+#reportTable td{
+ padding:7px;
+ border:1px solid #d1d5db;
+ white-space:nowrap;
+ vertical-align:middle;
+}
+
+#reportTable tbody tr:nth-child(even){
+ background:#f8fafc;
+}
+
+#reportTable tbody tr:hover{
+ background:#e0f2fe;
+}
+
+#reportTable tbody tr.total-row{
+ font-weight:700;
+ background:#dbeafe;
+}
+
+
+/* =====================================================
+   RCH SUMMARY
+===================================================== */
+
+#rchSummaryCards{
+ display:none;
+ grid-template-columns:
+ repeat(6,minmax(130px,1fr));
+ gap:10px;
+ margin:15px 0 5px;
+}
+
+#rchSummaryCards.show{
+ display:grid;
+}
+
+.rch-summary-card{
+ background:#f8fafc;
+ border:1px solid #dbe3ec;
+ border-radius:10px;
+ padding:10px 8px;
+ text-align:center;
+}
+
+.rch-card-title{
+ color:#64748b;
+ font-size:11px;
+ font-weight:600;
+}
+
+.rch-card-value{
+ color:#075985;
+ font-size:21px;
+ font-weight:800;
+ margin-top:5px;
+}
+
+
+/* =====================================================
+   RCH
+===================================================== */
+
+#rchContainer{
+ display:none;
+}
+
+.rch-page{
+ background:white;
+ border-radius:12px;
+ padding:12px;
+ margin-bottom:15px;
+ box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.rch-page-title{
+ text-align:center;
+ color:#075985;
+ font-size:18px;
+ font-weight:800;
+ margin:2px 0;
+}
+
+.rch-page-date{
+ text-align:center;
+ color:#334155;
+ font-size:13px;
+ font-weight:700;
+ margin-bottom:10px;
+}
+
+.rch-table{
+ width:100%;
+ border-collapse:collapse;
+ table-layout:fixed;
+ font-size:12px;
+}
+
+.rch-table th{
+ background:#075985;
+ color:white;
+ border:1px solid #cbd5e1;
+ padding:7px 5px;
+ text-align:center;
+ vertical-align:middle;
+ font-weight:700;
+}
+
+.rch-table td{
+ border:1px solid #cbd5e1;
+ padding:6px 5px;
+ text-align:center;
+ vertical-align:middle;
+ white-space:normal;
+}
+
+.rch-table tbody tr:nth-child(even){
+ background:#f8fafc;
+}
+
+.rch-table tbody tr:hover{
+ background:#e0f2fe;
+}
+
+.rch-total-row{
+ background:#dbeafe!important;
+ font-weight:800;
+}
+
+.rch-low-red{
+ background:#fecaca!important;
+ color:#991b1b!important;
+ font-weight:800;
+}
+
+.rch-low-yellow{
+ background:#fef3c7!important;
+ color:#92400e!important;
+ font-weight:800;
+}
+
+.rch-good-green{
+ background:#dcfce7!important;
+ color:#166534!important;
+ font-weight:800;
+}
+
+.rch-sector-table th:nth-child(1){
+ width:5%;
+}
+
+.rch-sector-table th:nth-child(2){
+ width:14%;
+}
+
+.rch-sector-table th:nth-child(3){
+ width:12%;
+}
+
+.rch-sector-table th:nth-child(4){
+ width:13%;
+}
+
+.rch-sector-table th:nth-child(5){
+ width:13%;
+}
+
+.rch-sector-table th:nth-child(6){
+ width:8%;
+}
+
+.rch-sector-table th:nth-child(7){
+ width:13%;
+}
+
+.rch-sector-table th:nth-child(8){
+ width:10%;
+}
+
+.rch-sector-table th:nth-child(9){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(1){
+ width:4%;
+}
+
+.rch-facility-table th:nth-child(2){
+ width:13%;
+}
+
+.rch-facility-table th:nth-child(3){
+ width:11%;
+}
+
+.rch-facility-table th:nth-child(4){
+ width:12%;
+}
+
+.rch-facility-table th:nth-child(5){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(6){
+ width:10%;
+}
+
+.rch-facility-table th:nth-child(7){
+ width:11%;
+}
+
+.rch-facility-table th:nth-child(8){
+ width:7%;
+}
+
+.rch-facility-table th:nth-child(9){
+ width:9%;
+}
+
+.rch-facility-table th:nth-child(10){
+ width:8%;
+}
+
+.rch-facility-table th:nth-child(11){
+ width:8%;
+}
+
+.rch-sector-page{
+ page-break-after:always;
+ break-after:page;
+}
+
+.rch-facility-page{
+ page-break-before:always;
+ break-before:page;
+}
+
+
+/* =====================================================
+   AYUSHMAN CARD
+===================================================== */
+
+.ayushman-table{
+ width:100%!important;
+ min-width:900px!important;
+ border-collapse:collapse!important;
+ table-layout:fixed!important;
+ font-size:13px!important;
+}
+
+.ayushman-table td{
+ border:1px solid #cbd5e1!important;
+ text-align:center!important;
+ vertical-align:middle!important;
+ padding:8px 6px!important;
+ white-space:normal!important;
+}
+
+
+/* Title */
+
+.ayushman-title-cell{
+ background:#075985!important;
+ color:white!important;
+ font-size:18px!important;
+ font-weight:800!important;
+ height:48px!important;
+}
+
+
+/* First header */
+
+.ayushman-main-header{
+ background:#0f766e!important;
+ color:white!important;
+ font-weight:800!important;
+ font-size:14px!important;
+}
+
+
+/* Second header */
+
+.ayushman-sub-header{
+ background:#dbeafe!important;
+ color:#075985!important;
+ font-weight:800!important;
+ font-size:13px!important;
+}
+
+
+/* Data */
+
+.ayushman-data-cell{
+ background:white!important;
+ font-weight:700!important;
+ font-size:14px!important;
+}
+
+
+/* Percentage */
+
+.ayushman-percent{
+ background:#dcfce7!important;
+ color:#166534!important;
+ font-weight:900!important;
+}
+
+
+/* Blank */
+
+.ayushman-blank-cell{
+ height:10px!important;
+ padding:3px!important;
+ background:white!important;
+ border:0!important;
+}
+
+
+/* Vay Vandan title */
+
+.ayushman-vay-title-cell{
+ background:#075985!important;
+ color:white!important;
+ font-size:17px!important;
+ font-weight:800!important;
+ height:46px!important;
+}
+
+
+/* Hover */
+
+.ayushman-table tr:hover td{
+ background:#e0f2fe!important;
+}
+
+
+/* =====================================================
+   NCD
+===================================================== */
+
+.ncd-table{
+ table-layout:fixed!important;
+ min-width:0!important;
+ width:100%!important;
+}
+
+.ncd-table td{
+ text-align:center;
+ white-space:normal;
+ word-break:break-word;
+}
+
+.ncd-table td:first-child{
+ text-align:left;
+ font-weight:600;
+}
+
+.ncd-data-row:nth-child(even){
+ background:#f8fafc;
+}
+
+
+/* =====================================================
+   PDF
+===================================================== */
+
+.report-title-pdf{
+ display:none;
+}
+
+.pdf-mode{
+ background:white!important;
+ padding:0!important;
+}
+
+.pdf-mode .table-box{
+ box-shadow:none;
+ border-radius:0;
+}
+
+.pdf-mode #reportTable{
+ min-width:0!important;
+ width:100%!important;
+ font-size:7px;
+}
+
+.pdf-mode #reportTable th{
+ position:static;
+ padding:4px 3px;
+}
+
+.pdf-mode #reportTable td{
+ padding:3px 2px;
+ white-space:normal;
+}
+
+.pdf-mode .report-title-pdf{
+ display:block;
+ text-align:center;
+ font-size:17px;
+ font-weight:700;
+ margin-bottom:8px;
+ color:#075985;
+}
+
+.pdf-mode .status,
+.pdf-mode .report-actions,
+.pdf-mode .footer{
+ display:none;
+}
+
+.pdf-mode #rchContainer{
+ display:block!important;
+}
+
+.pdf-mode .rch-page{
+ box-shadow:none;
+ border-radius:0;
+ padding:0;
+ margin:0;
+}
+
+.pdf-mode .rch-page-title{
+ font-size:14px;
+}
+
+.pdf-mode .rch-page-date{
+ font-size:9px;
+ margin-bottom:4px;
+}
+
+.pdf-mode .rch-table{
+ font-size:6.5px;
+ line-height:1.05;
+}
+
+.pdf-mode .rch-table th{
+ padding:2.5px 2px;
+}
+
+.pdf-mode .rch-table td{
+ padding:2.2px 1.5px;
+}
+
+.pdf-mode .rch-sector-page{
+ page-break-after:always;
+ break-after:page;
+}
+
+.pdf-mode .rch-facility-page{
+ page-break-before:always;
+ break-before:page;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:800px){
+
+ .header{
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+ }
+
+ .header h1{
+  font-size:19px;
+ }
+
+ .header small{
+  margin-left:0;
+ }
+
+ .container{
+  flex-direction:column;
+ }
+
+ .sidebar{
+  width:100%;
+  display:flex;
+  overflow-x:auto;
+  gap:5px;
+  padding:8px;
+ }
+
+ .sidebar-title{
+  display:none;
+ }
+
+ .menu-btn{
+  min-width:150px;
+  white-space:nowrap;
+ }
+
+ .content{
+  padding:12px;
+ }
+
+ .search{
+  width:100%;
+  min-width:0;
+ }
+
+ #rchSummaryCards{
+  grid-template-columns:
+  repeat(2,minmax(140px,1fr));
+ }
+
+ .rch-table{
+  min-width:900px;
+ }
+
+ .ayushman-table{
+  min-width:850px!important;
+ }
+
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print{
+
+ @page{
+  size:A4 landscape;
+  margin:5mm;
+ }
+
+ body{
+  background:white;
+ }
+
+ .header,
+ .sidebar,
+ .welcome,
+ .report-actions,
+ .status,
+ .footer,
+ #rchSummaryCards{
+  display:none!important;
+ }
+
+ .container,
+ .content{
+  display:block;
+  padding:0;
+ }
+
+ .page{
+  display:none;
+ }
+
+ .page.active{
+  display:block;
+ }
+
+ .report-header{
+  box-shadow:none;
+  padding:0;
+  margin-bottom:5px;
+ }
+
+ .report-title-pdf{
+  display:block;
+  text-align:center;
+  font-size:16px;
+  font-weight:700;
+ }
+
+ .table-box{
+  box-shadow:none;
+  padding:0;
+  overflow:visible;
+ }
+
+ #reportTable{
+  min-width:0;
+  width:100%;
+  font-size:7px;
+ }
+
+ #reportTable th{
+  position:static;
+ }
+
+ #reportTable td{
+  white-space:normal;
+ }
+
+ #rchContainer{
+  display:block!important;
+ }
+
+ .rch-page{
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+ }
+
+ .rch-page-title{
+  font-size:13px;
+ }
+
+ .rch-page-date{
+  font-size:9px;
+ }
+
+ .rch-table{
+  width:100%!important;
+  min-width:0!important;
+  font-size:6.5px!important;
+ }
+
+ .rch-table th{
+  padding:2px!important;
+ }
+
+ .rch-table td{
+  padding:2px 1px!important;
+ }
+
+ .rch-sector-page{
+  page-break-after:always;
+  break-after:page;
+ }
+
+ .rch-facility-page{
+  page-break-before:always;
+  break-before:page;
+ }
+
+ .ayushman-table{
+  width:100%!important;
+  min-width:0!important;
+  font-size:8px!important;
+ }
+
+ .ayushman-table td{
+  padding:4px 3px!important;
+ }
+
+ .ayushman-title-cell{
+  font-size:12px!important;
+ }
+
+ .ayushman-vay-title-cell{
+  font-size:11px!important;
+ }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="header">
+
+ <h1>🏥 Kharsia Health Dashboard</h1>
+
+ <small>
+  Block Kharsia · District Raigarh · Chhattisgarh
+ </small>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+ <div class="sidebar-title">
+  Health Programmes
+ </div>
+
+ <button
+  class="menu-btn active"
+  id="dashboardBtn"
+  onclick="showDashboard()">
+
+  🏠 Dashboard
+
+ </button>
+
+ <div id="menuButtons"></div>
+
+</aside>
+
+
+<!-- =====================================================
+     CONTENT
+===================================================== -->
+
+<main class="content">
+
+
+<!-- =====================================================
+     DASHBOARD PAGE
+===================================================== -->
+
+<section
+ id="dashboardPage"
+ class="page active">
+
+ <div class="welcome">
+
+  <h2>
+   Kharsia Health Programme Dashboard
+  </h2>
+
+  <p>
+   विभिन्न स्वास्थ्य कार्यक्रमों की प्रगति रिपोर्ट देखने के लिए
+   programme पर क्लिक करें।
+  </p>
+
+ </div>
+
+ <div style="display:flex;justify-content:flex-end;margin:0 0 18px;">
+  <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#b91c1c;font-weight:800;font-size:14px;">
+   📊 Generate PPTX
+  </button>
+ </div>
+
+ <div
+  id="dashboardCards"
+  class="cards">
+ </div>
+
+</section>
+
+
+<!-- =====================================================
+     REPORT PAGE
+===================================================== -->
+
+<section
+ id="reportPage"
+ class="page">
+
+
+ <div class="report-header">
+
+  <div
+   id="pdfTitle"
+   class="report-title-pdf">
+  </div>
+
+  <h2 id="reportTitle">
+   Report
+  </h2>
+
+  <p id="reportDescription">
+   Google Sheet से live data
+  </p>
+
+
+  <!-- RCH SUMMARY -->
+
+  <div id="rchSummaryCards">
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     HMIS PW Registration
+    </div>
+
+    <div
+     id="rchCardHMIS"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     RCH 2.0 PW Registration
+    </div>
+
+    <div
+     id="rchCardRCH"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     Overall %
+    </div>
+
+    <div
+     id="rchCardPercent"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     Temporary Registration
+    </div>
+
+    <div
+     id="rchCardTemp"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     Backlog
+    </div>
+
+    <div
+     id="rchCardBacklog"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+
+   <div class="rch-summary-card">
+
+    <div class="rch-card-title">
+     High Risk
+    </div>
+
+    <div
+     id="rchCardHighRisk"
+     class="rch-card-value">
+     -
+    </div>
+
+   </div>
+
+  </div>
+
+
+  <!-- ACTIONS -->
+
+  <div class="report-actions">
+
+   <button
+    class="action-btn back-btn"
+    onclick="showDashboard()">
+
+    ← Dashboard
+
+   </button>
+
+
+   <button
+    class="action-btn refresh-btn"
+    onclick="refreshReport()">
+
+    🔄 Refresh
+
+   </button>
+
+
+   <button
+    class="action-btn pdf-btn"
+    onclick="downloadPDF()">
+
+    📄 Download PDF
+
+   </button>
+
+
+   <button
+    class="action-btn excel-btn"
+    onclick="downloadExcel()">
+
+    📊 Download Excel
+
+   </button>
+
+
+   <button
+    class="action-btn print-btn"
+    onclick="printReport()">
+
+    🖨️ Print
+
+   </button>
+
+
+
+   <input
+    id="searchBox"
+    class="search"
+    type="text"
+    placeholder="🔎 Table में search करें..."
+    oninput="filterTable()">
+
+  </div>
+
+ </div>
+
+
+ <div
+  id="status"
+  class="status">
+
+  Google Sheet से data load हो रहा है...
+
+ </div>
+
+
+ <div id="pdfArea">
+
+
+  <!-- RCH -->
+
+  <div id="rchContainer">
+
+   <div
+    id="rchSectorPage"
+    class="rch-page rch-sector-page">
+   </div>
+
+   <div
+    id="rchFacilityPage"
+    class="rch-page rch-facility-page">
+   </div>
+
+  </div>
+
+
+  <!-- NORMAL TABLE -->
+
+  <div class="table-box">
+
+   <table id="reportTable">
+
+    <colgroup></colgroup>
+
+    <thead></thead>
+
+    <tbody></tbody>
+
+   </table>
+
+  </div>
+
+
+ </div>
+
+
+ <div class="footer">
+
+  Data source: Google Sheet · Kharsia Health Dashboard
+
+ </div>
+
+
+</section>
+
+</main>
+
+</div>
+
+
+
+<script>
+
+/* =====================================================
+   GOOGLE SHEET
+===================================================== */
+
+const SPREADSHEET_ID =
+"1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0";
+
+
+/* =====================================================
+   REPORTS
+===================================================== */
+
+const REPORTS=[
+
+ {
+  name:"Ayushman Card",
+  icon:"💳",
+  gid:"925649620",
+  description:
+   "आयुष्मान कार्ड एवं वय वंदन कार्ड की प्रगति"
+ },
+
+ {
+  name:"RCH 2.0",
+  displayName:"Janani Portal",
+  icon:"👩‍🍼",
+  gid:"1044088930",
+  description:
+   "RCH 2.0 PW Registration Detail"
+ },
+
+ {
+  name:"NCD",
+  icon:"❤️",
+  gid:"1254412412",
+  description:
+   "NCD Status 2026-27"
+ },
+
+ {
+  name:"JAS Meeting",
+  icon:"🤝",
+  gid:"1018164338",
+  description:
+   "JAS Meeting Reporting"
+ },
+
+ {
+  name:"Health & Wellness Center",
+  icon:"🏥",
+  gid:"0",
+  description:
+   "Health Wellness Center - Block Kharsia"
+ },
+
+ {
+  name:"Ayushman Shivir",
+  icon:"🏕️",
+  gid:"1262815420",
+  description:
+   "Ayushman Shivir Reporting FY 2026-27"
+ },
+
+ {
+  name:"Wellness Activity",
+  icon:"🩺",
+  gid:"447031017",
+  description:
+   "Ayushman Arogya Mandir Wellness Activity"
+ },
+
+ {
+  name:"Telemedicine Report",
+  icon:"🩻",
+  gid:"318264987",
+  facilityGid:"1810450627",
+  sheetId:"1pnVA9hfSR6bfKUkyctcDWFYANQmHyWNFL6NfKue3dA4",
+  telemedicine:true,
+  description:
+   "E-Sanjeevani Telemedicine Status FY 2026-27"
+ },
+
+ {
+  name:"RBSK",
+  icon:"👶",
+  gid:"1502752823",
+  description:
+   "राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
+ },
+
+ {
+  name:"NRC Kharsia",
+  icon:"🏥",
+  gid:"1010102020",
+  description:
+   "NRC Kharsia Reporting"
+ },
+
+ {
+  name:"Blindness Control",
+  icon:"👁️",
+  gid:"1002009767",
+  description:
+   "National Blindness Control Programme"
+ },
+
+ {
+  name:"NQAS Certification",
+  icon:"🏅",
+  gid:"728123647",
+  description:
+   "NQAS Certification Detail Kharsia"
+ },
+
+ {
+  name:"Dialysis",
+  icon:"💧",
+  gid:"781496964",
+  description:
+   "प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम"
+ },
+
+ {
+  name:"NLEP",
+  icon:"🦠",
+  gid:"1536656599",
+  description:
+   "National Leprosy Eradication Programme"
+ }
+
+];
+
+
+let currentReportIndex=null;
+
+let currentData=null;
+
+let currentRCHData=null;
+
+
+/* =====================================================
+   RCH SECTOR ORDER
+===================================================== */
+
+const RCH_SECTORS=[
+
+ "Barra",
+ "Binjkot",
+ "Gorpar",
+ "Jobi",
+ "Sarwani",
+ "Sondka",
+ "Turekela",
+ "Urban Kharsia"
+
+];
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+function createMenu(){
+
+ const menu =
+  document.getElementById(
+   "menuButtons"
+  );
+
+ const cards =
+  document.getElementById(
+   "dashboardCards"
+  );
+
+ menu.innerHTML="";
+ cards.innerHTML="";
+
+
+ REPORTS.forEach(
+  (report,index)=>{
+
+   const btn =
+    document.createElement(
+     "button"
+    );
+
+   btn.className="menu-btn";
+
+   btn.innerHTML =
+    report.icon+
+    " "+
+    (report.displayName || report.name);
+
+   btn.onclick=()=>{
+    openReport(index);
+   };
+
+   menu.appendChild(btn);
+
+
+   const card =
+    document.createElement(
+     "div"
+    );
+
+   card.className="card";
+
+   card.innerHTML=`
+
+    <div class="card-icon">
+     ${report.icon}
+    </div>
+
+    <h3>
+     ${report.name}
+    </h3>
+
+    <p>
+     ${report.description}
+    </p>
+
+   `;
+
+   card.onclick=()=>{
+    openReport(index);
+   };
+
+   cards.appendChild(card);
+
+  }
+ );
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+function ensureTelemedicineContainer(){
+ if(document.getElementById("telemedicineModule")) return;
+ const host=document.querySelector(".table-box");
+ if(!host) return;
+ const div=document.createElement("div");
+ div.id="telemedicineModule";
+ div.style.display="none";
+ div.style.marginTop="8px";
+ div.innerHTML='<style>.tele-tab{border:1px solid #CBD5E1;background:#fff;color:#334155;padding:9px 14px;border-radius:10px;font-weight:800;cursor:pointer}.tele-tab.active{background:#075985;color:#fff;border-color:#075985}.telemedicine-table tbody tr:hover{background:#f8fafc}</style>';
+ host.appendChild(div);
+}
+ensureTelemedicineContainer();
+
+function showDashboard(){
+
+ document
+  .getElementById("dashboardPage")
+  .classList.add("active");
+
+ document
+  .getElementById("reportPage")
+  .classList.remove("active");
+
+
+ document
+  .querySelectorAll(".menu-btn")
+  .forEach(btn=>{
+   btn.classList.remove("active");
+  });
+
+
+ document
+  .getElementById("dashboardBtn")
+  .classList.add("active");
+
+
+ hideRCHSummary();
+
+}
+
+
+/* =====================================================
+   OPEN REPORT
+===================================================== */
+
+function openReport(index){
+
+ currentReportIndex=index;
+
+ const report =
+  REPORTS[index];
+
+
+ document
+  .getElementById("dashboardPage")
+  .classList.remove("active");
+
+
+ document
+  .getElementById("reportPage")
+  .classList.add("active");
+
+
+ document
+  .getElementById("reportTitle")
+  .innerText =
+   report.icon+
+   " "+
+   (report.displayName || report.name);
+
+
+ document
+  .getElementById("pdfTitle")
+  .innerText =
+   "Kharsia Health Dashboard — "+
+   (report.displayName || report.name);
+
+
+ document
+  .getElementById("reportDescription")
+  .innerText =
+   report.description;
+
+
+ document
+  .getElementById("searchBox")
+  .value="";
+
+
+ const rchPptxBtn=document.getElementById("rchPptxActionBtn");
+
+ if(report.name==="RCH 2.0"){
+
+  document
+   .getElementById(
+    "rchSummaryCards"
+   )
+   .classList.add("show");
+
+  if(rchPptxBtn) rchPptxBtn.style.display="inline-block";
+
+ }
+ else{
+
+  hideRCHSummary();
+
+  if(rchPptxBtn) rchPptxBtn.style.display="none";
+
+ }
+
+
+ document
+  .querySelectorAll(".menu-btn")
+  .forEach(btn=>{
+   btn.classList.remove("active");
+  });
+
+
+ const buttons =
+  document.querySelectorAll(
+   "#menuButtons .menu-btn"
+  );
+
+
+ if(buttons[index]){
+  buttons[index].classList.add(
+   "active"
+  );
+ }
+
+
+ clearTable();
+
+
+ document
+  .getElementById(
+   "rchContainer"
+  )
+  .style.display="none";
+
+
+ document
+  .querySelector(
+   ".table-box"
+  )
+  .style.display="block";
+
+ const reportTableEl=document.getElementById("reportTable");
+ if(reportTableEl) reportTableEl.style.display = report.telemedicine ? "none" : "table";
+
+
+ currentRCHData=null;
+
+ // Hide custom module views whenever another module is opened.
+ const teleModule=document.getElementById("telemedicineModule");
+ if(teleModule) teleModule.style.display = "none";
+
+ // Hide the custom JAS view whenever another module is opened.
+ const jasModule=document.getElementById("jasMeetingModule");
+ if(jasModule) jasModule.style.display = report.name==="JAS Meeting" ? "block" : "none";
+
+ setStatus(
+  "Google Sheet से data load हो रहा है..."
+ );
+
+ if(report.telemedicine){
+  loadTelemedicineReport(report);
+ }else{
+  loadGoogleSheet(
+   report.gid
+  );
+ }
+
+}
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+function refreshReport(){
+
+ if(
+  currentReportIndex!==null
+ ){
+
+  openReport(
+   currentReportIndex
+  );
+
+ }
+
+}
+
+
+/* =====================================================
+   LOAD GOOGLE SHEET
+===================================================== */
+
+function loadGoogleSheet(gid){
+
+ const url =
+  "https://docs.google.com/spreadsheets/d/"+
+  SPREADSHEET_ID+
+  "/gviz/tq?gid="+
+  encodeURIComponent(gid)+
+  "&headers=0";
+
+
+ const query =
+  new google.visualization.Query(
+   url
+  );
+
+
+ query.setQuery(
+  "select *"
+ );
+
+
+ query.send(
+  response=>{
+
+   if(
+    response.isError()
+   ){
+
+    setStatus(
+     "Google Sheet से data load नहीं हो पाया: "+
+     response.getMessage(),
+     "error"
+    );
+
+    return;
+
+   }
+
+
+   currentData =
+    response.getDataTable();
+
+
+   const report =
+    REPORTS[
+     currentReportIndex
+    ];
+
+
+   if(
+    report.name==="Ayushman Card"
+   ){
+
+    renderAyushmanTable(
+     currentData
+    );
+
+   }
+
+   else if(
+    report.name==="RCH 2.0"
+   ){
+
+    renderRCHTable(
+     currentData
+    );
+
+   }
+
+   else if(
+    report.name==="NCD"
+   ){
+
+    renderNCDTable(
+     currentData
+    );
+
+   }
+
+   else if(
+    report.name==="Ayushman Shivir"
+   ){
+
+    window.__ayushmanShivirActive=true;
+
+    if(typeof window.renderAyushmanShivirFromData==="function"){
+      window.renderAyushmanShivirFromData(currentData);
+    }else{
+      setStatus("Ayushman Shivir renderer load हो रहा है...");
+      setTimeout(function(){
+        if(typeof window.renderAyushmanShivirFromData==="function"){
+          window.renderAyushmanShivirFromData(currentData);
+        }else{
+          setStatus("Ayushman Shivir renderer load नहीं हुआ।","error");
+        }
+      },300);
+    }
+
+   }
+
+   else if(
+    report.name==="JAS Meeting" &&
+    typeof window.renderJASFromData==="function"
+   ){
+
+    window.__jasNativeData = currentData;
+
+    window.renderJASFromData(
+     currentData
+    );
+
+   }
+
+   else{
+
+    renderNormalTable(
+     currentData
+    );
+
+   }
+
+
+   setStatus(
+    "✓ Google Sheet से data successfully loaded",
+    "success"
+   );
+
+  }
+ );
+
+}
+
+
+/* =====================================================
+   JAS PPTX NATIVE DATA BRIDGE
+===================================================== */
+window.__openJASForPPTX = async function(){
+  try{
+    if(typeof window.__loadJASForPPTX==='function'){
+      var direct=await window.__loadJASForPPTX();
+      if(direct && ((direct.sector&&direct.sector.length)||(direct.facility&&direct.facility.length))) return direct;
+    }
+    var list = (typeof REPORTS!=='undefined' && REPORTS) ? REPORTS : [];
+    var idx=-1;
+    for(var i=0;i<list.length;i++){
+      if(list[i] && list[i].name==='JAS Meeting'){ idx=i; break; }
+    }
+    if(idx>=0 && typeof window.openReport==='function'){
+      window.openReport(idx);
+      await new Promise(function(resolve){setTimeout(resolve,1200);});
+    }
+    return window.__jasPptxData || null;
+  }catch(e){
+    console.error('JAS PPTX open/render error:',e);
+    return window.__jasPptxData || null;
+  }
+};
+window.__loadJASForPPTX = function(){
+  return new Promise(function(resolve){
+    if(!window.google || !window.google.visualization || !window.google.visualization.Query){
+      resolve(null);
+      return;
+    }
+    const q = new google.visualization.Query(
+      "https://docs.google.com/spreadsheets/d/" +
+      SPREADSHEET_ID +
+      "/gviz/tq?gid=1018164338&headers=0"
+    );
+    q.setQuery("select *");
+    q.send(function(response){
+      if(response.isError()){
+        console.error("JAS PPTX native load error:", response.getMessage());
+        resolve(null);
+        return;
+      }
+      try{
+        window.__jasNativeData = response.getDataTable();
+        if(typeof window.renderJASFromData==="function"){
+          window.renderJASFromData(window.__jasNativeData);
+        }
+        resolve(window.__jasPptxData || null);
+      }catch(e){
+        console.error("JAS PPTX native parse error:", e);
+        resolve(null);
+      }
+    });
+  });
+};
+window.__loadJASForPPTX = function(){
+  return new Promise(function(resolve){
+    if(!window.google || !window.google.visualization || !window.google.visualization.Query){
+      resolve(null);
+      return;
+    }
+    const q = new google.visualization.Query(
+      "https://docs.google.com/spreadsheets/d/" +
+      SPREADSHEET_ID +
+      "/gviz/tq?gid=1018164338&headers=0"
+    );
+    q.setQuery("select *");
+    q.send(function(response){
+      if(response.isError()){
+        console.error("JAS PPTX native load error:", response.getMessage());
+        resolve(null);
+        return;
+      }
+      try{
+        window.__jasNativeData = response.getDataTable();
+        if(typeof window.renderJASFromData==="function"){
+          window.renderJASFromData(window.__jasNativeData);
+        }
+        resolve(window.__jasPptxData || null);
+      }catch(e){
+        console.error("JAS PPTX native parse error:", e);
+        resolve(null);
+      }
+    });
+  });
+};
+
+
+/* =====================================================
+   FORMATTED
+===================================================== */
+
+function formatted(data,r,c){
+
+ try{
+
+  return (
+   data.getFormattedValue(
+    r,c
+   ) || ""
+  );
+
+ }
+ catch(e){
+
+  return "";
+
+ }
+
+}
+
+
+/* =====================================================
+   ROW
+===================================================== */
+
+function getSheetRow(data,r){
+
+ const row=[];
+
+
+ for(
+  let c=0;
+  c<data.getNumberOfColumns();
+  c++
+ ){
+
+  row.push(
+   formatted(
+    data,
+    r,
+    c
+   )
+  );
+
+ }
+
+
+ return row;
+
+}
+
+
+/* =====================================================
+   NUMBER
+===================================================== */
+
+function numericValue(value){
+
+ if(
+  value===null ||
+  value===undefined ||
+  value===""
+ ){
+
+  return 0;
+
+ }
+
+
+ let text =
+  String(value)
+   .replace(/,/g,"")
+   .replace(/%/g,"")
+   .trim();
+
+
+ const n =
+  parseFloat(text);
+
+
+ return isNaN(n)
+  ?0
+  :n;
+
+}
+
+
+/* =====================================================
+   NUMBER LIKE
+===================================================== */
+
+function isNumberLike(value){
+
+ if(
+  value===null ||
+  value===undefined
+ ){
+
+  return false;
+
+ }
+
+
+ const t =
+  String(value)
+   .replace(/,/g,"")
+   .trim();
+
+
+ return /^-?\d+(?:\.\d+)?$/.test(t);
+
+}
+
+
+/* =====================================================
+   FIND NUMBER
+===================================================== */
+
+function findNumber(row,indexes){
+
+ for(
+  const index of indexes
+ ){
+
+  if(
+   row[index]!==undefined &&
+   row[index]!==null &&
+   String(row[index]).trim()!==""
+  ){
+
+   return numericValue(
+    row[index]
+   );
+
+  }
+
+ }
+
+
+ return 0;
+
+}
+
+
+/* =====================================================
+   RCH PERCENT COLOR
+===================================================== */
+
+function applyRCHPercentColor(
+ td,
+ value
+){
+
+ const n =
+  numericValue(value);
+
+
+ if(n<80){
+
+  td.classList.add(
+   "rch-low-red"
+  );
+
+ }
+
+ else if(n<100){
+
+  td.classList.add(
+   "rch-low-yellow"
+  );
+
+ }
+
+ else{
+
+  td.classList.add(
+   "rch-good-green"
+  );
+
+ }
+
+}
+
+
+/* =====================================================
+   RCH CELL
+===================================================== */
+
+function makeRCHCell(
+ value,
+ isPercent=false
+){
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.innerText =
+  value===null ||
+  value===undefined
+   ?""
+   :value;
+
+
+ if(isPercent){
+
+  applyRCHPercentColor(
+   td,
+   value
+  );
+
+ }
+
+
+ return td;
+
+}
+
+
+/* =====================================================
+   RCH DATA PARSER
+===================================================== */
+
+function parseRCHData(data){
+
+ const facilityRows=[];
+
+ let asOnDate = "";
+
+ /*
+  * RCH heading/date is taken from the Google Sheet itself.
+  * Do not use a hard-coded date.
+  */
+ const dateCandidates=[];
+
+ try{
+  for(let c=0;c<data.getNumberOfColumns();c++){
+   const label=String(data.getColumnLabel(c)||"").trim();
+   const lm=label.match(/(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/);
+   if(lm){
+    dateCandidates.push({
+     date:lm[1].replace(/\//g,"-"),
+     priority:/RCH|as\s*on|date/i.test(label)?2:1
+    });
+   }
+   for(let r=0;r<data.getNumberOfRows();r++){
+    const v=String(data.getFormattedValue(r,c)||"").trim();
+    const m=v.match(/(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/);
+    if(m){
+     const rowText=getSheetRow(data,r).join(" ");
+     dateCandidates.push({
+      date:m[1].replace(/\//g,"-"),
+      priority:/RCH|as\s*on|date/i.test(rowText)?3:1
+     });
+    }
+   }
+  }
+ }catch(e){}
+
+ dateCandidates.sort((a,b)=>b.priority-a.priority);
+ if(dateCandidates.length){
+  asOnDate=dateCandidates[0].date;
+ }
+
+
+ for(
+  let r=0;
+  r<data.getNumberOfRows();
+  r++
+ ){
+
+  const row =
+   getSheetRow(
+    data,
+    r
+   );
+
+
+  const joined =
+   row.join(" ")
+    .trim();
+
+
+  const sn =
+   String(
+    row[0]||""
+   ).trim();
+
+
+  const sector =
+   String(
+    row[1]||""
+   ).trim();
+
+
+  const hfr =
+   String(
+    row[2]||""
+   ).trim();
+
+
+  const facility =
+   String(
+    row[3]||""
+   ).trim();
+
+
+  const type =
+   String(
+    row[4]||""
+   ).trim();
+
+
+  if(
+   isNumberLike(sn) &&
+   RCH_SECTORS.includes(
+    sector
+   ) &&
+   /^IN\d+/i.test(hfr) &&
+   facility!==""
+  ){
+
+   facilityRows.push({
+
+    sn:
+     numericValue(sn),
+
+    sector:
+     sector,
+
+    hfr:
+     hfr,
+
+    facility:
+     facility,
+
+    type:
+     type,
+
+    hmis:
+     numericValue(row[5]),
+
+    rch:
+     numericValue(row[6]),
+
+    percent:
+     numericValue(row[7]),
+
+    temp:
+     numericValue(row[8]),
+
+    backlog:
+     numericValue(row[9]),
+
+    highRisk:
+     numericValue(row[10])
+
+   });
+
+  }
+
+ }
+
+
+ return {
+
+  facilityRows:
+   facilityRows,
+
+  asOnDate:
+   asOnDate
+
+ };
+
+}
+
+
+/* =====================================================
+   BUILD SECTOR DATA
+===================================================== */
+
+function buildSectorData(
+ parsed
+){
+
+ const sectorData=[];
+
+
+ RCH_SECTORS.forEach(
+  sector=>{
+
+   const rows =
+    parsed.facilityRows.filter(
+     r=>
+      r.sector===sector
+    );
+
+
+   if(
+    rows.length===0
+   ){
+
+    return;
+
+   }
+
+
+   let hmis=0;
+   let rch=0;
+   let temp=0;
+   let backlog=0;
+   let highRisk=0;
+
+
+   rows.forEach(
+    row=>{
+
+     hmis += row.hmis;
+
+     rch += row.rch;
+
+     temp += row.temp;
+
+     backlog += row.backlog;
+
+     highRisk += row.highRisk;
+
+    }
+   );
+
+
+   const percent =
+    hmis>0
+     ?Math.round(
+       (rch/hmis)*100
+      )
+     :0;
+
+
+   sectorData.push({
+
+    sector:
+     sector,
+
+    facility:
+     rows.length,
+
+    hmis:
+     hmis,
+
+    rch:
+     rch,
+
+    percent:
+     percent,
+
+    temp:
+     temp,
+
+    backlog:
+     backlog,
+
+    highRisk:
+     highRisk
+
+   });
+
+  }
+ );
+
+
+ return sectorData;
+
+}
+
+
+/* =====================================================
+   RCH TOTAL
+===================================================== */
+
+function calculateRCHTotals(
+ sectorRows
+){
+
+ let facility=0;
+
+ let hmis=0;
+
+ let rch=0;
+
+ let temp=0;
+
+ let backlog=0;
+
+ let highRisk=0;
+
+
+ sectorRows.forEach(
+  row=>{
+
+   facility +=
+    row.facility;
+
+   hmis +=
+    row.hmis;
+
+   rch +=
+    row.rch;
+
+   temp +=
+    row.temp;
+
+   backlog +=
+    row.backlog;
+
+   highRisk +=
+    row.highRisk;
+
+  }
+ );
+
+
+ const percent =
+  hmis>0
+   ?Math.round(
+     (rch/hmis)*100
+    )
+   :0;
+
+
+ return {
+
+  facility:
+   facility,
+
+  hmis:
+   hmis,
+
+  rch:
+   rch,
+
+  percent:
+   percent,
+
+  temp:
+   temp,
+
+  backlog:
+   backlog,
+
+  highRisk:
+   highRisk
+
+ };
+
+}
+
+
+/* =====================================================
+   RCH SUMMARY
+===================================================== */
+
+function updateRCHSummary(
+ parsed
+){
+
+ const sectorRows =
+  buildSectorData(
+   parsed
+  );
+
+
+ const total =
+  calculateRCHTotals(
+   sectorRows
+  );
+
+
+ document
+  .getElementById(
+   "rchCardHMIS"
+  )
+  .innerText =
+   total.hmis || "-";
+
+
+ document
+  .getElementById(
+   "rchCardRCH"
+  )
+  .innerText =
+   total.rch || "-";
+
+
+ document
+  .getElementById(
+   "rchCardPercent"
+  )
+  .innerText =
+   total.percent+"%";
+
+
+ document
+  .getElementById(
+   "rchCardTemp"
+  )
+  .innerText =
+   total.temp || "-";
+
+
+ document
+  .getElementById(
+   "rchCardBacklog"
+  )
+  .innerText =
+   total.backlog || "-";
+
+
+ document
+  .getElementById(
+   "rchCardHighRisk"
+  )
+  .innerText =
+   total.highRisk || "-";
+
+}
+
+
+/* =====================================================
+   RCH SECTOR TABLE
+===================================================== */
+
+function buildRCHSectorTable(
+ parsed
+){
+
+ const table =
+  document.createElement(
+   "table"
+  );
+
+
+ table.className =
+  "rch-table rch-sector-table";
+
+
+ const thead =
+  document.createElement(
+   "thead"
+  );
+
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ [
+
+  "Sn",
+  "Sector",
+  "Health Facility",
+  "HMIS PW Registration",
+  "RCH 2.0 PW Registration",
+  "%",
+  "Temporary Registration",
+  "Backlog",
+  "High Risk"
+
+ ].forEach(
+  text=>{
+
+   const th =
+    document.createElement(
+     "th"
+    );
+
+   th.innerText =
+    text;
+
+   tr.appendChild(th);
+
+  }
+ );
+
+
+ thead.appendChild(tr);
+
+ table.appendChild(thead);
+
+
+ const tbody =
+  document.createElement(
+   "tbody"
+  );
+
+
+ const sectorData =
+  buildSectorData(
+   parsed
+  );
+
+
+ sectorData.forEach(
+  (row,index)=>{
+
+   const tr =
+    document.createElement(
+     "tr"
+    );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     index+1
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.sector
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.facility
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.hmis
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.rch
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.percent+"%",
+     true
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.temp
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.backlog
+    )
+   );
+
+
+   tr.appendChild(
+    makeRCHCell(
+     row.highRisk
+    )
+   );
+
+
+   tbody.appendChild(tr);
+
+  }
+ );
+
+
+ const total =
+  calculateRCHTotals(
+   sectorData
+  );
+
+
+ const totalTr =
+  document.createElement(
+   "tr"
+  );
+
+
+ totalTr.className =
+  "rch-total-row";
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell("Total")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.facility
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.hmis
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.rch
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.percent+"%",
+   true
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.temp
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.backlog
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   total.highRisk
+  )
+ );
+
+
+ tbody.appendChild(
+  totalTr
+ );
+
+
+ table.appendChild(
+  tbody
+ );
+
+
+ return table;
+
+}
+
+
+/* =====================================================
+   RCH FACILITY TABLE
+===================================================== */
+
+function buildRCHFacilityTable(
+ parsed
+){
+
+ const table =
+  document.createElement(
+   "table"
+  );
+
+
+ table.className =
+  "rch-table rch-facility-table";
+
+
+ const thead =
+  document.createElement(
+   "thead"
+  );
+
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ [
+
+  "Sn",
+  "Facility",
+  "Sector",
+  "HFR ID",
+  "Type",
+  "HMIS PW",
+  "RCH 2.0 PW",
+  "%",
+  "Temporary",
+  "Backlog",
+  "High Risk"
+
+ ].forEach(
+  text=>{
+
+   const th =
+    document.createElement(
+     "th"
+    );
+
+   th.innerText =
+    text;
+
+   tr.appendChild(th);
+
+  }
+ );
+
+
+ thead.appendChild(tr);
+
+ table.appendChild(thead);
+
+
+ const tbody =
+  document.createElement(
+   "tbody"
+  );
+
+
+ parsed.facilityRows
+  .forEach(
+   (row,index)=>{
+
+    const tr =
+     document.createElement(
+      "tr"
+     );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      index+1
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.facility
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.sector
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.hfr
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.type
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.hmis
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.rch
+     )
+    );
+
+
+    const calculatedPercent =
+     row.hmis>0
+      ?Math.round(
+       (row.rch/row.hmis)*100
+      )
+      :0;
+
+
+    tr.appendChild(
+     makeRCHCell(
+      calculatedPercent+"%",
+      true
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.temp
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.backlog
+     )
+    );
+
+
+    tr.appendChild(
+     makeRCHCell(
+      row.highRisk
+     )
+    );
+
+
+    tbody.appendChild(tr);
+
+   }
+  );
+
+
+ /* FACILITY TOTAL */
+
+ let hmis=0;
+
+ let rch=0;
+
+ let temp=0;
+
+ let backlog=0;
+
+ let highRisk=0;
+
+
+ parsed.facilityRows
+  .forEach(
+   row=>{
+
+    hmis += row.hmis;
+
+    rch += row.rch;
+
+    temp += row.temp;
+
+    backlog += row.backlog;
+
+    highRisk += row.highRisk;
+
+   }
+  );
+
+
+ const percent =
+  hmis>0
+   ?Math.round(
+     (rch/hmis)*100
+    )
+   :0;
+
+
+ const totalTr =
+  document.createElement(
+   "tr"
+  );
+
+
+ totalTr.className =
+  "rch-total-row";
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   "Total ("+
+   parsed.facilityRows.length+
+   " Facilities)"
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell("")
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   hmis
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   rch
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   percent+"%",
+   true
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   temp
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   backlog
+  )
+ );
+
+
+ totalTr.appendChild(
+  makeRCHCell(
+   highRisk
+  )
+ );
+
+
+ tbody.appendChild(
+  totalTr
+ );
+
+
+ table.appendChild(
+  tbody
+ );
+
+
+ return table;
+
+}
+
+
+/* =====================================================
+   RCH RENDER
+===================================================== */
+
+function renderRCHTable(
+ data
+){
+
+ const parsed =
+  parseRCHData(
+   data
+  );
+
+
+ currentRCHData =
+  parsed;
+
+
+ updateRCHSummary(
+  parsed
+ );
+
+
+ document
+  .querySelector(
+   ".table-box"
+  )
+  .style.display="none";
+
+
+ const container =
+  document.getElementById(
+   "rchContainer"
+  );
+
+
+ container.style.display =
+  "block";
+
+
+ const sectorPage =
+  document.getElementById(
+   "rchSectorPage"
+  );
+
+
+ const facilityPage =
+  document.getElementById(
+   "rchFacilityPage"
+  );
+
+
+ sectorPage.innerHTML="";
+
+ facilityPage.innerHTML="";
+
+
+ /* PAGE 1 - SECTOR WISE */
+
+ const sectorTitle =
+  document.createElement(
+   "div"
+  );
+
+
+ sectorTitle.className =
+  "rch-page-title";
+
+
+ sectorTitle.innerText =
+  "RCH 2.0 — Sector Wise";
+
+
+ const sectorDate =
+  document.createElement(
+   "div"
+  );
+
+
+ sectorDate.className =
+  "rch-page-date";
+
+
+ sectorDate.innerText =
+  "RCH 2.0 PW Registration Detail FY 2026-27 | As On Date : "+
+  parsed.asOnDate;
+
+
+ sectorPage.appendChild(
+  sectorTitle
+ );
+
+
+ sectorPage.appendChild(
+  sectorDate
+ );
+
+
+ sectorPage.appendChild(
+  buildRCHSectorTable(
+   parsed
+  )
+ );
+
+
+ /* PAGE 2 - FACILITY WISE */
+
+ const facilityTitle =
+  document.createElement(
+   "div"
+  );
+
+
+ facilityTitle.className =
+  "rch-page-title";
+
+
+ facilityTitle.innerText =
+  "RCH 2.0 — Facility Wise";
+
+
+ const facilityDate =
+  document.createElement(
+   "div"
+  );
+
+
+ facilityDate.className =
+  "rch-page-date";
+
+
+ facilityDate.innerText =
+  "RCH 2.0 PW Registration Detail FY 2026-27 | As On Date : "+
+  parsed.asOnDate;
+
+
+ facilityPage.appendChild(
+  facilityTitle
+ );
+
+
+ facilityPage.appendChild(
+  facilityDate
+ );
+
+
+ facilityPage.appendChild(
+  buildRCHFacilityTable(
+   parsed
+  )
+ );
+
+}
+
+
+/* =====================================================
+   AYUSHMAN DATA PARSER
+===================================================== */
+
+function parseAyushmanData(data){
+
+ const rows=[];
+
+ for(let r=0;r<data.getNumberOfRows();r++){
+  rows.push(getSheetRow(data,r));
+ }
+
+ let ayushmanTitle="आयुष्मान कार्ड रिपोर्ट";
+ let vayTitle="वय वंदन कार्ड रिपोर्ट";
+ let ayushmanData=null;
+ let vayData=null;
+ let section="";
+
+ const cleanText = row =>
+  row.map(v=>String(v==null?"":v).trim())
+     .filter(Boolean)
+     .join(" ")
+     .replace(/\s+/g," ")
+     .trim();
+
+ const hasDate = text =>
+  /(?:\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[- ]\d{4})/i.test(text);
+
+ rows.forEach(row=>{
+  const text=cleanText(row);
+  const lower=text.toLowerCase();
+
+  const isVay =
+   lower.includes("वय वंदन") ||
+   lower.includes("वयवंदन") ||
+   lower.includes("vay vandan") ||
+   lower.includes("vayvandan");
+
+  const isAyushman =
+   lower.includes("आयुष्मान") ||
+   lower.includes("ayushman");
+
+  /*
+    Heading rows are taken directly from Google Sheet.
+    This supports Hindi/English headings and date formats,
+    so changing the Sheet heading/date changes the dashboard too.
+  */
+  if(isVay){
+   section="vay";
+   if(text){
+    vayTitle=text;
+   }
+   return;
+  }
+
+  if(isAyushman){
+   section="ayushman";
+   if(text){
+    ayushmanTitle=text;
+   }
+   return;
+  }
+
+  if(isNumberLike(row[0]) && row.length>=8){
+   const values=row.slice(0,8);
+   const useful=values.slice(1).some(v=>String(v==null?"":v).trim()!=="");
+
+   if(useful){
+    if(section==="ayushman" && !ayushmanData){
+     ayushmanData=values;
+    }else if(section==="vay" && !vayData){
+     vayData=values;
+    }
+   }
+  }
+ });
+
+ if(!ayushmanData){
+  ayushmanData=["1","134488","17572","152060","126274","16271","142545","93.7"];
+ }
+
+ if(!vayData){
+  vayData=["1","3737","257","3994","3740","257","3997","100.1"];
+ }
+
+ return {
+  ayushmanTitle,
+  ayushmanData,
+  vayTitle,
+  vayData
+ };
+}
+
+
+/* =====================================================
+   AYUSHMAN TITLE
+===================================================== */
+
+function createAyushmanTitle(
+ text,
+ className
+){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.colSpan=8;
+
+ td.className =
+  className;
+
+
+ td.innerText =
+  text;
+
+
+ tr.appendChild(td);
+
+
+ return tr;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN BLANK
+===================================================== */
+
+function createAyushmanBlank(){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ const td =
+  document.createElement(
+   "td"
+  );
+
+
+ td.colSpan=8;
+
+ td.className =
+  "ayushman-blank-cell";
+
+
+ td.innerHTML =
+  "&nbsp;";
+
+
+ tr.appendChild(td);
+
+
+ return tr;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN HEADER
+===================================================== */
+
+function createAyushmanHeader(){
+
+ const rows=[];
+
+
+ /* HEADER ROW 1 */
+
+ const tr1 =
+  document.createElement(
+   "tr"
+  );
+
+
+ const sn =
+  document.createElement(
+   "td"
+  );
+
+
+ sn.innerHTML =
+  "<b>क्र</b>";
+
+ sn.rowSpan=2;
+
+ sn.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(sn);
+
+
+ const target =
+  document.createElement(
+   "td"
+  );
+
+
+ target.innerHTML =
+  "<b>लक्ष्य</b>";
+
+ target.colSpan=3;
+
+ target.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(target);
+
+
+ const achievement =
+  document.createElement(
+   "td"
+  );
+
+
+ achievement.innerHTML =
+  "<b>उपलब्धि</b>";
+
+ achievement.colSpan=3;
+
+ achievement.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(
+  achievement
+ );
+
+
+ const percent =
+  document.createElement(
+   "td"
+  );
+
+
+ percent.innerHTML =
+  "<b>प्रतिशत</b>";
+
+ percent.rowSpan=2;
+
+ percent.className =
+  "ayushman-main-header";
+
+
+ tr1.appendChild(
+  percent
+ );
+
+
+ rows.push(tr1);
+
+
+ /* HEADER ROW 2 */
+
+ const tr2 =
+  document.createElement(
+   "tr"
+  );
+
+
+ [
+
+  "ग्रामीण",
+  "अर्बन",
+  "योग",
+  "ग्रामीण",
+  "अर्बन",
+  "योग"
+
+ ].forEach(
+  text=>{
+
+   const td =
+    document.createElement(
+     "td"
+    );
+
+
+   td.innerHTML =
+    "<b>"+
+    text+
+    "</b>";
+
+
+   td.className =
+    "ayushman-sub-header";
+
+
+   tr2.appendChild(td);
+
+  }
+ );
+
+
+ rows.push(tr2);
+
+
+ return rows;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN DATA ROW
+===================================================== */
+
+function createAyushmanDataRow(
+ values
+){
+
+ const tr =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let i=0;
+  i<8;
+  i++
+ ){
+
+  const td =
+   document.createElement(
+    "td"
+   );
+
+
+  td.innerText =
+   values[i]!==undefined
+    ?values[i]
+    :"";
+
+
+  td.className =
+   "ayushman-data-cell";
+
+
+  if(i===7){
+
+   td.classList.add(
+    "ayushman-percent"
+   );
+
+  }
+
+
+  tr.appendChild(td);
+
+ }
+
+
+ return tr;
+
+}
+
+
+/* =====================================================
+   AYUSHMAN CARD
+===================================================== */
+
+function renderAyushmanTable(
+ data
+){
+
+ clearTable();
+
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ table.className =
+  "ayushman-table";
+
+
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
+
+
+ tbody.innerHTML="";
+
+
+ /*
+   Google Sheet से data पढ़ेंगे
+ */
+
+ const parsed =
+  parseAyushmanData(
+   data
+  );
+
+
+ /*
+   =====================================================
+   AYUSHMAN CARD SECTION
+   =====================================================
+ */
+
+ tbody.appendChild(
+  createAyushmanTitle(
+   parsed.ayushmanTitle,
+   "ayushman-title-cell"
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ const ayushmanHeaders =
+  createAyushmanHeader();
+
+
+ ayushmanHeaders.forEach(
+  row=>{
+   tbody.appendChild(row);
+  }
+ );
+
+
+ tbody.appendChild(
+  createAyushmanDataRow(
+   parsed.ayushmanData
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ /*
+   =====================================================
+   VAY VANDAN SECTION
+   =====================================================
+ */
+
+ tbody.appendChild(
+  createAyushmanTitle(
+   parsed.vayTitle,
+   "ayushman-vay-title-cell"
+  )
+ );
+
+
+ tbody.appendChild(
+  createAyushmanBlank()
+ );
+
+
+ const vayHeaders =
+  createAyushmanHeader();
+
+
+ vayHeaders.forEach(
+  row=>{
+
+   tbody.appendChild(row);
+
+  }
+ );
+
+
+ tbody.appendChild(
+  createAyushmanDataRow(
+   parsed.vayData
+  )
+ );
+
+}
+
+
+/* =====================================================
+   NORMAL TABLE
+===================================================== */
+
+/* =====================================================
+   TELEMEDICINE REPORT
+===================================================== */
+
+let telemedicineState = {
+ sector: null,
+ facility: null,
+ active: "sector"
+};
+
+function telemedicineCell(data, r, c){
+ return String(
+  data.getFormattedValue(r,c) ||
+  data.getValue(r,c) ||
+  ""
+ ).replace(/\\s+/g," ").trim();
+}
+
+function telemedicineRows(data){
+ const out=[];
+ for(let r=0;r<data.getNumberOfRows();r++){
+  const row=[];
+  for(let c=0;c<data.getNumberOfColumns();c++){
+   row.push(telemedicineCell(data,r,c));
+  }
+  if(row.some(v=>v!=="")) out.push(row);
+ }
+ return out;
+}
+
+function telemedicineFindHeader(rows){
+ for(let i=0;i<rows.length;i++){
+  const text=rows[i].join(" ").toLowerCase();
+  if(text.includes("facility") || text.includes("sector")){
+   if(text.includes("completed") && text.includes("in process")) return i;
+  }
+ }
+ return -1;
+}
+
+function telemedicineTitle(rows, fallback){
+ for(const row of rows){
+  const t=row.join(" ").trim();
+  if(/e[- ]?sanjeevani|telimedicine|telemedicine/i.test(t)) return t;
+ }
+ return fallback;
+}
+
+function telemedicineDate(rows){
+ for(const row of rows){
+  const t=row.join(" ").trim();
+  if(/as on date/i.test(t)) return t.replace(/^.*?as on date/i,"as on Date").trim();
+ }
+ return "";
+}
+
+function telemedicineNum(v){
+ const n=Number(String(v||"").replace(/,/g,"").replace(/%/g,"").trim());
+ return Number.isFinite(n)?n:0;
+}
+
+function telemedicinePct(target, completed, sourcePct){
+ const t=telemedicineNum(target), c=telemedicineNum(completed);
+ if(t>0) return c/t*100;
+ const p=telemedicineNum(sourcePct);
+ return p;
+}
+
+function telemedicineIsMissing(row, isSector){
+ const totalIdx = isSector ? 4 : 3;
+ const completedIdx = isSector ? 5 : 4;
+ const inProcessIdx = isSector ? 6 : 5;
+ const total = String(row[totalIdx]||"").trim();
+ const completed = String(row[completedIdx]||"").trim();
+ const inProcess = String(row[inProcessIdx]||"").trim();
+ return total==="" && completed==="" && inProcess==="";
+}
+
+function telemedicineBuildRows(rows, mode){
+ const h=telemedicineFindHeader(rows);
+ if(h<0) return {title:"E-Sanjeevani Telemedicine Status FY 2026-27",date:"",headers:[],rows:[],total:null};
+
+ const headers=rows[h].map(v=>v||"");
+ const data=[];
+ let total=null;
+
+ for(let i=h+1;i<rows.length;i++){
+  const r=rows[i];
+  if(!r.some(v=>String(v||"").trim()!=="")) continue;
+  const first=String(r[0]||"").trim().toLowerCase();
+  if(first==="total" || first==="योग" || first==="कुल"){
+   total=r;
+   continue;
+  }
+  if(r.length<7) continue;
+  data.push(r);
+ }
+
+ return {
+  title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
+  date:telemedicineDate(rows),
+  headers:headers,
+  rows:data,
+  total:total
+ };
+}
+
+function telemedicineColor(p){
+ if(p>=100) return {bg:"#DCFCE7",fg:"#15803D",line:"#86EFAC"};
+ if(p>=90) return {bg:"#FEF3C7",fg:"#A16207",line:"#FACC15"};
+ return {bg:"#FEE2E2",fg:"#B91C1C",line:"#FCA5A5"};
+}
+
+function renderTelemedicineModule(){
+ const report=document.getElementById("telemedicineModule");
+ if(!report) return;
+
+ report.style.display="block";
+ const sector=telemedicineState.sector;
+ const facility=telemedicineState.facility;
+
+ const active=telemedicineState.active;
+ const data=active==="sector"?sector:facility;
+ if(!data){ report.innerHTML="<div style='padding:18px'>Telemedicine data नहीं मिला।</div>"; return; }
+
+ const rows=data.rows;
+ const isSector=active==="sector";
+
+ const targetIdx=isSector?3:2;
+ const totalIdx=isSector?4:3;
+ const completedIdx=isSector?5:4;
+ const processIdx=isSector?6:5;
+
+ let html="";
+ html += '<div class="tele-header" style="background:linear-gradient(135deg,#073B75,#075985);color:#fff;border-radius:14px 14px 0 0;padding:18px 20px;">';
+ html += '<div style="font-size:24px;font-weight:800;">🩻 '+data.title+'</div>';
+ html += '<div style="margin-top:5px;font-size:14px;font-weight:600;opacity:.95;">'+(data.date||"FY 2026-27")+'</div>';
+ html += '</div>';
+
+ html += '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px;background:#f8fafc;border-left:1px solid #d7e2ea;border-right:1px solid #d7e2ea;">';
+ html += '<button type="button" class="tele-tab '+(isSector?"active":"")+'" onclick="telemedicineSwitch(\'sector\')">📊 Sector Wise</button>';
+ html += '<button type="button" class="tele-tab '+(!isSector?"active":"")+'" onclick="telemedicineSwitch(\'facility\')">🏥 Facility Wise</button>';
+ html += '</div>';
+
+ html += '<div style="overflow:auto;border:1px solid #d7e2ea;border-top:0;border-radius:0 0 12px 12px;">';
+ html += '<table class="telemedicine-table" style="width:100%;border-collapse:collapse;min-width:980px;">';
+ html += '<thead><tr>';
+
+ const head = isSector
+  ? ["Sn","Sector","No of AAM Facility","Annual Target (Per Month 25) /Facilty","Total","Completed","In Process","%"]
+  : ["Sn","Facility","Annual Target (Per Month 25)","Total","Completed","In Process","%","Remark"];
+
+ head.forEach(hd=>{
+  html += '<th style="position:sticky;top:0;background:#075985;color:#fff;padding:12px 10px;border:1px solid #d7e2ea;font-size:14px;text-align:center;white-space:nowrap;">'+hd+'</th>';
+ });
+ html += '</tr></thead><tbody>';
+
+ rows.forEach((r,i)=>{
+  const pct=telemedicinePct(r[targetIdx],r[completedIdx],r[7]);
+  const missing=telemedicineIsMissing(r,isSector);
+  const idx=String(r[0]||i+1);
+
+  const values = isSector
+   ? [idx,r[1],r[2],r[3],r[4],r[5],r[6]]
+   : [idx,r[1],r[2],r[4],r[5],r[6],pct?pct.toFixed(0):"0",missing?"Not Mapped Portal":""];
+
+  html += '<tr>';
+  values.forEach((v,ci)=>{
+   const text=String(v==null?"":v);
+   if((isSector && ci===7) || (!isSector && ci===6)){
+    const sc=telemedicineColor(pct);
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:800;background:'+sc.bg+';color:'+sc.fg+';">'+text+(text!==""&&text.indexOf("%")<0?"%":"")+'</td>';
+   }else if(!isSector && ci===7){
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:700;color:#B45309;">'+text+'</td>';
+   }else{
+    html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:'+(ci===1?"left":"center")+';font-size:14px;font-weight:'+(ci===1?"700":"500")+';">'+text+'</td>';
+   }
+  });
+  // Sector percentage is appended separately because values array has 7 fields.
+  if(isSector){
+   const sc=telemedicineColor(pct);
+   html += '<td style="padding:9px 8px;border:1px solid #d7e2ea;text-align:center;font-weight:800;background:'+sc.bg+';color:'+sc.fg+';">'+pct.toFixed(0)+'%</td>';
+  }
+  html += '</tr>';
+ });
+
+ if(data.total){
+  const tr=data.total;
+  const totalPct=telemedicinePct(tr[targetIdx],tr[completedIdx],tr[7]);
+  const totalTarget=tr[targetIdx], totalCompleted=tr[completedIdx];
+  html += '<tr style="background:#073B75;color:#fff;font-weight:800;">';
+  if(isSector){
+   html += '<td colspan="2" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||tr[1]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||tr[2]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
+   const sc=telemedicineColor(totalPct);
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
+  }else{
+   html += '<td colspan="3" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
+   const sc=telemedicineColor(totalPct);
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;"></td>';
+  }
+  html += '</tr>';
+ }
+ html += '</tbody></table></div>';
+
+ html += '<div style="padding:10px 4px 0;color:#64748b;font-size:12px;">% = Completed ÷ Annual Target × 100 • Missing facility data is marked “Not Mapped Portal”.</div>';
+
+ report.innerHTML=html;
+}
+
+function telemedicineSwitch(type){
+ telemedicineState.active=type;
+ renderTelemedicineModule();
+}
+
+async function loadTelemedicineReport(report){
+ try{
+  const querySheet=(gid)=>{
+   return new Promise((resolve,reject)=>{
+    const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(report.sheetId)+"/gviz/tq?gid="+encodeURIComponent(gid)+"&headers=0";
+    const q=new google.visualization.Query(url);
+    q.setQuery("select *");
+    q.send(response=>{
+     if(response.isError()){ reject(new Error(response.getMessage())); return; }
+     resolve(response.getDataTable());
+    });
+   });
+  };
+
+  const [sectorDT,facilityDT]=await Promise.all([
+   querySheet(report.gid),
+   querySheet(report.facilityGid)
+  ]);
+
+  telemedicineState.sector=telemedicineBuildRows(telemedicineRows(sectorDT),"sector");
+  telemedicineState.facility=telemedicineBuildRows(telemedicineRows(facilityDT),"facility");
+  telemedicineState.active="sector";
+
+  document.getElementById("reportTable").style.display="none";
+  const tele=document.getElementById("telemedicineModule");
+  if(tele) tele.style.display="block";
+  renderTelemedicineModule();
+
+  setStatus("✓ Telemedicine Sector Wise + Facility Wise data successfully loaded","success");
+ }catch(e){
+  console.error(e);
+  setStatus("Telemedicine data load नहीं हुआ: "+(e.message||e),"error");
+ }
+}
+
+
+function renderNormalTable(
+ data
+){
+
+ clearTable();
+
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ table.className="";
+
+
+ const cols =
+  data.getNumberOfColumns();
+
+
+ const rows =
+  data.getNumberOfRows();
+
+
+ const thead =
+  table.querySelector(
+   "thead"
+  );
+
+
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
+
+
+ const headerRow =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let c=0;
+  c<cols;
+  c++
+ ){
+
+  const th =
+   document.createElement(
+    "th"
+   );
+
+
+  th.innerText =
+   data.getColumnLabel(c)
+   ||
+   "Column "+(
+    c+1
+   );
+
+
+  headerRow.appendChild(th);
+
+ }
+
+
+ thead.appendChild(
+  headerRow
+ );
+
+
+ for(
+  let r=0;
+  r<rows;
+  r++
+ ){
+
+  const tr =
+   document.createElement(
+    "tr"
+   );
+
+
+  for(
+   let c=0;
+   c<cols;
+   c++
+  ){
+
+   const td =
+    document.createElement(
+     "td"
+    );
+
+
+   td.innerText =
+    formatted(
+     data,
+     r,
+     c
+    );
+
+
+   tr.appendChild(td);
+
+  }
+
+
+  const first =
+   formatted(
+    data,
+    r,
+    0
+   )
+   .toLowerCase()
+   .trim();
+
+
+  if(
+   first==="total" ||
+   first==="योग" ||
+   first==="कुल"
+  ){
+
+   tr.classList.add(
+    "total-row"
+   );
+
+  }
+
+
+  tbody.appendChild(tr);
+
+ }
+
+}
+
+
+/* =====================================================
+   NCD
+===================================================== */
+
+function renderNCDTable(
+ data
+){
+
+ clearTable();
+
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ table.className =
+  "ncd-table";
+
+
+ const cols =
+  data.getNumberOfColumns();
+
+
+ const rows =
+  data.getNumberOfRows();
+
+
+ const thead =
+  table.querySelector(
+   "thead"
+  );
+
+
+ const tbody =
+  table.querySelector(
+   "tbody"
+  );
+
+
+ const header =
+  document.createElement(
+   "tr"
+  );
+
+
+ for(
+  let c=0;
+  c<cols;
+  c++
+ ){
+
+  const th =
+   document.createElement(
+    "th"
+   );
+
+
+  th.innerText =
+   data.getColumnLabel(c)
+   ||
+   "Column "+(
+    c+1
+   );
+
+
+  header.appendChild(th);
+
+ }
+
+
+ thead.appendChild(
+  header
+ );
+
+
+ for(
+  let r=0;
+  r<rows;
+  r++
+ ){
+
+  const tr =
+   document.createElement(
+    "tr"
+   );
+
+
+  tr.className =
+   "ncd-data-row";
+
+
+  for(
+   let c=0;
+   c<cols;
+   c++
+  ){
+
+   const td =
+    document.createElement(
+     "td"
+    );
+
+
+   td.innerText =
+    formatted(
+     data,
+     r,
+     c
+    );
+
+
+   tr.appendChild(td);
+
+  }
+
+
+  tbody.appendChild(tr);
+
+ }
+
+}
+
+
+/* =====================================================
+   CLEAR TABLE
+===================================================== */
+
+function clearTable(){
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ table.className="";
+
+
+ table.querySelector(
+  "colgroup"
+ ).innerHTML="";
+
+
+ table.querySelector(
+  "thead"
+ ).innerHTML="";
+
+
+ table.querySelector(
+  "tbody"
+ ).innerHTML="";
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function filterTable(){
+
+ const search =
+  document.getElementById("searchBox")
+  .value
+  .toLowerCase()
+  .trim();
+
+ /*
+   RCH
+ */
+ if(
+  currentReportIndex!==null &&
+  REPORTS[currentReportIndex].name==="RCH 2.0"
+ ){
+  document.querySelectorAll("#rchContainer tbody tr").forEach(row=>{
+    row.style.display =
+      row.innerText.toLowerCase().includes(search) ? "" : "none";
+  });
+  return;
+ }
+
+ /*
+   Ayushman Shivir
+   The module uses custom .shivir-table elements instead of #reportTable,
+   so search must target those rows directly.
+ */
+ if(
+  currentReportIndex!==null &&
+  REPORTS[currentReportIndex].name==="Ayushman Shivir"
+ ){
+  document.querySelectorAll(".shivir-table tbody tr").forEach(row=>{
+    // Keep the Total row visible only when the search box is empty.
+    if(row.classList.contains("shivir-total")){
+      row.style.display = search ? "none" : "";
+      return;
+    }
+    row.style.display =
+      row.innerText.toLowerCase().includes(search) ? "" : "none";
+  });
+  return;
+ }
+
+ if(
+  currentReportIndex!==null &&
+  REPORTS[currentReportIndex].telemedicine
+ ){
+  const q=document.getElementById("searchBox").value.toLowerCase().trim();
+  document.querySelectorAll("#telemedicineModule tbody tr").forEach(row=>{
+   row.style.display = q==="" || row.innerText.toLowerCase().includes(q) ? "" : "none";
+  });
+  return;
+ }
+
+ /*
+   Other reports
+ */
+ document.querySelectorAll("#reportTable tbody tr").forEach(row=>{
+   row.style.display =
+     row.innerText.toLowerCase().includes(search) ? "" : "none";
+ });
+}
+
+
+/* =====================================================
+   EXCEL
+
+===================================================== */
+
+function downloadExcel(){
+
+ if(
+  currentReportIndex===null
+ ){
+
+  return;
+
+ }
+
+
+ const report =
+  REPORTS[
+   currentReportIndex
+  ];
+
+
+ /* =================================================
+    RCH EXCEL
+ ================================================= */
+
+ if(
+  report.name==="RCH 2.0" &&
+  currentRCHData
+ ){
+
+  const sectorRows =
+   buildSectorData(
+    currentRCHData
+   );
+
+
+  const total =
+   calculateRCHTotals(
+    sectorRows
+   );
+
+
+  const sectorSheet=[
+
+   [
+    "Sn",
+    "Sector",
+    "Health Facility",
+    "HMIS PW Registration",
+    "RCH 2.0 PW Registration",
+    "%",
+    "Temporary Registration",
+    "Backlog",
+    "High Risk"
+   ]
+
+  ];
+
+
+  sectorRows.forEach(
+   (row,index)=>{
+
+    sectorSheet.push([
+
+     index+1,
+
+     row.sector,
+
+     row.facility,
+
+     row.hmis,
+
+     row.rch,
+
+     row.percent+"%",
+
+     row.temp,
+
+     row.backlog,
+
+     row.highRisk
+
+    ]);
+
+   }
+  );
+
+
+  sectorSheet.push([
+
+   "",
+
+   "Total",
+
+   total.facility,
+
+   total.hmis,
+
+   total.rch,
+
+   total.percent+"%",
+
+   total.temp,
+
+   total.backlog,
+
+   total.highRisk
+
+  ]);
+
+
+  const facilitySheet=[
+
+   [
+    "Sn",
+    "Facility",
+    "Sector",
+    "HFR ID",
+    "Type",
+    "HMIS PW",
+    "RCH 2.0 PW",
+    "%",
+    "Temporary",
+    "Backlog",
+    "High Risk"
+   ]
+
+  ];
+
+
+  currentRCHData.facilityRows
+   .forEach(
+    (row,index)=>{
+
+     const percent =
+      row.hmis>0
+       ?Math.round(
+        row.rch/
+        row.hmis*
+        100
+       )
+       :0;
+
+
+     facilitySheet.push([
+
+      index+1,
+
+      row.facility,
+
+      row.sector,
+
+      row.hfr,
+
+      row.type,
+
+      row.hmis,
+
+      row.rch,
+
+      percent+"%",
+
+      row.temp,
+
+      row.backlog,
+
+      row.highRisk
+
+     ]);
+
+    }
+   );
+
+
+  facilitySheet.push([
+
+   "",
+
+   "Total ("+
+   currentRCHData.facilityRows.length+
+   " Facilities)",
+
+   "",
+
+   "",
+
+   "",
+
+   total.hmis,
+
+   total.rch,
+
+   total.percent+"%",
+
+   total.temp,
+
+   total.backlog,
+
+   total.highRisk
+
+  ]);
+
+
+  const wb =
+   XLSX.utils.book_new();
+
+
+  const ws1 =
+   XLSX.utils.aoa_to_sheet(
+    sectorSheet
+   );
+
+
+  const ws2 =
+   XLSX.utils.aoa_to_sheet(
+    facilitySheet
+   );
+
+
+  ws1["!cols"]=[
+
+   {wch:6},
+   {wch:18},
+   {wch:16},
+   {wch:20},
+   {wch:22},
+   {wch:10},
+   {wch:20},
+   {wch:12},
+   {wch:12}
+
+  ];
+
+
+  ws2["!cols"]=[
+
+   {wch:6},
+   {wch:25},
+   {wch:18},
+   {wch:16},
+   {wch:16},
+   {wch:12},
+   {wch:14},
+   {wch:10},
+   {wch:12},
+   {wch:12},
+   {wch:12}
+
+  ];
+
+
+  XLSX.utils.book_append_sheet(
+   wb,
+   ws1,
+   "Sector Wise"
+  );
+
+
+  XLSX.utils.book_append_sheet(
+   wb,
+   ws2,
+   "Facility Wise"
+  );
+
+
+  XLSX.writeFile(
+   wb,
+   "RCH_2.0_Kharsia.xlsx"
+  );
+
+
+  return;
+
+ }
+
+
+ /* =================================================
+    TELEMEDICINE EXCEL
+ ================================================= */
+ if(
+  report.telemedicine &&
+  telemedicineState.sector &&
+  telemedicineState.facility
+ ){
+  const makeAoa=(state,isSector)=>{
+   const h=isSector
+    ? ["Sn","Sector","No of AAM Facility","Annual Target (Per Month 25) /Facilty","Total","Completed","In Process","%"]
+    : ["Sn","Facility","Annual Target (Per Month 25)","Total","Completed","In Process","%","Remark"];
+   const arr=[h];
+   state.rows.forEach((r,i)=>{
+    const pct=isSector
+      ?telemedicinePct(r[3],r[5],r[7])
+      :telemedicinePct(r[2],r[4],r[6]);
+    arr.push(isSector
+      ? [r[0],r[1],r[2],r[3],r[4],r[5],r[6],pct.toFixed(0)+"%"]
+      : [r[0]||i+1,r[1],r[2],r[4],r[5],r[6],pct.toFixed(0)+"%",telemedicineIsMissing(r)?"Not Mapped Portal":""]);
+   });
+   if(state.total){
+    const r=state.total, pct=isSector
+     ?telemedicinePct(r[3],r[5],r[6])
+     :telemedicinePct(r[2],r[4],r[6]);
+    arr.push(isSector
+      ? ["","TOTAL",r[2]||r[1]||"",r[3]||"",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%"]
+      : ["","","",r[4]||"",r[5]||"",r[6]||"",pct.toFixed(0)+"%",""]);
+   }
+   return arr;
+  };
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(makeAoa(telemedicineState.sector,true)),"Sector Wise");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(makeAoa(telemedicineState.facility,false)),"Facility Wise");
+  XLSX.writeFile(wb,"Telemedicine_Report_Kharsia.xlsx");
+  return;
+ }
+
+ /* =================================================
+    OTHER REPORTS
+ ================================================= */
+
+ const table =
+  document.getElementById(
+   "reportTable"
+  );
+
+
+ const wb =
+  XLSX.utils.table_to_book(
+   table,
+   {
+    sheet:"Report"
+   }
+  );
+
+
+ XLSX.writeFile(
+  wb,
+  report.name
+   .replace(/\s+/g,"_")+
+   "_Kharsia.xlsx"
+ );
+
+}
+
+
+/* =====================================================
+   PDF
+===================================================== */
+
+function downloadPDF(){
+
+ if(
+  currentReportIndex===null
+ ){
+
+  return;
+
+ }
+
+
+ const report =
+  REPORTS[
+   currentReportIndex
+  ];
+
+
+ const area =
+  document.getElementById(
+   "pdfArea"
+  );
+
+
+ area.classList.add(
+  "pdf-mode"
+ );
+
+
+ const filename =
+  report.name
+   .replace(/\s+/g,"_")+
+   "_Kharsia.pdf";
+
+
+ const options={
+
+  margin:5,
+
+  filename:
+   filename,
+
+  image:{
+   type:"jpeg",
+   quality:.98
+  },
+
+  html2canvas:{
+   scale:2,
+   useCORS:true
+  },
+
+  jsPDF:{
+   unit:"mm",
+   format:"a4",
+   orientation:"landscape"
+  },
+
+  pagebreak:{
+   mode:[
+    "css",
+    "legacy"
+   ]
+  }
+
+ };
+
+
+ html2pdf()
+  .set(options)
+  .from(area)
+  .save()
+  .then(
+   ()=>{
+
+    area.classList.remove(
+     "pdf-mode"
+    );
+
+   }
+  );
+
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+function printReport(){
+
+ window.print();
+
+}
+
+
+/* =====================================================
+   HIDE RCH SUMMARY
+===================================================== */
+
+function hideRCHSummary(){
+
+ document
+  .getElementById(
+   "rchSummaryCards"
+  )
+  .classList.remove(
+   "show"
+  );
+
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function setStatus(
+ text,
+ type=""
+){
+
+ const status =
+  document.getElementById(
+   "status"
+  );
+
+
+ status.className =
+  "status "+
+  type;
+
+
+ status.innerText =
+  text;
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+google.charts.load(
+ "current",
+ {
+  packages:[
+   "corechart",
+   "table"
+  ]
+ }
+);
+
+
+google.charts.setOnLoadCallback(
+ function(){
+
+  createMenu();
+
+ }
+);
+
+</script>
+
+<script>
+function startPPTXGeneration(){
+  var b=document.getElementById('dashboardPptxBtn');
+  if(b){b.disabled=true;b.textContent='⏳ PPTX Loading...';}
+  function run(){
+    if(typeof window.generatePPTX==='function'){
+      window.generatePPTX();
+      return;
+    }
+    if(typeof window.generate==='function'){
+      window.generate();
+      return;
+    }
+    if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+    alert('PPTX Generator load नहीं हुआ। कृपया एक बार फिर क्लिक करें।');
+  }
+  if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
+    run();
+    return;
+  }
+  var s=document.getElementById('pptx-report-script');
+  if(!s){
+    s=document.createElement('script');
+    s.id='pptx-report-script';
+    s.src='js/pptx-report-final-14.js';
+    s.onload=run;
+    s.onerror=function(){
+      if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+      alert('PPTX Generator file load नहीं हुई।');
+    };
+    document.head.appendChild(s);
+  }else{
+    var tries=0;
+    var timer=setInterval(function(){
+      tries++;
+      if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
+        clearInterval(timer); run();
+      }else if(tries>40){
+        clearInterval(timer);
+        if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
+        alert('PPTX Generator अभी load नहीं हुआ।');
+      }
+    },250);
+  }
+}
+</script>
+<script id="ayushman-shivir-final-static" src="js/ayushman-shivir-final-02.js"></script>
+<script id="shivir-color-force-fix">
+(function(){
+  function n(v){
+    var x=parseFloat(String(v==null?'':v).replace(/,/g,'').replace('%','').trim());
+    return isFinite(x)?x:0;
+  }
+  function apply(){
+    document.querySelectorAll('.shivir-table').forEach(function(t){
+      var th=[].slice.call(t.querySelectorAll('thead th'));
+      if(!th.length)return;
+      var pct=-1,avg=-1;
+      th.forEach(function(h,i){
+        var s=(h.textContent||'').trim().toLowerCase();
+        if(s==='%' || s.indexOf('achievement')>=0 && s.indexOf('%')>=0)pct=i;
+        if(s.indexOf('avg footfall')>=0)avg=i;
+      });
+      function scale(v,min,max){
+        if(max<=min)return 'hsl(60,78%,70%)';
+        var q=Math.max(0,Math.min(1,(v-min)/(max-min)));
+        return 'hsl('+(120*q)+',78%,48%)';
+      }
+      if(pct>=0){
+        var vals=[].slice.call(t.querySelectorAll('tbody tr:not(.shivir-total)')).map(function(r){return n(r.children[pct]&&r.children[pct].textContent)}).filter(function(v){return isFinite(v)});
+        var min=vals.length?Math.min.apply(null,vals):0,max=vals.length?Math.max.apply(null,vals):0;
+        t.querySelectorAll('tbody tr').forEach(function(r){
+          var cell=r.children[pct]; if(!cell)return;
+          var v=n(cell.textContent);
+          cell.style.setProperty('background',scale(v,min,max),'important');
+          cell.style.setProperty('color',v>=min+(max-min)*0.58?'#fff':'#111827','important');
+          cell.style.setProperty('font-weight','800','important');
+        });
+      }
+      if(avg>=0){
+        var av=[].slice.call(t.querySelectorAll('tbody tr:not(.shivir-total)')).map(function(r){return n(r.children[avg]&&r.children[avg].textContent)}).filter(function(v){return v>0});
+        var amin=av.length?Math.min.apply(null,av):0,amax=av.length?Math.max.apply(null,av):0;
+        t.querySelectorAll('tbody tr').forEach(function(r){
+          var cell=r.children[avg]; if(!cell)return;
+          var v=n(cell.textContent);
+          cell.style.setProperty('background',scale(v,amin,amax),'important');
+          cell.style.setProperty('color',v>=amin+(amax-amin)*0.58?'#fff':'#111827','important');
+          cell.style.setProperty('font-weight','800','important');
+        });
+      }
+    });
+  }
+  var mo=new MutationObserver(apply);
+  document.addEventListener('DOMContentLoaded',function(){
+    apply();
+    mo.observe(document.body,{subtree:true,childList:true});
+  });
+  setInterval(apply,1000);
+})();
+</script>
+<script id="pptx-report-script" src="js/pptx-report-final-14.js"></script>
+<script src="js/ncd.js"></script>
+</body>
+</html>
