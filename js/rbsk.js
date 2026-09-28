@@ -7,11 +7,59 @@ var D={date:'31-08-2026',main:[
 cat:[
 {n:1,id:'3863687A',v:[[2,1,1,'50%',1],[48,2,46,'96%',48],[16,3,13,'81%',16],[7,6,1,'14%',7],[4,0,0,'0%',4],[77,1,76,'99%',1]]},
 {n:2,id:'3863687B',v:[[1,0,1,'100%',0],[49,7,42,'86%',49],[50,7,43,'86%',50],[5,2,3,'60%',5],[1,1,20,'20%',0],[106,17,89,'84%',17]]},
-{n:'',id:'Total',v:[[3,1,2,'67%',1],[97,9,88,'91%',97],[66,10,56,'85%',66],[12,8,4,'33%',12],[5,1,8,'8%',0],[183,18,165,'90%',18]]}],};
-function css(){if(document.getElementById('rbsk-css'))return;var s=document.createElement('style');s.id='rbsk-css';s.textContent='#rbskPage{display:none}.rbsk-box{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);padding:16px;margin-bottom:16px}.rbsk-head{text-align:center;background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:12px;padding:14px;margin-bottom:14px}.rbsk-head h2{margin:0;font-size:21px}.rbsk-head p{margin:5px 0 0;font-size:13px;font-weight:700}.rbsk-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.rbsk-tab{border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}.rbsk-tab.active{background:#0f766e;color:#fff}.rbsk-pane{display:none}.rbsk-pane.active{display:block}.rbsk-title{text-align:center;color:#075985;font-size:18px;font-weight:900;margin:5px}.rbsk-sub{text-align:center;color:#64748b;font-size:12px;font-weight:700;margin-bottom:12px}.rbsk-scroll{overflow:auto;border:1px solid #dbe3ec;border-radius:10px}.rbsk-table{border-collapse:collapse;width:100%;min-width:1550px;font-size:12px}.rbsk-table.cat{min-width:2050px}.rbsk-table th,.rbsk-table td{border:1px solid #cbd5e1;padding:7px 5px;text-align:center;vertical-align:middle;white-space:normal}.rbsk-table th{background:#075985;color:#fff;font-weight:800}.rbsk-table .group th,.rbsk-table th.group{background:#0f766e}.rbsk-table tr:nth-child(even){background:#f8fafc}.rbsk-table tr.total{background:#dbeafe!important;font-weight:900}.rbsk-team{font-weight:900;color:#075985}.rbsk-note{margin-top:10px;padding:9px 12px;background:#f1f5f9;border-radius:8px;color:#475569;font-size:12px}';document.head.appendChild(s)}
-function mainTable(){var h='<div class="rbsk-box"><div class="rbsk-title">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27</div><div class="rbsk-sub">दिनांक '+D.date+' की स्थिति में</div><div class="rbsk-scroll"><table class="rbsk-table"><thead><tr class="group"><th rowspan="2">क्र.</th><th rowspan="2">टीम</th><th colspan="3">स्कूल जाँच</th><th colspan="3">स्कूल जाँच हेतु लक्ष्य / जाँच</th><th colspan="3">आंगनबाड़ी FIRST VISIT</th><th colspan="3">आंगनबाड़ी जाँच हेतु लक्ष्य / जाँच</th><th colspan="4">Reffer and Treatment</th><th colspan="2">अन्य</th></tr><tr><th>कुल स्कूल</th><th>स्कूल विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल आंगनबाड़ी</th><th>आंगनबाड़ी विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल बीमार बच्चे</th><th>कुल जिनका ईलाज किया गया</th><th>कुल रिफर</th><th>रिफर बच्चों का ईलाज</th><th>शेष</th><th>शेष इलाज</th></tr></tr></thead><tbody>';D.main.forEach(function(r){h+='<tr class="'+(r.t==='योग'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.t+'</td>';r.a.forEach(function(v){h+='<td>'+v.toLocaleString('en-IN')+'</td>'});h+='</tr>'});h+='</tbody></table></div><div class="rbsk-note">केवल 2 RBSK Teams हैं। Sector Wise / Facility Wise section नहीं है।</div></div>';return h}
+{n:'',id:'Total',v:[[3,1,2,'67%',1],[97,9,88,'91%',97],[66,10,56,'85%',66],[12,8,4,'33%',12],[5,1,8,'8%',0],[183,18,165,'90%',18]]}]};
+
+function css(){
+if(document.getElementById('rbsk-css'))return;
+var s=document.createElement('style');s.id='rbsk-css';
+s.textContent='#rbskPage{display:none!important}#rbskPage.rbsk-visible{display:block!important}.rbsk-box{background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.07);padding:16px;margin-bottom:16px}.rbsk-head{text-align:center;background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:12px;padding:14px;margin-bottom:14px}.rbsk-head h2{margin:0;font-size:21px}.rbsk-head p{margin:5px 0 0;font-size:13px;font-weight:700}.rbsk-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.rbsk-tab{border:1px solid #cbd5e1;background:#f8fafc;color:#334155;border-radius:9px;padding:10px 15px;font-weight:800;cursor:pointer}.rbsk-tab.active{background:#0f766e;color:#fff}.rbsk-pane{display:none}.rbsk-pane.active{display:block}.rbsk-title{text-align:center;color:#075985;font-size:18px;font-weight:900;margin:5px}.rbsk-sub{text-align:center;color:#64748b;font-size:12px;font-weight:700;margin-bottom:12px}.rbsk-scroll{overflow:auto;border:1px solid #dbe3ec;border-radius:10px}.rbsk-table{border-collapse:collapse;width:100%;min-width:1550px;font-size:12px}.rbsk-table.cat{min-width:2050px}.rbsk-table th,.rbsk-table td{border:1px solid #cbd5e1;padding:7px 5px;text-align:center;vertical-align:middle;white-space:normal}.rbsk-table th{background:#075985;color:#fff;font-weight:800}.rbsk-table .group th,.rbsk-table th.group{background:#0f766e}.rbsk-table tr:nth-child(even){background:#f8fafc}.rbsk-table tr.total{background:#dbeafe!important;font-weight:900}.rbsk-team{font-weight:900;color:#075985}.rbsk-note{margin-top:10px;padding:9px 12px;background:#f1f5f9;border-radius:8px;color:#475569;font-size:12px}.rbsk-empty{padding:25px;text-align:center;color:#64748b}';
+document.head.appendChild(s)
+}
+
+function hideAllPages(){
+document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');x.style.display='none'});
+var d=document.getElementById('dashboardPage');if(d)d.style.display='none';
+var r=document.getElementById('reportPage');if(r)r.style.display='none';
+}
+
+function showRBSK(p,b){
+hideAllPages();
+var dash=document.getElementById('dashboardBtn');if(dash)dash.classList.remove('active');
+document.querySelectorAll('#menuButtons .menu-btn').forEach(function(x){x.classList.remove('active')});
+b.classList.add('active');
+p.classList.add('active','rbsk-visible');
+p.style.display='block';
+window.scrollTo(0,0);
+}
+
+function mainTable(){
+var h='<div class="rbsk-box"><div class="rbsk-title">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27</div><div class="rbsk-sub">दिनांक '+D.date+' की स्थिति में</div><div class="rbsk-scroll"><table class="rbsk-table"><thead><tr class="group"><th rowspan="2">क्र.</th><th rowspan="2">टीम</th><th colspan="3">स्कूल जाँच</th><th colspan="3">स्कूल जाँच हेतु लक्ष्य / जाँच</th><th colspan="3">आंगनबाड़ी FIRST VISIT</th><th colspan="3">आंगनबाड़ी जाँच हेतु लक्ष्य / जाँच</th><th colspan="4">Reffer and Treatment</th><th colspan="2">अन्य</th></tr><tr><th>कुल स्कूल</th><th>स्कूल विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल आंगनबाड़ी</th><th>आंगनबाड़ी विजिट</th><th>%</th><th>कुल जाँच हेतु लक्ष्य</th><th>कुल जाँच</th><th>%</th><th>कुल बीमार बच्चे</th><th>कुल जिनका ईलाज किया गया</th><th>कुल रिफर</th><th>रिफर बच्चों का ईलाज</th><th>शेष</th><th>शेष इलाज</th></tr></tr></thead><tbody>';
+D.main.forEach(function(r){h+='<tr class="'+(r.t==='योग'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.t+'</td>';r.a.forEach(function(v){h+='<td>'+v.toLocaleString('en-IN')+'</td>'});h+='</tr>'});
+return h+'</tbody></table></div><div class="rbsk-note">केवल 2 RBSK Teams हैं। Sector Wise / Facility Wise section नहीं है।</div></div>'
+}
+
 function cells(a){var s='';a.forEach(function(v){s+='<td>'+v+'</td>'});return s}
-function catTable(){var h='<div class="rbsk-box"><div class="rbsk-title">Team Wise Category Periodical Treatment</div><div class="rbsk-sub">Report from 01/04/2026 To 31/03/2027</div><div class="rbsk-scroll"><table class="rbsk-table cat"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">A</th><th colspan="5">All Category (A+B+C+D+E)</th><th colspan="5">B</th><th colspan="5">C</th><th colspan="5">D</th><th colspan="5">E</th></tr><tr>';for(var i=0;i<6;i++)h+='<th>Identified</th><th>Under Treatment</th><th>Treatment Over</th><th>% of Treatment</th><th>Pending</th>';h+='</tr></thead><tbody>';D.cat.forEach(function(r){h+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.id+'</td>';r.v.forEach(function(a){h+=cells(a)});h+='</tr>'});h+='</tbody></table></div></div>';return h}
-function build(){if(document.getElementById('rbskPage'))return;var c=document.querySelector('.content'),m=document.getElementById('menuButtons');if(!c||!m)return;css();var p=document.createElement('section');p.id='rbskPage';p.className='page';p.innerHTML='<div class="rbsk-head"><h2>🧒 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)</h2><p>वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में</p></div><div class="rbsk-tabs"><button class="rbsk-tab active" data-p="rbsk1">📊 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी</button><button class="rbsk-tab" data-p="rbsk2">💊 Team Wise Category Periodical Treatment</button></div><div id="rbsk1" class="rbsk-pane active">'+mainTable()+'</div><div id="rbsk2" class="rbsk-pane">'+catTable()+'</div>';c.appendChild(p);var b=document.createElement('button');b.className='menu-btn';b.textContent='🧒 RBSK';b.id='rbskMenu';m.appendChild(b);b.onclick=function(){document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active')});document.getElementById('dashboardBtn').classList.remove('active');document.querySelectorAll('#menuButtons .menu-btn').forEach(function(x){x.classList.remove('active')});b.classList.add('active');p.classList.add('active');};p.querySelectorAll('.rbsk-tab').forEach(function(x){x.onclick=function(){p.querySelectorAll('.rbsk-tab').forEach(function(y){y.classList.remove('active')});p.querySelectorAll('.rbsk-pane').forEach(function(y){y.classList.remove('active')});x.classList.add('active');document.getElementById(x.dataset.p).classList.add('active')}})}
-function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons'))build();else setTimeout(init,300)}init();
+
+function catTable(){
+var h='<div class="rbsk-box"><div class="rbsk-title">Team Wise Category Periodical Treatment</div><div class="rbsk-sub">Report from 01/04/2026 To 31/03/2027</div><div class="rbsk-scroll"><table class="rbsk-table cat"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">A</th><th colspan="5">All Category (A+B+C+D+E)</th><th colspan="5">B</th><th colspan="5">C</th><th colspan="5">D</th><th colspan="5">E</th></tr><tr>';
+for(var i=0;i<6;i++)h+='<th>Identified</th><th>Under Treatment</th><th>Treatment Over</th><th>% of Treatment</th><th>Pending</th>';
+h+='</tr></thead><tbody>';
+D.cat.forEach(function(r){h+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.id+'</td>';r.v.forEach(function(a){h+=cells(a)});h+='</tr>'});
+return h+'</tbody></table></div></div>'
+}
+
+function build(){
+if(document.getElementById('rbskPage'))return;
+var c=document.querySelector('.content'),m=document.getElementById('menuButtons');if(!c||!m)return;
+css();
+var p=document.createElement('section');p.id='rbskPage';p.className='page';
+p.innerHTML='<div class="rbsk-head"><h2>🧒 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)</h2><p>वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में</p></div><div class="rbsk-tabs"><button class="rbsk-tab active" data-p="rbsk1">📊 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी</button><button class="rbsk-tab" data-p="rbsk2">💊 Team Wise Category Periodical Treatment</button></div><div id="rbsk1" class="rbsk-pane active">'+mainTable()+'</div><div id="rbsk2" class="rbsk-pane">'+catTable()+'</div>';
+c.appendChild(p);
+var b=document.createElement('button');b.className='menu-btn';b.textContent='🧒 RBSK';b.id='rbskMenu';m.appendChild(b);
+b.onclick=function(){showRBSK(p,b)};
+p.querySelectorAll('.rbsk-tab').forEach(function(x){x.onclick=function(){p.querySelectorAll('.rbsk-tab').forEach(function(y){y.classList.remove('active')});p.querySelectorAll('.rbsk-pane').forEach(function(y){y.classList.remove('active')});x.classList.add('active');var z=document.getElementById(x.dataset.p);z.classList.add('active')}})
+}
+
+function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons'))build();else setTimeout(init,300)}
+init();
 })();
