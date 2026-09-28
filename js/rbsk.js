@@ -51,7 +51,7 @@ return h+'</tbody></table></div></div>'
 function cells(a){var s='';a.forEach(function(v){s+='<td>'+v+'</td>'});return s}
 
 function catTable(){
-var h='<div class="rbsk-box"><div class="rbsk-title">Team Wise Category Periodical Treatment</div><div class="rbsk-sub">Report from 01/04/2026 To 31/03/2027</div><div class="rbsk-scroll"><table class="rbsk-table cat"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">A</th><th colspan="5">All Category (A+B+C+D+E)</th><th colspan="5">B</th><th colspan="5">C</th><th colspan="5">D</th><th colspan="5">E</th></tr><tr>';
+var h='<div class="rbsk-box"><div class="rbsk-title">Team Wise Category Periodical Treatment Report</div><div class="rbsk-sub">Report from 01/04/2026 To 31/03/2027</div><div class="rbsk-scroll"><table class="rbsk-table cat"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">A</th><th colspan="5">All Category (A+B+C+D+E)</th><th colspan="5">B</th><th colspan="5">C</th><th colspan="5">D</th><th colspan="5">E</th></tr><tr>';
 for(var i=0;i<6;i++)h+='<th>Identified</th><th>Under Treatment</th><th>Treatment Over</th><th>% of Treatment</th><th>Pending</th>';
 h+='</tr></thead><tbody>';
 D.cat.forEach(function(r){h+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.id+'</td>';r.v.forEach(function(a){h+=cells(a)});h+='</tr>'});
@@ -63,7 +63,7 @@ if(document.getElementById('rbskPage'))return;
 var c=document.querySelector('.content'),m=document.getElementById('menuButtons');if(!c||!m)return;
 css();
 var p=document.createElement('section');p.id='rbskPage';p.className='page';
-p.innerHTML='<div class="rbsk-head"><h2>🧒 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)</h2><p>वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में</p></div><div class="rbsk-tabs"><button class="rbsk-tab active" data-p="rbsk1">📊 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी</button><button class="rbsk-tab" data-p="rbsk2">💊 Team Wise Category Periodical Treatment</button></div><div id="rbsk1" class="rbsk-pane active">'+mainTable()+'</div><div id="rbsk2" class="rbsk-pane">'+catTable()+'</div>';
+p.innerHTML='<div class="rbsk-head"><h2>🧒 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)</h2><p>वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में</p></div><div class="rbsk-tabs"><button class="rbsk-tab active" data-p="rbsk1">📊 Part 1 — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी</button><button class="rbsk-tab" data-p="rbsk2">💊 Part 2 — Category Wise Periodical Treatment Report</button></div><div id="rbsk1" class="rbsk-pane active">'+mainTable()+'</div><div id="rbsk2" class="rbsk-pane">'+catTable()+'</div>';
 c.appendChild(p);
 var b=document.createElement('button');b.className='menu-btn';b.textContent='🧒 RBSK';b.id='rbskMenu';m.appendChild(b);
 b.onclick=function(){showRBSK(p,b)};
