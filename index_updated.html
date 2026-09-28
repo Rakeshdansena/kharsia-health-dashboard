@@ -1283,6 +1283,14 @@ body{
 
   </div>
 
+  <div id="telemedicineModule" style="display:none;margin-top:10px;">
+   <style>
+    .tele-tab{border:1px solid #CBD5E1;background:#fff;color:#334155;padding:9px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+    .tele-tab.active{background:#075985;color:#fff;border-color:#075985}
+    .telemedicine-table tbody tr:hover{background:#f8fafc}
+   </style>
+  </div>
+
 
  </div>
 
@@ -1542,19 +1550,6 @@ function createMenu(){
 /* =====================================================
    DASHBOARD
 ===================================================== */
-
-function ensureTelemedicineContainer(){
- if(document.getElementById("telemedicineModule")) return;
- const host=document.querySelector(".table-box");
- if(!host) return;
- const div=document.createElement("div");
- div.id="telemedicineModule";
- div.style.display="none";
- div.style.marginTop="8px";
- div.innerHTML='<style>.tele-tab{border:1px solid #CBD5E1;background:#fff;color:#334155;padding:9px 14px;border-radius:10px;font-weight:800;cursor:pointer}.tele-tab.active{background:#075985;color:#fff;border-color:#075985}.telemedicine-table tbody tr:hover{background:#f8fafc}</style>';
- host.appendChild(div);
-}
-ensureTelemedicineContainer();
 
 function showDashboard(){
 
@@ -4041,21 +4036,48 @@ async function loadTelemedicineReport(report){
    });
   };
 
-  const [sectorDT,facilityDT]=await Promise.all([
-   querySheet(report.gid),
-   querySheet(report.facilityGid)
-  ]);
+  const result={sector:null,facility:null};
+  const errors=[];
 
-  telemedicineState.sector=telemedicineBuildRows(telemedicineRows(sectorDT),"sector");
-  telemedicineState.facility=telemedicineBuildRows(telemedicineRows(facilityDT),"facility");
-  telemedicineState.active="sector";
+  try{
+   const sectorDT=await querySheet(report.gid);
+   result.sector=telemedicineBuildRows(telemedicineRows(sectorDT),"sector");
+  }catch(err){
+   errors.push("Sector Wise: "+(err.message||err));
+  }
 
+  try{
+   const facilityDT=await querySheet(report.facilityGid);
+   result.facility=telemedicineBuildRows(telemedicineRows(facilityDT),"facility");
+  }catch(err){
+   errors.push("Facility Wise: "+(err.message||err));
+  }
+
+  telemedicineState.sector=result.sector;
+  telemedicineState.facility=result.facility;
+
+  if(!result.sector && !result.facility){
+   setStatus("Telemedicine Google Sheet load नहीं हुआ: "+errors.join(" | "),"error");
+   const tele=document.getElementById("telemedicineModule");
+   if(tele){
+    tele.style.display="block";
+    tele.innerHTML='<div style="padding:18px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;color:#991b1b;font-weight:700;">Telemedicine data नहीं मिला।<br><small style="font-weight:500;">'+errors.join("<br>")+'</small></div>';
+   }
+   return;
+  }
+
+  telemedicineState.active=result.sector?"sector":"facility";
   document.getElementById("reportTable").style.display="none";
   const tele=document.getElementById("telemedicineModule");
   if(tele) tele.style.display="block";
   renderTelemedicineModule();
 
-  setStatus("✓ Telemedicine Sector Wise + Facility Wise data successfully loaded","success");
+  setStatus(
+   errors.length
+    ? "⚠️ Telemedicine data partially loaded: "+errors.join(" | ")
+    : "✓ Telemedicine Sector Wise + Facility Wise data successfully loaded",
+   errors.length?"":"success"
+  );
  }catch(e){
   console.error(e);
   setStatus("Telemedicine data load नहीं हुआ: "+(e.message||e),"error");
