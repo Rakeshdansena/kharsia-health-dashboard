@@ -965,6 +965,32 @@ body{
 
 </style>
 
+<style id="pptx-selection-style">
+.pptx-select-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.52);display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px}
+.pptx-select-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.25);border:1px solid #dbe5ef}
+.pptx-select-head{display:flex;justify-content:space-between;gap:16px;padding:20px 22px;background:linear-gradient(135deg,#073b75,#075985);color:#fff}
+.pptx-select-title{font-size:21px;font-weight:900}
+.pptx-select-sub{margin-top:5px;font-size:13px;opacity:.92}
+.pptx-select-close{border:0;background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:17px}
+.pptx-select-actions{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid #e2e8f0}
+.pptx-select-actions button{border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer}
+.pptx-select-actions button:hover{background:#f8fafc}
+#pptxSelCount{margin-left:auto;color:#475569;font-weight:800;font-size:13px}
+.pptx-program-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px}
+.pptx-program-option{position:relative;display:flex;align-items:center;gap:10px;padding:15px 16px;border:2px solid #e2e8f0;border-radius:14px;background:#fff;cursor:pointer;transition:.15s}
+.pptx-program-option.selected{border-color:#0f766e;background:#f0fdfa;box-shadow:0 3px 10px rgba(15,118,110,.08)}
+.pptx-program-option input{position:absolute;opacity:0}
+.pptx-program-icon{font-size:25px}
+.pptx-program-name{font-weight:850;color:#0f2d52;font-size:15px}
+.pptx-program-tick{margin-left:auto;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-weight:900;font-size:12px}
+.pptx-program-option.selected .pptx-program-tick{background:#0f766e;color:#fff}
+.pptx-select-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 18px;border-top:1px solid #e2e8f0;background:#f8fafc}
+.pptx-select-footer button{border:0;border-radius:10px;padding:10px 16px;font-weight:900;cursor:pointer}
+.pptx-cancel{background:#e2e8f0;color:#334155}
+.pptx-generate-selected{background:#b91c1c;color:#fff}
+.pptx-generate-selected:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:640px){.pptx-program-grid{grid-template-columns:1fr}}
+</style>
 </head>
 
 
@@ -1041,7 +1067,7 @@ body{
 
  </div>
 
- <div style="display:flex;justify-content:flex-end;margin:0 0 18px;">
+ <div style="display:flex;justify-content:flex-end;margin:0 0 18px;gap:10px;">
   <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#b91c1c;font-weight:800;font-size:14px;">
    📊 Generate PPTX
   </button>
@@ -5066,8 +5092,109 @@ google.charts.setOnLoadCallback(
 
 <script>
 function startPPTXGeneration(){
+  showPPTXProgrammeSelector();
+}
+
+function showPPTXProgrammeSelector(){
+  var old=document.getElementById('pptxProgrammeModal');
+  if(old) old.remove();
+
+  var programmes=[
+    {key:'Janani Portal',icon:'👩‍🍼',label:'Janani Portal (RCH 2.0)'},
+    {key:'NCD',icon:'❤️',label:'NCD'},
+    {key:'JAS Meeting',icon:'🤝',label:'JAS Meeting'},
+    {key:'Ayushman Shivir',icon:'🏕️',label:'Ayushman Shivir'},
+    {key:'Wellness Activity',icon:'🩺',label:'Wellness Activity'},
+    {key:'Telemedicine Report',icon:'🩻',label:'Telemedicine Report'}
+  ];
+
+  var modal=document.createElement('div');
+  modal.id='pptxProgrammeModal';
+  modal.innerHTML=
+   '<div class="pptx-select-backdrop">'+
+    '<div class="pptx-select-card">'+
+     '<div class="pptx-select-head">'+
+      '<div><div class="pptx-select-title">📊 PPTX Programme Selection</div>'+
+      '<div class="pptx-select-sub">Cover और Index हमेशा रहेंगे। नीचे से Programme slides चुनें।</div></div>'+
+      '<button type="button" class="pptx-select-close" id="pptxSelClose">✕</button>'+
+     '</div>'+
+     '<div class="pptx-select-actions">'+
+      '<button type="button" id="pptxSelectAll">✓ Select All</button>'+
+      '<button type="button" id="pptxClearAll">Clear All</button>'+
+      '<span id="pptxSelCount"></span>'+
+     '</div>'+
+     '<div class="pptx-program-grid" id="pptxProgramGrid"></div>'+
+     '<div class="pptx-select-footer">'+
+      '<button type="button" class="pptx-cancel" id="pptxSelCancel">Cancel</button>'+
+      '<button type="button" class="pptx-generate-selected" id="pptxGenerateSelected">📊 Generate Selected PPTX</button>'+
+     '</div>'+
+    '</div>'+
+   '</div>';
+
+  document.body.appendChild(modal);
+
+  var grid=document.getElementById('pptxProgramGrid');
+  programmes.forEach(function(p){
+    var label=document.createElement('label');
+    label.className='pptx-program-option';
+    label.innerHTML=
+      '<input type="checkbox" class="pptx-program-check" value="'+p.key+'" checked>'+
+      '<span class="pptx-program-icon">'+p.icon+'</span>'+
+      '<span class="pptx-program-name">'+p.label+'</span>'+
+      '<span class="pptx-program-tick">✓</span>';
+    grid.appendChild(label);
+  });
+
+  function updateCount(){
+    var checks=Array.from(document.querySelectorAll('.pptx-program-check'));
+    var n=checks.filter(function(x){return x.checked;}).length;
+    var el=document.getElementById('pptxSelCount');
+    if(el) el.textContent=n+' programme selected';
+    var gen=document.getElementById('pptxGenerateSelected');
+    if(gen) gen.disabled=n===0;
+  }
+
+  document.getElementById('pptxSelectAll').onclick=function(){
+    document.querySelectorAll('.pptx-program-check').forEach(function(x){x.checked=true;});
+    updateCount();
+  };
+  document.getElementById('pptxClearAll').onclick=function(){
+    document.querySelectorAll('.pptx-program-check').forEach(function(x){x.checked=false;});
+    updateCount();
+  };
+  document.getElementById('pptxSelClose').onclick=function(){modal.remove();};
+  document.getElementById('pptxSelCancel').onclick=function(){modal.remove();};
+
+  document.getElementById('pptxGenerateSelected').onclick=function(){
+    var selected=Array.from(document.querySelectorAll('.pptx-program-check'))
+      .filter(function(x){return x.checked;})
+      .map(function(x){return x.value;});
+
+    if(!selected.length){
+      alert('कम-से-कम एक Programme select करें।');
+      return;
+    }
+
+    window.__pptxSelectedPrograms=selected;
+    modal.remove();
+    runSelectedPPTXGeneration();
+  };
+
+  document.querySelectorAll('.pptx-program-option').forEach(function(label){
+    var box=label.querySelector('.pptx-program-check');
+    box.addEventListener('change',function(){
+      label.classList.toggle('selected',box.checked);
+      updateCount();
+    });
+  });
+
+  updateCount();
+}
+
+function runSelectedPPTXGeneration(){
   var b=document.getElementById('dashboardPptxBtn');
   if(b){b.disabled=true;b.textContent='⏳ PPTX Loading...';}
+
   function run(){
     if(typeof window.generatePPTX==='function'){
       window.generatePPTX();
@@ -5080,15 +5207,17 @@ function startPPTXGeneration(){
     if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
     alert('PPTX Generator load नहीं हुआ। कृपया एक बार फिर क्लिक करें।');
   }
+
   if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
     run();
     return;
   }
+
   var s=document.getElementById('pptx-report-script');
   if(!s){
     s=document.createElement('script');
     s.id='pptx-report-script';
-    s.src='js/pptx-report-final-20.js';
+    s.src='js/pptx-report-final-21.js';
     s.onload=run;
     s.onerror=function(){
       if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
@@ -5100,7 +5229,8 @@ function startPPTXGeneration(){
     var timer=setInterval(function(){
       tries++;
       if(typeof window.generatePPTX==='function' || typeof window.generate==='function'){
-        clearInterval(timer); run();
+        clearInterval(timer);
+        run();
       }else if(tries>40){
         clearInterval(timer);
         if(b){b.disabled=false;b.textContent='📊 Generate PPTX';}
@@ -5108,6 +5238,7 @@ function startPPTXGeneration(){
       }
     },250);
   }
+}
 }
 </script>
 <script id="ayushman-shivir-final-static" src="js/ayushman-shivir-final-02.js"></script>
@@ -5164,7 +5295,7 @@ function startPPTXGeneration(){
   setInterval(apply,1000);
 })();
 </script>
-<script id="pptx-report-script" src="js/pptx-report-final-20.js"></script>
+<script id="pptx-report-script" src="js/pptx-report-final-21.js"></script>
 <script src="js/ncd.js"></script>
 </body>
 </html>
