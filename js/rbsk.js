@@ -83,6 +83,23 @@ b.addEventListener('click',rbskHandler,true);
 p.querySelectorAll('.rbsk-tab').forEach(function(x){x.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}p.querySelectorAll('.rbsk-tab').forEach(function(y){y.classList.remove('active')});p.querySelectorAll('.rbsk-pane').forEach(function(y){y.classList.remove('active')});x.classList.add('active');var z=document.getElementById(x.dataset.p);z.classList.add('active')}})
 }
 
-function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons'))build();else setTimeout(init,300)}
+function installRBSKGuard(){
+var m=document.getElementById('menuButtons');if(!m||m.dataset.rbskGuard==='1')return;
+m.dataset.rbskGuard='1';
+m.addEventListener('click',function(e){
+var el=e.target;
+while(el&&el!==m&&!el.classList.contains('menu-btn'))el=el.parentElement;
+if(!el||el===m)return;
+if((el.textContent||'').indexOf('RBSK')<0)return;
+var p=document.getElementById('rbskPage');
+if(!p)return;
+e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+var buttons=m.querySelectorAll('.menu-btn');buttons.forEach(function(x){x.classList.remove('active')});el.classList.add('active');
+hideAllPages();p.classList.add('active','rbsk-visible');p.style.display='block';
+setTimeout(function(){var r=document.getElementById('reportPage');if(r){r.classList.remove('active');r.style.display='none'}var d=document.getElementById('dashboardPage');if(d){d.classList.remove('active');d.style.display='none'}p.style.display='block'},10);
+window.scrollTo(0,0);
+},true);
+}
+function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons')){build();installRBSKGuard()}else setTimeout(init,300)}
 init();
 })();
