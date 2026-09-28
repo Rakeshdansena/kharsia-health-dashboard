@@ -3877,6 +3877,17 @@ function telemedicineIsMissing(row, isSector){
  return total==="" && completed==="" && inProcess==="";
 }
 
+function telemedicineIsTotalRow(r){
+ const cells=(r||[]).map(v=>String(v||"").trim().toLowerCase());
+ return cells.some(v=>v==="total" || v==="योग" || v==="कुल");
+}
+
+function telemedicineIsPHCGorpar(r, mode){
+ if(mode!=="sector") return false;
+ const entity=String((r||[])[1]||"").trim().toLowerCase();
+ return entity==="phc gorpar" || entity==="phc-gorpar" || /\bphc\s*gorpar\b/.test(entity);
+}
+
 function telemedicineBuildRows(rows, mode){
  // Prefer the real header row, but do not depend on exact spelling/spacing.
  let h=telemedicineFindHeader(rows);
@@ -3918,7 +3929,8 @@ function telemedicineBuildRows(rows, mode){
     const r=rows[i]||[];
     if(!r.some(v=>String(v||"").trim()!=="")) continue;
     const first=String(r[0]||"").trim().toLowerCase();
-    if(first==="total" || first==="योग" || first==="कुल"){ total=r; continue; }
+    if(telemedicineIsTotalRow(r)){ total=r; continue; }
+    if(telemedicineIsPHCGorpar(r,mode)) continue;
     if(/^\d+$/.test(first) && String(r[1]||"").trim()!=="") data.push(r);
    }
   }
@@ -3940,10 +3952,11 @@ function telemedicineBuildRows(rows, mode){
   const r=rows[i]||[];
   if(!r.some(v=>String(v||"").trim()!=="")) continue;
   const first=String(r[0]||"").trim().toLowerCase();
-  if(first==="total" || first==="योग" || first==="कुल"){
+  if(telemedicineIsTotalRow(r)){
    total=r;
    continue;
   }
+  if(telemedicineIsPHCGorpar(r,mode)) continue;
   // A valid Telemedicine data row has a serial number and an entity name.
   if(r.length>=7 && /^\d+$/.test(first) && String(r[1]||"").trim()!==""){
    data.push(r);
