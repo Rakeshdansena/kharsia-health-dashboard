@@ -4069,16 +4069,16 @@ function renderTelemedicineModule(){
   html += '<tr style="background:#073B75;color:#fff;font-weight:800;">';
   if(isSector){
    html += '<td colspan="2" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[1]||"")+'</td>';
-   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[6]||"")+'</td>';
    const sc=telemedicineColor(totalPct);
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;background:'+sc.bg+';color:'+sc.fg+';">'+totalPct.toFixed(0)+'%</td>';
   }else{
    html += '<td colspan="3" style="padding:11px;border:1px solid #fff;text-align:left;">TOTAL</td>';
+   html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[2]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[3]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[4]||"")+'</td>';
    html += '<td style="padding:11px;border:1px solid #fff;text-align:center;">'+(tr[5]||"")+'</td>';
