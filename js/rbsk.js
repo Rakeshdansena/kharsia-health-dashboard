@@ -100,6 +100,7 @@ setTimeout(function(){var r=document.getElementById('reportPage');if(r){r.classL
 window.scrollTo(0,0);
 },true);
 }
+window.buildRBSK=build;
 function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons')){build();installRBSKGuard()}else setTimeout(init,300)}
 init();
 })();
