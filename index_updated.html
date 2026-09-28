@@ -3878,23 +3878,76 @@ function telemedicineIsMissing(row, isSector){
 }
 
 function telemedicineBuildRows(rows, mode){
- const h=telemedicineFindHeader(rows);
- if(h<0) return {title:"E-Sanjeevani Telemedicine Status FY 2026-27",date:"",headers:[],rows:[],total:null};
+ // Prefer the real header row, but do not depend on exact spelling/spacing.
+ let h=telemedicineFindHeader(rows);
+
+ // Robust fallback: find the first row after the title/date rows that looks
+ // like the actual data header (Sn + Facility/Sector + Target + Total/Completed).
+ if(h<0){
+  for(let i=0;i<rows.length;i++){
+   const t=(rows[i]||[]).join(" ").toLowerCase();
+   const hasFirst=/^\s*(sn|s\.?\s*no\.?|क्रम|क्रमांक)\s*$/.test(String((rows[i]||[])[0]||""));
+   const hasEntity=mode==="sector"
+    ? /sector/.test(t)
+    : /facility/.test(t);
+   const hasMetrics=/annual\s*target|per\s*month|completed|in\s*process/.test(t);
+   if((hasFirst || /\bsn\b/.test(t)) && hasEntity && hasMetrics){
+    h=i;
+    break;
+   }
+  }
+ }
+
+ // Final fallback for the supplied Telemedicine sheet layout:
+ // rows after the title/date/blank lines where the first column is a serial
+ // number and the second column is a Sector/Facility name.
+ if(h<0){
+  let dataStart=-1;
+  for(let i=0;i<rows.length;i++){
+   const r=rows[i]||[];
+   if(r.length>=2 && /^\d+$/.test(String(r[0]||"").trim()) && String(r[1]||"").trim()!==""){
+    dataStart=i;
+    break;
+   }
+  }
+
+  const data=[];
+  let total=null;
+  if(dataStart>=0){
+   for(let i=dataStart;i<rows.length;i++){
+    const r=rows[i]||[];
+    if(!r.some(v=>String(v||"").trim()!=="")) continue;
+    const first=String(r[0]||"").trim().toLowerCase();
+    if(first==="total" || first==="योग" || first==="कुल"){ total=r; continue; }
+    if(/^\d+$/.test(first) && String(r[1]||"").trim()!=="") data.push(r);
+   }
+  }
+
+  return {
+   title:telemedicineTitle(rows,"E-Sanjeevani Telemedicine Status FY 2026-27"),
+   date:telemedicineDate(rows),
+   headers:[],
+   rows:data,
+   total:total
+  };
+ }
 
  const headers=rows[h].map(v=>v||"");
  const data=[];
  let total=null;
 
  for(let i=h+1;i<rows.length;i++){
-  const r=rows[i];
+  const r=rows[i]||[];
   if(!r.some(v=>String(v||"").trim()!=="")) continue;
   const first=String(r[0]||"").trim().toLowerCase();
   if(first==="total" || first==="योग" || first==="कुल"){
    total=r;
    continue;
   }
-  if(r.length<7) continue;
-  data.push(r);
+  // A valid Telemedicine data row has a serial number and an entity name.
+  if(r.length>=7 && /^\d+$/.test(first) && String(r[1]||"").trim()!==""){
+   data.push(r);
+  }
  }
 
  return {
@@ -3926,6 +3979,12 @@ function renderTelemedicineModule(){
 
  const rows=data.rows;
  const isSector=active==="sector";
+
+ if(!rows.length){
+  const modeLabel=isSector?"Sector Wise":"Facility Wise";
+  report.innerHTML='<div style="padding:18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;color:#9a3412;font-weight:700;">'+modeLabel+' data rows नहीं मिलीं। Google Sheet header/data structure check करें.</div>';
+  return;
+ }
 
  const targetIdx=isSector?3:2;
  const totalIdx=isSector?4:3;
