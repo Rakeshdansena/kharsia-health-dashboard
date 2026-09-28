@@ -1423,6 +1423,12 @@ const REPORTS=[
 
 
  {
+  name:"RBSK",
+  icon:"👶",
+  description:"राष्ट्रीय बाल स्वास्थ्य कार्यक्रम"
+ },
+
+ {
   name:"NRC Kharsia",
   icon:"🏥",
   gid:"1010102020",
@@ -1609,6 +1615,21 @@ function openReport(index){
 
  const report =
   REPORTS[index];
+
+ if(report && report.name==="RBSK"){
+  if(window.buildRBSK) window.buildRBSK();
+  var rp=document.getElementById("rbskPage");
+  if(rp){
+   hideRCHSummary();
+   document.querySelectorAll(".page").forEach(function(x){x.classList.remove("active");x.style.display="none"});
+   var db=document.getElementById("dashboardPage");if(db){db.classList.remove("active");db.style.display="none"}
+   var rr=document.getElementById("reportPage");if(rr){rr.classList.remove("active");rr.style.display="none"}
+   document.querySelectorAll("#menuButtons .menu-btn").forEach(function(btn){btn.classList.remove("active")});
+   var rb=document.getElementById("rbskMenu");if(rb)rb.classList.add("active");
+   rp.classList.add("active","rbsk-visible");rp.style.display="block";window.scrollTo(0,0);
+  }
+  return;
+ }
 
 
  document
@@ -5503,6 +5524,6 @@ function runSelectedPPTXGeneration(){
 </script>
 <script id="pptx-report-script" src="js/pptx-report-final-23.js"></script>
 <script src="js/ncd.js"></script>
-<script id="rbsk-direct-script" src="js/rbsk.js?v=20260928-rbsk-08"></script>
+<script id="rbsk-direct-script" src="js/rbsk.js?v=20260928-rbsk-09"></script>
 </body>
 </html>
