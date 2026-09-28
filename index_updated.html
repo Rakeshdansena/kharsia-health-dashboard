@@ -4024,15 +4024,41 @@ function telemedicineSwitch(type){
 
 async function loadTelemedicineReport(report){
  try{
+  // Use the same Google Visualization service as the existing live modules,
+  // but add a timeout so the UI never remains stuck on "data load हो रहा है".
   const querySheet=(gid)=>{
    return new Promise((resolve,reject)=>{
+    let settled=false;
+    const finish=(fn,value)=>{
+     if(settled) return;
+     settled=true;
+     fn(value);
+    };
+
+    const timer=setTimeout(()=>{
+     finish(reject,new Error("Google Sheet response नहीं आया। Sheet को 'Anyone with the link — Viewer' access दें."));
+    },9000);
+
     const url="https://docs.google.com/spreadsheets/d/"+encodeURIComponent(report.sheetId)+"/gviz/tq?gid="+encodeURIComponent(gid)+"&headers=0";
-    const q=new google.visualization.Query(url);
-    q.setQuery("select *");
-    q.send(response=>{
-     if(response.isError()){ reject(new Error(response.getMessage())); return; }
-     resolve(response.getDataTable());
-    });
+    try{
+     const q=new google.visualization.Query(url);
+     q.setQuery("select *");
+     q.send(response=>{
+      clearTimeout(timer);
+      if(response.isError()){
+       finish(reject,new Error(response.getMessage()+" — check sheet sharing/access."));
+       return;
+      }
+      try{
+       finish(resolve,response.getDataTable());
+      }catch(err){
+       finish(reject,err);
+      }
+     });
+    }catch(err){
+     clearTimeout(timer);
+     finish(reject,err);
+    }
    });
   };
 
