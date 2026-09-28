@@ -59,7 +59,7 @@ var box=document.getElementById('rbskCatContent'),tabs=document.querySelectorAll
 function draw(key){
 var idx={A:0,AllCategory:1,B:2,C:3,D:4,E:5}[key],title=key==='AllCategory'?'All Category (A+B+C+D+E)':key;
 var q='<div class="rbsk-section-title">Category '+title+'</div><div class="rbsk-scroll"><table class="rbsk-table rbsk-category-one"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">'+title+'</th></tr><tr><th>Identified</th><th>Under Treatment</th><th>Treatment Over</th><th>% of Treatment</th><th>Pending</th></tr></thead><tbody>';
-D.cat.forEach(function(r){var a=r.v[idx];q+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+r.id+'</td>'+cells(a)+'</tr>'});
+D.cat.forEach(function(r){var a=r.v[idx];q+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+(r.id==='Total'?'Total':'Team '+String.fromCharCode(64+r.n))+'</td>'+cells(a)+'</tr>'});
 q+='</tbody></table></div>';box.innerHTML=q;
 }
 tabs.forEach(function(t){t.onclick=function(){tabs.forEach(function(x){x.classList.remove('active')});t.classList.add('active');draw(t.dataset.cat)}});
