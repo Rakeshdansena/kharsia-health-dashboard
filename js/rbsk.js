@@ -75,8 +75,8 @@ var p=document.createElement('section');p.id='rbskPage';p.className='page';
 p.innerHTML='<div class="rbsk-head"><h2>🧒 राष्ट्रीय बाल स्वास्थ्य कार्यक्रम (RBSK)</h2><p>वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में</p></div><div class="rbsk-tabs"><button class="rbsk-tab active" data-p="rbsk1">📊 Part 1 — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी</button><button class="rbsk-tab" data-p="rbsk2">💊 Part 2 — Category Wise Periodical Treatment Report</button></div><div id="rbsk1" class="rbsk-pane active">'+mainTable()+'</div><div id="rbsk2" class="rbsk-pane">'+catTable()+'</div>';
 c.appendChild(p);
 var b=document.createElement('button');b.className='menu-btn';b.textContent='🧒 RBSK';b.id='rbskMenu';m.appendChild(b);
-b.onclick=function(){showRBSK(p,b)};
-p.querySelectorAll('.rbsk-tab').forEach(function(x){x.onclick=function(){p.querySelectorAll('.rbsk-tab').forEach(function(y){y.classList.remove('active')});p.querySelectorAll('.rbsk-pane').forEach(function(y){y.classList.remove('active')});x.classList.add('active');var z=document.getElementById(x.dataset.p);z.classList.add('active')}})
+b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}showRBSK(p,b);setTimeout(function(){var r=document.getElementById('reportPage');if(r)r.style.display='none';var d=document.getElementById('dashboardPage');if(d)d.style.display='none';p.style.display='block'},20)};b.addEventListener('click',function(e){e.stopImmediatePropagation()},true);
+p.querySelectorAll('.rbsk-tab').forEach(function(x){x.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}p.querySelectorAll('.rbsk-tab').forEach(function(y){y.classList.remove('active')});p.querySelectorAll('.rbsk-pane').forEach(function(y){y.classList.remove('active')});x.classList.add('active');var z=document.getElementById(x.dataset.p);z.classList.add('active')}})
 }
 
 function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons'))build();else setTimeout(init,300)}
