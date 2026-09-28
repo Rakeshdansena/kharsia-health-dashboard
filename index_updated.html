@@ -5243,12 +5243,14 @@ function runSelectedProgrammePDF(selected){
 
   var deck=document.createElement('div');
   deck.id='selectedProgrammePDFDeck';
-  deck.style.position='fixed';
-  deck.style.left='-20000px';
+  deck.style.position='absolute';
+  deck.style.left='0';
   deck.style.top='0';
+  deck.style.zIndex='99998';
   deck.style.width='1280px';
   deck.style.background='#fff';
   deck.style.padding='0';
+  deck.style.pointerEvents='none';
   deck.innerHTML=
     '<style>'+
     '#selectedProgrammePDFDeck .pdf-deck-page{width:1280px;min-height:720px;box-sizing:border-box;background:#fff;position:relative;page-break-after:always;overflow:hidden;padding:28px 34px 34px;font-family:Arial, sans-serif;color:#0f2d52}'+
@@ -5335,6 +5337,12 @@ function runSelectedProgrammePDF(selected){
     addPage(html);
   }
 
+  var pdfBanner=document.createElement('div');
+  pdfBanner.id='selectedProgrammePDFBanner';
+  pdfBanner.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;background:#073b75;color:#fff;padding:8px 14px;text-align:center;font:700 14px Arial;pointer-events:none;';
+  pdfBanner.textContent='📄 PDF तैयार हो रहा है…';
+  document.body.appendChild(pdfBanner);
+
   document.body.appendChild(deck);
 
   (async function(){
@@ -5352,9 +5360,9 @@ function runSelectedProgrammePDF(selected){
           margin:0,
           filename:'Kharsia_Health_Progressive_Report_Selected.pdf',
           image:{type:'jpeg',quality:0.97},
-          html2canvas:{scale:1.2,useCORS:true,backgroundColor:'#ffffff'},
+          html2canvas:{scale:1.2,useCORS:true,backgroundColor:'#ffffff',logging:false,windowWidth:1280,windowHeight:720},
           jsPDF:{unit:'px',format:[1280,720],orientation:'landscape',compressPDF:true},
-          pagebreak:{mode:['css','legacy']}
+          pagebreak:{mode:['css','legacy'],avoid:'.no-pdf-break'}
         })
         .from(deck)
         .save();
@@ -5363,6 +5371,8 @@ function runSelectedProgrammePDF(selected){
       alert('PDF generate नहीं हुआ: '+(e.message||e));
     }finally{
       deck.remove();
+      var doneBanner=document.getElementById('selectedProgrammePDFBanner');
+      if(doneBanner) doneBanner.remove();
       if(btn){btn.disabled=false;btn.textContent='📊 Generate PPTX';}
       showDashboard();
     }
