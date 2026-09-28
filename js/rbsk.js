@@ -101,6 +101,15 @@ window.scrollTo(0,0);
 },true);
 }
 window.buildRBSK=build;
-function init(){if(document.querySelector('.content')&&document.getElementById('menuButtons')){build();installRBSKGuard()}else setTimeout(init,300)}
+function init(){
+ var m=document.getElementById('menuButtons');
+ var hasRBSK=m&&Array.from(m.querySelectorAll('.menu-btn')).some(function(x){return (x.textContent||'').indexOf('RBSK')>=0});
+ if(document.querySelector('.content')&&m&&hasRBSK){
+  build();
+  installRBSKGuard();
+ }else{
+  setTimeout(init,300);
+ }
+}
 init();
 })();
