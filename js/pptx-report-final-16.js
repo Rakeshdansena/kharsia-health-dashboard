@@ -1668,7 +1668,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     teleAddMetricCell(slide,cx,ty,widths[6],rh,total.pct.toFixed(0)+'%',total.pct);
 
     slide.addText('PHC Gorpar removed as requested • Total calculated from displayed sectors • Source: separate Telemedicine Google Sheet'+(date?' • '+date:''),{
-      x:0.30,y:7.07,w:12.72,h:0.15,fontSize:7.1,color:'64748B',align:'center',margin:0,fit:'shrink'
+      x:0.30,y:6.92,w:12.72,h:0.14,fontSize:7.1,color:'64748B',align:'center',margin:0,fit:'shrink'
     });
     return slide;
   }
@@ -1683,7 +1683,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
 
     var rows=facilityRows.slice();
     var panelGap=0.16,panelW=(12.86-panelGap)/2,panelX=[0.18,0.18+panelW+panelGap];
-    var y=1.34,panelH=5.58,headerH=0.42;
+    var y=1.34,panelH=5.45,headerH=0.42;
     var per=Math.ceil(rows.length/2);
     var widths=[0.44,2.70,1.12,1.15,1.15,1.15,0.95,1.25];
     var heads=['#','Facility','Target','Total','Completed','In Process','%','Remark'];
@@ -1732,7 +1732,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     panel(right,panelX[1],per+1);
 
     // Total strip at bottom
-    var ty=7.00;
+    var ty=6.86;
     slide.addShape('roundRect',{x:0.18,y:ty,w:12.98,h:0.28,fill:{color:'073B75'},line:{color:'073B75'}});
     slide.addText(
       'TOTAL  •  Facilities: '+rows.length+
@@ -1741,10 +1741,10 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
       '  •  Completed: '+total.completed+
       '  •  In Process: '+total.inProcess+
       '  •  '+total.pct.toFixed(0)+'%',
-      {x:0.30,y:7.065,w:12.72,h:0.12,fontSize:8.2,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'}
+      {x:0.30,y:6.925,w:12.72,h:0.12,fontSize:8.2,bold:true,color:'FFFFFF',align:'center',margin:0,fit:'shrink'}
     );
     slide.addText('Missing facility data = Not Mapped Portal • Source: separate Telemedicine Google Sheet'+(date?' • '+date:''),{
-      x:0.30,y:7.32,w:12.72,h:0.10,fontSize:6.6,color:'64748B',align:'center',margin:0,fit:'shrink'
+      x:0.30,y:7.27,w:12.72,h:0.10,fontSize:6.6,color:'64748B',align:'center',margin:0,fit:'shrink'
     });
     return slide;
   }
