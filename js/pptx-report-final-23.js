@@ -2173,7 +2173,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
           return {text:String(v),options:{bold:ri===0||r[0]==='TOTAL'||ci===0,fontSize:fs,color:color,fill:{color:fill},align:'center',valign:'mid',margin:2}};
         });
       });
-      slide.addTable(tdata,{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:widths,rowH:0.42,margin:2});
+      slide.addTable(tdata,{x:x,y:y,w:w,h:h,border:{type:'solid',color:'B8C9D8',pt:1.1},autoFit:false,colW:widths,rowH:0.50,margin:2.5,fill:'FFFFFF'});
     }
 
     // Slide 1: School performance
@@ -2183,7 +2183,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     addRTable(s,[
       ['Team','Total School','School Visit','Visit %','Screening Target','Screened','Screening %'],
       main[1].slice(0,7),main[2].slice(0,7),main[3].slice(0,7)
-    ],0.55,1.45,12.2,2.35,[1.55,1.45,1.55,1.2,2.0,1.55,1.45],13,[3,6]);
+    ],0.45,1.40,12.45,2.55,[1.65,1.55,1.55,1.20,2.05,1.55,1.45],15,[3,6]);
     addCard(s,0.65,4.35,2.7,1.05,'TOTAL SCHOOL',321);
     addCard(s,3.55,4.35,2.7,1.05,'SCHOOL VISIT',153);
     addCard(s,6.45,4.35,2.7,1.05,'SCREENED',8406);
@@ -2199,7 +2199,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
       [main[1][0],main[1][7],main[1][8],main[1][9],main[1][10],main[1][11],main[1][12]],
       [main[2][0],main[2][7],main[2][8],main[2][9],main[2][10],main[2][11],main[2][12]],
       [main[3][0],main[3][7],main[3][8],main[3][9],main[3][10],main[3][11],main[3][12]]
-    ],0.55,1.45,12.2,2.35,[1.55,1.45,1.55,1.2,2.0,1.55,1.45],13,[3,6]);
+    ],0.45,1.40,12.45,2.55,[1.65,1.55,1.55,1.20,2.05,1.55,1.45],15,[3,6]);
     addCard(s,0.65,4.35,2.7,1.05,'TOTAL AWC',422);
     addCard(s,3.55,4.35,2.7,1.05,'AWC VISIT',422);
     addCard(s,6.45,4.35,2.7,1.05,'SCREENED',10672);
@@ -2214,7 +2214,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
       [main[1][0],main[1][13],main[1][14],main[1][15],main[1][16]],
       [main[2][0],main[2][13],main[2][14],main[2][15],main[2][16]],
       [main[3][0],main[3][13],main[3][14],main[3][15],main[3][16]]
-    ],1.0,1.55,11.3,2.45,[2.0,2.3,2.3,2.3,2.4],14,[]);
+    ],0.55,1.45,12.2,2.65,[2.15,2.45,2.45,2.45,2.70],15.5,[]);
     addCard(s,0.8,4.45,2.7,1.05,'SICK CHILDREN',10848);
     addCard(s,3.7,4.45,2.7,1.05,'TREATED',10672);
     addCard(s,6.6,4.45,2.7,1.05,'REFERRED',2419);
@@ -2238,10 +2238,10 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
         ['Team A',v[0][0],v[0][1],v[0][2],v[0][3],v[0][4]],
         ['Team B',v[1][0],v[1][1],v[1][2],v[1][3],v[1][4]],
         ['TOTAL',v[2][0],v[2][1],v[2][2],v[2][3],v[2][4]]
-      ],0.75,1.55,11.8,2.65,[2.1,1.75,2.0,2.0,1.75,1.75],13,[4]);
-      addCard(ss,1.0,4.65,3.2,1.0,'TOTAL IDENTIFIED',v[2][0]);
-      addCard(ss,5.05,4.65,3.2,1.0,'TREATMENT OVER',v[2][2]);
-      addCard(ss,9.1,4.65,3.2,1.0,'TREATMENT %',v[2][3]);
+      ],0.55,1.45,12.2,2.80,[2.05,1.85,2.10,2.10,1.85,2.25],14.5,[4]);
+      addCard(ss,0.65,4.55,3.75,1.15,'TOTAL IDENTIFIED',v[2][0]);
+      addCard(ss,4.80,4.55,3.75,1.15,'TREATMENT OVER',v[2][2]);
+      addCard(ss,8.95,4.55,3.75,1.15,'TREATMENT %',v[2][3]);
     }
     ['A','B','C','D','E','All Category'].forEach(function(k){catSlide('Part 2 | Category Wise Periodical Treatment',k);});
     return true;
