@@ -5281,7 +5281,7 @@ function runSelectedProgrammePDF(selected){
     '#selectedProgrammePDFDeck .pdf-index-card{display:flex;justify-content:space-between;align-items:center;border:2px solid #dbe5ef;border-radius:14px;padding:16px 18px;margin:10px 0;background:#f8fbff;font-size:20px;font-weight:800}'+
     '#selectedProgrammePDFDeck .pdf-index-page{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:7px 12px;font-size:13px;color:#075985;white-space:nowrap}'+
     '#selectedProgrammePDFDeck .pdf-source{position:absolute;bottom:12px;left:34px;right:34px;font-size:11px;color:#64748b;text-align:center}'+
-    '#selectedProgrammePDFDeck .pdf-clone{font-size:12px!important}'+
+    '#selectedProgrammePDFDeck .pdf-clone{font-size:12px!important;max-width:1212px;overflow:hidden}'+\n    '#selectedProgrammePDFDeck .pdf-generic{transform:scale(.88);transform-origin:top left;width:113.6%;}'+\n    '#selectedProgrammePDFDeck .pdf-rch .rch-page{box-shadow:none!important;border-radius:0!important;padding:0!important;margin:0!important}'+\n    '#selectedProgrammePDFDeck .pdf-rch .rch-table{font-size:10px!important;line-height:1.05!important}'+\n    '#selectedProgrammePDFDeck .pdf-rch .rch-table th{padding:4px 3px!important}'+\n    '#selectedProgrammePDFDeck .pdf-rch .rch-table td{padding:4px 3px!important}'+\n    '#selectedProgrammePDFDeck .pdf-tele{transform:scale(.88);transform-origin:top left;width:113.6%;}'+\n    '#selectedProgrammePDFDeck .pdf-jas{transform:scale(.82);transform-origin:top left;width:122%;}'+
     '#selectedProgrammePDFDeck table{font-size:12px!important;width:100%!important;max-width:none!important}'+
     '#selectedProgrammePDFDeck th{font-size:12px!important}'+
     '#selectedProgrammePDFDeck td{font-size:12px!important}'+
@@ -5347,37 +5347,104 @@ function runSelectedProgrammePDF(selected){
     Object.keys(cats).forEach(function(k){var v=cats[k];page('RBSK — Part 2 | '+k,'Team Wise Category Periodical Treatment Report • 01/04/2026 to 31/03/2027',rbskTableHtml(['Team','Identified','Under Treatment','Treatment Over','Treatment %','Pending'],[['Team A'].concat(v[0]),['Team B'].concat(v[1]),['TOTAL'].concat(v[2])],[4]));});
   }
 
+  function addPagedModule(title, sourceEl, rowLimit, extraClass){
+    if(!sourceEl) return;
+    var base=sourceEl.cloneNode(true);
+    var table=base.querySelector('table');
+    if(!table){
+      addPage('<div class="pdf-deck-title">'+title+'</div><div class="pdf-clone '+(extraClass||'')+'">'+base.outerHTML+'</div>');
+      return;
+    }
+    var tbody=table.tBodies && table.tBodies[0];
+    var rows=tbody ? Array.prototype.slice.call(tbody.rows) : [];
+    if(!rows.length){
+      addPage('<div class="pdf-deck-title">'+title+'</div><div class="pdf-clone '+(extraClass||'')+'">'+base.outerHTML+'</div>');
+      return;
+    }
+    var head=table.tHead ? table.tHead.cloneNode(true) : null;
+    var chunks=[];
+    for(var i=0;i<rows.length;i+=rowLimit){ chunks.push(rows.slice(i,i+rowLimit)); }
+    chunks.forEach(function(chunk,ci){
+      var clone=sourceEl.cloneNode(true);
+      var t=clone.querySelector('table');
+      if(t){
+        if(head) t.tHead.replaceWith(head.cloneNode(true));
+        var tb=t.tBodies[0] || t.createTBody();
+        tb.innerHTML='';
+        chunk.forEach(function(r){ tb.appendChild(r.cloneNode(true)); });
+      }
+      var pageTitle=title+(chunks.length>1?' — Page '+(ci+1)+'/'+chunks.length:'');
+      addPage('<div class="pdf-deck-title">'+pageTitle+'</div><div class="pdf-clone '+(extraClass||'')+'">'+clone.outerHTML+'</div>');
+    });
+  }
+
+  function addFitClonePage(title, sourceEl, extraClass){
+    if(!sourceEl) return;
+    addPage('<div class="pdf-deck-title">'+title+'</div><div class="pdf-clone '+(extraClass||'')+'">'+sourceEl.cloneNode(true).outerHTML+'</div>');
+  }
+
   async function captureReport(name){
     var realName=reportLookup[name]||name;
     var idx=reportIndexByName[realName];
     if(idx==null) return;
 
     openReport(idx);
-    await wait(1400);
+    await wait(realName==='Telemedicine Report'?1800:1400);
 
     var source=document.getElementById('pdfArea');
     var tele=document.getElementById('telemedicineModule');
-    var html='';
 
     if(realName==='RBSK'){
       addRBSKPdfPages();
       return;
-    }else if(realName==='Telemedicine Report' && tele && tele.style.display!=='none'){
-      html='<div class="pdf-deck-title">🩻 Telemedicine Report</div><div class="pdf-clone">'+tele.outerHTML+'</div>';
-    }else if(realName==='JAS Meeting'){
-      var jas=document.getElementById('jasMeetingModule');
-      if(jas){
-        html='<div class="pdf-deck-title">🤝 JAS Meeting</div><div class="pdf-clone">'+jas.outerHTML+'</div>';
-      }else{
-        html='<div class="pdf-deck-title">🤝 JAS Meeting</div><div class="pdf-clone">'+source.outerHTML+'</div>';
-      }
-    }else if(realName==='RCH 2.0'){
-      html='<div class="pdf-deck-title">👩‍🍼 Janani Portal (RCH 2.0)</div><div class="pdf-clone">'+source.outerHTML+'</div>';
-    }else{
-      html='<div class="pdf-deck-title">'+((REPORTS[idx].icon||'📄')+' '+(REPORTS[idx].displayName||REPORTS[idx].name))+'</div><div class="pdf-clone">'+source.outerHTML+'</div>';
     }
 
-    addPage(html);
+    if(realName==='RCH 2.0'){
+      // RCH is a two-part report. Never place Sector + Facility tables in one
+      // fixed-height page. Facility Wise is paginated so all 42 facilities are included.
+      var rchSector=document.getElementById('rchSectorPage');
+      var rchFacility=document.getElementById('rchFacilityPage');
+      addPagedModule('👩‍🍼 Janani Portal (RCH 2.0) — Sector Wise',rchSector,20,'pdf-rch');
+      addPagedModule('👩‍🍼 Janani Portal (RCH 2.0) — Facility Wise',rchFacility,16,'pdf-rch');
+      return;
+    }
+
+    if(realName==='Telemedicine Report'){
+      if(!tele || tele.style.display==='none'){
+        return;
+      }
+      // Export BOTH Telemedicine tabs, not only the currently visible Sector tab.
+      try{
+        if(telemedicineState && telemedicineState.sector){
+          telemedicineSwitch('sector');
+          await wait(180);
+          addPagedModule('🩻 Telemedicine Report — Sector Wise',tele,12,'pdf-tele');
+        }
+        if(telemedicineState && telemedicineState.facility){
+          telemedicineSwitch('facility');
+          await wait(180);
+          addPagedModule('🩻 Telemedicine Report — Facility Wise',tele,12,'pdf-tele');
+        }
+        if(telemedicineState && telemedicineState.sector){
+          telemedicineSwitch('sector');
+        }
+      }catch(e){
+        console.warn('Telemedicine PDF tabs error',e);
+        addFitClonePage('🩻 Telemedicine Report',tele,'pdf-tele');
+      }
+      return;
+    }
+
+    if(realName==='JAS Meeting'){
+      var jas=document.getElementById('jasMeetingModule');
+      if(jas) addFitClonePage('🤝 JAS Meeting',jas,'pdf-jas');
+      else if(source) addFitClonePage('🤝 JAS Meeting',source,'');
+      return;
+    }
+
+    if(source){
+      addFitClonePage((REPORTS[idx].icon||'📄')+' '+(REPORTS[idx].displayName||REPORTS[idx].name),source,'pdf-generic');
+    }
   }
 
   var pdfBanner=document.createElement('div');
@@ -5435,7 +5502,7 @@ function runSelectedProgrammePDF(selected){
           scrollY:0
         });
         if(!canvas || !canvas.width || !canvas.height) throw new Error('PDF page render नहीं हुआ।');
-        if(pi>0) pdf.addPage('a4','landscape');
+        if(pi>0) pdf.addPage([960,540],'landscape');
         // Canvas is supplied directly to jsPDF to avoid blank data-URI pages in Acrobat.
         pdf.addImage(canvas,'JPEG',0,0,PW,PH,undefined,'FAST');
       }
