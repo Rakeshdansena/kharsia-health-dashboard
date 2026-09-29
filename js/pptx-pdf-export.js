@@ -48,7 +48,7 @@ async function generatePdfFromExactPptx(selected){
     var mod=await loadViewer();
     var host=document.createElement('div');
     host.id='kharsiaPptxPdfRenderHost';
-    host.style.cssText='position:fixed;left:-20000px;top:0;width:1600px;height:900px;overflow:hidden;background:#fff;z-index:999999;visibility:visible;';
+    host.style.cssText='position:fixed;left:-20000px;top:0;width:1280px;height:720px;overflow:hidden;background:#fff;z-index:-1;opacity:0.01;pointer-events:none;visibility:visible;';
     document.body.appendChild(host);
 
     var viewer=null;
@@ -67,7 +67,7 @@ async function generatePdfFromExactPptx(selected){
         viewer.loadFile(await pptxBlob.arrayBuffer()),
         new Promise(function(_,reject){setTimeout(function(){reject(new Error('PPTX viewer load में 60 सेकंड से अधिक लग गया।'));},60000);})
       ]);
-      await wait(1200);
+      await wait(150);
       if(typeof viewer.exportPdf!=='function') throw new Error('इस browser में PPTX PDF export उपलब्ध नहीं है।');
       await viewer.exportPdf({
         onProgress:function(current,count){
