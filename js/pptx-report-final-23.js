@@ -2885,9 +2885,15 @@ moduleRanges.push({
       var fileName = 'Kharsia Health Progressive Report_' + date + '.pptx';
       showProgress('PPTX file बन रही है', 96, 'PowerPoint file को final .pptx format में बनाया जा रहा है...');
       var blob = await pptx.write({ outputType: 'blob' });
+      window.__lastGeneratedPptxBlob = blob;
       var url = URL.createObjectURL(blob);
       var old = document.getElementById('pptxDownloadFallback');
       if (old) old.remove();
+
+      if (window.__generatingPDF) {
+        showProgress('PPTX तैयार है', 100, 'अब इसी exact PPTX layout से PDF तैयार हो रही है...');
+        return blob;
+      }
 
       var host = document.getElementById('dashboardPptxBtn');
       host = host ? host.parentElement : document.body;
