@@ -5392,43 +5392,51 @@ function runSelectedProgrammePDF(selected){
         await captureReport(selected[i]);
       }
 
-      if(typeof html2pdf!=='function'){
+      if(typeof html2pdf!=='function' || typeof html2canvas!=='function'){
         throw new Error('PDF library load नहीं हुई।');
       }
+      if(!(window.jspdf && window.jspdf.jsPDF)){
+        throw new Error('PDF engine load नहीं हुआ।');
+      }
 
-      // Capture the same selected-programme pages as a landscape PDF.
-      // Keeping the deck visible during capture prevents blank-page PDFs caused
-      // by converting an absolutely positioned/off-screen container.
-      await new Promise(function(resolve,reject){
-        html2pdf()
-          .set({
-            margin:0,
-            filename:'Kharsia_Health_Progressive_Report_Selected.pdf',
-            image:{type:'jpeg',quality:0.98},
-            html2canvas:{
-              scale:1.5,
-              useCORS:true,
-              backgroundColor:'#ffffff',
-              logging:false,
-              allowTaint:true,
-              windowWidth:1280,
-              windowHeight:720,
-              scrollX:0,
-              scrollY:0
-            },
-            jsPDF:{
-              unit:'px',
-              format:[1280,720],
-              orientation:'landscape',
-              compressPDF:true
-            },
-            pagebreak:{mode:['css','legacy']}
-          })
-          .from(deck)
-          .save()
-          .then(resolve)
-          .catch(reject);
-      });
+      // Render each 1280×720 page separately. This avoids the blank/white PDF
+      // issue caused when html2pdf tries to paginate one fixed multi-page deck.
+      var pages=Array.prototype.slice.call(deck.querySelectorAll('.pdf-deck-page'));
+      if(!pages.length) throw new Error('PDF के लिए कोई page तैयार नहीं हुआ।');
+
+      var PDF=window.jspdf.jsPDF;
+      var pdf=new PDF({unit:'px',format:[1280,720],orientation:'landscape',compress:true});
+
+      for(var pi=0;pi<pages.length;pi++){
+        var page=pages[pi];
+        page.style.display='block';
+        page.style.position='relative';
+        page.style.visibility='visible';
+        page.style.width='1280px';
+        page.style.height='720px';
+        page.style.overflow='hidden';
+        page.scrollIntoView({block:'start',inline:'start'});
+        await wait(80);
+
+        var canvas=await html2canvas(page,{
+          scale:1.5,
+          useCORS:true,
+          allowTaint:true,
+          backgroundColor:'#ffffff',
+          logging:false,
+          width:1280,
+          height:720,
+          windowWidth:1280,
+          windowHeight:720,
+          scrollX:0,
+          scrollY:0
+        });
+
+        if(pi>0) pdf.addPage([1280,720],'landscape');
+        pdf.addImage(canvas.toDataURL('image/jpeg',0.98),'JPEG',0,0,1280,720,'FAST');
+      }
+
+      pdf.save('Kharsia_Health_Progressive_Report_Selected.pdf');
     }catch(e){
       console.error('Selected PDF error:',e);
       alert('PDF generate नहीं हुआ: '+(e.message||e));
@@ -5439,8 +5447,7 @@ function runSelectedProgrammePDF(selected){
       if(btn){btn.disabled=false;btn.textContent='📊 Generate PPTX';}
       showDashboard();
     }
-  })();
-}
+  })();}
 
 function runSelectedPPTXGeneration(){
   var b=document.getElementById('dashboardPptxBtn');
