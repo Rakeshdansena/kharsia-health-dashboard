@@ -5407,8 +5407,8 @@ function runSelectedProgrammePDF(selected){
       if(!pages.length) throw new Error('PDF के लिए कोई page तैयार नहीं हुआ।');
       var PDF=(window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
       if(!PDF) throw new Error('PDF engine load नहीं हुआ।');
-      var pdf=new PDF({unit:'pt',format:'a4',orientation:'landscape',compress:true});
-      var PW=841.89, PH=595.28;
+      var pdf=new PDF({unit:'pt',format:[960,540],orientation:'landscape',compress:true});
+      var PW=960, PH=540;
 
       for(var pi=0;pi<pages.length;pi++){
         var page=pages[pi];
