@@ -998,7 +998,6 @@ body{
 
 <body>
 
-
 <!-- =====================================================
      HEADER
 ===================================================== -->
@@ -1069,9 +1068,12 @@ body{
 
  </div>
 
- <div style="display:flex;justify-content:flex-end;margin:0 0 18px;gap:10px;">
+ <div style="display:flex;justify-content:flex-end;margin:0 0 18px;gap:10px;flex-wrap:wrap;">
   <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#b91c1c;font-weight:800;font-size:14px;">
    📊 Generate PPTX
+  </button>
+  <button id="dashboardPdfBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#0f766e;font-weight:800;font-size:14px;">
+   📄 Download PDF (PPTX जैसा)
   </button>
  </div>
 
@@ -1997,8 +1999,7 @@ window.__loadJASForPPTX = function(){
         resolve(null);
       }
     });
-  });
-};
+  });};
 
 
 /* =====================================================
@@ -2997,8 +2998,7 @@ function buildRCHFacilityTable(
     );
 
 
-    tr.appendChild(
-     makeRCHCell(
+    tr.appendChild(     makeRCHCell(
       row.hmis
      )
     );
@@ -3997,8 +3997,7 @@ function telemedicineBuildRows(rows, mode){
    inProcess += telemedicineNum(r[6]);
   });
   const p=target>0 ? completed/target*100 : 0;
-  total=["Total","",aam,target,totalCount,completed,inProcess,p.toFixed(0)];
- }else{
+  total=["Total","",aam,target,totalCount,completed,inProcess,p.toFixed(0)]; }else{
   let target=0,totalCount=0,completed=0,inProcess=0;
   data.forEach(r=>{
    target += telemedicineNum(r[2]);
@@ -4997,8 +4996,7 @@ function downloadPDF(){
 
   jsPDF:{
    unit:"mm",
-   format:"a4",
-   orientation:"landscape"
+   format:"a4",   orientation:"landscape"
   },
 
   pagebreak:{
@@ -5137,8 +5135,8 @@ function showPPTXProgrammeSelector(){
    '<div class="pptx-select-backdrop">'+
     '<div class="pptx-select-card">'+
      '<div class="pptx-select-head">'+
-      '<div><div class="pptx-select-title">📊 PPTX Programme Selection</div>'+
-      '<div class="pptx-select-sub">Cover और Index हमेशा रहेंगे। Programme जिस क्रम में select करेंगे, PPT उसी क्रम में बनेगी।</div></div>'+
+      '<div><div class="pptx-select-title">📊 PPTX / PDF Programme Selection</div>'+
+      '<div class="pptx-select-sub">Cover और Index हमेशा रहेंगे। Programme जिस क्रम में select करेंगे, PPTX और PDF उसी क्रम में बनेंगे।</div></div>'+
       '<button type="button" class="pptx-select-close" id="pptxSelClose">✕</button>'+
      '</div>'+
      '<div class="pptx-select-actions">'+
@@ -5149,7 +5147,7 @@ function showPPTXProgrammeSelector(){
      '<div class="pptx-program-grid" id="pptxProgramGrid"></div>'+
      '<div class="pptx-select-footer">'+
       '<button type="button" class="pptx-cancel" id="pptxSelCancel">Cancel</button>'+
-      '<button type="button" class="pptx-generate-pdf" id="pptxGeneratePDF">📄 Generate PDF</button>'+
+      '<button type="button" class="pptx-generate-pdf" id="pptxGeneratePDF">📄 Download PDF (PPTX जैसा)</button>'+
       '<button type="button" class="pptx-generate-selected" id="pptxGenerateSelected">📊 Generate PPTX</button>'+
      '</div>'+
     '</div>'+
@@ -5624,6 +5622,7 @@ function runSelectedPPTXGeneration(){
 })();
 </script>
 <script id="pptx-report-script" src="js/pptx-report-final-23.js?v=20260929-rbsk-ppt-02"></script>
+<script id="pptx-pdf-export-script" src="js/pptx-pdf-export.js?v=20260929-pptx-pdf-01"></script>
 <script src="js/ncd.js"></script>
 <script id="rbsk-direct-script" src="js/rbsk.js?v=20260928-rbsk-10"></script>
 </body>
