@@ -6,13 +6,16 @@ function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
 async function loadViewer(){
   if(window.__kharsiaPptxViewerModule) return window.__kharsiaPptxViewerModule;
   var urls=[
-    'https://cdn.jsdelivr.net/npm/pptx-vanilla-viewer@3.9.0/+esm',
-    'https://esm.sh/pptx-vanilla-viewer@3.9.0?bundle'
+    'https://esm.sh/pptx-vanilla-viewer@3.9.0?bundle',
+    'https://cdn.jsdelivr.net/npm/pptx-vanilla-viewer@3.9.0/+esm'
   ];
   var lastErr=null;
   for(var i=0;i<urls.length;i++){
     try{
-      var mod=await import(urls[i]);
+      var mod=await Promise.race([
+        import(urls[i]),
+        new Promise(function(_,reject){setTimeout(function(){reject(new Error('Viewer CDN timeout'));},30000);})
+      ]);
       if(mod && typeof mod.createPptxViewer==='function'){
         window.__kharsiaPptxViewerModule=mod;
         return mod;
@@ -39,7 +42,8 @@ async function generatePdfFromExactPptx(selected){
     var pptxBlob=window.__lastGeneratedPptxBlob;
     if(!pptxBlob) throw new Error('PPTX तैयार नहीं हुई।');
 
-    if(pdfButton) pdfButton.textContent='⏳ PDF slides तैयार हो रही हैं...';
+    if(pdfButton) pdfButton.textContent='⏳ PDF renderer load हो रहा है...';
+    if(typeof window.showProgress==='function') window.showProgress('PDF renderer load हो रहा है',100,'PPTX तैयार है; अब PDF renderer शुरू किया जा रहा है...');
 
     var mod=await loadViewer();
     var host=document.createElement('div');
@@ -57,14 +61,22 @@ async function generatePdfFromExactPptx(selected){
         editable:false,
         fileName:'Kharsia Health Progressive Report'
       });
-      await viewer.loadFile(await pptxBlob.arrayBuffer());
-      await wait(1500);
+      if(pdfButton) pdfButton.textContent='⏳ PPTX slides render हो रही हैं...';
+      if(typeof window.showProgress==='function') window.showProgress('PPTX slides PDF के लिए render हो रही हैं',100,'PPTX viewer में slides load हो रही हैं...');
+      await Promise.race([
+        viewer.loadFile(await pptxBlob.arrayBuffer()),
+        new Promise(function(_,reject){setTimeout(function(){reject(new Error('PPTX viewer load में 60 सेकंड से अधिक लग गया।'));},60000);})
+      ]);
+      await wait(1200);
       if(typeof viewer.exportPdf!=='function') throw new Error('इस browser में PPTX PDF export उपलब्ध नहीं है।');
       await viewer.exportPdf({
         onProgress:function(current,count){
-          if(pdfButton) pdfButton.textContent='⏳ PDF Slide '+(current+1)+'/'+count;
+          var done=Math.min(99,Math.round((current/count)*100));
+          if(pdfButton) pdfButton.textContent='⏳ PDF Slide '+Math.min(current+1,count)+'/'+count;
+          if(typeof window.showProgress==='function') window.showProgress('PDF Slide '+Math.min(current+1,count)+'/'+count,done,'हर slide उसी PPTX layout से PDF में बदली जा रही है...');
         }
       });
+      if(typeof window.showProgress==='function') window.showProgress('PDF तैयार है',100,'PDF download शुरू हो रहा है...');
     }finally{
       try{if(viewer && viewer.destroy) viewer.destroy();}catch(e){}
       host.remove();
