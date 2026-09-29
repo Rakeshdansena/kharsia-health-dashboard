@@ -5399,27 +5399,28 @@ function runSelectedProgrammePDF(selected){
         throw new Error('PDF engine load नहीं हुआ।');
       }
 
-      // Render each 1280×720 page separately. This avoids the blank/white PDF
-      // issue caused when html2pdf tries to paginate one fixed multi-page deck.
+      // Render each 1280×720 page separately and place each canvas on a real A4 landscape PDF page.
+      // A4/pt is intentionally used here because it is more reliably displayed by Adobe Acrobat than a custom px page.
       var pages=Array.prototype.slice.call(deck.querySelectorAll('.pdf-deck-page'));
       if(!pages.length) throw new Error('PDF के लिए कोई page तैयार नहीं हुआ।');
-
-      var PDF=window.jspdf.jsPDF;
-      var pdf=new PDF({unit:'px',format:[1280,720],orientation:'landscape',compress:true});
+      var PDF=(window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+      if(!PDF) throw new Error('PDF engine load नहीं हुआ।');
+      var pdf=new PDF({unit:'pt',format:'a4',orientation:'landscape',compress:true});
+      var PW=841.89, PH=595.28;
 
       for(var pi=0;pi<pages.length;pi++){
         var page=pages[pi];
         page.style.display='block';
         page.style.position='relative';
         page.style.visibility='visible';
+        page.style.opacity='1';
         page.style.width='1280px';
         page.style.height='720px';
         page.style.overflow='hidden';
-        page.scrollIntoView({block:'start',inline:'start'});
-        await wait(80);
+        await wait(120);
 
         var canvas=await html2canvas(page,{
-          scale:1.5,
+          scale:2,
           useCORS:true,
           allowTaint:true,
           backgroundColor:'#ffffff',
@@ -5431,12 +5432,13 @@ function runSelectedProgrammePDF(selected){
           scrollX:0,
           scrollY:0
         });
-
-        if(pi>0) pdf.addPage([1280,720],'landscape');
-        pdf.addImage(canvas.toDataURL('image/jpeg',0.98),'JPEG',0,0,1280,720,'FAST');
+        if(!canvas || !canvas.width || !canvas.height) throw new Error('PDF page render नहीं हुआ।');
+        if(pi>0) pdf.addPage('a4','landscape');
+        // Canvas is supplied directly to jsPDF to avoid blank data-URI pages in Acrobat.
+        pdf.addImage(canvas,'JPEG',0,0,PW,PH,undefined,'FAST');
       }
-
       pdf.save('Kharsia_Health_Progressive_Report_Selected.pdf');
+
     }catch(e){
       console.error('Selected PDF error:',e);
       alert('PDF generate नहीं हुआ: '+(e.message||e));
