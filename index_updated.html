@@ -5318,13 +5318,32 @@ function runSelectedProgrammePDF(selected){
     'JAS Meeting':'JAS Meeting',
     'Ayushman Shivir':'Ayushman Shivir',
     'Wellness Activity':'Wellness Activity',
-    'Telemedicine Report':'Telemedicine Report'
+    'Telemedicine Report':'Telemedicine Report',
+    'RBSK':'RBSK'
   };
 
   var reportIndexByName={};
   REPORTS.forEach(function(r,i){reportIndexByName[r.name]=i;});
 
   function wait(ms){ return new Promise(function(resolve){setTimeout(resolve,ms);}); }
+
+  function rbskTableHtml(headers, rows, pctCols){
+    var h='<table style="border-collapse:collapse;width:100%;font-size:15px;font-weight:700;background:#fff">';
+    h+='<thead><tr>'+headers.map(function(x){return '<th style="background:#075985;color:#fff;border:1px solid #b8c9d8;padding:10px 7px;text-align:center">'+x+'</th>';}).join('')+'</tr></thead><tbody>';
+    rows.forEach(function(r,ri){
+      var total=String(r[0]).toUpperCase()==='TOTAL';
+      h+='<tr>'+r.map(function(v,ci){var bg=total?'#e0f2fe':(ri%2?'#fff':'#f8fbff'); if(pctCols.indexOf(ci)>=0){var n=parseFloat(String(v).replace('%',''))||0;bg=n>=70?'#dcfce7':(n>=40?'#fef3c7':'#fee2e2');} return '<td style="border:1px solid #cbd5e1;padding:11px 7px;text-align:center;background:'+bg+';font-weight:'+(total||ci===0?'900':'700')+'">'+v+'</td>';}).join('')+'</tr>';
+    }); return h+'</tbody></table>';
+  }
+  function addRBSKPdfPages(){
+    var main=[['Team A',161,79,'49%',11381,4566,'40%',212,212,'100%',5322,5267,'99%',5322,5267,1000,895],['Team B',160,74,'46%',10036,3840,'38%',210,210,'100%',5526,5405,'98%',5526,5405,1419,1322],['TOTAL',321,153,'48%',21417,8406,'39%',422,422,'100%',10848,10672,'98%',10848,10672,2419,2217]];
+    function page(title,sub,inner){addPage('<div class="pdf-deck-title">👶 '+title+'</div><div class="pdf-deck-sub">'+sub+'</div>'+inner+'<div class="pdf-source">RBSK • Kharsia Health Department • FY 2026–27</div>');}
+    page('RBSK — Part 1 | School Performance','राष्ट्रीय बाल स्वास्थ्य कार्यक्रम • स्थिति 31-08-2026',rbskTableHtml(['Team','Total School','School Visit','Visit %','Screening Target','Screened','Screening %'],main.map(function(r){return r.slice(0,7);}),[3,6])+'<div style="display:flex;gap:18px;margin-top:24px">'+[['TOTAL SCHOOL',321],['SCHOOL VISIT',153],['SCREENED',8406],['SCREENING %','39%']].map(function(x){return '<div style="flex:1;border-left:7px solid #14b8a6;background:#fff;border:1px solid #d7e2ea;border-radius:12px;padding:16px"><div style="font-size:13px;color:#475569">'+x[0]+'</div><div style="font-size:30px;color:#075985;font-weight:900">'+x[1]+'</div></div>';}).join('')+'</div>');
+    page('RBSK — Part 1 | Anganwadi Performance','ANGANWADI FIRST VISIT • स्थिति 31-08-2026',rbskTableHtml(['Team','Total AWC','AWC Visit','Visit %','Screening Target','Screened','Screening %'],main.map(function(r){return [r[0],r[7],r[8],r[9],r[10],r[11],r[12]];}),[3,6]));
+    page('RBSK — Part 1 | Referral & Treatment','स्थिति 31-08-2026',rbskTableHtml(['Team','Sick Children','Treated','Referred','Referral Treated'],main.map(function(r){return [r[0],r[13],r[14],r[15],r[16]];}),[]));
+    var cats={A:[[2,1,1,'50%',1],[1,0,1,'100%',0],[3,1,2,'67%',1]],B:[[16,3,13,'81%',16],[50,7,43,'86%',50],[66,10,56,'85%',66]],C:[[7,6,1,'14%',7],[5,2,3,'60%',5],[12,8,4,'33%',12]],D:[[4,0,0,'0%',4],[1,1,20,'20%',0],[5,1,8,'8%',0]],E:[[77,1,76,'99%',1],[106,17,89,'84%',17],[183,18,165,'90%',18]],'All Category':[[48,2,46,'96%',48],[49,7,42,'86%',49],[97,9,88,'91%',97]]};
+    Object.keys(cats).forEach(function(k){var v=cats[k];page('RBSK — Part 2 | '+k,'Team Wise Category Periodical Treatment Report • 01/04/2026 to 31/03/2027',rbskTableHtml(['Team','Identified','Under Treatment','Treatment Over','Treatment %','Pending'],[['Team A'].concat(v[0]),['Team B'].concat(v[1]),['TOTAL'].concat(v[2])],[4]));});
+  }
 
   async function captureReport(name){
     var realName=reportLookup[name]||name;
@@ -5338,7 +5357,10 @@ function runSelectedProgrammePDF(selected){
     var tele=document.getElementById('telemedicineModule');
     var html='';
 
-    if(realName==='Telemedicine Report' && tele && tele.style.display!=='none'){
+    if(realName==='RBSK'){
+      addRBSKPdfPages();
+      return;
+    }else if(realName==='Telemedicine Report' && tele && tele.style.display!=='none'){
       html='<div class="pdf-deck-title">🩻 Telemedicine Report</div><div class="pdf-clone">'+tele.outerHTML+'</div>';
     }else if(realName==='JAS Meeting'){
       var jas=document.getElementById('jasMeetingModule');
