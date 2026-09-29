@@ -2147,8 +2147,108 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     return {start:start,end:pptx.slides.length};
   }
 
+
+  // ---------------- RBSK PPTX ----------------
+  function addRBSKPresentation(pptx) {
+    var main = [
+      ['TEAM','TOTAL SCHOOL','SCHOOL VISIT','%','SCHOOL SCREENING TARGET','SCHOOL SCREENED','%','TOTAL AWC','AWC VISIT','%','AWC SCREENING TARGET','AWC SCREENED','%','SICK CHILDREN','TREATED','REFERRED','REFERRAL TREATED'],
+      ['TEAM A',161,79,'49%',11381,4566,'40%',212,212,'100%',5322,5267,'99%',5322,5267,1000,895],
+      ['TEAM B',160,74,'46%',10036,3840,'38%',210,210,'100%',5526,5405,'98%',5526,5405,1419,1322],
+      ['TOTAL',321,153,'48%',21417,8406,'39%',422,422,'100%',10848,10672,'98%',10848,10672,2419,2217]
+    ];
+    function addRHeader(slide,t,sub){
+      addHeader(slide,t,sub);
+      slide.background={color:'F8FBFF'};
+    }
+    function addRTable(slide,rows,x,y,w,h,widths,fs,pctCols){
+      var cols=rows[0].length;
+      var tdata=rows.map(function(r,ri){
+        return r.map(function(v,ci){
+          var fill=ri===0?'075985':(r[0]==='TOTAL'?'E0F2FE':(ri%2?'FFFFFF':'F8FBFF'));
+          var color=ri===0?'FFFFFF':'172033';
+          if(ri>0 && pctCols.indexOf(ci)>=0){
+            var n=number(String(v).replace('%',''));
+            fill=n>=70?'DCFCE7':(n>=40?'FEF3C7':'FEE2E2');
+          }
+          return {text:String(v),options:{bold:ri===0||r[0]==='TOTAL'||ci===0,fontSize:fs,color:color,fill:{color:fill},align:'center',valign:'mid',margin:2}};
+        });
+      });
+      slide.addTable(tdata,{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:widths,rowH:0.42,margin:2});
+    }
+
+    // Slide 1: School performance
+    var s=pptx.addSlide();
+    addRHeader(s,'👶 RBSK — Part 1 | School Performance','STATUS AS ON 31-08-2026');
+    addSectionTitle(s,'SCHOOL VISIT & SCHOOL SCREENING',0.45,1.02,5.2);
+    addRTable(s,[
+      ['Team','Total School','School Visit','Visit %','Screening Target','Screened','Screening %'],
+      main[1].slice(0,7),main[2].slice(0,7),main[3].slice(0,7)
+    ],0.55,1.45,12.2,2.35,[1.55,1.45,1.55,1.2,2.0,1.55,1.45],13,[3,6]);
+    addCard(s,0.65,4.35,2.7,1.05,'TOTAL SCHOOL',321);
+    addCard(s,3.55,4.35,2.7,1.05,'SCHOOL VISIT',153);
+    addCard(s,6.45,4.35,2.7,1.05,'SCREENED',8406);
+    addCard(s,9.35,4.35,2.7,1.05,'SCREENING %','39%');
+    s.addText('Color scale: red = lower • yellow = middle • green = higher',{x:0.7,y:5.75,w:11.9,h:0.22,fontSize:9,bold:true,color:'64748B',align:'center',margin:0});
+
+    // Slide 2: Anganwadi
+    s=pptx.addSlide();
+    addRHeader(s,'👶 RBSK — Part 1 | Anganwadi Performance','ANGANWADI FIRST VISIT • 31-08-2026');
+    addSectionTitle(s,'ANGANWADI VISIT & SCREENING',0.45,1.02,5.2);
+    addRTable(s,[
+      ['Team','Total AWC','AWC Visit','Visit %','Screening Target','Screened','Screening %'],
+      [main[1][0],main[1][7],main[1][8],main[1][9],main[1][10],main[1][11],main[1][12]],
+      [main[2][0],main[2][7],main[2][8],main[2][9],main[2][10],main[2][11],main[2][12]],
+      [main[3][0],main[3][7],main[3][8],main[3][9],main[3][10],main[3][11],main[3][12]]
+    ],0.55,1.45,12.2,2.35,[1.55,1.45,1.55,1.2,2.0,1.55,1.45],13,[3,6]);
+    addCard(s,0.65,4.35,2.7,1.05,'TOTAL AWC',422);
+    addCard(s,3.55,4.35,2.7,1.05,'AWC VISIT',422);
+    addCard(s,6.45,4.35,2.7,1.05,'SCREENED',10672);
+    addCard(s,9.35,4.35,2.7,1.05,'SCREENING %','98%');
+
+    // Slide 3: Referral & Treatment
+    s=pptx.addSlide();
+    addRHeader(s,'👶 RBSK — Part 1 | Referral & Treatment','STATUS AS ON 31-08-2026');
+    addSectionTitle(s,'REFERRAL & TREATMENT',0.45,1.02,4.2);
+    addRTable(s,[
+      ['Team','Sick Children','Treated','Referred','Referral Treated'],
+      [main[1][0],main[1][13],main[1][14],main[1][15],main[1][16]],
+      [main[2][0],main[2][13],main[2][14],main[2][15],main[2][16]],
+      [main[3][0],main[3][13],main[3][14],main[3][15],main[3][16]]
+    ],1.0,1.55,11.3,2.45,[2.0,2.3,2.3,2.3,2.4],14,[]);
+    addCard(s,0.8,4.45,2.7,1.05,'SICK CHILDREN',10848);
+    addCard(s,3.7,4.45,2.7,1.05,'TREATED',10672);
+    addCard(s,6.6,4.45,2.7,1.05,'REFERRED',2419);
+    addCard(s,9.5,4.45,2.7,1.05,'REFERRAL TREATED',2217);
+
+    var catData = {
+      'A':[[2,1,1,'50%',1],[1,0,1,'100%',0],[3,1,2,'67%',1]],
+      'B':[[16,3,13,'81%',16],[50,7,43,'86%',50],[66,10,56,'85%',66]],
+      'C':[[7,6,1,'14%',7],[5,2,3,'60%',5],[12,8,4,'33%',12]],
+      'D':[[4,0,0,'0%',4],[1,1,20,'20%',0],[5,1,8,'8%',0]],
+      'E':[[77,1,76,'99%',1],[106,17,89,'84%',17],[183,18,165,'90%',18]],
+      'All Category':[[48,2,46,'96%',48],[49,7,42,'86%',49],[97,9,88,'91%',97]]
+    };
+    function catSlide(title, key, idx){
+      var ss=pptx.addSlide();
+      addRHeader(ss,'💊 RBSK — Part 2 | '+title,'01/04/2026 TO 31/03/2027');
+      addSectionTitle(ss,'CATEGORY: '+key.toUpperCase(),0.45,1.02,4.8);
+      var v=catData[key];
+      addRTable(ss,[
+        ['Team','Identified','Under Treatment','Treatment Over','Treatment %','Pending'],
+        ['Team A',v[0][0],v[0][1],v[0][2],v[0][3],v[0][4]],
+        ['Team B',v[1][0],v[1][1],v[1][2],v[1][3],v[1][4]],
+        ['TOTAL',v[2][0],v[2][1],v[2][2],v[2][3],v[2][4]]
+      ],0.75,1.55,11.8,2.65,[2.1,1.75,2.0,2.0,1.75,1.75],13,[4]);
+      addCard(ss,1.0,4.65,3.2,1.0,'TOTAL IDENTIFIED',v[2][0]);
+      addCard(ss,5.05,4.65,3.2,1.0,'TREATMENT OVER',v[2][2]);
+      addCard(ss,9.1,4.65,3.2,1.0,'TREATMENT %',v[2][3]);
+    }
+    ['A','B','C','D','E','All Category'].forEach(function(k){catSlide('Part 2 | Category Wise Periodical Treatment',k);});
+    return true;
+  }
+
   function getSelectedPptxPrograms() {
-    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','Telemedicine Report'];
+    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','RBSK','Telemedicine Report'];
     var incoming = window.__pptxSelectedPrograms;
     if (Array.isArray(incoming) && incoming.length) return incoming.slice();
     return defaults.slice();
@@ -2616,7 +2716,8 @@ moduleRanges.push({
         'JAS Meeting': {name:'JAS Meeting',icon:'🤝',gid:'1018164338'},
         'Ayushman Shivir': {name:'Ayushman Shivir',icon:'🏕️',gid:'1262815420'},
         'Wellness Activity': {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
-        'Telemedicine Report': {name:'Telemedicine Report',icon:'🩻',gid:'318264987'}
+        'Telemedicine Report': {name:'Telemedicine Report',icon:'🩻',gid:'318264987'},
+        'RBSK': {name:'RBSK',icon:'👶',gid:null}
       };
 
       showProgress('Programme order', 55, 'Selected order के अनुसार PPT slides तैयार हो रही हैं...');
@@ -2646,6 +2747,8 @@ moduleRanges.push({
           await addWellnessActivityPresentation(pptx);
         } else if (mod.name === 'Telemedicine Report') {
           await addTelemedicinePresentation(pptx);
+        } else if (mod.name === 'RBSK') {
+          await addRBSKPresentation(pptx);
         }
 
         var moduleEnd = pptx.slides.length;
@@ -2671,7 +2774,8 @@ moduleRanges.push({
         'JAS Meeting': {name:'JAS Meeting', icon:'J', color:'#D97706', fill:'#FEF3C7'},
         'Ayushman Shivir': {name:'Ayushman Shivir', icon:'S', color:'#DB2777', fill:'#FCE7F3'},
         'Wellness Activity': {name:'Wellness Activity', icon:'W', color:'#9333EA', fill:'#F3E8FF'},
-        'Telemedicine Report': {name:'Telemedicine Report', icon:'T', color:'#0F766E', fill:'#CCFBF1'}
+        'Telemedicine Report': {name:'Telemedicine Report', icon:'T', color:'#0F766E', fill:'#CCFBF1'},
+        'RBSK': {name:'RBSK', icon:'R', color:'#4338CA', fill:'#EDE9FE'}
       };
 
       var desiredModules = getSelectedPptxPrograms().map(function(name){
