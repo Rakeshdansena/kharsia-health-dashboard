@@ -1069,11 +1069,8 @@ body{
  </div>
 
  <div style="display:flex;justify-content:flex-end;margin:0 0 18px;gap:10px;flex-wrap:wrap;">
-  <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#b91c1c;font-weight:800;font-size:14px;">
-   📊 Generate PPTX
-  </button>
-  <button id="dashboardPdfBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#0f766e;font-weight:800;font-size:14px;">
-   📄 Download PDF (PPTX जैसा)
+  <button id="dashboardPptxBtn" class="action-btn" onclick="startPPTXGeneration()" style="background:#0f766e;font-weight:800;font-size:14px;">
+   📄 Generate Report
   </button>
  </div>
 
@@ -5135,8 +5132,8 @@ function showPPTXProgrammeSelector(){
    '<div class="pptx-select-backdrop">'+
     '<div class="pptx-select-card">'+
      '<div class="pptx-select-head">'+
-      '<div><div class="pptx-select-title">📊 PPTX / PDF Programme Selection</div>'+
-      '<div class="pptx-select-sub">Cover और Index हमेशा रहेंगे। Programme जिस क्रम में select करेंगे, PPTX और PDF उसी क्रम में बनेंगे।</div></div>'+
+      '<div><div class="pptx-select-title">📄 Report Generation</div>'+
+      '<div class="pptx-select-sub">Cover और Index हमेशा रहेंगे। Programme जिस क्रम में select करेंगे, उसी क्रम में slides बनेंगी। Report बनने के बाद PDF या PPTX download करें।</div></div>'+
       '<button type="button" class="pptx-select-close" id="pptxSelClose">✕</button>'+
      '</div>'+
      '<div class="pptx-select-actions">'+
@@ -5147,7 +5144,7 @@ function showPPTXProgrammeSelector(){
      '<div class="pptx-program-grid" id="pptxProgramGrid"></div>'+
      '<div class="pptx-select-footer">'+
       '<button type="button" class="pptx-cancel" id="pptxSelCancel">Cancel</button>'+
-      '<button type="button" class="pptx-generate-pdf" id="pptxGeneratePDF">📄 Download PDF (PPTX जैसा)</button>'+
+      '<button type="button" class="pptx-generate-pdf" id="pptxGeneratePDF">📄 Generate PDF</button>'+
       '<button type="button" class="pptx-generate-selected" id="pptxGenerateSelected">📊 Generate PPTX</button>'+
      '</div>'+
     '</div>'+
