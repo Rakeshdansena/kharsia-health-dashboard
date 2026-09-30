@@ -4532,7 +4532,7 @@ function renderBlindnessTable(data){
   const s=clean(row[1]||"");
   return /^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*[-/]\s*\d{2,4}$/i.test(s);
  };
- const isTotalRow=row=>/^total$/i.test(clean(row[0])) || /^total$/i.test(clean(row[1]));
+ const isTotalRow=row=>row.some(v=>/^total$/i.test(clean(v)));
  const isBlockDataRow=row=>{
   // Google Visualization may omit a merged/blank Particulars cell.
   // Search the complete row for Kharsia.
@@ -4552,12 +4552,12 @@ function renderBlindnessTable(data){
  // Locate the two report headers even when merged cells are shifted/omitted.
  const hi=rows.findIndex(r=>{
   const t=low(rowText(r));
-  return /\\bsn\\b/.test(t) && /particulars/.test(t);
+  return /\bsn\b/.test(t) && /particulars/.test(t);
  });
  const mi=rows.findIndex((r,i)=>{
   if(i<=hi) return false;
   const t=low(rowText(r));
-  return /\\bsn\\b/.test(t) && /month/.test(t);
+  return /\bsn\b/.test(t) && /month/.test(t);
  });
 
  // Fallback for the Block row. If the Particulars cell is omitted by
@@ -4580,7 +4580,7 @@ function renderBlindnessTable(data){
  // Show Month Wise data only through the last month with an actual entry.
  // Rows after that may contain only targets/formula zeros, so they are hidden.
  let lastEntry=-1;
- const entryCols=[3,6,8,11,12];
+ const entryCols=[3,6,9,11,12];
  allMonthRows.forEach((r,i)=>{
   const entered=entryCols.some(c=>clean(r[c])!=="");
   if(entered) lastEntry=i;
