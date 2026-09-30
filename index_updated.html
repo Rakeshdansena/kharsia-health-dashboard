@@ -4638,7 +4638,7 @@ function renderBlindnessTable(data){
   period="National Blindness Control Programme FY 2026-27";
 }
 
- const state={active:"block"};
+ const state={active:"month"};
 
  let tabHost=document.getElementById("blindnessTabs");
  if(!tabHost){
@@ -4658,7 +4658,6 @@ function renderBlindnessTable(data){
   tabHost.appendChild(b);
   return b;
  };
- const blockBtn=makeTab("block","📊 Block Report");
  const monthBtn=makeTab("month","📅 Month Wise Report");
 
  function buildTwoRowHeader(isMonth){
@@ -4697,8 +4696,6 @@ function renderBlindnessTable(data){
   const isMonth=key==="month";
   buildTwoRowHeader(isMonth);
 
-  blockBtn.style.background=!isMonth?"#4338ca":"#fff";
-  blockBtn.style.color=!isMonth?"#fff":"#334155";
   monthBtn.style.background=isMonth?"#2563eb":"#fff";
   monthBtn.style.color=isMonth?"#fff":"#334155";
 
@@ -4779,7 +4776,7 @@ function renderBlindnessTable(data){
 
  const periodEl=document.getElementById("blindnessPeriod");
  if(periodEl) periodEl.innerText=period;
- renderSection("block");
+ renderSection("month");
 }
 
 function renderNormalTable(
