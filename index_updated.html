@@ -1294,6 +1294,21 @@ body{
   </div>
 
 
+  <!-- NRC KHARSIA MODULE -->
+  <div id="nrcModule" style="display:none;margin-top:12px;">
+   <div class="nrc-head" style="background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px;">
+    <div style="font-size:24px;font-weight:900;">🏥 NRC Kharsia</div>
+    <div style="font-size:14px;opacity:.92;margin-top:4px;">NRC Kharsia • FY 2026–27 • Live Google Sheet Report</div>
+   </div>
+   <div id="nrcSummaryCards" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;"></div>
+   <div style="background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;">
+    <div id="nrcTableTitle" style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">NRC Kharsia Report</div>
+    <table id="nrcReportTable" style="width:100%;border-collapse:collapse;min-width:720px;">
+     <thead></thead><tbody></tbody>
+    </table>
+   </div>
+  </div>
+
   <!-- NORMAL TABLE -->
 
   <div class="table-box">
@@ -1602,6 +1617,8 @@ function showDashboard(){
 
 
  hideRCHSummary();
+ const nrcModule=document.getElementById("nrcModule");
+ if(nrcModule) nrcModule.style.display="none";
 
 }
 
@@ -1629,6 +1646,33 @@ function openReport(index){
    var rb=document.getElementById("rbskMenu");if(rb)rb.classList.add("active");
    rp.classList.add("active","rbsk-visible");rp.style.display="block";window.scrollTo(0,0);
   }
+  return;
+ }
+
+ if(report && report.name==="NRC Kharsia"){
+  document.getElementById("dashboardPage").classList.remove("active");
+  document.getElementById("reportPage").classList.add("active");
+  document.getElementById("reportTitle").innerText="🏥 NRC Kharsia";
+  document.getElementById("pdfTitle").innerText="Kharsia Health Dashboard — NRC Kharsia";
+  document.getElementById("reportDescription").innerText=report.description;
+  document.getElementById("searchBox").value="";
+  hideRCHSummary();
+  document.querySelectorAll(".menu-btn").forEach(function(btn){btn.classList.remove("active");});
+  const buttons=document.querySelectorAll("#menuButtons .menu-btn");
+  if(buttons[index]) buttons[index].classList.add("active");
+  clearTable();
+  document.querySelector(".table-box").style.display="none";
+  document.getElementById("rchContainer").style.display="none";
+  const teleModule=document.getElementById("telemedicineModule");
+  if(teleModule) teleModule.style.display="none";
+  const jasModule=document.getElementById("jasMeetingModule");
+  if(jasModule) jasModule.style.display="none";
+  const nrc=document.getElementById("nrcModule");
+  if(nrc) nrc.style.display="block";
+  currentRCHData=null;
+  currentData=null;
+  setStatus("Google Sheet से NRC data load हो रहा है...");
+  loadGoogleSheet(report.gid);
   return;
  }
 
@@ -1736,6 +1780,8 @@ function openReport(index){
  // Hide custom module views whenever another module is opened.
  const teleModule=document.getElementById("telemedicineModule");
  if(teleModule) teleModule.style.display = "none";
+ const nrcModule=document.getElementById("nrcModule");
+ if(nrcModule) nrcModule.style.display = "none";
 
  // Hide the custom JAS view whenever another module is opened.
  const jasModule=document.getElementById("jasMeetingModule");
@@ -1856,6 +1902,12 @@ function loadGoogleSheet(gid){
      currentData
     );
 
+   }
+
+   else if(
+    report.name==="NRC Kharsia"
+   ){
+    renderNRCTable(currentData);
    }
 
    else if(
@@ -4227,6 +4279,75 @@ async function loadTelemedicineReport(report){
  }
 }
 
+
+function renderNRCTable(data){
+ const module=document.getElementById("nrcModule");
+ if(!module) return;
+ module.style.display="block";
+
+ const cards=document.getElementById("nrcSummaryCards");
+ const table=document.getElementById("nrcReportTable");
+ const thead=table.querySelector("thead");
+ const tbody=table.querySelector("tbody");
+ thead.innerHTML="";
+ tbody.innerHTML="";
+ cards.innerHTML="";
+
+ const cols=data.getNumberOfColumns();
+ const rows=data.getNumberOfRows();
+
+ // Keep source terminology exactly when the sheet does not provide labels.
+ let numericRow=-1;
+ for(let r=0;r<rows;r++){
+  for(let col=1;col<cols;col++){
+   const v=data.getValue(r,col);
+   if(typeof v==="number" && !isNaN(v)){ numericRow=r; break; }
+  }
+  if(numericRow>=0) break;
+ }
+
+ const header=document.createElement("tr");
+ for(let col=0;col<cols;col++){
+  const th=document.createElement("th");
+  th.innerText=data.getColumnLabel(col)||"Column "+(col+1);
+  th.style.cssText="padding:11px 10px;background:#075985;color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;";
+  header.appendChild(th);
+ }
+ thead.appendChild(header);
+
+ for(let r=0;r<rows;r++){
+  const tr=document.createElement("tr");
+  for(let col=0;col<cols;col++){
+   const td=document.createElement("td");
+   td.innerText=formatted(data,r,col);
+   td.style.cssText="padding:10px;border:1px solid #dbe5ef;text-align:center;background:#fff;";
+   if(col===0) td.style.fontWeight="800";
+   tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+ }
+
+ if(numericRow>=0){
+  const facility=(formatted(data,numericRow,0)||"").trim() || "CIVIL Hospital Kharsia";
+  const vals=[];
+  for(let col=1;col<Math.min(cols,6);col++){
+   const v=data.getValue(numericRow,col);
+   vals.push(typeof v==="number" ? v : formatted(data,numericRow,col));
+  }
+  const labels=[];
+  for(let col=1;col<Math.min(cols,6);col++){
+   labels.push(data.getColumnLabel(col)||"Column "+(col+1));
+  }
+  vals.slice(0,4).forEach(function(v,i){
+   const card=document.createElement("div");
+   card.style.cssText="background:#fff;border:1px solid #dbe5ef;border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
+   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+labels[i]+'</div><div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+v+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">'+facility+'</div>';
+   cards.appendChild(card);
+  });
+ }
+
+ document.getElementById("nrcTableTitle").innerText="NRC Kharsia — "+(rows>0 ? "Live Report Data" : "Report");
+}
 
 function renderNormalTable(
  data
