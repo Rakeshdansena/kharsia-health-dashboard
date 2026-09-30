@@ -105,7 +105,10 @@ function openUnifiedReportSelector(){
     {key:'Ayushman Shivir',icon:'🏕️',label:'Ayushman Shivir'},
     {key:'Wellness Activity',icon:'🩺',label:'Wellness Activity'},
     {key:'RBSK',icon:'👶',label:'RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम'},
-    {key:'Telemedicine Report',icon:'🩻',label:'Telemedicine Report'}
+    {key:'Telemedicine Report',icon:'🩻',label:'Telemedicine Report'},
+    {key:'NRC Kharsia',icon:'🏥',label:'NRC Kharsia'},
+    {key:'Blindness Control',icon:'👁️',label:'Blindness Control'},
+    {key:'NQAS Certification',icon:'🏅',label:'NQAS Certification'}
   ];
   var order=programmes.map(function(p){return p.key;});
 
