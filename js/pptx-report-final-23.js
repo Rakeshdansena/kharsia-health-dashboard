@@ -2273,10 +2273,10 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     for(var i=0;i<cols;i++) colW.push(w/cols);
     slide.addTable(data.map(function(r,ri){
       return r.map(function(v){return {text:clean(v),options:{
-        bold:ri===0,fontSize:fontSize||10,color:ri===0?'FFFFFF':'172033',
-        fill:{color:ri===0?'075985':'FFFFFF'},align:'center',valign:'mid',margin:2
+        bold:ri===0,fontSize:fontSize||11,color:ri===0?'FFFFFF':'172033',
+        fill:{color:ri===0?'0F766E':(ri%2?'F8FAFC':'FFFFFF')},align:'center',valign:'mid',margin:3
       }};});
-    }),{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:colW,rowH:0.44,margin:2});
+    }),{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:colW,rowH:0.48,margin:3});
   }
 
   async function addNRCPresentation(pptx) {
@@ -2297,22 +2297,69 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
   async function addBlindnessPresentation(pptx) {
     var rows=await queryRawSheet('1002009767');
     var re=/^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*[-/]\s*\d{2,4}$/i;
-    var months=rows.filter(function(r){return re.test(clean(r[1]));});
-    var total=rows.find(function(r){return r.some(function(v){return /^total$/i.test(clean(v));});});
-    var t=total||months[months.length-1]||[], slide=pptx.addSlide();
+    var allMonths=rows.filter(function(r){return re.test(clean(r[1]));});
+
+    // Show only months through the latest month having an actual data entry.
+    // Target-only / blank future months are not shown.
+    var entryCols=[3,6,9,11,12], lastEntry=-1;
+    allMonths.forEach(function(r,i){
+      var entered=entryCols.some(function(c){return clean(r[c])!=='';});
+      if(entered) lastEntry=i;
+    });
+    var months=lastEntry>=0 ? allMonths.slice(0,lastEntry+1) : [];
+
+    // Always keep Total at the bottom. Use the live Sheet Total if available;
+    // otherwise calculate it from the visible entered months.
+    var liveTotal=rows.find(function(r){return r.some(function(v){return /^total$/i.test(clean(v));});});
+    function num(v){
+      var n=parseFloat(String(v==null?'':v).replace(/,/g,'').replace('%','').trim());
+      return isFinite(n)?n:0;
+    }
+    function first(col){
+      var r=months.find(function(x){return clean(x[col])!=='';});
+      return r ? r[col] : '';
+    }
+    function sum(col){
+      return months.reduce(function(a,r){return a+num(r[col]);},0);
+    }
+    var total=liveTotal;
+    if(!total && months.length){
+      var ct=num(first(2)), ca=sum(3), st=num(first(5)), sv=sum(6), sTarget=num(first(8)), sa=sum(9);
+      total=['','Total',
+        first(2),String(ca),ct?(ca/ct*100).toFixed(3):'0.000',
+        first(5),String(sv),st?(sv/st*100).toFixed(3):'0.000',
+        first(8),String(sa),sTarget?(sa/sTarget*100).toFixed(3):'0.000',
+        String(sum(11)),String(sum(12))];
+    }
+    var t=total||months[months.length-1]||[];
+    var slide=pptx.addSlide();
     addHeader(slide,'👁️ Blindness Control','MONTH WISE REPORT | FY 2026–27');
-    addSectionTitle(slide,'BLINDNESS CONTROL — TOTAL PERFORMANCE',0.45,1.00,6.5);
-    addCard(slide,0.45,1.48,2.8,1.12,'CATARACT TARGET',t[2]||'');
-    addCard(slide,3.45,1.48,2.8,1.12,'CATARACT ACHIEVEMENT',t[3]||'');
-    addCard(slide,6.45,1.48,2.8,1.12,'CATARACT TOTAL %',t[4]||'');
-    addCard(slide,9.45,1.48,2.8,1.12,'STUDENT TARGET',t[8]||'');
-    addSectionTitle(slide,'MONTH WISE PERFORMANCE',0.45,2.95,5.5);
+    addSectionTitle(slide,'BLINDNESS CONTROL — TOTAL PERFORMANCE',0.40,0.96,7.0);
+
+    // Larger, colorful KPI cards.
+    addCard(slide,0.35,1.40,3.0,1.18,'CATARACT TARGET',t[2]||'');
+    addCard(slide,3.48,1.40,3.0,1.18,'CATARACT ACHIEVEMENT',t[3]||'');
+    addCard(slide,6.61,1.40,3.0,1.18,'CATARACT TOTAL %',t[4]||'');
+    addCard(slide,9.74,1.40,3.0,1.18,'STUDENT TARGET',t[8]||'');
+
+    addSectionTitle(slide,'MONTH WISE PERFORMANCE',0.40,2.82,6.0);
     var heads=['Sn','Month','Cataract Target','Achievement','%','School Target','Visit School','%','Student Target','Achievement','%','Refractive Error','Spectle Provide'];
-    var visible=months.slice(); if(total) visible.push(total);
-    pptxTable(slide,heads,visible.map(function(r){var a=r.slice(0,13);while(a.length<13)a.push('');return a;}),0.10,3.30,13.08,3.05,8.5);
+    var visible=months.slice();
+    if(total) visible.push(total);
+
+    // Fit all visible months + Total to one 16:9 slide.
+    var tableRows=visible.map(function(r){
+      var a=r.slice(0,13); while(a.length<13)a.push(''); return a;
+    });
+    var rowH=tableRows.length<=5 ? 0.48 : tableRows.length<=8 ? 0.40 : 0.34;
+    var font=tableRows.length<=5 ? 9.5 : tableRows.length<=8 ? 8.5 : 7.5;
+    pptxTable(slide,heads,tableRows,0.08,3.22,13.16,Math.min(3.75,(tableRows.length+1)*rowH),font);
+
+    var foot=slide.addText('Source: Google Sheet — National Blindness Control Programme',
+      {x:0.42,y:6.93,w:12.2,h:0.22,fontSize:8,color:'64748B',margin:0});
   }
 
-  async function addNQASPresentation(pptx) {
+async function addNQASPresentation(pptx) {
     var rows=await queryRawSheet('728123647'), h=-1, data=[], note='';
     for(var i=0;i<rows.length;i++) if(rows[i].some(function(v){return /^Facility$/i.test(clean(v));})){h=i;break;}
     if(h>=0) for(var r=h+1;r<rows.length;r++){
