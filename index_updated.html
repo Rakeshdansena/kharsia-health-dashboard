@@ -4571,8 +4571,16 @@ function renderBlindnessTable(data){
  }
 
  let period="";
- const titleRow=rows.find(r=>/national\s+blindness\s+control\s+programme/i.test(rowText(r)));
- if(titleRow) period=rowText(titleRow);
+ // Read only the title cell from the live sheet. Do NOT use the whole
+ // row because the Google Visualization response can contain the block
+ // data values in the same logical row when cells are merged.
+ for(const row of rows){
+  const titleCell=row.find(v=>/national\s+blindness\s+control\s+programme/i.test(clean(v)));
+  if(titleCell){
+   period=clean(titleCell);
+   break;
+  }
+ }
  if(!period) period="National Blindness Control Programme FY 2026-27";
 
  const state={active:"block"};
