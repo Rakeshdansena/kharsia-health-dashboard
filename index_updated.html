@@ -1324,6 +1324,22 @@ body{
    </div>
   </div>
 
+  <!-- NQAS CERTIFICATION MODULE -->
+  <div id="nqasModule" style="display:none;margin-top:12px;">
+   <div class="nqas-head" style="background:linear-gradient(135deg,#075985,#0f766e);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px;">
+    <div style="font-size:24px;font-weight:900;">🏅 NQAS Certification</div>
+    <div id="nqasPeriod" style="font-size:14px;opacity:.94;margin-top:4px;">NQAS Certification Detail Kharsia</div>
+   </div>
+   <div id="nqasSummaryCards" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px;"></div>
+   <div style="background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;">
+    <div id="nqasTableTitle" style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">NQAS Certification Detail Kharsia</div>
+    <table id="nqasReportTable" style="width:100%;border-collapse:collapse;min-width:900px;">
+     <thead></thead><tbody></tbody>
+    </table>
+    <div id="nqasNote" style="margin-top:14px;padding:13px 15px;border-left:5px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;font-weight:700;display:none;"></div>
+   </div>
+  </div>
+
   <!-- NORMAL TABLE -->
 
   <div class="table-box">
@@ -1695,6 +1711,37 @@ function openReport(index){
   return;
  }
 
+ if(report && report.name==="NQAS Certification"){
+  document.getElementById("dashboardPage").classList.remove("active");
+  document.getElementById("reportPage").classList.add("active");
+  document.getElementById("reportTitle").innerText="🏅 NQAS Certification";
+  document.getElementById("pdfTitle").innerText="Kharsia Health Dashboard — NQAS Certification";
+  document.getElementById("reportDescription").innerText=report.description;
+  document.getElementById("searchBox").value="";
+  hideRCHSummary();
+  document.querySelectorAll(".menu-btn").forEach(function(btn){btn.classList.remove("active");});
+  const buttons=document.querySelectorAll("#menuButtons .menu-btn");
+  if(buttons[index]) buttons[index].classList.add("active");
+  clearTable();
+  document.querySelector(".table-box").style.display="none";
+  document.getElementById("rchContainer").style.display="none";
+  const teleModule=document.getElementById("telemedicineModule");
+  if(teleModule) teleModule.style.display="none";
+  const jasModule=document.getElementById("jasMeetingModule");
+  if(jasModule) jasModule.style.display="none";
+  const nrc=document.getElementById("nrcModule");
+  if(nrc) nrc.style.display="none";
+  const blindness=document.getElementById("blindnessModule");
+  if(blindness) blindness.style.display="none";
+  const nqas=document.getElementById("nqasModule");
+  if(nqas) nqas.style.display="block";
+  currentRCHData=null;
+  currentData=null;
+  setStatus("Google Sheet से NQAS data load हो रहा है...");
+  loadGoogleSheet(report.gid);
+  return;
+ }
+
  if(report && report.name==="NRC Kharsia"){
   document.getElementById("dashboardPage").classList.remove("active");
   document.getElementById("reportPage").classList.add("active");
@@ -1950,6 +1997,12 @@ function loadGoogleSheet(gid){
      currentData
     );
 
+   }
+
+   else if(
+    report.name==="NQAS Certification"
+   ){
+    renderNQASTable(currentData);
    }
 
    else if(
@@ -4777,6 +4830,134 @@ function renderBlindnessTable(data){
  const periodEl=document.getElementById("blindnessPeriod");
  if(periodEl) periodEl.innerText=period;
  renderSection("month");
+}
+
+function renderNQASTable(data){
+ const module=document.getElementById("nqasModule");
+ if(!module) return;
+ module.style.display="block";
+
+ const cards=document.getElementById("nqasSummaryCards");
+ const table=document.getElementById("nqasReportTable");
+ const thead=table.querySelector("thead");
+ const tbody=table.querySelector("tbody");
+ const note=document.getElementById("nqasNote");
+ cards.innerHTML=""; thead.innerHTML=""; tbody.innerHTML=""; note.style.display="none";
+
+ const clean=v=>String(v==null?"":v).replace(/\s+/g," ").trim();
+ const rows=[];
+ const cols=data.getNumberOfColumns();
+ for(let r=0;r<data.getNumberOfRows();r++){
+  const row=[];
+  for(let c=0;c<cols;c++) row.push(clean(formatted(data,r,c)));
+  rows.push(row);
+ }
+ const text=r=>r.join(" ").trim();
+
+ // Find the actual header row from the live Sheet.
+ let headerIndex=rows.findIndex(r=>r.some(v=>/^facility$/i.test(clean(v))));
+ if(headerIndex<0){
+  headerIndex=rows.findIndex(r=>/कुल संस्था/i.test(text(r)) && /सर्टिफाईड/i.test(text(r)));
+ }
+
+ const headers=[
+  "Sn","Facility","कुल संस्था","NQAS हेतु आवेदन किया गया है",
+  "मूल्यांकन हो गया है","कुल सर्टिफाईड है","मूल्यांकन हेतु बाकी है"
+ ];
+
+ // Extract only the facility data rows below the header.
+ let dataRows=[];
+ let noteText="";
+ if(headerIndex>=0){
+  for(let i=headerIndex+1;i<rows.length;i++){
+   const r=rows[i];
+   const t=text(r);
+   if(!t) continue;
+   if(/उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))){
+    noteText=t;
+    continue;
+   }
+   const facility=clean(r[1]);
+   if(/^(PHC|SHC|CHC)$/i.test(facility)){
+    dataRows.push(r.slice(0,7));
+   }
+  }
+ }
+
+ // Fallback for the current known facility rows if the source shifts cells.
+ if(!dataRows.length){
+  rows.forEach(r=>{
+   const facility=r.find(v=>/^(PHC|SHC|CHC)$/i.test(clean(v)));
+   if(facility){
+    const idx=r.indexOf(facility);
+    const vals=r.slice(Math.max(0,idx-1),idx+6);
+    while(vals.length<7) vals.push("");
+    dataRows.push(vals.slice(0,7));
+   }
+  });
+ }
+
+ // Keep the note exactly as supplied by the Sheet.
+ if(!noteText){
+  const nr=rows.find(r=>/उपरोक्त संस्था के अलावा/i.test(text(r)));
+  if(nr) noteText=text(nr);
+ }
+
+ const hr=document.createElement("tr");
+ headers.forEach((h,i)=>{
+  const th=document.createElement("th");
+  th.innerText=h;
+  const bg=["#4338ca","#2563eb","#15803d","#0f766e","#075985","#7c3aed","#c2410c"][i];
+  th.style.cssText="padding:12px 10px;background:"+bg+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;vertical-align:middle;";
+  hr.appendChild(th);
+ });
+ thead.appendChild(hr);
+
+ dataRows.forEach((row,ri)=>{
+  const tr=document.createElement("tr");
+  for(let c=0;c<7;c++){
+   const td=document.createElement("td");
+   td.innerText=row[c]===undefined?"":row[c];
+   let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";
+   if(c===0){bg="#eef2ff";fg="#3730a3";}
+   if(c===1){bg="#eff6ff";fg="#075985";}
+   if(c===2){bg="#f0fdf4";fg="#166534";}
+   if(c===3){bg="#ecfdf5";fg="#15803d";}
+   if(c===4){bg="#eff6ff";fg="#075985";}
+   if(c===5){bg="#f5f3ff";fg="#6d28a9";}
+   if(c===6){bg="#fff7ed";fg="#c2410c";}
+   td.style.cssText="padding:12px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c<2?"800":"700")+";white-space:normal;";
+   tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+ });
+
+ if(noteText){
+  note.innerText="📝 "+noteText;
+  note.style.display="block";
+ }
+
+ // Summary cards are calculated from the facility rows, not from title rows.
+ const sums=[2,3,4,5,6].map(c=>dataRows.reduce((a,r)=>{
+  const n=parseFloat(String(r[c]||"").replace(/,/g,"").replace("%",""));
+  return a+(isFinite(n)?n:0);
+ },0));
+ const cardDefs=[
+  ["कुल संस्था",sums[0],"#166534","#ecfdf5","#bbf7d0"],
+  ["NQAS हेतु आवेदन",sums[1],"#075985","#eff6ff","#bfdbfe"],
+  ["मूल्यांकन हो गया",sums[2],"#075985","#eff6ff","#bfdbfe"],
+  ["कुल सर्टिफाईड",sums[3],"#6d28d9","#f5f3ff","#ddd6fe"],
+  ["मूल्यांकन हेतु बाकी",sums[4],"#c2410c","#fff7ed","#fed7aa"]
+ ];
+ cardDefs.forEach(x=>{
+  const card=document.createElement("div");
+  card.style.cssText="background:"+x[3]+";border:1px solid "+x[4]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
+  card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';
+  cards.appendChild(card);
+ });
+
+ const period=document.getElementById("nqasPeriod");
+ if(period) period.innerText="NQAS Certification Detail Kharsia";
 }
 
 function renderNormalTable(
