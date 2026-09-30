@@ -4795,13 +4795,16 @@ function renderBlindnessTable(data){
    tbody.appendChild(tr);
   });
 
-  const first=source.find(r=>!isTotalRow(r));
-  if(first){
+  // Summary cards should show the TOTAL, not the first month.
+  const summaryRow=isMonth
+   ? (source.find(r=>isTotalRow(r)) || source.find(r=>!isTotalRow(r)))
+   : source.find(r=>!isTotalRow(r));
+  if(summaryRow){
    const specs=[
-    [2,"Cataract Opration","Target"],
-    [3,"Cataract Opration","Acievmnet"],
-    [4,"Cataract Opration","%"],
-    [6,"Middle School Examined","Student Target"]
+    [2,"Cataract Opration","Total Target"],
+    [3,"Cataract Opration","Total Achievement"],
+    [4,"Cataract Opration","Total %"],
+    [6,"Middle School Examined","Total Student Target"]
    ];
    const palette=[
     ["#ecfdf5","#bbf7d0","#15803d","#166534"],
@@ -4810,13 +4813,13 @@ function renderBlindnessTable(data){
     ["#fff7ed","#fed7aa","#c2410c","#9a3412"]
    ];
    specs.forEach((sp,k)=>{
-    if(!clean(first[sp[0]])) return;
+    if(!clean(summaryRow[sp[0]])) return;
     const p=palette[k];
     const card=document.createElement("div");
     card.style.cssText="background:"+p[0]+";border:1px solid "+p[1]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
     card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+sp[1]+' — '+sp[2]+'</div>'+
-      '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+first[sp[0]]+'</div>'+
-      '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(first[1]||"")+'</div>';
+      '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+summaryRow[sp[0]]+'</div>'+
+      '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(isMonth ? "Total" : (summaryRow[1]||""))+'</div>';
     cards.appendChild(card);
    });
   }
