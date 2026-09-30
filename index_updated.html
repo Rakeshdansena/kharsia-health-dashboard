@@ -4534,9 +4534,10 @@ function renderBlindnessTable(data){
  };
  const isTotalRow=row=>/^total$/i.test(clean(row[0])) || /^total$/i.test(clean(row[1]));
  const isBlockDataRow=row=>{
-  const p=clean(row[1]||"");
-  return p && !isMonthRow(row) && !isTotalRow(row) &&
-    /kharsia/i.test(p);
+  // Google Visualization may omit a merged/blank Particulars cell.
+  // Search the complete row for Kharsia.
+  return row.some(v=>/kharsia/i.test(clean(v))) &&
+    !isMonthRow(row) && !isTotalRow(row);
  };
 
  // The sheet is a two-report layout:
@@ -4545,30 +4546,46 @@ function renderBlindnessTable(data){
  // Read the live rows directly so title/header/merged cells can never
  // accidentally become the data row.
  let blockRows=rows.filter(isBlockDataRow);
- let monthRows=rows.filter(isMonthRow);
+ let allMonthRows=rows.filter(isMonthRow);
  let totalRows=rows.filter(isTotalRow);
 
- // Fallback for a future block-name change: take the first non-month,
- // non-total row after the first "Sn / Particulars" header.
- if(!blockRows.length){
-  const hi=rows.findIndex(r=>{
-   const a=low(r[0]),b=low(r[1]);
-   return a==="sn" && /particulars/i.test(b);
+ // Locate the two report headers even when merged cells are shifted/omitted.
+ const hi=rows.findIndex(r=>{
+  const t=low(rowText(r));
+  return /\\bsn\\b/.test(t) && /particulars/.test(t);
+ });
+ const mi=rows.findIndex((r,i)=>{
+  if(i<=hi) return false;
+  const t=low(rowText(r));
+  return /\\bsn\\b/.test(t) && /month/.test(t);
+ });
+
+ // Fallback for the Block row. If the Particulars cell is omitted by
+ // Google Visualization, restore "Kharsia" at column 2 so the table aligns.
+ if(!blockRows.length && hi>=0){
+  const candidate=rows.slice(hi+1,mi>=0?mi:rows.length).filter(r=>{
+   const t=rowText(r);
+   return t && !isMonthRow(r) && !isTotalRow(r) &&
+     !/target|acievmnet|achievement|particulars|month/.test(t);
   });
-  const mi=rows.findIndex((r,i)=>{
-   if(i<=hi) return false;
-   const a=low(r[0]),b=low(r[1]);
-   return a==="sn" && /month/i.test(b);
-  });
-  if(hi>=0){
-   const candidate=rows.slice(hi+1,mi>=0?mi:rows.length).filter(r=>{
-    const t=rowText(r);
-    return t && !isMonthRow(r) && !isTotalRow(r) &&
-      !/target|acievmnet|achievement|particulars/i.test(t);
-   });
-   if(candidate.length) blockRows=[candidate[0]];
+  if(candidate.length){
+   const r=candidate[0].slice();
+   if(!r.some(v=>/kharsia/i.test(clean(v)))){
+    r.splice(1,0,"Kharsia");
+   }
+   blockRows=[r];
   }
  }
+
+ // Show Month Wise data only through the last month with an actual entry.
+ // Rows after that may contain only targets/formula zeros, so they are hidden.
+ let lastEntry=-1;
+ const entryCols=[3,6,8,11,12];
+ allMonthRows.forEach((r,i)=>{
+  const entered=entryCols.some(c=>clean(r[c])!=="");
+  if(entered) lastEntry=i;
+ });
+ let monthRows=lastEntry>=0 ? allMonthRows.slice(0,lastEntry+1) : [];
 
  let period="";
  // Read only the title cell from the live sheet. Do NOT use the whole
@@ -4581,7 +4598,9 @@ function renderBlindnessTable(data){
    break;
   }
  }
- if(!period) period="National Blindness Control Programme FY 2026-27";
+ if(!/national\\s+blindness\\s+control\\s+programme/i.test(period)){
+  period="National Blindness Control Programme FY 2026-27";
+}
 
  const state={active:"block"};
 
