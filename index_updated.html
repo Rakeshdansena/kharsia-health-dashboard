@@ -4525,103 +4525,174 @@ function renderBlindnessTable(data){
   for(let c=0;c<cols;c++) row.push(clean(formatted(data,r,c)));
   rows.push(row);
  }
+ const rowText=row=>row.join(" ").trim();
+ const low=t=>String(t||"").toLowerCase();
 
- const text=row=>row.join(" ").trim();
- let headerIndex=-1;
- for(let r=0;r<rows.length;r++){
-  const t=text(rows[r]).toLowerCase();
-  if(/blind|cataract|eye|spectacle|surgery|screening/.test(t) && rows[r].filter(Boolean).length>=2){
-   headerIndex=r; break;
-  }
- }
- if(headerIndex<0) headerIndex=0;
-
- let headers=[];
- for(let c=0;c<cols;c++){
-  headers.push(clean(data.getColumnLabel(c)) || rows[headerIndex]?.[c] || "Column "+(c+1));
- }
-
- // Detect a title/period row without replacing the live Sheet data.
+ // Read the updated Sheet as-is and detect the two report sections.
+ // No Blindness values are hardcoded here.
+ const sections={block:[],month:[]};
+ let active="";
  let period="";
- for(const row of rows){
-  const t=text(row);
-  if(/2026|2027|FY|financial year|as on|updated|reporting period|period/i.test(t) && t.length<220){
-   period=t; break;
+
+ for(let r=0;r<rows.length;r++){
+  const t=rowText(rows[r]);
+  const l=low(t);
+  if(!t) continue;
+
+  if(/month\s*wise|monthly|month[- ]wise/.test(l)){
+   active="month";
+   if(/2026|2027|fy|as on|updated|period/.test(l)) period=t;
+   continue;
   }
+  if(/block\s*report|block\s*wise|block report/.test(l)){
+   active="block";
+   if(/2026|2027|fy|as on|updated|period/.test(l)) period=t;
+   continue;
+  }
+
+  if(/2026|2027|fy|as on|updated|reporting period|period/.test(l) && t.length<220 && !period){
+   period=t;
+  }
+
+  if(active==="block") sections.block.push(rows[r]);
+  else if(active==="month") sections.month.push(rows[r]);
  }
- if(!period && rows.length && headerIndex>0) period=text(rows[headerIndex-1]);
 
- const dataRows=rows.slice(headerIndex+1).filter(row=>{
-  const t=text(row).toLowerCase();
-  if(!t) return false;
-  if(t===text(rows[headerIndex]).toLowerCase()) return false;
-  return true;
- });
+ // If the Sheet does not explicitly label sections, keep all live data
+ // under Block Report rather than inventing a Month Wise structure.
+ if(!sections.block.length && !sections.month.length){
+  sections.block=rows.filter(r=>rowText(r));
+ }
+ if(!sections.block.length && sections.month.length){
+  sections.block=[];
+ }
 
- // Header colours by indicator type.
- const headerColors=headers.map(h=>{
-  const x=h.toLowerCase();
-  if(/cataract|surgery|operation/.test(x)) return "#15803d";
-  if(/screen|exam|check/.test(x)) return "#2563eb";
-  if(/spectacle|glasses/.test(x)) return "#7c3aed";
-  if(/blind|visual|impair/.test(x)) return "#c2410c";
-  return "#4338ca";
- });
+ const state={active:"block"};
 
- const trh=document.createElement("tr");
- headers.forEach((h,c)=>{
-  const th=document.createElement("th");
-  th.innerText=h;
-  th.style.cssText="padding:12px 10px;background:"+headerColors[c]+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
-  trh.appendChild(th);
- });
- thead.appendChild(trh);
+ // Tabs
+ let tabHost=document.getElementById("blindnessTabs");
+ if(!tabHost){
+  tabHost=document.createElement("div");
+  tabHost.id="blindnessTabs";
+  tabHost.style.cssText="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px;";
+  const head=document.querySelector("#blindnessModule .blindness-head");
+  if(head) head.after(tabHost);
+ }
+ tabHost.innerHTML="";
+ const makeTab=(key,label)=>{
+  const b=document.createElement("button");
+  b.innerText=label;
+  b.style.cssText="border:1px solid #cbd5e1;background:#fff;color:#334155;padding:10px 18px;border-radius:10px;font-weight:900;cursor:pointer;";
+  b.onclick=()=>{state.active=key; renderSection(key);};
+  tabHost.appendChild(b);
+  return b;
+ };
+ const blockBtn=makeTab("block","📊 Block Report");
+ const monthBtn=makeTab("month","📅 Month Wise Report");
 
- dataRows.forEach((row,ri)=>{
-  const tr=document.createElement("tr");
-  for(let c=0;c<cols;c++){
+ function renderSection(key){
+  const section=sections[key]||[];
+  thead.innerHTML=""; tbody.innerHTML=""; cards.innerHTML="";
+
+  blockBtn.style.background=key==="block"?"#4338ca":"#fff";
+  blockBtn.style.color=key==="block"?"#fff":"#334155";
+  monthBtn.style.background=key==="month"?"#2563eb":"#fff";
+  monthBtn.style.color=key==="month"?"#fff":"#334155";
+
+  if(!section.length){
+   const tr=document.createElement("tr");
    const td=document.createElement("td");
-   td.innerText=row[c]||"";
-   let bg=ri%2?"#f8fafc":"#fff";
-   let fg="#1f2937";
-   const x=(headers[c]||"").toLowerCase();
-   if(/cataract|surgery|operation/.test(x)){bg="#ecfdf5";fg="#166534";}
-   else if(/screen|exam|check/.test(x)){bg="#eff6ff";fg="#1d4ed8";}
-   else if(/spectacle|glasses/.test(x)){bg="#f5f3ff";fg="#6d28d9";}
-   else if(/blind|visual|impair/.test(x)){bg="#fff7ed";fg="#9a3412";}
-   td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c===0?"800":"600")+";";
-   tr.appendChild(td);
+   td.colSpan=Math.max(cols,1);
+   td.innerText=key==="month"
+    ?"Google Sheet में Month Wise Report section नहीं मिला।"
+    :"Google Sheet में Block Report section नहीं मिला।";
+   td.style.cssText="padding:24px;text-align:center;font-weight:800;color:#64748b;background:#f8fafc;";
+   tr.appendChild(td); tbody.appendChild(tr);
+   return;
   }
-  tbody.appendChild(tr);
- });
 
- // Summary cards: first four useful non-empty numeric/value columns from the first data row.
- if(dataRows.length){
-  const row=dataRows[0];
-  const candidates=[];
-  for(let c=1;c<cols;c++){
-   if(clean(row[c])) candidates.push(c);
-   if(candidates.length===4) break;
+  // Find the section's actual header row from the live Sheet.
+  let hi=-1;
+  for(let r=0;r<section.length;r++){
+   const filled=section[r].filter(Boolean).length;
+   const l=low(rowText(section[r]));
+   if(filled>=2 && !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l)){
+    hi=r; break;
+   }
   }
-  const palette=[
-   ["#eff6ff","#bfdbfe","#1d4ed8","#075985"],
-   ["#ecfdf5","#bbf7d0","#15803d","#166534"],
-   ["#f5f3ff","#ddd6fe","#6d28d9","#5b21b6"],
-   ["#fff7ed","#fed7aa","#c2410c","#9a3412"]
-  ];
-  candidates.forEach((c,k)=>{
-   const card=document.createElement("div");
-   const p=palette[k%palette.length];
-   card.style.cssText="background:"+p[0]+";border:1px solid "+p[1]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-   card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+headers[c]+'</div>'+
-                  '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+row[c]+'</div>'+
-                  '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
-   cards.appendChild(card);
+  if(hi<0) hi=0;
+
+  const headers=[];
+  for(let c=0;c<cols;c++){
+   headers.push(clean(section[hi]?.[c]) || "Column "+(c+1));
+  }
+
+  const htr=document.createElement("tr");
+  headers.forEach((h,c)=>{
+   const th=document.createElement("th");
+   const x=low(h);
+   let bg="#4338ca";
+   if(/month|date/.test(x)) bg="#2563eb";
+   else if(/total|cataract|surgery|operation|treated|cure/.test(x)) bg="#15803d";
+   else if(/screen|eye|exam|check/.test(x)) bg="#075985";
+   else if(/blind|visual|impair/.test(x)) bg="#c2410c";
+   th.innerText=h;
+   th.style.cssText="padding:12px 10px;background:"+bg+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
+   htr.appendChild(th);
   });
+  thead.appendChild(htr);
+
+  const dataRows=section.slice(hi+1).filter(row=>{
+   const t=rowText(row), l=low(t);
+   return t && !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l);
+  });
+
+  dataRows.forEach((row,ri)=>{
+   const tr=document.createElement("tr");
+   for(let c=0;c<cols;c++){
+    const td=document.createElement("td");
+    td.innerText=row[c]||"";
+    const x=low(headers[c]);
+    let bg=ri%2?"#f8fafc":"#fff", fg="#1f2937";
+    if(/month|date/.test(x)){bg="#eff6ff";fg="#1d4ed8";}
+    else if(/total|cataract|surgery|operation|treated|cure/.test(x)){bg="#ecfdf5";fg="#166534";}
+    else if(/screen|eye|exam|check/.test(x)){bg="#eff6ff";fg="#075985";}
+    else if(/blind|visual|impair/.test(x)){bg="#fff7ed";fg="#9a3412";}
+    td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c===0?"800":"600")+";";
+    tr.appendChild(td);
+   }
+   tbody.appendChild(tr);
+  });
+
+  if(dataRows.length){
+   const row=dataRows[0];
+   const candidates=[];
+   for(let c=1;c<cols;c++){
+    if(clean(row[c])) candidates.push(c);
+    if(candidates.length===4) break;
+   }
+   const palette=[
+    ["#eff6ff","#bfdbfe","#1d4ed8","#075985"],
+    ["#ecfdf5","#bbf7d0","#15803d","#166534"],
+    ["#f5f3ff","#ddd6fe","#6d28d9","#5b21b6"],
+    ["#fff7ed","#fed7aa","#c2410c","#9a3412"]
+   ];
+   candidates.forEach((c,k)=>{
+    const card=document.createElement("div"), p=palette[k%palette.length];
+    card.style.cssText="background:"+p[0]+";border:1px solid "+p[1]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
+    card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+headers[c]+'</div>'+
+      '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+row[c]+'</div>'+
+      '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
+    cards.appendChild(card);
+   });
+  }
+
+  const title=document.getElementById("blindnessTableTitle");
+  if(title) title.innerText=key==="month"?"Blindness Control — Month Wise Report":"Blindness Control — Block Report";
  }
 
- document.getElementById("blindnessTableTitle").innerText="Blindness Control Report";
  document.getElementById("blindnessPeriod").innerText=period || "Live Google Sheet Report";
+ renderSection("block");
 }
 
 function renderNormalTable(
