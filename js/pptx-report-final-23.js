@@ -2802,16 +2802,16 @@ moduleRanges.push({
         '<path d="M100 185 L1080 185 C1110 185 1130 198 1155 220" fill="none" stroke="#4aa8e8" stroke-width="18" opacity=".8"/>' +
         '<g filter="url(#shadow)">' +
           '<rect x="110" y="207" width="920" height="102" rx="18" fill="#073b75"/>' +
-          '<text x="570" y="278" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="56" font-weight="900" fill="#ffffff">KHARSIA HEALTH DEPARTMENT</text>' +
+          '<text x="570" y="267" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="50" font-weight="900" fill="#ffffff">BLOCK HEALTH PROGRAMME UNIT</text>' +
           '<rect x="110" y="328" width="920" height="86" rx="18" fill="#ffffff" opacity=".97"/>' +
-          '<text x="570" y="386" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="48" font-weight="900" fill="#18783c">PROGRESSIVE REPORT</text>' +
-          '<rect x="330" y="435" width="480" height="70" rx="18" fill="#0d63c9"/>' +
-          '<text x="570" y="483" text-anchor="middle" font-family="Arial" font-size="38" font-weight="900" fill="#ffffff">FY 2026 – 27</text>' +
+          '<text x="570" y="376" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="43" font-weight="900" fill="#18783c">MONTHLY PROGRESS REPORT</text>' +
+          '<rect x="330" y="421" width="480" height="70" rx="18" fill="#0d63c9"/>' +
+          '<text x="570" y="469" text-anchor="middle" font-family="Arial" font-size="38" font-weight="900" fill="#ffffff">FY 2026 – 27</text>' +
         '</g>' +
-        '<rect x="95" y="530" width="900" height="70" rx="20" fill="#ffffff" opacity=".94"/>' +
-        '<text x="545" y="575" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="29" font-weight="800" fill="#0f2d52">Block Kharsia  |  District Raigarh  |  Chhattisgarh</text>' +
-        '<rect x="265" y="610" width="560" height="56" rx="17" fill="#fff0f3"/>' +
-        '<text x="545" y="648" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="24" font-weight="800" fill="#be185d">As On Date : ' + escSvg(coverDate) + '</text>' +
+        '<rect x="95" y="515" width="900" height="70" rx="20" fill="#ffffff" opacity=".94"/>' +
+        '<text x="545" y="560" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="29" font-weight="800" fill="#0f2d52">BLOCK – KHARSIA  |  DISTRICT – RAIGARH (C.G.)</text>' +
+        '<rect x="250" y="595" width="590" height="56" rx="17" fill="#fff0f3"/>' +
+        '<text x="545" y="633" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="800" fill="#be185d">AS ON DATE : ' + escSvg(coverDate) + '</text>' +
         (photoHref ?
           '<image href="' + photoHref + '" x="1050" y="130" width="550" height="560" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>' :
           '<path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z" fill="#dff2ff"/>') +
