@@ -2273,10 +2273,10 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     for(var i=0;i<cols;i++) colW.push(w/cols);
     slide.addTable(data.map(function(r,ri){
       return r.map(function(v){return {text:clean(v),options:{
-        bold:ri===0,fontSize:fontSize||9,color:ri===0?'FFFFFF':'172033',
+        bold:ri===0,fontSize:fontSize||10,color:ri===0?'FFFFFF':'172033',
         fill:{color:ri===0?'075985':'FFFFFF'},align:'center',valign:'mid',margin:2
       }};});
-    }),{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:colW,rowH:0.38,margin:2});
+    }),{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:colW,rowH:0.44,margin:2});
   }
 
   async function addNRCPresentation(pptx) {
@@ -2291,7 +2291,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     addCard(slide,6.45,1.48,2.8,1.12,'BED OCCUPANCY RATE',first[6]||'');
     addCard(slide,9.45,1.48,2.8,1.12,'CURE RATE',first[7]||'');
     addSectionTitle(slide,'FACILITY WISE NRC REPORT',0.45,2.95,6.0);
-    pptxTable(slide,['NRC Name','Total Children','Discharged','<7 Days','7–15 Days','>15 Days','Bed Occupancy %','Cure Rate'],data,0.45,3.38,12.4,2.35,8.5);
+    pptxTable(slide,['NRC Name','Total Children','Discharged','<7 Days','7–15 Days','>15 Days','Bed Occupancy %','Cure Rate'],data,0.45,3.30,12.4,2.55,11);
   }
 
   async function addBlindnessPresentation(pptx) {
@@ -2309,7 +2309,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     addSectionTitle(slide,'MONTH WISE PERFORMANCE',0.45,2.95,5.5);
     var heads=['Sn','Month','Cataract Target','Achievement','%','School Target','Visit School','%','Student Target','Achievement','%','Refractive Error','Spectle Provide'];
     var visible=months.slice(); if(total) visible.push(total);
-    pptxTable(slide,heads,visible.map(function(r){var a=r.slice(0,13);while(a.length<13)a.push('');return a;}),0.18,3.35,12.95,2.9,6.5);
+    pptxTable(slide,heads,visible.map(function(r){var a=r.slice(0,13);while(a.length<13)a.push('');return a;}),0.10,3.30,13.08,3.05,8.5);
   }
 
   async function addNQASPresentation(pptx) {
@@ -2330,7 +2330,7 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     addCard(slide,7.95,1.48,2.3,1.12,'CERTIFIED',totals[3]);
     addCard(slide,10.45,1.48,2.3,1.12,'PENDING EVALUATION',totals[4]);
     addSectionTitle(slide,'FACILITY WISE NQAS STATUS',0.45,2.95,5.5);
-    pptxTable(slide,['Sn','Facility','कुल संस्था','NQAS हेतु आवेदन','मूल्यांकन हो गया','कुल सर्टिफाईड','मूल्यांकन हेतु बाकी'],data,0.35,3.35,12.65,2.2,8.5);
+    pptxTable(slide,['Sn','Facility','कुल संस्था','NQAS हेतु आवेदन','मूल्यांकन हो गया','कुल सर्टिफाईड','मूल्यांकन हेतु बाकी'],data,0.35,3.30,12.65,2.45,11);
     if(note) slide.addText('📝 '+note,{x:0.45,y:5.82,w:12.3,h:0.55,fontSize:10,bold:true,color:'92400E',fill:{color:'FFFBEB'},margin:0.12,fit:'shrink'});
   }
 
