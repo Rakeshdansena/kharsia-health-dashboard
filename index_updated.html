@@ -4528,48 +4528,69 @@ function renderBlindnessTable(data){
  const rowText=row=>row.join(" ").trim();
  const low=t=>String(t||"").toLowerCase();
 
- // Read the updated Sheet as-is and detect the two report sections.
- // No Blindness values are hardcoded here.
- const sections={block:[],month:[]};
- let active="";
+ // The Google Sheet contains one title row followed by two separate
+ // report blocks. We identify the two repeated "Sn" header rows rather
+ // than treating the first live data row as a header.
+ const firstHeader=rows.findIndex(r=>low(r[0])==="sn" && low(r[1])==="particulars");
+ const monthHeader=rows.findIndex((r,i)=>i>Math.max(firstHeader,0) && low(r[0])==="sn" && low(r[1])==="month");
+
+ const blockHeaderRow=firstHeader>=0 ? rows[firstHeader] : [];
+ const monthHeaderRow=monthHeader>=0 ? rows[monthHeader] : [];
+
  let period="";
-
- for(let r=0;r<rows.length;r++){
-  const t=rowText(rows[r]);
-  const l=low(t);
-  if(!t) continue;
-
-  if(/month\s*wise|monthly|month[- ]wise/.test(l)){
-   active="month";
-   if(/2026|2027|fy|as on|updated|period/.test(l)) period=t;
-   continue;
-  }
-  if(/block\s*report|block\s*wise|block report/.test(l)){
-   active="block";
-   if(/2026|2027|fy|as on|updated|period/.test(l)) period=t;
-   continue;
-  }
-
-  if(/2026|2027|fy|as on|updated|reporting period|period/.test(l) && t.length<220 && !period){
+ for(const r of rows){
+  const t=rowText(r);
+  if(/national blindness control programme/i.test(t) || /fy\s*2026[-–]27/i.test(t)){
    period=t;
+   break;
   }
+ }
+ if(!period && rows.length) period=rowText(rows[0]);
 
-  if(active==="block") sections.block.push(rows[r]);
-  else if(active==="month") sections.month.push(rows[r]);
- }
+ const blockRows = firstHeader>=0
+   ? rows.slice(firstHeader+1, monthHeader>=0 ? monthHeader : rows.length)
+   : [];
+ const monthRows = monthHeader>=0
+   ? rows.slice(monthHeader+1)
+   : [];
 
- // If the Sheet does not explicitly label sections, keep all live data
- // under Block Report rather than inventing a Month Wise structure.
- if(!sections.block.length && !sections.month.length){
-  sections.block=rows.filter(r=>rowText(r));
- }
- if(!sections.block.length && sections.month.length){
-  sections.block=[];
- }
+ // Exact source header structure supplied by the user.
+ // Blank group headings remain blank; no new indicator names are invented.
+ const makeHeaderRows=(isMonth)=>{
+   const top=[
+    isMonth?"Sn":"Sn",
+    isMonth?"Month":"Particulars",
+    "Cataract Opration",
+    "Middle School Examined",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Reffactive Error",
+    "Spectle Provide",
+    "",
+    ""
+   ];
+   const sub=[
+    "Target",
+    "Acievmnet",
+    "%",
+    "No of School",
+    "Visit School",
+    "%",
+    "Student Target",
+    "Achievment",
+    "%",
+    "Reffactive Error",
+    "Spectle Provide",
+    "",
+    ""
+   ];
+   return {top,sub};
+ };
 
  const state={active:"block"};
-
- // Tabs
  let tabHost=document.getElementById("blindnessTabs");
  if(!tabHost){
   tabHost=document.createElement("div");
@@ -4579,156 +4600,145 @@ function renderBlindnessTable(data){
   if(head) head.after(tabHost);
  }
  tabHost.innerHTML="";
+
  const makeTab=(key,label)=>{
   const b=document.createElement("button");
   b.innerText=label;
   b.style.cssText="border:1px solid #cbd5e1;background:#fff;color:#334155;padding:10px 18px;border-radius:10px;font-weight:900;cursor:pointer;";
-  b.onclick=()=>{state.active=key; renderSection(key);};
+  b.onclick=()=>{state.active=key;renderSection(key);};
   tabHost.appendChild(b);
   return b;
  };
  const blockBtn=makeTab("block","📊 Block Report");
  const monthBtn=makeTab("month","📅 Month Wise Report");
 
- function renderSection(key){
-  const section=sections[key]||[];
-  thead.innerHTML=""; tbody.innerHTML=""; cards.innerHTML="";
+ function buildTwoRowHeader(isMonth){
+  const {top,sub}=makeHeaderRows(isMonth);
+  thead.innerHTML="";
+  const tr1=document.createElement("tr");
+  const tr2=document.createElement("tr");
 
-  blockBtn.style.background=key==="block"?"#4338ca":"#fff";
-  blockBtn.style.color=key==="block"?"#fff":"#334155";
-  monthBtn.style.background=key==="month"?"#2563eb":"#fff";
-  monthBtn.style.color=key==="month"?"#fff":"#334155";
-
-  if(!section.length){
-   const tr=document.createElement("tr");
-   const td=document.createElement("td");
-   td.colSpan=Math.max(cols,1);
-   td.innerText=key==="month"
-    ?"Google Sheet में Month Wise Report section नहीं मिला।"
-    :"Google Sheet में Block Report section नहीं मिला।";
-   td.style.cssText="padding:24px;text-align:center;font-weight:800;color:#64748b;background:#f8fafc;";
-   tr.appendChild(td); tbody.appendChild(tr);
-   return;
-  }
-
-  // Do not mistake the first live month row (e.g. "April -26", 1100, 20...)
-  // for the table header. The screenshot showed exactly this problem.
-  const isMonthRow=row=>{
-   const l=low(rowText(row));
-   return /(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*[-/]?\s*\d{2,4}/i.test(l);
+  const add=(tr,text,opts={})=>{
+   const th=document.createElement("th");
+   th.innerText=text;
+   if(opts.rowSpan) th.rowSpan=opts.rowSpan;
+   if(opts.colSpan) th.colSpan=opts.colSpan;
+   th.style.cssText="padding:10px 8px;background:"+opts.bg+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;vertical-align:middle;";
+   tr.appendChild(th);
   };
 
-  let hi=-1;
-  for(let r=0;r<section.length;r++){
-   const filled=section[r].filter(Boolean).length;
-   const l=low(rowText(section[r]));
-   if(filled>=2 && !isMonthRow(section[r]) &&
-      !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l)){
-    hi=r; break;
-   }
+  add(tr1,top[0],{rowSpan:2,bg:"#4338ca"});
+  add(tr1,top[1],{rowSpan:2,bg:"#2563eb"});
+  add(tr1,"Cataract Opration",{colSpan:3,bg:"#15803d"});
+  add(tr1,"Middle School Examined",{colSpan:3,bg:"#075985"});
+  add(tr1,"",{colSpan:3,bg:"#475569"});
+  add(tr1,"Reffactive Error",{rowSpan:2,bg:"#c2410c"});
+  add(tr1,"Spectle Provide",{rowSpan:2,bg:"#7c3aed"});
+
+  const subColors=["#15803d","#15803d","#15803d","#075985","#075985","#075985","#475569","#475569","#475569"];
+  for(let i=2;i<=10;i++) add(tr2,sub[i-2],{bg:subColors[i-2]});
+  thead.appendChild(tr1);
+  thead.appendChild(tr2);
+ }
+
+ function isMonthRow(row){
+  const s=clean(row[1]||row[0]);
+  return /^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*[-/]\s*\d{2,4}$/i.test(s);
+ }
+
+ function isTotalRow(row){
+  return /^total$/i.test(clean(row[0])) || /^total$/i.test(clean(row[1]));
+ }
+
+ function renderSection(key){
+  tbody.innerHTML="";
+  cards.innerHTML="";
+  const isMonth=key==="month";
+  buildTwoRowHeader(isMonth);
+
+  blockBtn.style.background=!isMonth?"#4338ca":"#fff";
+  blockBtn.style.color=!isMonth?"#fff":"#334155";
+  monthBtn.style.background=isMonth?"#2563eb":"#fff";
+  monthBtn.style.color=isMonth?"#fff":"#334155";
+
+  let source=isMonth?monthRows:blockRows;
+  if(isMonth){
+   source=source.filter(r=>isMonthRow(r) || isTotalRow(r));
+  }else{
+   source=source.filter(r=>r.some(Boolean) && !isMonthRow(r) && !isTotalRow(r));
+   // The supplied Block Report has one live block row: "1 | Kharsia | ...".
   }
 
-  // If there is no explicit header in the Sheet, keep the live rows as data
-  // and use neutral column labels instead of turning values into headings.
-  const hasHeader=hi>=0;
-  const headers=[];
-  for(let c=0;c<cols;c++){
-   if(hasHeader){
-    headers.push(clean(section[hi]?.[c]) || "Column "+(c+1));
-   }else{
-    headers.push(c===0?"S.No":c===1?"Month":"Indicator "+(c-1));
-   }
-  }
-
-  const htr=document.createElement("tr");
-  headers.forEach((h,c)=>{
-   const th=document.createElement("th");
-   const x=low(h);
-   let bg="#4338ca";
-   if(/month|date/.test(x)) bg="#2563eb";
-   else if(/total|cataract|surgery|operation|treated|cure/.test(x)) bg="#15803d";
-   else if(/screen|eye|exam|check/.test(x)) bg="#075985";
-   else if(/blind|visual|impair/.test(x)) bg="#c2410c";
-   th.innerText=h;
-   th.style.cssText="padding:12px 10px;background:"+bg+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
-   htr.appendChild(th);
-  });
-  thead.appendChild(htr);
-
-  const sourceRows=hasHeader ? section.slice(hi+1) : section.slice();
-  let dataRows=sourceRows.filter(row=>{
-   const t=rowText(row), l=low(t);
-   return t && !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l);
-  });
-
-  // Month Wise tab must show the actual month rows from the Sheet.
-  if(key==="month"){
-   dataRows=dataRows.filter(isMonthRow);
-  }
-
-  // Block Report must not show monthly rows as if they were a block summary.
-  if(key==="block"){
-   const nonMonth=dataRows.filter(row=>!isMonthRow(row));
-   if(nonMonth.length) dataRows=nonMonth;
-   else dataRows=[];
-  }
-
-  if(!dataRows.length){
+  if(!source.length){
    const tr=document.createElement("tr");
    const td=document.createElement("td");
-   td.colSpan=Math.max(cols,1);
-   td.innerText=key==="block"
-    ?"Block Report की अलग summary/total row Google Sheet में नहीं मिली। Month Wise data को Block Report के रूप में नहीं दिखाया जाएगा।"
-    :"Month Wise Report में कोई month row नहीं मिली।";
+   td.colSpan=13;
+   td.innerText=isMonth
+    ?"Google Sheet में Month Wise Report का data नहीं मिला।"
+    :"Google Sheet में Block Report का data नहीं मिला।";
    td.style.cssText="padding:24px;text-align:center;font-weight:800;color:#64748b;background:#f8fafc;";
-   tr.appendChild(td); tbody.appendChild(tr);
+   tr.appendChild(td);
+   tbody.appendChild(tr);
   }
 
-  dataRows.forEach((row,ri)=>{
+  source.forEach((row,ri)=>{
    const tr=document.createElement("tr");
-   for(let c=0;c<cols;c++){
+   const total=isTotalRow(row);
+   for(let c=0;c<13;c++){
     const td=document.createElement("td");
-    td.innerText=row[c]||"";
-    const x=low(headers[c]);
-    let bg=ri%2?"#f8fafc":"#fff", fg="#1f2937";
-    if(/month|date/.test(x)){bg="#eff6ff";fg="#1d4ed8";}
-    else if(/total|cataract|surgery|operation|treated|cure/.test(x)){bg="#ecfdf5";fg="#166534";}
-    else if(/screen|eye|exam|check/.test(x)){bg="#eff6ff";fg="#075985";}
-    else if(/blind|visual|impair/.test(x)){bg="#fff7ed";fg="#9a3412";}
-    td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c===0?"800":"600")+";";
+    td.innerText=row[c]===undefined?"":row[c];
+    let bg=total?"#dbeafe":(ri%2?"#f8fafc":"#fff");
+    let fg="#1f2937";
+    if(c===0){bg=total?"#bfdbfe":"#eef2ff";fg="#3730a3";}
+    if(c===1 && isMonth){bg="#eff6ff";fg="#1d4ed8";}
+    if(c>=2 && c<=4){bg=total?"#bbf7d0":"#ecfdf5";fg="#166534";}
+    if(c>=5 && c<=7){bg=total?"#bfdbfe":"#eff6ff";fg="#075985";}
+    if(c>=8 && c<=10){bg=total?"#ddd6fe":"#f5f3ff";fg="#5b21b6";}
+    if(c===11){bg="#fff7ed";fg="#9a3412";}
+    if(c===12){bg="#f5f3ff";fg="#6d28d9";}
+    td.style.cssText="padding:10px 8px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(total||c===0?"800":"600")+";white-space:nowrap;";
     tr.appendChild(td);
    }
    tbody.appendChild(tr);
   });
 
-  if(dataRows.length){
-   const row=dataRows[0];
-   const candidates=[];
-   for(let c=1;c<cols;c++){
-    if(clean(row[c])) candidates.push(c);
-    if(candidates.length===4) break;
-   }
+  // Summary cards use the first real row and the exact column labels/values
+  // represented by the source table; nothing is aggregated or invented.
+  const first=source.find(r=>!isTotalRow(r));
+  if(first){
+   const cardsSpec=[
+    [2,"Cataract Opration","Target"],
+    [3,"Cataract Opration","Acievmnet"],
+    [6,"Middle School Examined","Visit School"],
+    [9,"Student","Student Target"]
+   ];
    const palette=[
-    ["#eff6ff","#bfdbfe","#1d4ed8","#075985"],
     ["#ecfdf5","#bbf7d0","#15803d","#166534"],
+    ["#eff6ff","#bfdbfe","#1d4ed8","#075985"],
     ["#f5f3ff","#ddd6fe","#6d28d9","#5b21b6"],
     ["#fff7ed","#fed7aa","#c2410c","#9a3412"]
    ];
-   candidates.forEach((c,k)=>{
-    const card=document.createElement("div"), p=palette[k%palette.length];
+   cardsSpec.forEach((sp,k)=>{
+    const c=sp[0];
+    if(c>=13 || !clean(first[c])) return;
+    const p=palette[k];
+    const card=document.createElement("div");
     card.style.cssText="background:"+p[0]+";border:1px solid "+p[1]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-    card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+headers[c]+'</div>'+
-      '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+row[c]+'</div>'+
-      '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
+    card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+sp[1]+' — '+sp[2]+'</div>'+
+      '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+first[c]+'</div>'+
+      '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(first[1]||"")+'</div>';
     cards.appendChild(card);
    });
   }
 
   const title=document.getElementById("blindnessTableTitle");
-  if(title) title.innerText=key==="month"?"Blindness Control — Month Wise Report":"Blindness Control — Block Report";
+  if(title) title.innerText=isMonth
+    ?"Blindness Control — Month Wise Report"
+    :"Blindness Control — Block Report";
  }
 
- document.getElementById("blindnessPeriod").innerText=period || "Live Google Sheet Report";
+ const periodEl=document.getElementById("blindnessPeriod");
+ if(periodEl) periodEl.innerText=period || "National Blindness Control Programme FY 2026-27";
  renderSection("block");
 }
 
