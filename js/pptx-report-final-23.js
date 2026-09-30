@@ -2960,17 +2960,20 @@ moduleRanges.push({
         '<text x="1110" y="222" text-anchor="middle" font-family="Arial" font-size="17" font-weight="800" fill="#075985">PROGRESSIVE REPORT • FY 2026–27</text>';
 
       var itemCount=indexItems.length;
+      // Keep the Index layout stable for ANY number of selected programmes.
+      // The photo occupies the right side, so single-column cards must not
+      // extend underneath it. For 4+ programmes use two balanced columns.
       var cols=itemCount<=3 ? 1 : 2;
       var rowsPerCol=cols===1 ? itemCount : Math.ceil(itemCount/2);
-      var cardX=cols===1 ? 185 : 55;
-      var cardGap=cols===1 ? 24 : 25;
-      var cardW=cols===1 ? 1030 : 510;
+      var cardX=55;
+      var cardGap=25;
+      var cardW=cols===1 ? 950 : 510;
       var topY=278;
       var bottomY=760;
-      var maxH=53;
+      var maxH=58;
       var availableH=bottomY-topY;
-      var rowStep=Math.min(82, Math.max(58, availableH/Math.max(rowsPerCol,1)));
-      var cardH=Math.min(maxH,rowStep-7);
+      var rowStep=Math.min(88, Math.max(70, availableH/Math.max(rowsPerCol,1)));
+      var cardH=Math.min(maxH,rowStep-9);
       var startY=topY;
 
       indexItems.forEach(function(item,i){
