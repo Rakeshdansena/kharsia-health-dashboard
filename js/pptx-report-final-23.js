@@ -2784,7 +2784,7 @@ moduleRanges.push({
         '<defs>' +
           '<linearGradient id="top" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient>' +
           '<linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b4f8a"/><stop offset="1" stop-color="#075985"/></linearGradient>' +
-          '<clipPath id="photoClip"><path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z"/></clipPath>' +
+          '<clipPath id="photoClip"><path d="M1060 118 C1310 60 1500 125 1600 235 L1600 690 C1460 750 1230 760 1060 675 Z"/></clipPath>' +
           '<filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".16"/></filter>' +
         '</defs>' +
         '<rect width="1600" height="900" fill="#f7fbff"/>' +
@@ -2813,9 +2813,12 @@ moduleRanges.push({
         '<rect x="250" y="595" width="590" height="56" rx="17" fill="#fff0f3"/>' +
         '<text x="545" y="633" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="23" font-weight="800" fill="#be185d">AS ON DATE : ' + escSvg(coverDate) + '</text>' +
         (photoHref ?
-          '<image href="' + photoHref + '" x="1050" y="130" width="550" height="560" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>' :
+          '<image href="' + photoHref + '" x="1040" y="105" width="590" height="610" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)"/>' :
           '<path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z" fill="#dff2ff"/>') +
-        '<path d="M1080 128 C1320 70 1490 135 1600 250 L1600 670 C1480 730 1260 750 1080 680 Z" fill="none" stroke="#ffffff" stroke-width="12"/>' +
+        '<path d="M1060 118 C1310 60 1500 125 1600 235 L1600 690 C1460 750 1230 760 1060 675 Z" fill="none" stroke="#ffffff" stroke-width="14"/>' +
+        '<rect x="1135" y="585" width="395" height="78" rx="18" fill="#073B75" opacity=".96"/>' +
+        '<text x="1332" y="618" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="19" font-weight="900" fill="#FFFFFF">BLOCK KHARSIA</text>' +
+        '<text x="1332" y="645" text-anchor="middle" font-family="Arial, Noto Sans, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">DISTRICT RAIGARH • CHHATTISGARH</text>' +
         '<g font-family="Arial, Noto Sans, sans-serif" font-weight="800" font-size="18" text-anchor="middle">' +
           '<g><rect x="45" y="706" width="116" height="76" rx="16" fill="#eadcff"/><text x="103" y="750" fill="#4338ca">RCH 2.0</text></g>' +
           '<g><rect x="173" y="706" width="116" height="76" rx="16" fill="#ffd7e8"/><text x="231" y="750" fill="#be185d">Ayushman</text></g>' +
