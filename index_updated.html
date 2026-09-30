@@ -1309,6 +1309,21 @@ body{
    </div>
   </div>
 
+  <!-- BLINDNESS CONTROL MODULE -->
+  <div id="blindnessModule" style="display:none;margin-top:12px;">
+   <div class="blindness-head" style="background:linear-gradient(135deg,#4338ca,#2563eb);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px;">
+    <div style="font-size:24px;font-weight:900;">👁️ Blindness Control</div>
+    <div id="blindnessPeriod" style="font-size:14px;opacity:.94;margin-top:4px;">Live Google Sheet Report</div>
+   </div>
+   <div id="blindnessSummaryCards" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;"></div>
+   <div style="background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;">
+    <div id="blindnessTableTitle" style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">Blindness Control Report</div>
+    <table id="blindnessReportTable" style="width:100%;border-collapse:collapse;min-width:820px;">
+     <thead></thead><tbody></tbody>
+    </table>
+   </div>
+  </div>
+
   <!-- NORMAL TABLE -->
 
   <div class="table-box">
@@ -1619,6 +1634,8 @@ function showDashboard(){
  hideRCHSummary();
  const nrcModule=document.getElementById("nrcModule");
  if(nrcModule) nrcModule.style.display="none";
+ const blindnessModule=document.getElementById("blindnessModule");
+ if(blindnessModule) blindnessModule.style.display="none";
 
 }
 
@@ -1646,6 +1663,35 @@ function openReport(index){
    var rb=document.getElementById("rbskMenu");if(rb)rb.classList.add("active");
    rp.classList.add("active","rbsk-visible");rp.style.display="block";window.scrollTo(0,0);
   }
+  return;
+ }
+
+ if(report && report.name==="Blindness Control"){
+  document.getElementById("dashboardPage").classList.remove("active");
+  document.getElementById("reportPage").classList.add("active");
+  document.getElementById("reportTitle").innerText="👁️ Blindness Control";
+  document.getElementById("pdfTitle").innerText="Kharsia Health Dashboard — Blindness Control";
+  document.getElementById("reportDescription").innerText=report.description;
+  document.getElementById("searchBox").value="";
+  hideRCHSummary();
+  document.querySelectorAll(".menu-btn").forEach(function(btn){btn.classList.remove("active");});
+  const buttons=document.querySelectorAll("#menuButtons .menu-btn");
+  if(buttons[index]) buttons[index].classList.add("active");
+  clearTable();
+  document.querySelector(".table-box").style.display="none";
+  document.getElementById("rchContainer").style.display="none";
+  const teleModule=document.getElementById("telemedicineModule");
+  if(teleModule) teleModule.style.display="none";
+  const jasModule=document.getElementById("jasMeetingModule");
+  if(jasModule) jasModule.style.display="none";
+  const nrc=document.getElementById("nrcModule");
+  if(nrc) nrc.style.display="none";
+  const blindness=document.getElementById("blindnessModule");
+  if(blindness) blindness.style.display="block";
+  currentRCHData=null;
+  currentData=null;
+  setStatus("Google Sheet से Blindness Control data load हो रहा है...");
+  loadGoogleSheet(report.gid);
   return;
  }
 
@@ -1782,6 +1828,8 @@ function openReport(index){
  if(teleModule) teleModule.style.display = "none";
  const nrcModule=document.getElementById("nrcModule");
  if(nrcModule) nrcModule.style.display = "none";
+ const blindnessModule=document.getElementById("blindnessModule");
+ if(blindnessModule) blindnessModule.style.display = "none";
 
  // Hide the custom JAS view whenever another module is opened.
  const jasModule=document.getElementById("jasMeetingModule");
@@ -1909,6 +1957,13 @@ function loadGoogleSheet(gid){
    ){
     renderNRCTable(currentData);
    }
+   else if(
+    report.name==="Blindness Control"
+   ){
+    renderBlindnessTable(currentData);
+   }
+
+
 
    else if(
     report.name==="Ayushman Shivir"
@@ -4451,6 +4506,124 @@ function renderNRCTable(data){
     '<div style="font-size:14px;opacity:.92;margin-top:4px;">'+(period || "Live Google Sheet Report")+'</div>';
  }
 }
+function renderBlindnessTable(data){
+ const module=document.getElementById("blindnessModule");
+ if(!module) return;
+ module.style.display="block";
+
+ const cards=document.getElementById("blindnessSummaryCards");
+ const table=document.getElementById("blindnessReportTable");
+ const thead=table.querySelector("thead");
+ const tbody=table.querySelector("tbody");
+ cards.innerHTML=""; thead.innerHTML=""; tbody.innerHTML="";
+
+ const clean=v=>String(v==null?"":v).replace(/\s+/g," ").trim();
+ const rows=[];
+ const cols=data.getNumberOfColumns();
+ for(let r=0;r<data.getNumberOfRows();r++){
+  const row=[];
+  for(let c=0;c<cols;c++) row.push(clean(formatted(data,r,c)));
+  rows.push(row);
+ }
+
+ const text=row=>row.join(" ").trim();
+ let headerIndex=-1;
+ for(let r=0;r<rows.length;r++){
+  const t=text(rows[r]).toLowerCase();
+  if(/blind|cataract|eye|spectacle|surgery|screening/.test(t) && rows[r].filter(Boolean).length>=2){
+   headerIndex=r; break;
+  }
+ }
+ if(headerIndex<0) headerIndex=0;
+
+ let headers=[];
+ for(let c=0;c<cols;c++){
+  headers.push(clean(data.getColumnLabel(c)) || rows[headerIndex]?.[c] || "Column "+(c+1));
+ }
+
+ // Detect a title/period row without replacing the live Sheet data.
+ let period="";
+ for(const row of rows){
+  const t=text(row);
+  if(/2026|2027|FY|financial year|as on|updated|reporting period|period/i.test(t) && t.length<220){
+   period=t; break;
+  }
+ }
+ if(!period && rows.length && headerIndex>0) period=text(rows[headerIndex-1]);
+
+ const dataRows=rows.slice(headerIndex+1).filter(row=>{
+  const t=text(row).toLowerCase();
+  if(!t) return false;
+  if(t===text(rows[headerIndex]).toLowerCase()) return false;
+  return true;
+ });
+
+ // Header colours by indicator type.
+ const headerColors=headers.map(h=>{
+  const x=h.toLowerCase();
+  if(/cataract|surgery|operation/.test(x)) return "#15803d";
+  if(/screen|exam|check/.test(x)) return "#2563eb";
+  if(/spectacle|glasses/.test(x)) return "#7c3aed";
+  if(/blind|visual|impair/.test(x)) return "#c2410c";
+  return "#4338ca";
+ });
+
+ const trh=document.createElement("tr");
+ headers.forEach((h,c)=>{
+  const th=document.createElement("th");
+  th.innerText=h;
+  th.style.cssText="padding:12px 10px;background:"+headerColors[c]+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
+  trh.appendChild(th);
+ });
+ thead.appendChild(trh);
+
+ dataRows.forEach((row,ri)=>{
+  const tr=document.createElement("tr");
+  for(let c=0;c<cols;c++){
+   const td=document.createElement("td");
+   td.innerText=row[c]||"";
+   let bg=ri%2?"#f8fafc":"#fff";
+   let fg="#1f2937";
+   const x=(headers[c]||"").toLowerCase();
+   if(/cataract|surgery|operation/.test(x)){bg="#ecfdf5";fg="#166534";}
+   else if(/screen|exam|check/.test(x)){bg="#eff6ff";fg="#1d4ed8";}
+   else if(/spectacle|glasses/.test(x)){bg="#f5f3ff";fg="#6d28d9";}
+   else if(/blind|visual|impair/.test(x)){bg="#fff7ed";fg="#9a3412";}
+   td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c===0?"800":"600")+";";
+   tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+ });
+
+ // Summary cards: first four useful non-empty numeric/value columns from the first data row.
+ if(dataRows.length){
+  const row=dataRows[0];
+  const candidates=[];
+  for(let c=1;c<cols;c++){
+   if(clean(row[c])) candidates.push(c);
+   if(candidates.length===4) break;
+  }
+  const palette=[
+   ["#eff6ff","#bfdbfe","#1d4ed8","#075985"],
+   ["#ecfdf5","#bbf7d0","#15803d","#166534"],
+   ["#f5f3ff","#ddd6fe","#6d28d9","#5b21b6"],
+   ["#fff7ed","#fed7aa","#c2410c","#9a3412"]
+  ];
+  candidates.forEach((c,k)=>{
+   const card=document.createElement("div");
+   const p=palette[k%palette.length];
+   card.style.cssText="background:"+p[0]+";border:1px solid "+p[1]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
+   card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+p[2]+';">'+headers[c]+'</div>'+
+                  '<div style="font-size:27px;font-weight:900;color:'+p[3]+';margin-top:3px;">'+row[c]+'</div>'+
+                  '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
+   cards.appendChild(card);
+  });
+ }
+
+ document.getElementById("blindnessTableTitle").innerText="Blindness Control Report";
+ document.getElementById("blindnessPeriod").innerText=period || "Live Google Sheet Report";
+}
+
 function renderNormalTable(
  data
 ){
