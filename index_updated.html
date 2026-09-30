@@ -4611,20 +4611,33 @@ function renderBlindnessTable(data){
    return;
   }
 
-  // Find the section's actual header row from the live Sheet.
+  // Do not mistake the first live month row (e.g. "April -26", 1100, 20...)
+  // for the table header. The screenshot showed exactly this problem.
+  const isMonthRow=row=>{
+   const l=low(rowText(row));
+   return /(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*[-/]?\s*\d{2,4}/i.test(l);
+  };
+
   let hi=-1;
   for(let r=0;r<section.length;r++){
    const filled=section[r].filter(Boolean).length;
    const l=low(rowText(section[r]));
-   if(filled>=2 && !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l)){
+   if(filled>=2 && !isMonthRow(section[r]) &&
+      !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l)){
     hi=r; break;
    }
   }
-  if(hi<0) hi=0;
 
+  // If there is no explicit header in the Sheet, keep the live rows as data
+  // and use neutral column labels instead of turning values into headings.
+  const hasHeader=hi>=0;
   const headers=[];
   for(let c=0;c<cols;c++){
-   headers.push(clean(section[hi]?.[c]) || "Column "+(c+1));
+   if(hasHeader){
+    headers.push(clean(section[hi]?.[c]) || "Column "+(c+1));
+   }else{
+    headers.push(c===0?"S.No":c===1?"Month":"Indicator "+(c-1));
+   }
   }
 
   const htr=document.createElement("tr");
@@ -4642,10 +4655,34 @@ function renderBlindnessTable(data){
   });
   thead.appendChild(htr);
 
-  const dataRows=section.slice(hi+1).filter(row=>{
+  const sourceRows=hasHeader ? section.slice(hi+1) : section.slice();
+  let dataRows=sourceRows.filter(row=>{
    const t=rowText(row), l=low(t);
    return t && !/block\s*report|block\s*wise|month\s*wise|monthly/.test(l);
   });
+
+  // Month Wise tab must show the actual month rows from the Sheet.
+  if(key==="month"){
+   dataRows=dataRows.filter(isMonthRow);
+  }
+
+  // Block Report must not show monthly rows as if they were a block summary.
+  if(key==="block"){
+   const nonMonth=dataRows.filter(row=>!isMonthRow(row));
+   if(nonMonth.length) dataRows=nonMonth;
+   else dataRows=[];
+  }
+
+  if(!dataRows.length){
+   const tr=document.createElement("tr");
+   const td=document.createElement("td");
+   td.colSpan=Math.max(cols,1);
+   td.innerText=key==="block"
+    ?"Block Report की अलग summary/total row Google Sheet में नहीं मिली। Month Wise data को Block Report के रूप में नहीं दिखाया जाएगा।"
+    :"Month Wise Report में कोई month row नहीं मिली।";
+   td.style.cssText="padding:24px;text-align:center;font-weight:800;color:#64748b;background:#f8fafc;";
+   tr.appendChild(td); tbody.appendChild(tr);
+  }
 
   dataRows.forEach((row,ri)=>{
    const tr=document.createElement("tr");
