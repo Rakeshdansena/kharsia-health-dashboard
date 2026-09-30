@@ -4293,96 +4293,97 @@ function renderNRCTable(data){
  tbody.innerHTML="";
  cards.innerHTML="";
 
- const allRows=[];
+ const rows=[];
  const cols=data.getNumberOfColumns();
- const rows=data.getNumberOfRows();
-
- for(let r=0;r<rows;r++){
+ for(let r=0;r<data.getNumberOfRows();r++){
   const row=[];
-  for(let c=0;c<cols;c++) row.push(formatted(data,r,c));
-  if(row.some(v=>String(v||"").trim()!=="")) allRows.push(row);
+  for(let c=0;c<cols;c++) row.push(String(formatted(data,r,c)||"").trim());
+  rows.push(row);
  }
 
- const rowText=row=>row.map(v=>String(v||"").trim()).join(" ").replace(/\s+/g," ").trim();
+ const clean=v=>String(v||"").replace(/\s+/g," ").trim();
+ const rowText=row=>row.map(clean).join(" ").trim();
 
- // Read the report period/title directly from the Google Sheet.
+ // The Sheet may contain a merged title row above the actual column headings.
+ // Find the real NRC header row by its cell content and ignore all rows above it.
+ let headerIndex=-1;
+ for(let r=0;r<rows.length;r++){
+  const cells=rows[r].map(v=>clean(v).toLowerCase());
+  if(cells.some(v=>v==="nrc name" || v.includes("nrc name"))){
+   headerIndex=r;
+   break;
+  }
+ }
+
+ const expected=[
+  "NRC Name",
+  "Total no. of children",
+  "Total no. of children discharged",
+  "<7days",
+  "7-15 days",
+  ">15 days",
+  "Bed Occupancy rate",
+  "Cure Rate"
+ ];
+
+ // Always use the exact source headings when they are present; otherwise
+ // preserve the requested NRC headings rather than showing Column 1/2/etc.
+ let headers=expected.slice();
+ if(headerIndex>=0){
+  const sourceHeader=rows[headerIndex];
+  for(let c=0;c<8;c++){
+   if(clean(sourceHeader[c])) headers[c]=sourceHeader[c];
+  }
+ }
+
+ // Read the report period/date from the Sheet title row.
  let period="";
- for(const row of allRows){
+ for(const row of rows){
   const t=rowText(row);
-  if(/NRC\s*Kharsia/i.test(t) && /(\d{1,2}\s+[A-Za-z]+\s+\d{4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/.test(t)){
+  if(/NRC\s*Kharsia/i.test(t) &&
+     /(\d{1,2}\s+[A-Za-z]+\s+\d{4}).*(\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/i.test(t)){
    period=t;
    break;
   }
  }
  if(!period){
-  for(const row of allRows){
+  for(const row of rows){
    const t=rowText(row);
-   if(/01\s+April\s+2026.*31[-\/]08[-\/]2026/i.test(t)){ period=t; break; }
+   if(/01\s+April\s+2026.*31[-\/]08[-\/]2026/i.test(t)){period=t;break;}
   }
  }
 
- // Find the actual header row from the Sheet, not generic Column 1/2 labels.
- let headerIndex=-1;
- for(let i=0;i<allRows.length;i++){
-  const t=rowText(allRows[i]).toLowerCase();
-  if(t.includes("nrc name") && t.includes("total no. of children") && t.includes("cure rate")){
-   headerIndex=i;
-   break;
+ // The first non-empty row after the header is the live NRC data row.
+ // Do not display title/date rows or the header row again as table data.
+ let dataRows=[];
+ if(headerIndex>=0){
+  for(let r=headerIndex+1;r<rows.length;r++){
+   const row=rows[r];
+   if(!row.some(v=>clean(v)!=="")) continue;
+   const first=clean(row[0]);
+   if(!first) continue;
+   if(/NRC\s*Kharsia/i.test(first) && row.slice(1).every(v=>!clean(v))) continue;
+   dataRows.push(row.slice(0,8));
   }
- }
-
- // Fallback only if the sheet uses slightly different punctuation/case.
- if(headerIndex<0){
-  for(let i=0;i<allRows.length;i++){
-   const t=rowText(allRows[i]).toLowerCase();
-   if(t.includes("nrc name") && t.includes("children discharged")){
-    headerIndex=i;
-    break;
+ }else{
+  // Fallback: locate the row containing CIVIL Hospital Kharsia or the first
+  // row whose first cell is a facility name and which has numeric values.
+  for(const row of rows){
+   const t=rowText(row);
+   if(/CIVIL\s+Hospital\s+Kharsia/i.test(t) || (clean(row[0]) && row.slice(1).some(v=>/^\d+(?:\.\d+)?$/.test(clean(v))))){
+    dataRows.push(row.slice(0,8));
    }
   }
  }
 
- let headers=[];
- let dataRows=[];
-
- if(headerIndex>=0){
-  headers=allRows[headerIndex].slice(0,8);
-  for(let i=headerIndex+1;i<allRows.length;i++){
-   const r=allRows[i];
-   if(!r.some(v=>String(v||"").trim()!=="")) continue;
-   const t=rowText(r);
-   if(/^(nrc\s*kharsia|report period|period|as on date)/i.test(t)) continue;
-   dataRows.push(r.slice(0,8));
-  }
- }else{
-  // If the source sheet has proper Google column labels instead of a header row,
-  // use those labels. No values are invented.
-  headers=[];
-  for(let c=0;c<Math.min(cols,8);c++){
-   headers.push(data.getColumnLabel(c)||"");
-  }
-  for(const r of allRows){
-   if(r.some(v=>String(v||"").trim()!=="")) dataRows.push(r.slice(0,8));
-  }
- }
-
- // Keep the requested 8-column NRC structure when the source header has all 8 labels.
- if(headers.length<8){
-  const expected=[
-   "NRC Name",
-   "Total no. of children",
-   "Total no. of children discharged",
-   "<7days",
-   "7-15 days",
-   ">15 days",
-   "Bed Occupancy rate",
-   "Cure Rate"
-  ];
-  for(let i=headers.length;i<8;i++) headers.push(expected[i]);
- }
+ // Remove accidental duplicate/header rows from the data area.
+ dataRows=dataRows.filter(function(row){
+  const t=rowText(row).toLowerCase();
+  return t && !t.includes("nrc name") && !t.includes("total no. of children discharged");
+ });
 
  const htr=document.createElement("tr");
- headers.slice(0,8).forEach(function(h){
+ headers.forEach(function(h){
   const th=document.createElement("th");
   th.innerText=h;
   th.style.cssText="padding:12px 10px;background:#075985;color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
@@ -4401,19 +4402,22 @@ function renderNRCTable(data){
   tbody.appendChild(tr);
  });
 
- // Summary cards use the live first data row and the live Sheet headers.
+ // Four useful summary cards, with actual NRC indicators—not the date/title.
  if(dataRows.length){
   const row=dataRows[0];
   [1,2,6,7].forEach(function(i){
-   if(i>=row.length) return;
    const card=document.createElement("div");
    card.style.cssText="background:#fff;border:1px solid #dbe5ef;border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+headers[i]+'</div><div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+(row[i]||"")+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
+   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+headers[i]+'</div>'+
+                  '<div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+(row[i]||"")+'</div>'+
+                  '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
    cards.appendChild(card);
   });
  }
 
- document.getElementById("nrcTableTitle").innerText=period || "NRC Kharsia Report";
+ const title=document.getElementById("nrcTableTitle");
+ if(title) title.innerText="NRC Kharsia Report";
+
  const head=document.querySelector("#nrcModule .nrc-head");
  if(head){
   head.innerHTML='<div style="font-size:24px;font-weight:900;">🏥 NRC Kharsia</div>'+
