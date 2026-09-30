@@ -4587,6 +4587,42 @@ function renderBlindnessTable(data){
  });
  let monthRows=lastEntry>=0 ? allMonthRows.slice(0,lastEntry+1) : [];
 
+ // Build a reliable Total row from the visible entered months when the
+ // Google Visualization response does not return the Sheet's Total row.
+ function buildMonthTotalRow(){
+  if(!monthRows.length) return null;
+  const num=(v)=>{
+   const n=parseFloat(String(v==null?"":v).replace(/,/g,"").replace("%","").trim());
+   return isFinite(n)?n:0;
+  };
+  const firstNonBlank=(col)=>{
+   const r=monthRows.find(x=>clean(x[col])!=="");
+   return r ? r[col] : "";
+  };
+  const sum=(col)=>monthRows.reduce((a,r)=>a+num(r[col]),0);
+  const target=num(firstNonBlank(2));
+  const achievement=sum(3);
+  const schoolTarget=num(firstNonBlank(5));
+  const schoolVisit=sum(6);
+  const studentTarget=num(firstNonBlank(8));
+  const studentAchievement=sum(9);
+  return [
+   "",
+   "Total",
+   firstNonBlank(2),
+   String(achievement),
+   target ? (achievement/target*100).toFixed(3) : "0.000",
+   firstNonBlank(5),
+   String(schoolVisit),
+   schoolTarget ? (schoolVisit/schoolTarget*100).toFixed(3) : "0.000",
+   firstNonBlank(8),
+   String(studentAchievement),
+   studentTarget ? (studentAchievement/studentTarget*100).toFixed(3) : "0.000",
+   String(sum(11)),
+   String(sum(12))
+  ];
+ }
+
  let period="";
  // Read only the title cell from the live sheet. Do NOT use the whole
  // row because the Google Visualization response can contain the block
@@ -4668,8 +4704,12 @@ function renderBlindnessTable(data){
 
   let source=isMonth?monthRows:blockRows;
 
-  if(isMonth && totalRows.length){
-   source=source.concat([totalRows[totalRows.length-1]]);
+  if(isMonth){
+   // Prefer the live Sheet Total row; otherwise calculate it from the
+   // visible months so Total is always shown at the bottom.
+   const liveTotal=totalRows.length ? totalRows[totalRows.length-1] : null;
+   const totalRow=liveTotal || buildMonthTotalRow();
+   if(totalRow) source=source.concat([totalRow]);
   }
 
   if(!source.length){
