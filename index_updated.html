@@ -4293,62 +4293,133 @@ function renderNRCTable(data){
  tbody.innerHTML="";
  cards.innerHTML="";
 
+ const allRows=[];
  const cols=data.getNumberOfColumns();
  const rows=data.getNumberOfRows();
 
- // Keep source terminology exactly when the sheet does not provide labels.
- let numericRow=-1;
  for(let r=0;r<rows;r++){
-  for(let col=1;col<cols;col++){
-   const v=data.getValue(r,col);
-   if(typeof v==="number" && !isNaN(v)){ numericRow=r; break; }
+  const row=[];
+  for(let c=0;c<cols;c++) row.push(formatted(data,r,c));
+  if(row.some(v=>String(v||"").trim()!=="")) allRows.push(row);
+ }
+
+ const rowText=row=>row.map(v=>String(v||"").trim()).join(" ").replace(/\s+/g," ").trim();
+
+ // Read the report period/title directly from the Google Sheet.
+ let period="";
+ for(const row of allRows){
+  const t=rowText(row);
+  if(/NRC\s*Kharsia/i.test(t) && /(\d{1,2}\s+[A-Za-z]+\s+\d{4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/.test(t)){
+   period=t;
+   break;
   }
-  if(numericRow>=0) break;
+ }
+ if(!period){
+  for(const row of allRows){
+   const t=rowText(row);
+   if(/01\s+April\s+2026.*31[-\/]08[-\/]2026/i.test(t)){ period=t; break; }
+  }
  }
 
- const header=document.createElement("tr");
- for(let col=0;col<cols;col++){
+ // Find the actual header row from the Sheet, not generic Column 1/2 labels.
+ let headerIndex=-1;
+ for(let i=0;i<allRows.length;i++){
+  const t=rowText(allRows[i]).toLowerCase();
+  if(t.includes("nrc name") && t.includes("total no. of children") && t.includes("cure rate")){
+   headerIndex=i;
+   break;
+  }
+ }
+
+ // Fallback only if the sheet uses slightly different punctuation/case.
+ if(headerIndex<0){
+  for(let i=0;i<allRows.length;i++){
+   const t=rowText(allRows[i]).toLowerCase();
+   if(t.includes("nrc name") && t.includes("children discharged")){
+    headerIndex=i;
+    break;
+   }
+  }
+ }
+
+ let headers=[];
+ let dataRows=[];
+
+ if(headerIndex>=0){
+  headers=allRows[headerIndex].slice(0,8);
+  for(let i=headerIndex+1;i<allRows.length;i++){
+   const r=allRows[i];
+   if(!r.some(v=>String(v||"").trim()!=="")) continue;
+   const t=rowText(r);
+   if(/^(nrc\s*kharsia|report period|period|as on date)/i.test(t)) continue;
+   dataRows.push(r.slice(0,8));
+  }
+ }else{
+  // If the source sheet has proper Google column labels instead of a header row,
+  // use those labels. No values are invented.
+  headers=[];
+  for(let c=0;c<Math.min(cols,8);c++){
+   headers.push(data.getColumnLabel(c)||"");
+  }
+  for(const r of allRows){
+   if(r.some(v=>String(v||"").trim()!=="")) dataRows.push(r.slice(0,8));
+  }
+ }
+
+ // Keep the requested 8-column NRC structure when the source header has all 8 labels.
+ if(headers.length<8){
+  const expected=[
+   "NRC Name",
+   "Total no. of children",
+   "Total no. of children discharged",
+   "<7days",
+   "7-15 days",
+   ">15 days",
+   "Bed Occupancy rate",
+   "Cure Rate"
+  ];
+  for(let i=headers.length;i<8;i++) headers.push(expected[i]);
+ }
+
+ const htr=document.createElement("tr");
+ headers.slice(0,8).forEach(function(h){
   const th=document.createElement("th");
-  th.innerText=data.getColumnLabel(col)||"Column "+(col+1);
-  th.style.cssText="padding:11px 10px;background:#075985;color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;";
-  header.appendChild(th);
- }
- thead.appendChild(header);
+  th.innerText=h;
+  th.style.cssText="padding:12px 10px;background:#075985;color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
+  htr.appendChild(th);
+ });
+ thead.appendChild(htr);
 
- for(let r=0;r<rows;r++){
+ dataRows.forEach(function(row,ri){
   const tr=document.createElement("tr");
-  for(let col=0;col<cols;col++){
+  for(let c=0;c<8;c++){
    const td=document.createElement("td");
-   td.innerText=formatted(data,r,col);
-   td.style.cssText="padding:10px;border:1px solid #dbe5ef;text-align:center;background:#fff;";
-   if(col===0) td.style.fontWeight="800";
+   td.innerText=row[c]===undefined?"":row[c];
+   td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+(ri%2?"#f8fafc":"#fff")+";font-weight:"+(c===0?"800":"600")+";";
    tr.appendChild(td);
   }
   tbody.appendChild(tr);
- }
+ });
 
- if(numericRow>=0){
-  const facility=(formatted(data,numericRow,0)||"").trim() || "CIVIL Hospital Kharsia";
-  const vals=[];
-  for(let col=1;col<Math.min(cols,6);col++){
-   const v=data.getValue(numericRow,col);
-   vals.push(typeof v==="number" ? v : formatted(data,numericRow,col));
-  }
-  const labels=[];
-  for(let col=1;col<Math.min(cols,6);col++){
-   labels.push(data.getColumnLabel(col)||"Column "+(col+1));
-  }
-  vals.slice(0,4).forEach(function(v,i){
+ // Summary cards use the live first data row and the live Sheet headers.
+ if(dataRows.length){
+  const row=dataRows[0];
+  [1,2,6,7].forEach(function(i){
+   if(i>=row.length) return;
    const card=document.createElement("div");
    card.style.cssText="background:#fff;border:1px solid #dbe5ef;border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+labels[i]+'</div><div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+v+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">'+facility+'</div>';
+   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+headers[i]+'</div><div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+(row[i]||"")+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
    cards.appendChild(card);
   });
  }
 
- document.getElementById("nrcTableTitle").innerText="NRC Kharsia — "+(rows>0 ? "Live Report Data" : "Report");
+ document.getElementById("nrcTableTitle").innerText=period || "NRC Kharsia Report";
+ const head=document.querySelector("#nrcModule .nrc-head");
+ if(head){
+  head.innerHTML='<div style="font-size:24px;font-weight:900;">🏥 NRC Kharsia</div>'+
+    '<div style="font-size:14px;opacity:.92;margin-top:4px;">'+(period || "Live Google Sheet Report")+'</div>';
+ }
 }
-
 function renderNormalTable(
  data
 ){
