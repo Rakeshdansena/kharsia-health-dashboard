@@ -2247,8 +2247,95 @@ function wellnessAddFacilitySlide(pptx,title,facilityRows){
     return true;
   }
 
+  function queryRawSheet(gid) {
+    return new Promise(function (resolve, reject) {
+      var q = new google.visualization.Query(
+        'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(SHEET_ID) +
+        '/gviz/tq?gid=' + encodeURIComponent(gid) + '&headers=0'
+      );
+      q.setQuery('select *');
+      q.send(function (response) {
+        if (response.isError()) { reject(new Error(response.getMessage())); return; }
+        var dt=response.getDataTable(), rows=[];
+        for(var r=0;r<dt.getNumberOfRows();r++){
+          var row=[];
+          for(var c=0;c<dt.getNumberOfColumns();c++) row.push(clean(dt.getFormattedValue(r,c)));
+          rows.push(row);
+        }
+        resolve(rows);
+      });
+    });
+  }
+
+  function pptxTable(slide, headers, rows, x, y, w, h, fontSize) {
+    var data=[headers].concat(rows);
+    var cols=headers.length, colW=[];
+    for(var i=0;i<cols;i++) colW.push(w/cols);
+    slide.addTable(data.map(function(r,ri){
+      return r.map(function(v){return {text:clean(v),options:{
+        bold:ri===0,fontSize:fontSize||9,color:ri===0?'FFFFFF':'172033',
+        fill:{color:ri===0?'075985':'FFFFFF'},align:'center',valign:'mid',margin:2
+      }};});
+    }),{x:x,y:y,w:w,h:h,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:colW,rowH:0.38,margin:2});
+  }
+
+  async function addNRCPresentation(pptx) {
+    var rows=await queryRawSheet('1010102020'), h=-1, data=[];
+    for(var i=0;i<rows.length;i++) if(rows[i].some(function(v){return /^NRC Name$/i.test(clean(v));})){h=i;break;}
+    if(h>=0) for(var r=h+1;r<rows.length;r++) if(clean(rows[r][0])) data.push(rows[r].slice(0,8));
+    var first=data[0]||[], slide=pptx.addSlide();
+    addHeader(slide,'🏥 NRC Kharsia','NRC REPORT | FY 2026–27');
+    addSectionTitle(slide,'NRC KHARSIA — PERFORMANCE SUMMARY',0.45,1.00,6.5);
+    addCard(slide,0.45,1.48,2.8,1.12,'TOTAL CHILDREN',first[1]||'');
+    addCard(slide,3.45,1.48,2.8,1.12,'CHILDREN DISCHARGED',first[2]||'');
+    addCard(slide,6.45,1.48,2.8,1.12,'BED OCCUPANCY RATE',first[6]||'');
+    addCard(slide,9.45,1.48,2.8,1.12,'CURE RATE',first[7]||'');
+    addSectionTitle(slide,'FACILITY WISE NRC REPORT',0.45,2.95,6.0);
+    pptxTable(slide,['NRC Name','Total Children','Discharged','<7 Days','7–15 Days','>15 Days','Bed Occupancy %','Cure Rate'],data,0.45,3.38,12.4,2.35,8.5);
+  }
+
+  async function addBlindnessPresentation(pptx) {
+    var rows=await queryRawSheet('1002009767');
+    var re=/^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*[-/]\s*\d{2,4}$/i;
+    var months=rows.filter(function(r){return re.test(clean(r[1]));});
+    var total=rows.find(function(r){return r.some(function(v){return /^total$/i.test(clean(v));});});
+    var t=total||months[months.length-1]||[], slide=pptx.addSlide();
+    addHeader(slide,'👁️ Blindness Control','MONTH WISE REPORT | FY 2026–27');
+    addSectionTitle(slide,'BLINDNESS CONTROL — TOTAL PERFORMANCE',0.45,1.00,6.5);
+    addCard(slide,0.45,1.48,2.8,1.12,'CATARACT TARGET',t[2]||'');
+    addCard(slide,3.45,1.48,2.8,1.12,'CATARACT ACHIEVEMENT',t[3]||'');
+    addCard(slide,6.45,1.48,2.8,1.12,'CATARACT TOTAL %',t[4]||'');
+    addCard(slide,9.45,1.48,2.8,1.12,'STUDENT TARGET',t[8]||'');
+    addSectionTitle(slide,'MONTH WISE PERFORMANCE',0.45,2.95,5.5);
+    var heads=['Sn','Month','Cataract Target','Achievement','%','School Target','Visit School','%','Student Target','Achievement','%','Refractive Error','Spectle Provide'];
+    var visible=months.slice(); if(total) visible.push(total);
+    pptxTable(slide,heads,visible.map(function(r){var a=r.slice(0,13);while(a.length<13)a.push('');return a;}),0.18,3.35,12.95,2.9,6.5);
+  }
+
+  async function addNQASPresentation(pptx) {
+    var rows=await queryRawSheet('728123647'), h=-1, data=[], note='';
+    for(var i=0;i<rows.length;i++) if(rows[i].some(function(v){return /^Facility$/i.test(clean(v));})){h=i;break;}
+    if(h>=0) for(var r=h+1;r<rows.length;r++){
+      var t=rows[r].join(' ');
+      if(/उपरोक्त संस्था के अलावा|^नोट/i.test(t)){note=t;continue;}
+      if(/^(PHC|SHC|CHC)$/i.test(clean(rows[r][1]))) data.push(rows[r].slice(0,7));
+    }
+    var totals=[2,3,4,5,6].map(function(c){return data.reduce(function(a,r){return a+number(r[c]);},0);});
+    var slide=pptx.addSlide();
+    addHeader(slide,'🏅 NQAS Certification','NQAS CERTIFICATION DETAIL | FY 2026–27');
+    addSectionTitle(slide,'NQAS CERTIFICATION SUMMARY — KHARSIA',0.45,1.00,7.0);
+    addCard(slide,0.45,1.48,2.3,1.12,'TOTAL INSTITUTIONS',totals[0]);
+    addCard(slide,2.95,1.48,2.3,1.12,'APPLICATIONS',totals[1]);
+    addCard(slide,5.45,1.48,2.3,1.12,'EVALUATED',totals[2]);
+    addCard(slide,7.95,1.48,2.3,1.12,'CERTIFIED',totals[3]);
+    addCard(slide,10.45,1.48,2.3,1.12,'PENDING EVALUATION',totals[4]);
+    addSectionTitle(slide,'FACILITY WISE NQAS STATUS',0.45,2.95,5.5);
+    pptxTable(slide,['Sn','Facility','कुल संस्था','NQAS हेतु आवेदन','मूल्यांकन हो गया','कुल सर्टिफाईड','मूल्यांकन हेतु बाकी'],data,0.35,3.35,12.65,2.2,8.5);
+    if(note) slide.addText('📝 '+note,{x:0.45,y:5.82,w:12.3,h:0.55,fontSize:10,bold:true,color:'92400E',fill:{color:'FFFBEB'},margin:0.12,fit:'shrink'});
+  }
+
   function getSelectedPptxPrograms() {
-    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','RBSK','Telemedicine Report'];
+    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','RBSK','Telemedicine Report','NRC Kharsia','Blindness Control','NQAS Certification'];
     var incoming = window.__pptxSelectedPrograms;
     if (Array.isArray(incoming) && incoming.length) return incoming.slice();
     return defaults.slice();
@@ -2717,7 +2804,10 @@ moduleRanges.push({
         'Ayushman Shivir': {name:'Ayushman Shivir',icon:'🏕️',gid:'1262815420'},
         'Wellness Activity': {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
         'Telemedicine Report': {name:'Telemedicine Report',icon:'🩻',gid:'318264987'},
-        'RBSK': {name:'RBSK',icon:'👶',gid:null}
+        'RBSK': {name:'RBSK',icon:'👶',gid:null},
+        'NRC Kharsia': {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
+        'Blindness Control': {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
+        'NQAS Certification': {name:'NQAS Certification',icon:'🏅',gid:'728123647'}
       };
 
       showProgress('Programme order', 55, 'Selected order के अनुसार PPT slides तैयार हो रही हैं...');
@@ -2749,6 +2839,12 @@ moduleRanges.push({
           await addTelemedicinePresentation(pptx);
         } else if (mod.name === 'RBSK') {
           await addRBSKPresentation(pptx);
+        } else if (mod.name === 'NRC Kharsia') {
+          await addNRCPresentation(pptx);
+        } else if (mod.name === 'Blindness Control') {
+          await addBlindnessPresentation(pptx);
+        } else if (mod.name === 'NQAS Certification') {
+          await addNQASPresentation(pptx);
         }
 
         var moduleEnd = pptx.slides.length;
@@ -2775,7 +2871,10 @@ moduleRanges.push({
         'Ayushman Shivir': {name:'Ayushman Shivir', icon:'S', color:'#DB2777', fill:'#FCE7F3'},
         'Wellness Activity': {name:'Wellness Activity', icon:'W', color:'#9333EA', fill:'#F3E8FF'},
         'Telemedicine Report': {name:'Telemedicine Report', icon:'T', color:'#0F766E', fill:'#CCFBF1'},
-        'RBSK': {name:'RBSK', icon:'R', color:'#4338CA', fill:'#EDE9FE'}
+        'RBSK': {name:'RBSK', icon:'R', color:'#4338CA', fill:'#EDE9FE'},
+        'NRC Kharsia': {name:'NRC Kharsia', icon:'N', color:'#075985', fill:'#E0F2FE'},
+        'Blindness Control': {name:'Blindness Control', icon:'B', color:'#4338CA', fill:'#EEF2FF'},
+        'NQAS Certification': {name:'NQAS Certification', icon:'Q', color:'#0F766E', fill:'#CCFBF1'}
       };
 
       var desiredModules = getSelectedPptxPrograms().map(function(name){
