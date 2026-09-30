@@ -4386,7 +4386,8 @@ function renderNRCTable(data){
  headers.forEach(function(h){
   const th=document.createElement("th");
   th.innerText=h;
-  th.style.cssText="padding:12px 10px;background:#075985;color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
+  const headColors=["#075985","#0f766e","#15803d","#7c3aed","#7c3aed","#7c3aed","#c2410c","#15803d"];
+  th.style.cssText="padding:12px 10px;background:"+headColors[headers.indexOf(h)]+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";
   htr.appendChild(th);
  });
  thead.appendChild(htr);
@@ -4396,7 +4397,26 @@ function renderNRCTable(data){
   for(let c=0;c<8;c++){
    const td=document.createElement("td");
    td.innerText=row[c]===undefined?"":row[c];
-   td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+(ri%2?"#f8fafc":"#fff")+";font-weight:"+(c===0?"800":"600")+";";
+
+   // NRC colour coding: keep the live Google Sheet values unchanged,
+   // while making the important outcome columns visually distinct.
+   let bg = (ri%2 ? "#f8fafc" : "#ffffff");
+   let fg = "#1f2937";
+   if(c===0){
+    bg = ri%2 ? "#eff6ff" : "#f0f9ff";
+    fg = "#075985";
+   }else if(c===2){
+    bg = ri%2 ? "#ecfdf5" : "#f0fdf4";
+    fg = "#166534";
+   }else if(c===6){
+    bg = ri%2 ? "#fff7ed" : "#fffbeb";
+    fg = "#9a3412";
+   }else if(c===7){
+    bg = ri%2 ? "#ecfdf5" : "#f0fdf4";
+    fg = "#166534";
+   }
+
+   td.style.cssText="padding:11px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c===0||c===6||c===7?"800":"600")+";";
    tr.appendChild(td);
   }
   tbody.appendChild(tr);
@@ -4407,9 +4427,16 @@ function renderNRCTable(data){
   const row=dataRows[0];
   [1,2,6,7].forEach(function(i){
    const card=document.createElement("div");
-   card.style.cssText="background:#fff;border:1px solid #dbe5ef;border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-   card.innerHTML='<div style="font-size:12px;font-weight:800;color:#64748b;">'+headers[i]+'</div>'+
-                  '<div style="font-size:27px;font-weight:900;color:#075985;margin-top:3px;">'+(row[i]||"")+'</div>'+
+   const cardThemes={
+    1:{bg:"#eff6ff",border:"#bfdbfe",label:"#1d4ed8",value:"#075985"},
+    2:{bg:"#ecfdf5",border:"#bbf7d0",label:"#15803d",value:"#166534"},
+    6:{bg:"#fff7ed",border:"#fed7aa",label:"#c2410c",value:"#9a3412"},
+    7:{bg:"#ecfdf5",border:"#bbf7d0",label:"#15803d",value:"#166534"}
+   };
+   const theme=cardThemes[i]||cardThemes[1];
+   card.style.cssText="background:"+theme.bg+";border:1px solid "+theme.border+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
+   card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+theme.label+';">'+headers[i]+'</div>'+
+                  '<div style="font-size:27px;font-weight:900;color:'+theme.value+';margin-top:3px;">'+(row[i]||"")+'</div>'+
                   '<div style="font-size:11px;color:#64748b;margin-top:2px;">'+(row[0]||"")+'</div>';
    cards.appendChild(card);
   });
