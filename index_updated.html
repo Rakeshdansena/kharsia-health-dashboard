@@ -5323,6 +5323,11 @@ function filterTable(){
   .toLowerCase()
   .trim();
 
+ if(currentReportIndex!==null && REPORTS[currentReportIndex].name==="Dialysis"){
+  document.querySelectorAll("#dialysisModule tbody tr").forEach(row=>{row.style.display=!search||row.innerText.toLowerCase().includes(search)?"":"none"});
+  return;
+ }
+
  /*
    RCH
  */
@@ -5400,6 +5405,20 @@ function downloadExcel(){
    currentReportIndex
   ];
 
+
+ if(report.name==="Dialysis"){
+  const wb=XLSX.utils.book_new();
+  const p=document.getElementById("dialysisProgressTable");
+  const all=[["प्रधानमंत्री राष्ट्रीय डायलिसिस की प्रगति की स्थिति (Apr. 26 to Sep 26)"],...Array.from(p.querySelectorAll("tr")).map(tr=>Array.from(tr.cells).map(c=>c.innerText))];
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(all),"Progress");
+  document.querySelectorAll("#dialysisYearTables .dialysis-year-card").forEach((box,i)=>{
+   const title=box.querySelector(".dialysis-year-title")?.innerText||("FY "+(i+1));
+   const rows=Array.from(box.querySelectorAll("tr")).map(tr=>Array.from(tr.cells).map(c=>c.innerText));
+   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([[title],...rows]),title.replace(/[^a-z0-9]/gi,"").slice(-31)||("FY"+i));
+  });
+  XLSX.writeFile(wb,"Dialysis_Kharsia.xlsx");
+  return;
+ }
 
  /* =================================================
     RCH EXCEL
