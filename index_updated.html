@@ -5086,6 +5086,11 @@ function renderDialysisTable(data){
   if(m&&m[1].slice(0,3).toLowerCase()==="apr")currentStart=i;
  }
  let currentRows=currentStart>=0?monthRows.slice(currentStart).map(x=>x.vals):monthRows.slice(-12).map(x=>x.vals);
+ // Hide months with no reported data; retain only months with a session count or case figures.
+ currentRows=currentRows.filter(row=>[row[2],row[3],row[4]].some(v=>{
+  const value=String(v||"").trim();
+  return value!=="" && value!=="-" && value!=="—" && value.toLowerCase()!=="null";
+ }));
  // If sheet has future months already listed, retain them as blank rows; show the current FY only here.
  const currentBox=document.createElement("div");currentBox.className="dialysis-year-card";
  const currentTitle=document.createElement("div");currentTitle.className="dialysis-year-title";currentTitle.textContent="प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम — वर्तमान वित्तीय वर्ष 2026-27 (माहवार)";currentBox.appendChild(currentTitle);
