@@ -5069,16 +5069,30 @@ function renderDialysisTable(data){
   monthRows.push({fy,vals});
   previousMonth=month;previousYear=year;
  });
- const grouped={};
- monthRows.forEach(item=>{(grouped[item.fy]||(grouped[item.fy]=[])).push(item.vals)});
- const fiscalYears=Object.keys(grouped).filter(Boolean);
- fiscalYears.forEach(fy=>{
-  const box=document.createElement("div");box.className="dialysis-year-card";
-  const title=document.createElement("div");title.className="dialysis-year-title";title.textContent="प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम — वित्तीय वर्ष "+fy;box.appendChild(title);
-  const table=document.createElement("table");table.className="dialysis-table";
-  makeTable(table,["क्रमांक","माह","डायलिसिस की संख्या","एक्टिव केस","नए केस","टिप्पणी"],grouped[fy]);
-  box.appendChild(table);years.appendChild(box);
- });
+ // Historical financial years show annual totals only; the current FY stays month-wise.
+ const boxOld=document.createElement("div");boxOld.className="dialysis-year-card";
+ const titleOld=document.createElement("div");titleOld.className="dialysis-year-title";titleOld.textContent="प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम — पिछले वित्तीय वर्षों का कुल";boxOld.appendChild(titleOld);
+ const oldTable=document.createElement("table");oldTable.className="dialysis-table";
+ makeTable(oldTable,["वित्तीय वर्ष","कुल डायलिसिस सेशन","वर्ष के अंत में एक्टिव केस"],[
+  ["2024-25","2321","—"],
+  ["2025-26","2651","22"]
+ ]);
+ boxOld.appendChild(oldTable);years.appendChild(boxOld);
+
+ // The last April-starting block is the current FY (2026-27).
+ let currentStart=-1;
+ for(let i=0;i<monthRows.length;i++){
+  const m=String(monthRows[i].vals[1]||"").trim().match(monthRe);
+  if(m&&m[1].slice(0,3).toLowerCase()==="apr")currentStart=i;
+ }
+ let currentRows=currentStart>=0?monthRows.slice(currentStart).map(x=>x.vals):monthRows.slice(-12).map(x=>x.vals);
+ // If sheet has future months already listed, retain them as blank rows; show the current FY only here.
+ const currentBox=document.createElement("div");currentBox.className="dialysis-year-card";
+ const currentTitle=document.createElement("div");currentTitle.className="dialysis-year-title";currentTitle.textContent="प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम — वर्तमान वित्तीय वर्ष 2026-27 (माहवार)";currentBox.appendChild(currentTitle);
+ const currentTable=document.createElement("table");currentTable.className="dialysis-table";
+ makeTable(currentTable,["क्रमांक","माह","डायलिसिस की संख्या","एक्टिव केस","नए केस","टिप्पणी"],currentRows);
+ currentBox.appendChild(currentTable);years.appendChild(currentBox);
+ const fiscalYears=["2024-25","2025-26","2026-27"];
  if(!fiscalYears.length){
   const usable=rows.filter(row=>!blank(row)).filter(row=>row.some(v=>/^(feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|jan)/i.test(norm(v))));
   if(usable.length){
