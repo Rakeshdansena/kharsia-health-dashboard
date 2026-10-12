@@ -41,6 +41,10 @@ function isolate(){
  var nrc=document.getElementById('nrcModule');
  var blind=document.getElementById('blindnessModule');
  var nqas=document.getElementById('nqasModule');
+ var wellness=document.getElementById('wellnessActivityModule');
+ if(/wellness\\s*activity/.test(label)){hide(tableBox);hide(rch);hide(tele);hide(jas);hide(nrc);hide(blind);hide(nqas);show(wellness);window.__wellnessActivityActive=true;return;}
+ window.__wellnessActivityActive=false;
+ if(wellness){hide(wellness);wellness.remove();}
  [tableBox,rch,tele,jas,nrc,blind,nqas].forEach(hide);
  if(/rch 2/.test(label)){
   show(rch);return;
