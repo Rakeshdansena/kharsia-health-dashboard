@@ -10,7 +10,7 @@ function show(el,display){if(el)el.style.display=display||'block';}
 function isolate(){
  var btn=selectedButton(),label=txt(btn);
  var pages=Array.from(document.querySelectorAll('.page'));
- var rbsk=document.getElementById('rbskPage');
+ var rbsk=document.getElementById('rbskPage')||document.querySelector('[id*=rbsk i]');
  var dashboard=document.getElementById('dashboardPage');
  var report=document.getElementById('reportPage');
  var dashboardVisible=!!(dashboard&&dashboard.classList.contains('active')&&dashboard.style.display!=='none');
@@ -34,7 +34,7 @@ function isolate(){
   if(rbsk){rbsk.classList.add('active','rbsk-visible');show(rbsk);}
   return;
  }
- hide(rbsk);
+ hide(rbsk);if(rbsk)rbsk.classList.remove('active','rbsk-visible');
  if(report){report.classList.add('active');show(report);}
  var tableBox=document.querySelector('.table-box');
  var rch=document.getElementById('rchContainer');
