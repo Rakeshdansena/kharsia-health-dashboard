@@ -2382,7 +2382,7 @@ async function addNQASPresentation(pptx) {
   }
 
   function getSelectedPptxPrograms() {
-    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','RBSK','Telemedicine Report','NRC Kharsia','Blindness Control','NQAS Certification'];
+    var defaults = ['Janani Portal','NCD','JAS Meeting','Ayushman Shivir','Wellness Activity','RBSK','Dialysis','Telemedicine Report','NRC Kharsia','Blindness Control','NQAS Certification'];
     var incoming = window.__pptxSelectedPrograms;
     if (Array.isArray(incoming) && incoming.length) return incoming.slice();
     return defaults.slice();
@@ -2727,6 +2727,53 @@ moduleRanges.push({
     return moduleRanges;
   }
 
+  async function addDialysisPresentation(pptx) {
+    var slide=pptx.addSlide();
+    slide.background={color:'F8FBFF'};
+    addHeader(slide,'💧 प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम','CH KHARSIA • FY 2026–27 | APRIL–SEPTEMBER 2026');
+    addSectionTitle(slide,'PROGRAMME SUMMARY',0.45,1.02,4.5);
+    var kpis=[
+      ['MACHINES','3','D8EEFF','075985'],
+      ['TARGET SESSIONS','1,350','DCFCE7','166534'],
+      ['ACHIEVEMENT','1,762','FFEDD5','C2410C'],
+      ['ACHIEVEMENT %','130.52%','F3E8FF','6B21A8'],
+      ['ACTIVE CASES','19','FEE2E2','B91C1C']
+    ];
+    var kw=2.38,gap=0.14;
+    kpis.forEach(function(k,i){
+      var x=0.42+i*(kw+gap);
+      slide.addShape('roundRect',{x:x,y:1.40,w:kw,h:0.88,rectRadius:0.08,fill:{color:k[2]},line:{color:k[3],transparency:35,pt:1}});
+      slide.addText(k[0],{x:x+0.05,y:1.53,w:kw-0.1,h:0.20,fontSize:10,bold:true,color:'334155',align:'center',margin:0,fit:'shrink'});
+      slide.addText(k[1],{x:x+0.05,y:1.77,w:kw-0.1,h:0.35,fontSize:22,bold:true,color:k[3],align:'center',margin:0,fit:'shrink'});
+    });
+    addSectionTitle(slide,'PREVIOUS FINANCIAL YEARS — ANNUAL TOTAL',0.48,2.48,5.5);
+    pptxTable(slide,['Financial Year','Total Dialysis Sessions','Active Cases'],[
+      ['2024–25','2,321','—'],
+      ['2025–26','2,651','22']
+    ],0.48,2.83,5.15,1.45,12);
+    addSectionTitle(slide,'CURRENT FY 2026–27 — MONTH-WISE DATA (AVAILABLE MONTHS ONLY)',5.90,2.48,6.9);
+    var monthRows=[
+      ['April 2026','288','22','6'],
+      ['May 2026','273','22','1'],
+      ['June 2026','296','26','6'],
+      ['July 2026','325','26','2'],
+      ['August 2026','301','25','2'],
+      ['September 2026','279','19','1'],
+      ['TOTAL','1,762','19','18']
+    ];
+    var tableRows=monthRows.map(function(r){return r;});
+    slide.addTable([
+      ['Month','Dialysis Sessions','Active Cases','New Cases']
+    ].concat(tableRows).map(function(row,ri){
+      return row.map(function(v,ci){
+        var fill=ri===0?['075985','0284C7','C2410C','15803D'][ci]:(ri===7?['DCEBFA','BFDBFE','FED7AA','BBF7D0'][ci]:(ri%2?'FFFFFF':'F1F5F9'));
+        return {text:String(v),options:{bold:ri===0||ri===7||ci===0,fontSize:ri===0?11:12,color:ri===0?'FFFFFF':'172033',fill:{color:fill},align:'center',valign:'mid',margin:3}};
+      });
+    }),{x:5.90,y:2.83,w:6.95,h:3.45,border:{type:'solid',color:'CBD5E1',pt:1},autoFit:false,colW:[2.15,1.9,1.55,1.35],rowH:0.43,margin:2});
+    slide.addText('Source: Google Sheet • Community Health Centre, Kharsia • Current FY data shown only through September 2026.',{x:0.5,y:6.75,w:12.2,h:0.22,fontSize:8.5,color:'64748B',align:'center',margin:0,fit:'shrink'});
+    return 1;
+  }
+
   async function generate() {
     var selectedPrograms = getSelectedPptxPrograms();
     if(!selectedPrograms.length){
@@ -2855,6 +2902,7 @@ moduleRanges.push({
         'Wellness Activity': {name:'Wellness Activity',icon:'🩺',gid:'447031017'},
         'Telemedicine Report': {name:'Telemedicine Report',icon:'🩻',gid:'318264987'},
         'RBSK': {name:'RBSK',icon:'👶',gid:null},
+        'Dialysis': {name:'Dialysis',icon:'💧',gid:'781496964'},
         'NRC Kharsia': {name:'NRC Kharsia',icon:'🏥',gid:'1010102020'},
         'Blindness Control': {name:'Blindness Control',icon:'👁️',gid:'1002009767'},
         'NQAS Certification': {name:'NQAS Certification',icon:'🏅',gid:'728123647'}
@@ -2889,6 +2937,8 @@ moduleRanges.push({
           await addTelemedicinePresentation(pptx);
         } else if (mod.name === 'RBSK') {
           await addRBSKPresentation(pptx);
+        } else if (mod.name === 'Dialysis') {
+          await addDialysisPresentation(pptx);
         } else if (mod.name === 'NRC Kharsia') {
           await addNRCPresentation(pptx);
         } else if (mod.name === 'Blindness Control') {
@@ -2922,6 +2972,7 @@ moduleRanges.push({
         'Wellness Activity': {name:'Wellness Activity', icon:'W', color:'#9333EA', fill:'#F3E8FF'},
         'Telemedicine Report': {name:'Telemedicine Report', icon:'T', color:'#0F766E', fill:'#CCFBF1'},
         'RBSK': {name:'RBSK', icon:'R', color:'#4338CA', fill:'#EDE9FE'},
+        'Dialysis': {name:'Dialysis', icon:'D', color:'#0F766E', fill:'#CCFBF1'},
         'NRC Kharsia': {name:'NRC Kharsia', icon:'N', color:'#075985', fill:'#E0F2FE'},
         'Blindness Control': {name:'Blindness Control', icon:'B', color:'#4338CA', fill:'#EEF2FF'},
         'NQAS Certification': {name:'NQAS Certification', icon:'Q', color:'#0F766E', fill:'#CCFBF1'}
