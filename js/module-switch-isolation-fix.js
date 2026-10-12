@@ -13,6 +13,15 @@ function clearShivir(){document.querySelectorAll('.shivir-final').forEach(el=>{e
 function setActive(btn){buttons().forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active')}
 function forceWellness(){const wb=buttons().find(isWellnessButton);if(wb)setActive(wb);clearShivir();const wp=findWellnessPage();if(wp){document.querySelectorAll('.page.active').forEach(p=>{if(p!==wp)p.classList.remove('active')});wp.classList.add('active');wp.style.display='block'}window.__ayushmanShivirActive=false}
 function forceShivir(){const sb=buttons().find(isShivirButton);if(sb)setActive(sb);document.querySelectorAll('.page').forEach(p=>{if(/wellness.*activity|activity.*wellness/i.test((p.id||'')+' '+(typeof p.className==='string'?p.className:'')))p.classList.remove('active')});window.__ayushmanShivirActive=true}
-function hook(){buttons().forEach(b=>{if(b.dataset.moduleIsolationFix)return;b.dataset.moduleIsolationFix='1';b.addEventListener('click',function(){if(isWellnessButton(this)){setTimeout(forceWellness,20);setTimeout(forceWellness,150);setTimeout(forceWellness,500);setTimeout(forceWellness,1200)}else if(isShivirButton(this)){setTimeout(forceShivir,20);setTimeout(forceShivir,150)}},true)})}
-hook();setInterval(hook,300);
+
+function correctWellnessHighlight(){
+ const wm=document.getElementById('wellnessActivityModule');
+ if(!wm||wm.offsetParent===null)return;
+ const wb=buttons().find(isWellnessButton);
+ if(wb){buttons().forEach(x=>x.classList.remove('active'));wb.classList.add('active');}
+ const sb=buttons().find(isShivirButton);if(sb)sb.classList.remove('active');
+ window.__ayushmanShivirActive=false;
+}
+\nfunction hook(){buttons().forEach(b=>{if(b.dataset.moduleIsolationFix)return;b.dataset.moduleIsolationFix='1';b.addEventListener('click',function(){if(isWellnessButton(this)){setTimeout(forceWellness,20);setTimeout(forceWellness,150);setTimeout(forceWellness,500);setTimeout(forceWellness,1200)}else if(isShivirButton(this)){setTimeout(forceShivir,20);setTimeout(forceShivir,150)}},true)})}
+hook();setInterval(function(){hook();correctWellnessHighlight()},300);
 })();
