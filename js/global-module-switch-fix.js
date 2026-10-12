@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 var timer=null;
-function txt(el){return (el&&el.textContent||'').replace(/\\s+/g,' ').trim().toLowerCase();}
+function txt(el){return (el&&el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();}
 function selectedButton(){return document.querySelector('#menuButtons .menu-btn.active')||document.querySelector('.menu-btn.active');}
 function hide(el){if(el)el.style.display='none';}
 function show(el,display){if(el)el.style.display=display||'block';}
@@ -42,7 +42,7 @@ function isolate(){
  var blind=document.getElementById('blindnessModule');
  var nqas=document.getElementById('nqasModule');
  var wellness=document.getElementById('wellnessActivityModule');
- if(/wellness\\s*activity/.test(label)){hide(tableBox);hide(rch);hide(tele);hide(jas);hide(nrc);hide(blind);hide(nqas);show(wellness);window.__wellnessActivityActive=true;return;}
+ if(/wellness\s*activity/.test(label)){hide(tableBox);hide(rch);hide(tele);hide(jas);hide(nrc);hide(blind);hide(nqas);show(wellness);window.__wellnessActivityActive=true;return;}
  window.__wellnessActivityActive=false;
  if(wellness){hide(wellness);wellness.remove();}
  [tableBox,rch,tele,jas,nrc,blind,nqas].forEach(hide);
