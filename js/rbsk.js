@@ -5,8 +5,8 @@ var SPREADSHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
 var SHEET_GID='1502752823';
 var liveLoaded=false;
 function cellValue(c){return c && c.v!==null && c.v!==undefined ? (c.f!==undefined && c.f!==null ? c.f : c.v) : '';}
-function clean(v){return String(v===undefined||v===null?'':v).replace(/\\s+/g,' ').trim();}
-function numOrText(v){if(typeof v==='number')return v;var s=clean(v);if(!s)return '';var n=Number(s.replace(/,/g,''));return Number.isFinite(n)&&/^[-+]?[0-9,]+(\\.[0-9]+)?%?$/.test(s)?(s.indexOf('%')>=0?s:n):s;}
+function clean(v){return String(v===undefined||v===null?'':v).replace(/\s+/g,' ').trim();}
+function numOrText(v){if(typeof v==='number')return v;var s=clean(v);if(!s)return '';var n=Number(s.replace(/,/g,''));return Number.isFinite(n)&&/^[-+]?[0-9,]+(\.[0-9]+)?%?$/.test(s)?(s.indexOf('%')>=0?s:n):s;}
 function loadLiveData(done){
  var cb='__rbskSheet_'+Date.now()+'_'+Math.floor(Math.random()*10000);
  var finished=false,timer=setTimeout(function(){finish(new Error('Google Sheet से डेटा लोड करने में समय लग गया।'))},15000);
@@ -16,14 +16,14 @@ function loadLiveData(done){
   try{
    var rows=resp.table.rows.map(function(r){return (r.c||[]).map(cellValue);});
    var allText=rows.map(function(r){return r.map(clean).join(' ')}).join(' ');
-   var dm=allText.match(/दिनांक\\s*([0-3]?\\d[-/]\\d{1,2}[-/]\\d{4})/);
-   if(dm)D.date=dm[1].replace(/\\//g,'-');
+   var dm=allText.match(/दिनांक\s*([0-3]?\d[-/]\d{1,2}[-/]\d{4})/);
+   if(dm)D.date=dm[1].replace(/\//g,'-');
    var mainRows=[];
    rows.forEach(function(r){
     var joined=r.map(clean).join(' ');
     var team=clean(r[1]);
-    if(/^टीम\\s*ए$/i.test(team)||/^टीम\\s*A$/i.test(team))mainRows.push({n:1,t:'टीम ए',a:r.slice(2,18).map(numOrText)});
-    else if(/^टीम\\s*बी$/i.test(team)||/^टीम\\s*B$/i.test(team))mainRows.push({n:2,t:'टीम बी',a:r.slice(2,18).map(numOrText)});
+    if(/^टीम\s*ए$/i.test(team)||/^टीम\s*A$/i.test(team))mainRows.push({n:1,t:'टीम ए',a:r.slice(2,18).map(numOrText)});
+    else if(/^टीम\s*बी$/i.test(team)||/^टीम\s*B$/i.test(team))mainRows.push({n:2,t:'टीम बी',a:r.slice(2,18).map(numOrText)});
     else if((team==='योग'||team.toLowerCase()==='total') && r.length>=18)mainRows.push({n:'',t:'योग',a:r.slice(2,18).map(numOrText)});
    });
    if(mainRows.length>=2){
@@ -78,7 +78,7 @@ window.scrollTo(0,0);
 
 function mainTable(){
 var h='<div class="rbsk-box"><div class="rbsk-scroll"><table class="rbsk-table rbsk-main-table"><thead>'+
-'<tr class="rbsk-title-row"><th colspan="18">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27 दिनांक 31-08-2026 की स्थिति में</th></tr>'+
+'<tr class="rbsk-title-row"><th colspan="18">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27 दिनांक '+D.date+' की स्थिति में</th></tr>'+
 '<tr class="group"><th rowspan="2">क्र</th><th rowspan="2">टीम</th><th colspan="6">स्कूल जाॅच</th><th colspan="6">आगाॅनबाड़ी FIRST VISIT</th><th colspan="4">Reffer and Treatment</th></tr>'+
 '<tr>'+
 '<th>कुल स्कूल</th><th>स्कूल विजिट</th><th>प्रतिशत</th><th>कुल जाॅच हेतु लक्ष्य</th><th>कुल जाॅच</th><th>प्रतिशत</th>'+
