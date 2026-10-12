@@ -1,13 +1,57 @@
 (function(){
 'use strict';
-var D={date:'31-08-2026',main:[
-{n:1,t:'टीम ए',a:[161,79,'49%',11381,4566,'40%',212,212,'100%',5322,5267,'99%',5322,5267,1000,895,106,105]},
-{n:2,t:'टीम बी',a:[160,74,'46%',10036,3840,'38%',210,210,'100%',5526,5405,'98%',5526,5405,1419,1322,97,75]},
-{n:'',t:'योग',a:[321,153,'48%',21417,8406,'39%',422,422,'100%',10848,10672,'98%',10848,10672,2419,2217,203,180]}],
-cat:[
-{n:1,id:'3863687A',v:[[2,1,1,'50%',1],[48,2,46,'96%',48],[16,3,13,'81%',16],[7,6,1,'14%',7],[4,0,0,'0%',4],[77,1,76,'99%',1]]},
-{n:2,id:'3863687B',v:[[1,0,1,'100%',0],[49,7,42,'86%',49],[50,7,43,'86%',50],[5,2,3,'60%',5],[1,1,20,'20%',0],[106,17,89,'84%',17]]},
-{n:'',id:'Total',v:[[3,1,2,'67%',1],[97,9,88,'91%',97],[66,10,56,'85%',66],[12,8,4,'33%',12],[5,1,8,'8%',0],[183,18,165,'90%',18]]}]};
+var D={date:'30-09-2026',main:[],cat:[]};
+var SPREADSHEET_ID='1XAGjeCrLSVzTIraRSGkkjejXlrJEn-G2GxUEnN6ZCI0';
+var SHEET_GID='1502752823';
+var liveLoaded=false;
+function cellValue(c){return c && c.v!==null && c.v!==undefined ? (c.f!==undefined && c.f!==null ? c.f : c.v) : '';}
+function clean(v){return String(v===undefined||v===null?'':v).replace(/\s+/g,' ').trim();}
+function numOrText(v){if(typeof v==='number')return v;var s=clean(v);if(!s)return '';var n=Number(s.replace(/,/g,''));return Number.isFinite(n)&&/^[-+]?[0-9,]+(\.[0-9]+)?%?$/.test(s)?(s.indexOf('%')>=0?s:n):s;}
+function loadLiveData(done){
+ var cb='__rbskSheet_'+Date.now()+'_'+Math.floor(Math.random()*10000);
+ var finished=false,timer=setTimeout(function(){finish(new Error('Google Sheet से डेटा लोड करने में समय लग गया।'))},15000);
+ function finish(err){if(finished)return;finished=true;clearTimeout(timer);try{delete window[cb]}catch(e){}if(script&&script.parentNode)script.parentNode.removeChild(script);if(done)done(err);}
+ window[cb]=function(resp){
+  if(!resp||resp.status!=='ok'||!resp.table||!resp.table.rows){finish(new Error('Google Sheet का डेटा पढ़ा नहीं जा सका।'));return;}
+  try{
+   var rows=resp.table.rows.map(function(r){return (r.c||[]).map(cellValue);});
+   var allText=rows.map(function(r){return r.map(clean).join(' ')}).join(' ');
+   var dm=allText.match(/दिनांक\s*([0-3]?\d[-/]\d{1,2}[-/]\d{4})/);
+   if(dm)D.date=dm[1].replace(/\//g,'-');
+   var mainRows=[];
+   rows.forEach(function(r){
+    var joined=r.map(clean).join(' ');
+    var team=clean(r[1]);
+    if(/^टीम\s*ए$/i.test(team)||/^टीम\s*A$/i.test(team))mainRows.push({n:1,t:'टीम ए',a:r.slice(2,18).map(numOrText)});
+    else if(/^टीम\s*बी$/i.test(team)||/^टीम\s*B$/i.test(team))mainRows.push({n:2,t:'टीम बी',a:r.slice(2,18).map(numOrText)});
+    else if((team==='योग'||team.toLowerCase()==='total') && r.length>=18)mainRows.push({n:'',t:'योग',a:r.slice(2,18).map(numOrText)});
+   });
+   if(mainRows.length>=2){
+    var a=mainRows.find(function(x){return x.t==='टीम ए'}),b=mainRows.find(function(x){return x.t==='टीम बी'}),tot=mainRows.find(function(x){return x.t==='योग'});
+    if(!tot&&a&&b){tot={n:'',t:'योग',a:a.a.map(function(v,i){var x=Number(String(v).replace('%','')),y=Number(String(b.a[i]).replace('%',''));if(i===2||i===5||i===8||i===11)return (x+y)+'%';return Number.isFinite(x)&&Number.isFinite(y)?x+y:''})};}
+    D.main=[a,b,tot].filter(Boolean);
+   }
+   var catRows=[];
+   rows.forEach(function(r){
+    var id=clean(r[1]);
+    if(id==='3863687A'||id==='3863687B'||id.toLowerCase()==='total'){
+     var vals=r.slice(2).filter(function(v){return v!==''&&v!==null&&v!==undefined;}).slice(0,30).map(numOrText);
+     while(vals.length<30)vals.push('');
+     var groups=[];for(var i=0;i<6;i++)groups.push(vals.slice(i*5,(i+1)*5));
+     catRows.push({n:id==='3863687A'?1:(id==='3863687B'?2:''),id:id,v:groups});
+    }
+   });
+   if(catRows.length>=2){var ca=catRows.find(function(x){return x.id==='3863687A'}),cb2=catRows.find(function(x){return x.id==='3863687B'}),ct=catRows.find(function(x){return x.id.toLowerCase()==='total'});D.cat=[ca,cb2,ct].filter(Boolean);}
+   if(!D.main.length||D.cat.length<2){finish(new Error('Sheet में RBSK की टीम/Category वाली पंक्तियाँ पहचान नहीं पाईं।'));return;}
+   liveLoaded=true;finish(null);
+  }catch(e){finish(e);}
+ };
+ var script=document.createElement('script');
+ var url='https://docs.google.com/spreadsheets/d/'+SPREADSHEET_ID+'/gviz/tq?gid='+SHEET_GID+'&tqx=out:json;responseHandler:'+cb;
+ script.src=url;script.onerror=function(){finish(new Error('Google Sheet उपलब्ध नहीं है। Sharing और इंटरनेट कनेक्शन जाँचें।'));};
+ document.head.appendChild(script);
+}
+
 
 function css(){
 if(document.getElementById('rbsk-css'))return;
@@ -34,7 +78,7 @@ window.scrollTo(0,0);
 
 function mainTable(){
 var h='<div class="rbsk-box"><div class="rbsk-scroll"><table class="rbsk-table rbsk-main-table"><thead>'+
-'<tr class="rbsk-title-row"><th colspan="18">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27 दिनांक 31-08-2026 की स्थिति में</th></tr>'+
+'<tr class="rbsk-title-row"><th colspan="18">राष्ट्रीय बाल स्वास्थ्य कार्यक्रम की जानकारी वित्तीय वर्ष 2026-27 दिनांक '+D.date+' की स्थिति में</th></tr>'+
 '<tr class="group"><th rowspan="2">क्र</th><th rowspan="2">टीम</th><th colspan="6">स्कूल जाॅच</th><th colspan="6">आगाॅनबाड़ी FIRST VISIT</th><th colspan="4">Reffer and Treatment</th></tr>'+
 '<tr>'+
 '<th>कुल स्कूल</th><th>स्कूल विजिट</th><th>प्रतिशत</th><th>कुल जाॅच हेतु लक्ष्य</th><th>कुल जाॅच</th><th>प्रतिशत</th>'+
@@ -57,7 +101,7 @@ h+='</div><div id="rbskCatContent"></div></div>';
 setTimeout(function(){
 var box=document.getElementById('rbskCatContent'),tabs=document.querySelectorAll('.rbsk-cat-tab');
 function draw(key){
-var idx={A:0,AllCategory:1,B:2,C:3,D:4,E:5}[key],title=key==='AllCategory'?'All Category (A+B+C+D+E)':key;
+var idx={A:0,B:1,C:2,D:3,E:4,AllCategory:5}[key],title=key==='AllCategory'?'All Category (A+B+C+D+E)':key;
 var q='<div class="rbsk-section-title">Category '+title+'</div><div class="rbsk-scroll"><table class="rbsk-table rbsk-category-one"><thead><tr class="group"><th rowspan="2">SrNo.</th><th rowspan="2">Team Id</th><th colspan="5">'+title+'</th></tr><tr><th>Identified</th><th>Under Treatment</th><th>Treatment Over</th><th>% of Treatment</th><th>Pending</th></tr></thead><tbody>';
 D.cat.forEach(function(r){var a=r.v[idx];q+='<tr class="'+(r.id==='Total'?'total':'')+'"><td>'+r.n+'</td><td class="rbsk-team">'+(r.id==='Total'?'Total':'Team '+String.fromCharCode(64+r.n))+'</td>'+cells(a)+'</tr>'});
 q+='</tbody></table></div>';box.innerHTML=q;
@@ -112,4 +156,15 @@ function init(){
  }
 }
 init();
+function refreshRBSK(){
+ loadLiveData(function(err){
+  if(err){var head=document.querySelector('#rbskPage .rbsk-head p');if(head)head.textContent='लाइव डेटा लोड नहीं हुआ: '+err.message+' · कृपया Sheet की Viewer sharing जाँचें';return;}
+  var p=document.getElementById('rbskPage');if(!p)return;
+  var h=p.querySelector('.rbsk-head p');if(h)h.textContent='वित्तीय वर्ष 2026-27 · दिनांक '+D.date+' की स्थिति में';
+  var one=document.getElementById('rbsk1');if(one)one.innerHTML=mainTable();
+  var two=document.getElementById('rbsk2');if(two)two.innerHTML=catTable();
+ });
+}
+var oldInit=init;
+var rbskWait=setInterval(function(){if(document.getElementById('rbskPage')){clearInterval(rbskWait);refreshRBSK();}},400);
 })();
