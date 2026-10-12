@@ -5053,17 +5053,24 @@ function renderDialysisTable(data){
  const monthRe=/^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s*[-, ]?\s*(20)?(\d{2})$/i;
  const monthNum={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
  const monthRows=[];
+ const seenMonthKeys=new Set();
+ let fiscalIndex=0;
+ const fiscalLabels=["2024-25","2025-26","2026-27"];
  rows.forEach(row=>{
   const vals=row.slice(0,6);while(vals.length<6)vals.push("");
   const m=String(vals[1]||"").trim().match(monthRe);
   if(!m)return;
-  const month=monthNum[m[1].slice(0,3).toLowerCase()],yy=Number(m[3]),year=yy<100?2000+yy:yy;
-  const fyStart=month>=4?year:year-1,fy=String(fyStart)+"-"+String((fyStart+1)%100).padStart(2,"0");
+  const monthKey=m[1].slice(0,3).toLowerCase()+"-"+String(m[3]);
+  // The source sheet repeats month labels in each yearly block (e.g. April 25).
+  // A repeated month/year key marks the beginning of the next fiscal-year block.
+  if(seenMonthKeys.has(monthKey))fiscalIndex=Math.min(fiscalIndex+1,fiscalLabels.length-1);
+  seenMonthKeys.add(monthKey);
+  const fy=fiscalLabels[fiscalIndex]||"";
   monthRows.push({fy,vals});
  });
  const grouped={};
  monthRows.forEach(item=>{(grouped[item.fy]||(grouped[item.fy]=[])).push(item.vals)});
- const fiscalYears=Object.keys(grouped).sort((a,b)=>Number(a.slice(0,4))-Number(b.slice(0,4)));
+ const fiscalYears=Object.keys(grouped).filter(Boolean);
  fiscalYears.forEach(fy=>{
   const box=document.createElement("div");box.className="dialysis-year-card";
   const title=document.createElement("div");title.className="dialysis-year-title";title.textContent="प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम — वित्तीय वर्ष "+fy;box.appendChild(title);
