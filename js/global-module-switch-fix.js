@@ -13,7 +13,9 @@ function isolate(){
  var rbsk=document.getElementById('rbskPage');
  var dashboard=document.getElementById('dashboardPage');
  var report=document.getElementById('reportPage');
- var isDashboard=!btn||btn.id==='dashboardBtn'||label.indexOf('dashboard')>=0;
+ var dashboardVisible=!!(dashboard&&dashboard.classList.contains('active')&&dashboard.style.display!=='none');
+ var isDashboard=dashboardVisible||!btn||btn.id==='dashboardBtn'||label.indexOf('dashboard')>=0;
+ if(isDashboard){var db=document.querySelector('#menuButtons .menu-btn[id*=dashboard i]')||Array.from(document.querySelectorAll('#menuButtons .menu-btn')).find(function(x){return /dashboard/i.test(txt(x))});if(db){document.querySelectorAll('#menuButtons .menu-btn').forEach(function(x){x.classList.remove('active')});db.classList.add('active')}btn=db;label=txt(btn);}
  pages.forEach(function(p){if(p!==rbsk){p.classList.remove('active');hide(p);}});
  if(isDashboard){
   if(dashboard){dashboard.classList.add('active');show(dashboard);}
