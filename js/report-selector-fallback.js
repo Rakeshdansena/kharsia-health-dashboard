@@ -12,7 +12,10 @@
       ['Wellness Activity','🩺','Wellness Activity'],
       ['RBSK','👶','RBSK — राष्ट्रीय बाल स्वास्थ्य कार्यक्रम'],
       ['Dialysis','💧','Dialysis — प्रधानमंत्री राष्ट्रीय डायलिसिस कार्यक्रम'],
-      ['Telemedicine Report','🩻','Telemedicine Report']
+      ['Telemedicine Report','🩻','Telemedicine Report'],
+      ['NRC Kharsia','🏥','NRC Kharsia'],
+      ['Blindness Control','👁️','Blindness Control — Month Wise Report'],
+      ['NQAS Certification','🏅','NQAS Certification']
     ];
     var modal=document.createElement('div');
     modal.id='pptxProgrammeModalFixed';
@@ -32,9 +35,20 @@
     card.appendChild(grid);
     var actions=document.createElement('div');
     actions.style.cssText='display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px';
-    actions.innerHTML='<button type="button" id="pptxFixedCancel" style="padding:10px 16px;border:1px solid #94a3b8;border-radius:8px;background:#fff;cursor:pointer">Cancel</button><button type="button" id="pptxFixedGenerate" style="padding:10px 16px;border:0;border-radius:8px;background:#0f766e;color:#fff;font-weight:800;cursor:pointer">📊 Generate PPTX</button>';
+    actions.innerHTML='<button type="button" id="pptxFixedCancel" style="padding:10px 16px;border:1px solid #94a3b8;border-radius:8px;background:#fff;cursor:pointer">Cancel</button><button type="button" id="pptxFixedGeneratePDF" style="padding:10px 16px;border:0;border-radius:8px;background:#0f766e;color:#fff;font-weight:800;cursor:pointer">📄 Generate PDF</button><button type="button" id="pptxFixedGenerate" style="padding:10px 16px;border:0;border-radius:8px;background:#b91c1c;color:#fff;font-weight:800;cursor:pointer">📊 Generate PPTX</button>';
     card.appendChild(actions);modal.appendChild(card);document.body.appendChild(modal);
     document.getElementById('pptxFixedCancel').onclick=function(){modal.remove();};
+    document.getElementById('pptxFixedGeneratePDF').onclick=function(){
+      var selected=Array.from(modal.querySelectorAll('.pptx-fixed-check:checked')).map(function(c){return c.value;});
+      if(!selected.length){alert('कम-से-कम एक Programme select करें।');return;}
+      window.__pptxSelectedPrograms=selected.slice();
+      modal.remove();
+      if(typeof window.runSelectedProgrammePDF==='function'){
+        window.runSelectedProgrammePDF(selected);
+      }else{
+        alert('PDF Generator load नहीं हुआ। पेज को Ctrl+Shift+R से refresh करके फिर प्रयास करें।');
+      }
+    };
     document.getElementById('pptxFixedGenerate').onclick=function(){
       var selected=Array.from(modal.querySelectorAll('.pptx-fixed-check:checked')).map(function(c){return c.value;});
       if(!selected.length){alert('कम-से-कम एक Programme select करें।');return;}
