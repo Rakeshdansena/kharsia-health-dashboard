@@ -22,6 +22,7 @@ function correctWellnessHighlight(){
  const sb=buttons().find(isShivirButton);if(sb)sb.classList.remove('active');
  window.__ayushmanShivirActive=false;
 }
-\nfunction hook(){buttons().forEach(b=>{if(b.dataset.moduleIsolationFix)return;b.dataset.moduleIsolationFix='1';b.addEventListener('click',function(){if(isWellnessButton(this)){setTimeout(forceWellness,20);setTimeout(forceWellness,150);setTimeout(forceWellness,500);setTimeout(forceWellness,1200)}else if(isShivirButton(this)){setTimeout(forceShivir,20);setTimeout(forceShivir,150)}},true)})}
+
+function hook(){buttons().forEach(b=>{if(b.dataset.moduleIsolationFix)return;b.dataset.moduleIsolationFix='1';b.addEventListener('click',function(){if(isWellnessButton(this)){setTimeout(forceWellness,20);setTimeout(forceWellness,150);setTimeout(forceWellness,500);setTimeout(forceWellness,1200)}else if(isShivirButton(this)){setTimeout(forceShivir,20);setTimeout(forceShivir,150)}},true)})}
 hook();setInterval(function(){hook();correctWellnessHighlight()},300);
 })();
