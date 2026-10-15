@@ -4904,14 +4904,39 @@ function renderNQASTable(data){
  }
  let detailHeader=findHeader(["NIN","Sector","Facility Name"]);
  let detailRows=[];
+ const addDetailRow=r=>{
+  const row=r.slice(0,7).map(clean);
+  if(!row.some(Boolean))return;
+  const facility=row[3]||"";
+  if(!facility)return;
+  if(!detailRows.some(x=>clean(x[1])===clean(row[1])&&clean(x[3]).toLowerCase()===facility.toLowerCase()))detailRows.push(row);
+ };
  if(detailHeader>=0){
   for(let i=detailHeader+1;i<rows.length;i++){
    const r=rows[i];
    if(!r.some(v=>v!==""))continue;
    if(/^(?:sn|क्रमांक)$/i.test(clean(r[0])))continue;
-   if(/^\d+$/.test(clean(r[0]))&&clean(r[1])&&clean(r[2])&&clean(r[3]))detailRows.push(r.slice(0,7));
+   if(/^\d+$/.test(clean(r[0]))&&clean(r[1])&&clean(r[2])&&clean(r[3]))addDetailRow(r);
   }
  }
+ // Also detect newly added facility rows even if the sheet's header is merged or formatted differently.
+ rows.forEach(r=>{
+  const facilityIndex=r.findIndex(v=>/^CHC\s*CHAPLE$/i.test(clean(v)) || /^CHAPLE$/i.test(clean(v)));
+  if(facilityIndex<0)return;
+  let mapped;
+  if(facilityIndex===3)mapped=r.slice(0,7);
+  else{
+   const ninIndex=r.findIndex(v=>/^\d{9,12}$/.test(clean(v)));
+   const sectorIndex=r.findIndex((v,i)=>i!==facilityIndex&&/^(Barra|Binjkot|Gorpar|Jobi|Sarwani|Sondka|Turekela|Urban Kharsia)$/i.test(clean(v)));
+   const nin=ninIndex>=0?clean(r[ninIndex]):"";
+   const sector=sectorIndex>=0?clean(r[sectorIndex]):"";
+   const applied=r.find(v=>/^(Yes|No)$/i.test(clean(v)))||"";
+   const result=r.find(v=>/certified|assessment pending|not certified/i.test(clean(v)))||"-";
+   const remarks=r.find(v=>/building|damage|available/i.test(clean(v)))||"";
+   mapped=[/^\d+$/.test(clean(r[0]))?clean(r[0]):String(detailRows.length+1),nin,sector,clean(r[facilityIndex]),applied,result,remarks];
+  }
+  addDetailRow(mapped);
+ });
  // Last provided NQAS report is used only if the connected sheet's format cannot be parsed.
  const fallbackSummary=[
   ["1","PHC","7","1","0","0","1"],
