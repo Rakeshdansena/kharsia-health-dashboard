@@ -4880,7 +4880,7 @@ function renderNQASTable(data){
  const note=document.getElementById("nqasNote");
  cards.innerHTML=""; thead.innerHTML=""; tbody.innerHTML=""; note.style.display="none";
 
- const clean=v=>String(v==null?"":v).replace(/\s+/g," ").trim();
+ const clean=v=>String(v==null?"":v).replace(/\\s+/g," ").trim();
  const rows=[];
  const cols=data.getNumberOfColumns();
  for(let r=0;r<data.getNumberOfRows();r++){
@@ -4889,54 +4889,58 @@ function renderNQASTable(data){
   rows.push(row);
  }
  const text=r=>r.join(" ").trim();
-
- // Find the actual header row from the live Sheet.
- let headerIndex=rows.findIndex(r=>r.some(v=>/^facility$/i.test(clean(v))));
- if(headerIndex<0){
-  headerIndex=rows.findIndex(r=>/कुल संस्था/i.test(text(r)) && /सर्टिफाईड/i.test(text(r)));
- }
-
+ const facilityPattern=/(?:^|\\b)(?:PHC|SHC|CHC)(?:\\b|$)|प्राथमिक स्वास्थ्य केंद्र|प्राथमिक स्वास्थ्य केन्द्र|उप स्वास्थ्य केंद्र|उप स्वास्थ्य केन्द्र|सामुदायिक स्वास्थ्य केंद्र|सामुदायिक स्वास्थ्य केन्द्र/i;
+ const headerIndex=rows.findIndex(r=>
+  r.some(v=>/^facility$/i.test(v)) ||
+  (/कुल संस्था/i.test(text(r)) && /(?:सर्टिफाइड|सर्टिफाईड|सर्टिफाइड|certif)/i.test(text(r)))
+ );
  const headers=[
   "Sn","Facility","कुल संस्था","NQAS हेतु आवेदन किया गया है",
   "मूल्यांकन हो गया है","कुल सर्टिफाईड है","मूल्यांकन हेतु बाकी है"
  ];
-
- // Extract only the facility data rows below the header.
  let dataRows=[];
  let noteText="";
- if(headerIndex>=0){
+
+ // The Sheet may place the facility/type in a different column or include
+ // the facility name alongside PHC/SHC/CHC. Detect it across the entire row.
+ rows.forEach((r,ri)=>{
+  const t=text(r);
+  if(!t) return;
+  if(/उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))){
+   noteText=t;
+   return;
+  }
+  if(ri===headerIndex || /^(?:sn|क्रमांक|क्र\.?सं\.?)$/i.test(clean(r[0]))) return;
+  let facilityIndex=r.findIndex(v=>facilityPattern.test(clean(v)));
+  if(facilityIndex<0) return;
+  const nums=r.map((v,i)=>({v:clean(v),i})).filter(x=>x.i!==facilityIndex && /-?\\d[\\d,.]*(?:\\s*%)?/.test(x.v));
+  // Ignore category/header rows without actual numeric report values.
+  if(nums.length<2) return;
+  let normalized;
+  if(facilityIndex===1 && r.length>=7){
+   normalized=r.slice(0,7);
+  }else{
+   const serial=facilityIndex>0 && /^\\d+$/.test(clean(r[0])) ? clean(r[0]) : String(dataRows.length+1);
+   const facility=clean(r[facilityIndex]);
+   const values=r.slice(facilityIndex+1).filter(v=>v!=="");
+   normalized=[serial,facility,...values].slice(0,7);
+   while(normalized.length<7) normalized.push("");
+  }
+  dataRows.push(normalized);
+ });
+
+ // If the facility category is in a separate column, retain the adjacent
+ // facility name and numeric values rather than silently rendering an empty table.
+ if(!dataRows.length && headerIndex>=0){
   for(let i=headerIndex+1;i<rows.length;i++){
-   const r=rows[i];
-   const t=text(r);
-   if(!t) continue;
-   if(/उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))){
-    noteText=t;
-    continue;
-   }
-   const facility=clean(r[1]);
-   if(/^(PHC|SHC|CHC)$/i.test(facility)){
-    dataRows.push(r.slice(0,7));
+   const r=rows[i], t=text(r);
+   if(!t || /उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))) continue;
+   const numericCount=r.filter(v=>/-?\\d[\\d,.]*(?:\\s*%)?/.test(clean(v))).length;
+   if(numericCount>=3){
+    const candidate=r.filter(v=>clean(v)!=="");
+    if(candidate.length>=3) dataRows.push(candidate.slice(0,7));
    }
   }
- }
-
- // Fallback for the current known facility rows if the source shifts cells.
- if(!dataRows.length){
-  rows.forEach(r=>{
-   const facility=r.find(v=>/^(PHC|SHC|CHC)$/i.test(clean(v)));
-   if(facility){
-    const idx=r.indexOf(facility);
-    const vals=r.slice(Math.max(0,idx-1),idx+6);
-    while(vals.length<7) vals.push("");
-    dataRows.push(vals.slice(0,7));
-   }
-  });
- }
-
- // Keep the note exactly as supplied by the Sheet.
- if(!noteText){
-  const nr=rows.find(r=>/उपरोक्त संस्था के अलावा/i.test(text(r)));
-  if(nr) noteText=text(nr);
  }
 
  const hr=document.createElement("tr");
@@ -4971,12 +4975,15 @@ function renderNQASTable(data){
  if(noteText){
   note.innerText="📝 "+noteText;
   note.style.display="block";
+ }else if(!dataRows.length){
+  note.innerText="Google Sheet से डेटा आया है, लेकिन NQAS की facility rows पहचान में नहीं आईं। Sheet में header और facility data की संरचना जाँचें।";
+  note.style.display="block";
  }
 
- // Summary cards are calculated from the facility rows, not from title rows.
  const sums=[2,3,4,5,6].map(c=>dataRows.reduce((a,r)=>{
-  const n=parseFloat(String(r[c]||"").replace(/,/g,"").replace("%",""));
-  return a+(isFinite(n)?n:0);
+  const raw=String(r[c]||"").replace(/,/g,"").replace(/%/g,"").trim();
+  const n=parseFloat(raw);
+  return a+(Number.isFinite(n)?n:0);
  },0));
  const cardDefs=[
   ["कुल संस्था",sums[0],"#166534","#ecfdf5","#bbf7d0"],
@@ -4991,11 +4998,9 @@ function renderNQASTable(data){
   card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';
   cards.appendChild(card);
  });
-
  const period=document.getElementById("nqasPeriod");
  if(period) period.innerText="NQAS Certification Detail Kharsia";
 }
-
 function renderDialysisTable(data){
  const module=document.getElementById("dialysisModule"),progress=document.getElementById("dialysisProgressTable"),years=document.getElementById("dialysisYearTables"),cards=document.getElementById("dialysisSummaryCards");
  if(!module||!progress||!years||!cards)return;
