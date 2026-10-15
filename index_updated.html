@@ -4889,7 +4889,7 @@ function renderNQASTable(data){
   rows.push(row);
  }
  const text=r=>r.join(" ").trim();
- const facilityPattern=/(?:^|\b)(?:PHC|SHC|CHC)(?:\b|$)|प्राथमिक स्वास्थ्य केंद्र|प्राथमिक स्वास्थ्य केन्द्र|उप स्वास्थ्य केंद्र|उप स्वास्थ्य केन्द्र|सामुदायिक स्वास्थ्य केंद्र|सामुदायिक स्वास्थ्य केन्द्र/i;
+ const facilityPattern=/^(?:PHC|SHC|CHC)$/i;
  const headerIndex=rows.findIndex(r=>
   r.some(v=>/^facility$/i.test(v)) ||
   (/कुल संस्था/i.test(text(r)) && /(?:सर्टिफाइड|सर्टिफाईड|सर्टिफाइड|certif)/i.test(text(r)))
