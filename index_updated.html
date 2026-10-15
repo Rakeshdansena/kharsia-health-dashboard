@@ -4987,6 +4987,64 @@ function renderNQASTable(data){
   card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';
   cards.appendChild(card);
  });
+
+ // Render the detailed facility table from the second table in the Google Sheet.
+ const detailHeaderIndex=rows.findIndex(r=>
+  r.some(v=>/^NIN$/i.test(clean(v))) &&
+  r.some(v=>/^Sector$/i.test(clean(v))) &&
+  r.some(v=>/^Facility Name$/i.test(clean(v)))
+ );
+ let detailRows=[];
+ if(detailHeaderIndex>=0){
+  for(let i=detailHeaderIndex+1;i<rows.length;i++){
+   const r=rows[i];
+   if(!r.some(v=>clean(v))) continue;
+   if(/^\d+$/.test(clean(r[0])) && r.filter(v=>clean(v)!=="").length>=5){
+    detailRows.push(r.slice(0,7));
+   }
+  }
+ }
+ let detailBox=document.getElementById("nqasFacilityDetailBox");
+ if(!detailBox){
+  detailBox=document.createElement("div");
+  detailBox.id="nqasFacilityDetailBox";
+  detailBox.style.cssText="margin-top:16px;background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;";
+  detailBox.innerHTML='<div style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">NQAS Facility Wise Detail</div><table id="nqasFacilityDetailTable" style="width:100%;border-collapse:collapse;min-width:900px;"><thead></thead><tbody></tbody></table>';
+  document.getElementById("nqasTableTitle").parentElement.after(detailBox);
+ }
+ const dt=document.getElementById("nqasFacilityDetailTable");
+ const dh=dt.querySelector("thead"), db=dt.querySelector("tbody");
+ dh.innerHTML="";db.innerHTML="";
+ const dHeaders=["Sn","NIN","Sector","Facility Name","NQAS Applied","Result","Remarks"];
+ const dColors=["#4338ca","#2563eb","#0f766e","#075985","#7c3aed","#15803d","#c2410c"];
+ const dhr=document.createElement("tr");
+ dHeaders.forEach((h,i)=>{
+  const th=document.createElement("th");th.innerText=h;
+  th.style.cssText="padding:11px 9px;background:"+dColors[i]+";color:#fff;border:1px solid #cbd5e1;text-align:center;font-weight:900;white-space:normal;";
+  dhr.appendChild(th);
+ });
+ dh.appendChild(dhr);
+ detailRows.forEach((r,ri)=>{
+  const tr=document.createElement("tr");
+  for(let col=0;col<7;col++){
+   const td=document.createElement("td");td.innerText=r[col]||"";
+   let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";
+   if(col===0){bg="#eef2ff";fg="#3730a3";}
+   if(col===2){bg="#eff6ff";fg="#075985";}
+   if(col===4){bg=clean(r[col]).toLowerCase()==="yes"?"#ecfdf5":"#fff7ed";fg=clean(r[col]).toLowerCase()==="yes"?"#166534":"#9a3412";}
+   if(col===5 && /certified/i.test(clean(r[col]))){bg="#ecfdf5";fg="#166534";}
+   td.style.cssText="padding:9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:600;white-space:normal;";
+   tr.appendChild(td);
+  }
+  db.appendChild(tr);
+ });
+ if(!detailRows.length){
+  const tr=document.createElement("tr"),td=document.createElement("td");
+  td.colSpan=7;td.innerText="Facility-wise detail rows नहीं मिलीं।";
+  td.style.cssText="padding:14px;text-align:center;color:#64748b;background:#f8fafc;";
+  tr.appendChild(td);db.appendChild(tr);
+ }
+
  const period=document.getElementById("nqasPeriod");
  if(period) period.innerText="NQAS Certification Detail Kharsia";
 }
