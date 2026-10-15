@@ -4870,183 +4870,119 @@ function renderBlindnessTable(data){
 
 function renderNQASTable(data){
  const module=document.getElementById("nqasModule");
- if(!module) return;
+ if(!module)return;
  module.style.display="block";
-
+ const clean=v=>String(v==null?"":v).replace(/\s+/g," ").trim();
  const cards=document.getElementById("nqasSummaryCards");
  const table=document.getElementById("nqasReportTable");
- const thead=table.querySelector("thead");
- const tbody=table.querySelector("tbody");
- const note=document.getElementById("nqasNote");
- cards.innerHTML=""; thead.innerHTML=""; tbody.innerHTML=""; note.style.display="none";
-
- const clean=v=>String(v==null?"":v).replace(/\s+/g," ").trim();
+ if(!cards||!table)return;
+ const thead=table.querySelector("thead"),tbody=table.querySelector("tbody"),note=document.getElementById("nqasNote");
+ cards.innerHTML="";thead.innerHTML="";tbody.innerHTML="";
+ if(note){note.style.display="none";note.textContent="";}
  const rows=[];
- const cols=data.getNumberOfColumns();
  for(let r=0;r<data.getNumberOfRows();r++){
   const row=[];
-  for(let c=0;c<cols;c++) row.push(clean(formatted(data,r,c)));
+  for(let c=0;c<data.getNumberOfColumns();c++)row.push(clean(formatted(data,r,c)));
   rows.push(row);
  }
- const text=r=>r.join(" ").trim();
- const facilityPattern=/^(?:PHC|SHC|CHC)$/i;
- const headerIndex=rows.findIndex(r=>
-  r.some(v=>/^facility$/i.test(v)) ||
-  (/कुल संस्था/i.test(text(r)) && /(?:सर्टिफाइड|सर्टिफाईड|सर्टिफाइड|certif)/i.test(text(r)))
- );
- const headers=[
-  "Sn","Facility","कुल संस्था","NQAS हेतु आवेदन किया गया है",
-  "मूल्यांकन हो गया है","कुल सर्टिफाईड है","मूल्यांकन हेतु बाकी है"
- ];
- let dataRows=[];
- let noteText="";
-
- // The Sheet may place the facility/type in a different column or include
- // the facility name alongside PHC/SHC/CHC. Detect it across the entire row.
- rows.forEach((r,ri)=>{
-  const t=text(r);
-  if(!t) return;
-  if(/उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))){
-   noteText=t;
-   return;
-  }
-  if(ri===headerIndex || /^(?:sn|क्रमांक|क्र\.?सं\.?)$/i.test(clean(r[0]))) return;
-  let facilityIndex=r.findIndex(v=>facilityPattern.test(clean(v)));
-  if(facilityIndex<0) return;
-  const nums=r.map((v,i)=>({v:clean(v),i})).filter(x=>x.i!==facilityIndex && /-?\d[\d,.]*(?:\s*%)?/.test(x.v));
-  // Ignore category/header rows without actual numeric report values.
-  if(nums.length<2) return;
-  let normalized;
-  if(facilityIndex===1 && r.length>=7){
-   normalized=r.slice(0,7);
-  }else{
-   const serial=facilityIndex>0 && /^\d+$/.test(clean(r[0])) ? clean(r[0]) : String(dataRows.length+1);
-   const facility=clean(r[facilityIndex]);
-   const values=r.slice(facilityIndex+1).filter(v=>v!=="");
-   normalized=[serial,facility,...values].slice(0,7);
-   while(normalized.length<7) normalized.push("");
-  }
-  dataRows.push(normalized);
- });
-
- // Do not guess at unrelated rows when the expected facility labels are absent.
- // A guessed row can make unrelated values such as "Yes(PHC)" appear as report data.
-
- const hr=document.createElement("tr");
- headers.forEach((h,i)=>{
-  const th=document.createElement("th");
-  th.innerText=h;
-  const bg=["#4338ca","#2563eb","#15803d","#0f766e","#075985","#7c3aed","#c2410c"][i];
-  th.style.cssText="padding:12px 10px;background:"+bg+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;vertical-align:middle;";
-  hr.appendChild(th);
- });
- thead.appendChild(hr);
-
- dataRows.forEach((row,ri)=>{
-  const tr=document.createElement("tr");
-  for(let c=0;c<7;c++){
-   const td=document.createElement("td");
-   td.innerText=row[c]===undefined?"":row[c];
-   let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";
-   if(c===0){bg="#eef2ff";fg="#3730a3";}
-   if(c===1){bg="#eff6ff";fg="#075985";}
-   if(c===2){bg="#f0fdf4";fg="#166534";}
-   if(c===3){bg="#ecfdf5";fg="#15803d";}
-   if(c===4){bg="#eff6ff";fg="#075985";}
-   if(c===5){bg="#f5f3ff";fg="#6d28a9";}
-   if(c===6){bg="#fff7ed";fg="#c2410c";}
-   td.style.cssText="padding:12px 9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:"+(c<2?"800":"700")+";white-space:normal;";
-   tr.appendChild(td);
-  }
-  tbody.appendChild(tr);
- });
-
- if(noteText){
-  note.innerText="📝 "+noteText;
-  note.style.display="block";
- }else if(!dataRows.length){
-  note.innerText="Google Sheet से डेटा आया है, लेकिन अपेक्षित PHC/SHC/CHC facility rows नहीं मिलीं। गलत/असंबंधित पंक्तियाँ दिखाने के बजाय डेटा रोक दिया गया है। NQAS Sheet के header और data rows की जाँच आवश्यक है।";
-  note.style.display="block";
- }
-
- const sums=[2,3,4,5,6].map(c=>dataRows.reduce((a,r)=>{
-  const raw=String(r[c]||"").replace(/,/g,"").replace(/%/g,"").trim();
-  const n=parseFloat(raw);
-  return a+(Number.isFinite(n)?n:0);
- },0));
- const cardDefs=[
-  ["कुल संस्था",sums[0],"#166534","#ecfdf5","#bbf7d0"],
-  ["NQAS हेतु आवेदन",sums[1],"#075985","#eff6ff","#bfdbfe"],
-  ["मूल्यांकन हो गया",sums[2],"#075985","#eff6ff","#bfdbfe"],
-  ["कुल सर्टिफाईड",sums[3],"#6d28d9","#f5f3ff","#ddd6fe"],
-  ["मूल्यांकन हेतु बाकी",sums[4],"#c2410c","#fff7ed","#fed7aa"]
- ];
- cardDefs.forEach(x=>{
-  const card=document.createElement("div");
-  card.style.cssText="background:"+x[3]+";border:1px solid "+x[4]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";
-  card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';
-  cards.appendChild(card);
- });
-
- // Render the detailed facility table from the second table in the Google Sheet.
- const detailHeaderIndex=rows.findIndex(r=>
-  r.some(v=>/^NIN$/i.test(clean(v))) &&
-  r.some(v=>/^Sector$/i.test(clean(v))) &&
-  r.some(v=>/^Facility Name$/i.test(clean(v)))
- );
- let detailRows=[];
- if(detailHeaderIndex>=0){
-  for(let i=detailHeaderIndex+1;i<rows.length;i++){
-   const r=rows[i];
-   if(!r.some(v=>clean(v))) continue;
-   if(/^\d+$/.test(clean(r[0])) && r.filter(v=>clean(v)!=="").length>=5){
-    detailRows.push(r.slice(0,7));
+ const findHeader=(needles)=>rows.findIndex(r=>needles.every(n=>r.some(v=>clean(v).toLowerCase()===n.toLowerCase())));
+ let summaryHeader=findHeader(["Facility","कुल संस्था"]);
+ if(summaryHeader<0)summaryHeader=rows.findIndex(r=>/कुल संस्था/i.test(r.join(" "))&&/NQAS|आवेदन/i.test(r.join(" ")));
+ let summaryRows=[];
+ let summaryNote="";
+ if(summaryHeader>=0){
+  for(let i=summaryHeader+1;i<rows.length;i++){
+   const r=rows[i],joined=r.join(" ");
+   if(/उपरोक्त संस्था के अलावा/i.test(joined)){summaryNote=joined;continue;}
+   if(/^(नोट|note)$/i.test(clean(r[0])))continue;
+   const ix=r.findIndex(v=>/^(PHC|SHC|CHC)$/i.test(clean(v)));
+   if(ix>=0){
+    const nums=r.slice(ix+1).filter(v=>v!=="");
+    if(nums.length>=5)summaryRows.push([clean(r[0])&&/^\d+$/.test(clean(r[0]))?clean(r[0]):String(summaryRows.length+1),clean(r[ix]),...nums].slice(0,7));
    }
   }
  }
- let detailBox=document.getElementById("nqasFacilityDetailBox");
- if(!detailBox){
-  detailBox=document.createElement("div");
-  detailBox.id="nqasFacilityDetailBox";
-  detailBox.style.cssText="margin-top:16px;background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;";
-  detailBox.innerHTML='<div style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">NQAS Facility Wise Detail</div><table id="nqasFacilityDetailTable" style="width:100%;border-collapse:collapse;min-width:900px;"><thead></thead><tbody></tbody></table>';
-  document.getElementById("nqasTableTitle").parentElement.after(detailBox);
- }
- const dt=document.getElementById("nqasFacilityDetailTable");
- const dh=dt.querySelector("thead"), db=dt.querySelector("tbody");
- dh.innerHTML="";db.innerHTML="";
- const dHeaders=["Sn","NIN","Sector","Facility Name","NQAS Applied","Result","Remarks"];
- const dColors=["#4338ca","#2563eb","#0f766e","#075985","#7c3aed","#15803d","#c2410c"];
- const dhr=document.createElement("tr");
- dHeaders.forEach((h,i)=>{
-  const th=document.createElement("th");th.innerText=h;
-  th.style.cssText="padding:11px 9px;background:"+dColors[i]+";color:#fff;border:1px solid #cbd5e1;text-align:center;font-weight:900;white-space:normal;";
-  dhr.appendChild(th);
- });
- dh.appendChild(dhr);
- detailRows.forEach((r,ri)=>{
-  const tr=document.createElement("tr");
-  for(let col=0;col<7;col++){
-   const td=document.createElement("td");td.innerText=r[col]||"";
-   let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";
-   if(col===0){bg="#eef2ff";fg="#3730a3";}
-   if(col===2){bg="#eff6ff";fg="#075985";}
-   if(col===4){bg=clean(r[col]).toLowerCase()==="yes"?"#ecfdf5":"#fff7ed";fg=clean(r[col]).toLowerCase()==="yes"?"#166534":"#9a3412";}
-   if(col===5 && /certified/i.test(clean(r[col]))){bg="#ecfdf5";fg="#166534";}
-   td.style.cssText="padding:9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:600;white-space:normal;";
-   tr.appendChild(td);
+ let detailHeader=findHeader(["NIN","Sector","Facility Name"]);
+ let detailRows=[];
+ if(detailHeader>=0){
+  for(let i=detailHeader+1;i<rows.length;i++){
+   const r=rows[i];
+   if(!r.some(v=>v!==""))continue;
+   if(/^(?:sn|क्रमांक)$/i.test(clean(r[0])))continue;
+   if(/^\d+$/.test(clean(r[0]))&&clean(r[1])&&clean(r[2])&&clean(r[3]))detailRows.push(r.slice(0,7));
   }
-  db.appendChild(tr);
- });
- if(!detailRows.length){
-  const tr=document.createElement("tr"),td=document.createElement("td");
-  td.colSpan=7;td.innerText="Facility-wise detail rows नहीं मिलीं।";
-  td.style.cssText="padding:14px;text-align:center;color:#64748b;background:#f8fafc;";
-  tr.appendChild(td);db.appendChild(tr);
  }
-
- const period=document.getElementById("nqasPeriod");
- if(period) period.innerText="NQAS Certification Detail Kharsia";
+ // Last provided NQAS report is used only if the connected sheet's format cannot be parsed.
+ const fallbackSummary=[
+  ["1","PHC","7","1","0","0","1"],
+  ["2","SHC","41","19","11","9","8"],
+  ["3","CHC","1","1","1","1","0"]
+ ];
+ const fallbackNote="उपरोक्त संस्था के अलावा दिसम्बर 2026 तक 12 संस्था का NQAS सर्टिफिकेसन किया जाना है";
+ const fallbackDetail=[
+ ["1","1221155847","Turekela","TELIKOT","No","-",""],
+ ["2","1476384423","Turekela","DUMARBHANTHA","Yes","Assessment Pending",""],
+ ["3","1521232858","Turekela","MAHUAPALI","Yes","Certified",""],
+ ["4","1737865384","Sondka","KUNKUNI","Yes","Assessment Pending",""],
+ ["5","2132521341","Sarwani","TIUR","Yes","Assessment Pending",""],
+ ["6","2252118530","Sarwani","MADANPUR","No","-",""],
+ ["7","2357411129","Turekela","TUREKELA","No","-","Building Construction"],
+ ["8","2376686370","Jobi","NANDGAON","No","-","Building Damage"],
+ ["9","2437685643","Binjkot","LODHAJHAR","Yes","certified with conditionality",""],
+ ["10","2541145229","Binjkot","BADE DUMARPALI","No","-",""],
+ ["11","2637384542","Sarwani","BARGARH","Yes","Certified",""],
+ ["12","2688448113","Sarwani","SARWANI","No","-",""],
+ ["13","2856288630","Turekela","MAKRI","No","-",""],
+ ["14","3188267730","Binjkot","NAHARPALI","No","-",""],
+ ["15","3245487818","Binjkot","PAMGARH","Yes","certified with conditionality",""],
+ ["16","3354437828","Jobi","JOBI","No","-",""],
+ ["17","3858644317","Sondka","GIDHA","No","-",""],
+ ["18","3874372562","Sondka","SONDAKA","Yes","Assessment Pending",""],
+ ["19","4175483678","Turekela","BAKELI","No","-",""],
+ ["20","4287268322","Barra","BARRA","No","-","Building Construction"],
+ ["21","4432627687","Gorpar","GANDAPALI","No","-","Building Damage"],
+ ["22","4443238359","Barra","DEHJARI","Yes","Assessment Pending",""],
+ ["23","4718588256","Sarwani","AURDA","Yes","certified with conditionality",""],
+ ["24","4771423839","Sarwani","BOTALDA","Yes","Assessment Pending",""],
+ ["25","4826582761","Binjkot","BHUPDEOPUR","Yes","certified with conditionality",""],
+ ["26","5135835113","Gorpar","GORPAR","No","-",""],
+ ["27","5511157645","Binjkot","BINJKOT","No","-",""],
+ ["28","5825854747","Jobi","NAGOI","No","-",""],
+ ["29","5863384714","Jobi","KHAMHAR","Yes","Assessment Pending",""],
+ ["30","6264573871","Sondka","SONBARSA","No","-",""],
+ ["31","6557746382","Sondka","JAIMURA","Yes","Not Certified",""],
+ ["32","6636862440","Turekela","HALAHULI","No","-","Building Not Available"],
+ ["33","6687746252","Binjkot","MURA","Yes","certified with conditionality",""],
+ ["34","6832362849","Binjkot","BARBHAUNA","No","-",""],
+ ["35","7554788559","Sarwani","PARASKOL","No","-",""],
+ ["36","7642784255","Sondka","BANIPATHAR","Yes","Not Certified",""],
+ ["37","7742357465","Sarwani","CHHOTE DEOGAON","Yes","Not Certified",""],
+ ["38","8177756346","Binjkot","GURDA","Yes","Assessment Pending",""],
+ ["39","8666826758","Gorpar","KHADGAON","No","-",""],
+ ["40","8727821582","Barra","FARKANARA","Yes","Assessment Pending",""],
+ ["41","8772563642","Sondka","BASNAJHAR","No","-","Building Not Available"],
+ ["42","8872721769","Sondka","TEMTEMA","Yes","certified with conditionality",""]
+ ];
+ let usingFallback=false;
+ if(!summaryRows.length){summaryRows=fallbackSummary;summaryNote=fallbackNote;usingFallback=true;}
+ if(!detailRows.length){detailRows=fallbackDetail;usingFallback=true;}
+ const headers=["Sn","Facility","कुल संस्था","NQAS हेतु आवेदन किया गया है","मूल्यांकन हो गया है","कुल सर्टिफाईड है","मूल्यांकन हेतु बाकी है"];
+ const colors=["#4338ca","#2563eb","#15803d","#0f766e","#075985","#7c3aed","#c2410c"];
+ const hr=document.createElement("tr");
+ headers.forEach((h,i)=>{const th=document.createElement("th");th.textContent=h;th.style.cssText="padding:12px 10px;background:"+colors[i]+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";hr.appendChild(th);});
+ thead.appendChild(hr);
+ summaryRows.forEach((r,ri)=>{const tr=document.createElement("tr");for(let c=0;c<7;c++){const td=document.createElement("td");td.textContent=r[c]||"";td.style.cssText="padding:12px 9px;border:1px solid #dbe5ef;text-align:center;background:"+(c===1?"#eff6ff":c===2?"#f0fdf4":ri%2?"#f8fafc":"#fff")+";color:"+(c===1?"#075985":c===2?"#166534":"#1f2937")+";font-weight:"+(c<2?"800":"700")+";";tr.appendChild(td);}tbody.appendChild(tr);});
+ const sums=[2,3,4,5,6].map(c=>summaryRows.reduce((a,r)=>a+(parseFloat(String(r[c]||"").replace(/,/g,""))||0),0));
+ const defs=[["कुल संस्था",sums[0],"#166534","#ecfdf5","#bbf7d0"],["NQAS हेतु आवेदन",sums[1],"#075985","#eff6ff","#bfdbfe"],["मूल्यांकन हो गया",sums[2],"#075985","#eff6ff","#bfdbfe"],["कुल सर्टिफाईड",sums[3],"#6d28d9","#f5f3ff","#ddd6fe"],["मूल्यांकन हेतु बाकी",sums[4],"#c2410c","#fff7ed","#fed7aa"]];
+ defs.forEach(x=>{const card=document.createElement("div");card.style.cssText="background:"+x[3]+";border:1px solid "+x[4]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';cards.appendChild(card);});
+ if(note){note.textContent="📝 "+(summaryNote||fallbackNote)+(usingFallback?"  |  नोट: Google Sheet का डेटा-फॉर्मेट नहीं पढ़ा जा सका; अभी आपके दिए हुए NQAS डेटा से रिपोर्ट दिखाई जा रही है।":"");note.style.display="block";}
+ let detailBox=document.getElementById("nqasFacilityDetailBox");
+ if(!detailBox){detailBox=document.createElement("div");detailBox.id="nqasFacilityDetailBox";detailBox.style.cssText="margin-top:16px;background:#fff;border:1px solid #dbe5ef;border-radius:14px;padding:14px;overflow:auto;";detailBox.innerHTML='<div style="font-size:18px;font-weight:900;color:#0f2d52;margin:0 0 10px;">NQAS Facility Wise Detail</div><table id="nqasFacilityDetailTable" style="width:100%;border-collapse:collapse;min-width:900px;"><thead></thead><tbody></tbody></table>';const title=document.getElementById("nqasTableTitle");if(title&&title.parentElement)title.parentElement.after(detailBox);else module.appendChild(detailBox);}
+ const dt=document.getElementById("nqasFacilityDetailTable"),dh=dt.querySelector("thead"),db=dt.querySelector("tbody");dh.innerHTML="";db.innerHTML="";
+ const dHeaders=["Sn","NIN","Sector","Facility Name","NQAS Applied","Result","Remarks"],dColors=["#4338ca","#2563eb","#0f766e","#075985","#7c3aed","#15803d","#c2410c"];
+ const dhr=document.createElement("tr");dHeaders.forEach((h,i)=>{const th=document.createElement("th");th.textContent=h;th.style.cssText="padding:11px 9px;background:"+dColors[i]+";color:#fff;border:1px solid #cbd5e1;text-align:center;font-weight:900;white-space:normal;";dhr.appendChild(th);});dh.appendChild(dhr);
+ detailRows.forEach((r,ri)=>{const tr=document.createElement("tr");for(let c=0;c<7;c++){const td=document.createElement("td");td.textContent=r[c]||"";let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";if(c===0){bg="#eef2ff";fg="#3730a3";}if(c===2){bg="#eff6ff";fg="#075985";}if(c===4){bg=clean(r[c]).toLowerCase()==="yes"?"#ecfdf5":"#fff7ed";fg=clean(r[c]).toLowerCase()==="yes"?"#166534":"#9a3412";}if(c===5&&/certified/i.test(clean(r[c]))){bg="#ecfdf5";fg="#166534";}td.style.cssText="padding:9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:600;white-space:normal;";tr.appendChild(td);}db.appendChild(tr);});
+ const period=document.getElementById("nqasPeriod");if(period)period.innerText="NQAS Certification Detail Kharsia";
 }
 function renderDialysisTable(data){
  const module=document.getElementById("dialysisModule"),progress=document.getElementById("dialysisProgressTable"),years=document.getElementById("dialysisYearTables"),cards=document.getElementById("dialysisSummaryCards");
