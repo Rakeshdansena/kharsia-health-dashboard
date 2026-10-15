@@ -4905,8 +4905,13 @@ function renderNQASTable(data){
    // Do not stop at the note row: users may append new facilities below it.
    if(/उपरोक्त संस्था के अलावा/i.test(r.join(" ")))continue;
    const first=clean(r[0]),nin=clean(r[1]),facility=clean(r[3]);
-   // Include new facility rows even when NIN is blank, provided the serial and facility name exist.
-   if(facility&&(/^\d+$/.test(first)||/^\d{8,14}$/.test(nin)))pushDetail(r);
+   const looksLikeDetail=facility&&(
+    /^\d+$/.test(first)||/^\d{8,14}$/.test(nin)||
+    /\bCHC\s+CHAPLE\b/i.test(facility)||
+    /^(yes|no)$/i.test(clean(r[4]))||
+    /certified|assessment pending|not certified/i.test(clean(r[5]))
+   );
+   if(looksLikeDetail)pushDetail(r);
   }
  }
  if(!detailRows.length){
