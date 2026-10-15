@@ -4929,19 +4929,8 @@ function renderNQASTable(data){
   dataRows.push(normalized);
  });
 
- // If the facility category is in a separate column, retain the adjacent
- // facility name and numeric values rather than silently rendering an empty table.
- if(!dataRows.length && headerIndex>=0){
-  for(let i=headerIndex+1;i<rows.length;i++){
-   const r=rows[i], t=text(r);
-   if(!t || /उपरोक्त संस्था के अलावा/i.test(t) || /^नोट/i.test(clean(r[0]))) continue;
-   const numericCount=r.filter(v=>/-?\d[\d,.]*(?:\s*%)?/.test(clean(v))).length;
-   if(numericCount>=3){
-    const candidate=r.filter(v=>clean(v)!=="");
-    if(candidate.length>=3) dataRows.push(candidate.slice(0,7));
-   }
-  }
- }
+ // Do not guess at unrelated rows when the expected facility labels are absent.
+ // A guessed row can make unrelated values such as "Yes(PHC)" appear as report data.
 
  const hr=document.createElement("tr");
  headers.forEach((h,i)=>{
@@ -4976,7 +4965,7 @@ function renderNQASTable(data){
   note.innerText="📝 "+noteText;
   note.style.display="block";
  }else if(!dataRows.length){
-  note.innerText="Google Sheet से डेटा आया है, लेकिन NQAS की facility rows पहचान में नहीं आईं। Sheet में header और facility data की संरचना जाँचें।";
+  note.innerText="Google Sheet से डेटा आया है, लेकिन अपेक्षित PHC/SHC/CHC facility rows नहीं मिलीं। गलत/असंबंधित पंक्तियाँ दिखाने के बजाय डेटा रोक दिया गया है। NQAS Sheet के header और data rows की जाँच आवश्यक है।";
   note.style.display="block";
  }
 
