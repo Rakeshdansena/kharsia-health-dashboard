@@ -4872,66 +4872,71 @@ function renderNQASTable(data){
  const module=document.getElementById("nqasModule");if(!module)return;module.style.display="block";
  const clean=v=>String(v==null?"":v).replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
  const norm=v=>clean(v).toLowerCase().replace(/[^a-z0-9\u0900-\u097f]/g,"");
+ const number=v=>{const t=clean(v).replace(/,/g,"").replace(/%/g,"");if(!t)return 0;const n=Number(t);return Number.isFinite(n)?n:0;};
  const cards=document.getElementById("nqasSummaryCards"),table=document.getElementById("nqasReportTable");
  if(!cards||!table)return;
  const thead=table.querySelector("thead"),tbody=table.querySelector("tbody"),note=document.getElementById("nqasNote");
  cards.innerHTML="";thead.innerHTML="";tbody.innerHTML="";if(note){note.style.display="none";note.textContent="";}
  const rows=[];
  for(let r=0;r<data.getNumberOfRows();r++){const row=[];for(let c=0;c<data.getNumberOfColumns();c++){let v="";try{v=data.getFormattedValue(r,c)||""}catch(e){}if(v===""){try{const x=data.getValue(r,c);v=x==null?"":String(x)}catch(e){}}row.push(clean(v));}rows.push(row);}
- const joined=r=>r.join(" ").toLowerCase();
- // Read PHC/SHC/CHC summary rows from the live sheet regardless of header wording.
  let summaryRows=[],summaryNote="";
  rows.forEach(r=>{
   const t=r.join(" ");
   if(/उपरोक्त संस्था के अलावा/i.test(t))summaryNote=t;
   const ix=r.findIndex(v=>/^(PHC|SHC|CHC)$/i.test(clean(v)));
   if(ix<0)return;
-  const nums=r.slice(ix+1).map(clean).filter(v=>v!=="");
-  if(nums.length>=5&&nums.slice(0,5).every(v=>/^-?[\d,.]+%?$/.test(v))){
-   const serial=/^\d+$/.test(clean(r[0]))?clean(r[0]):String(summaryRows.length+1);
-   summaryRows.push([serial,clean(r[ix]),...nums.slice(0,5)]);
+  // Keep column positions; blank numeric cells count as zero rather than shifting columns.
+  const nums=r.slice(ix+1,ix+6);
+  if(nums.length===5&&nums.some(v=>v!=="")&&nums.every(v=>v===""||/^-?[\d,.]+%?$/.test(v))){
+   summaryRows.push([/^\d+$/.test(clean(r[0]))?clean(r[0]):String(summaryRows.length+1),clean(r[ix]),...nums.map(v=>v===""?"0":v)]);
   }
  });
- // Locate detail header flexibly (Google Sheets can add whitespace/formatting).
  let detailHeader=-1;
- for(let i=0;i<rows.length;i++){
-  const t=rows[i].map(norm);
-  if(t.some(v=>v==="nin")&&t.some(v=>v==="sector")&&t.some(v=>v==="facilityname")){detailHeader=i;break;}
- }
+ for(let i=0;i<rows.length;i++){const t=rows[i].map(norm);if(t.some(v=>v==="nin")&&t.some(v=>v==="sector")&&t.some(v=>v==="facilityname")){detailHeader=i;break;}}
  let detailRows=[];
  const pushDetail=r=>{
   let row=r.slice(0,7).map(clean);while(row.length<7)row.push("");
-  if(!row[3])return;
-  if(/^(sn|क्रमांक)$/i.test(row[0])||/^facilityname$/i.test(norm(row[3])))return;
+  if(!row[3]||/^(sn|क्रमांक)$/i.test(row[0])||/^facilityname$/i.test(norm(row[3])))return;
   if(!detailRows.some(x=>(x[1]&&x[1]===row[1]&&x[3].toLowerCase()===row[3].toLowerCase())||(!x[1]&&!row[1]&&x[3].toLowerCase()===row[3].toLowerCase())))detailRows.push(row);
  };
  if(detailHeader>=0){
   for(let i=detailHeader+1;i<rows.length;i++){
    const r=rows[i];if(!r.some(Boolean))continue;
    if(/उपरोक्त संस्था के अलावा/i.test(r.join(" ")))break;
-   const first=clean(r[0]),nin=clean(r[1]),sector=clean(r[2]),facility=clean(r[3]);
+   const first=clean(r[0]),nin=clean(r[1]),facility=clean(r[3]);
    if(facility&&(/^\d+$/.test(first)||/^\d{8,14}$/.test(nin)))pushDetail(r);
   }
  }
- // If merged cells prevented exact header recognition, find rows that look like NIN/Sector/Facility records.
  if(!detailRows.length){
   rows.forEach(r=>{
-   const ninIndex=r.findIndex(v=>/^\d{8,14}$/.test(clean(v)));
-   if(ninIndex<0)return;
-   const facilityIndex=r.findIndex((v,i)=>i>ninIndex&&clean(v)!==""&&!/^(yes|no|certified|not certified|assessment pending|-)$/i.test(clean(v))&&!/^(barra|binjkot|gorpar|jobi|sarwani|sondka|turekela|urban kharsia)$/i.test(clean(v)));
+   const ninIndex=r.findIndex(v=>/^\d{8,14}$/.test(clean(v)));if(ninIndex<0)return;
+   const sectorNames=/^(barra|binjkot|gorpar|jobi|sarwani|sondka|turekela|urban kharsia)$/i;
+   const facilityIndex=r.findIndex((v,i)=>i>ninIndex&&clean(v)!==""&&!/^(yes|no|certified|not certified|assessment pending|-)$/i.test(clean(v))&&!sectorNames.test(clean(v)));
    if(facilityIndex<0)return;
-   const sectorIndex=r.findIndex((v,i)=>i!==ninIndex&&i!==facilityIndex&&/^(barra|binjkot|gorpar|jobi|sarwani|sondka|turekela|urban kharsia)$/i.test(clean(v)));
+   const sectorIndex=r.findIndex((v,i)=>i!==ninIndex&&i!==facilityIndex&&sectorNames.test(clean(v)));
    const applied=r.find(v=>/^(yes|no)$/i.test(clean(v)))||"";
    const result=r.find(v=>/certified|assessment pending|not certified/i.test(clean(v)))||"-";
    const remarks=r.find(v=>/building|damage|available/i.test(clean(v)))||"";
    pushDetail([/^\d+$/.test(clean(r[0]))?clean(r[0]):String(detailRows.length+1),r[ninIndex],sectorIndex>=0?r[sectorIndex]:"",r[facilityIndex],applied,result,remarks]);
   });
  }
+ // If the sheet's summary cells are merged or formatted unusually, calculate status counts from live facility rows.
+ if(!summaryRows.length&&detailRows.length){
+  const types=[["PHC",7],["SHC",41],["CHC",1]];
+  const facilityType=name=>{const n=clean(name).toLowerCase();if(/\bchc\b/.test(n))return "CHC";if(/\bphc\b/.test(n))return "PHC";return "SHC";};
+  types.forEach((x,i)=>{
+   const matching=detailRows.filter(r=>facilityType(r[3])===x[0]);
+   const total=x[1],applied=matching.filter(r=>/^yes$/i.test(clean(r[4]))).length;
+   const evaluated=matching.filter(r=>/certified|not certified/i.test(clean(r[5]))).length;
+   const certified=matching.filter(r=>/certified/i.test(clean(r[5]))&&!/not certified/i.test(clean(r[5]))).length;
+   summaryRows.push([String(i+1),x[0],String(total),String(applied),String(evaluated),String(certified),String(Math.max(0,applied-evaluated))]);
+  });
+ }
  const headers=["Sn","Facility","कुल संस्था","NQAS हेतु आवेदन किया गया है","मूल्यांकन हो गया है","कुल सर्टिफाईड है","मूल्यांकन हेतु बाकी है"];
  const colors=["#4338ca","#2563eb","#15803d","#0f766e","#075985","#7c3aed","#c2410c"];
  const hr=document.createElement("tr");headers.forEach((h,i)=>{const th=document.createElement("th");th.textContent=h;th.style.cssText="padding:12px 10px;background:"+colors[i]+";color:#fff;text-align:center;border:1px solid #cbd5e1;font-weight:900;white-space:normal;";hr.appendChild(th);});thead.appendChild(hr);
  summaryRows.forEach((r,ri)=>{const tr=document.createElement("tr");for(let c=0;c<7;c++){const td=document.createElement("td");td.textContent=r[c]||"";td.style.cssText="padding:12px 9px;border:1px solid #dbe5ef;text-align:center;background:"+(c===1?"#eff6ff":c===2?"#f0fdf4":ri%2?"#f8fafc":"#fff")+";color:"+(c===1?"#075985":c===2?"#166534":"#1f2937")+";font-weight:"+(c<2?"800":"700")+";";tr.appendChild(td);}tbody.appendChild(tr);});
- const sums=[2,3,4,5,6].map(c=>summaryRows.reduce((a,r)=>a+(parseFloat(String(r[c]||"").replace(/,/g,""))||0),0));
+ const sums=[2,3,4,5,6].map(c=>summaryRows.reduce((a,r)=>a+number(r[c]),0));
  [["कुल संस्था",sums[0],"#166534","#ecfdf5","#bbf7d0"],["NQAS हेतु आवेदन",sums[1],"#075985","#eff6ff","#bfdbfe"],["मूल्यांकन हो गया",sums[2],"#075985","#eff6ff","#bfdbfe"],["कुल सर्टिफाईड",sums[3],"#6d28d9","#f5f3ff","#ddd6fe"],["मूल्यांकन हेतु बाकी",sums[4],"#c2410c","#fff7ed","#fed7aa"]].forEach(x=>{const card=document.createElement("div");card.style.cssText="background:"+x[3]+";border:1px solid "+x[4]+";border-radius:12px;padding:13px 14px;box-shadow:0 4px 12px rgba(15,23,42,.06);";card.innerHTML='<div style="font-size:12px;font-weight:800;color:'+x[2]+';">'+x[0]+'</div><div style="font-size:27px;font-weight:900;color:'+x[2]+';margin-top:3px;">'+x[1]+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;">Kharsia</div>';cards.appendChild(card);});
  if(note&&summaryNote){note.textContent="📝 "+summaryNote;note.style.display="block";}
  let box=document.getElementById("nqasFacilityDetailBox");
@@ -4939,7 +4944,7 @@ function renderNQASTable(data){
  const dt=document.getElementById("nqasFacilityDetailTable"),dh=dt.querySelector("thead"),db=dt.querySelector("tbody");dh.innerHTML="";db.innerHTML="";
  const dHeaders=["Sn","NIN","Sector","Facility Name","NQAS Applied","Result","Remarks"],dColors=["#4338ca","#2563eb","#0f766e","#075985","#7c3aed","#15803d","#c2410c"];
  const dhr=document.createElement("tr");dHeaders.forEach((h,i)=>{const th=document.createElement("th");th.textContent=h;th.style.cssText="padding:11px 9px;background:"+dColors[i]+";color:#fff;border:1px solid #cbd5e1;text-align:center;font-weight:900;white-space:normal;";dhr.appendChild(th);});dh.appendChild(dhr);
- detailRows.forEach((r,ri)=>{const tr=document.createElement("tr");for(let c=0;c<7;c++){const td=document.createElement("td");td.textContent=r[c]||"";let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";if(c===0){bg="#eef2ff";fg="#3730a3";}if(c===2){bg="#eff6ff";fg="#075985";}if(c===4){bg=clean(r[c]).toLowerCase()==="yes"?"#ecfdf5":"#fff7ed";fg=clean(r[c]).toLowerCase()==="yes"?"#166534":"#9a3412";}if(c===5&&/certified/i.test(clean(r[c]))){bg="#ecfdf5";fg="#166534";}td.style.cssText="padding:9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:600;white-space:normal;";tr.appendChild(td);}db.appendChild(tr);});
+ detailRows.forEach((r,ri)=>{const tr=document.createElement("tr");for(let c=0;c<7;c++){const td=document.createElement("td");td.textContent=r[c]||"";let bg=ri%2?"#f8fafc":"#fff",fg="#1f2937";if(c===0){bg="#eef2ff";fg="#3730a3";}if(c===2){bg="#eff6ff";fg="#075985";}if(c===4){bg=clean(r[c]).toLowerCase()==="yes"?"#ecfdf5":"#fff7ed";fg=clean(r[c]).toLowerCase()==="yes"?"#166534":"#9a3412";}if(c===5&&/certified/i.test(clean(r[c]))&&!/not certified/i.test(clean(r[c]))){bg="#ecfdf5";fg="#166534";}td.style.cssText="padding:9px;border:1px solid #dbe5ef;text-align:center;background:"+bg+";color:"+fg+";font-weight:600;white-space:normal;";tr.appendChild(td);}db.appendChild(tr);});
  if(!detailRows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=7;td.textContent="Google Sheet से Facility Wise live rows नहीं पढ़ी जा सकीं। Sheet के वास्तविक header और columns जाँचें।";td.style.cssText="padding:14px;text-align:center;color:#b91c1c;background:#fef2f2;";tr.appendChild(td);db.appendChild(tr);}
  const period=document.getElementById("nqasPeriod");if(period)period.innerText="NQAS Certification Detail Kharsia";
 }
