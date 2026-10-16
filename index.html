@@ -17,7 +17,24 @@ function injectFixes(){try{const d=f.contentDocument||f.contentWindow.document;i
 .menu-btn.active{background:linear-gradient(145deg,#22c1b5,#087e8b)!important;border-color:rgba(153,246,228,.75)!important;box-shadow:0 5px 0 #07545b,0 9px 18px rgba(13,148,136,.35),inset 0 1px 0 rgba(255,255,255,.4)!important}
 #dashboardPage .card{box-shadow:0 7px 0 rgba(30,64,90,.13),0 13px 26px rgba(15,45,75,.10)!important;transition:transform .18s ease,box-shadow .18s ease!important}
 #dashboardPage .card:hover{transform:translateY(-4px)!important;box-shadow:0 10px 0 rgba(30,64,90,.12),0 18px 32px rgba(15,45,75,.15)!important}
-`;d.head.appendChild(theme)}const scripts=[['global-module-switch-fix','js/global-module-switch-fix.js?v=20261012-rbsk-isolation-06'],['jas-live-fix-script','js/jas-live-fix.js?v=20260927-jas-live-pptx-20'],['hwc-live-fix-script','js/hwc-live-fix.js?v=20260827-1'],['wellness-live-fix-script','js/wellness-live-fix.js?v=20261013-wellness-click-fix-01'],['module-switch-isolation-fix','js/module-switch-isolation-fix.js?v=20261013-wellness-click-fix-01'],['rch-live-fix-script','js/rch-live-fix.js?v=20260922-rch-date-03'],['ncd-search-fix-script','js/ncd-search-fix.js?v=20260923-ncd-search-01'],['rbsk-module-script','js/rbsk.js?v=20260929-rbsk-ppt-02']];scripts.forEach(([id,src])=>{if(!d.getElementById(id)){const s=d.createElement('script');s.id=id;s.src=src;d.head.appendChild(s)}})}catch(e){console.error('Dashboard fix load error',e)}}
+`;d.head.appendChild(theme)}const polishId='kharsia-live-polish-v1';if(!d.getElementById(polishId)){const polish=d.createElement('style');polish.id=polishId;polish.textContent=`
+/* Modern app shell and toolbar polish only; report tables and locked module layouts untouched */
+.header{background:linear-gradient(112deg,#0b3558 0%,#075985 52%,#0f766e 100%)!important;box-shadow:0 5px 22px rgba(9,35,62,.22)!important;border-bottom:1px solid rgba(255,255,255,.16)!important}
+.header h1{letter-spacing:-.35px!important;text-shadow:0 2px 8px rgba(0,0,0,.16)!important}
+.sidebar{background:linear-gradient(180deg,#10283f 0%,#0a1d30 100%)!important;box-shadow:5px 0 24px rgba(12,34,56,.10)!important}
+.sidebar-title{color:#b9e9f5!important;letter-spacing:1.2px!important}
+.menu-btn{font-weight:650!important;letter-spacing:.05px!important;min-height:49px!important}
+.menu-btn:focus-visible{outline:3px solid #67e8f9!important;outline-offset:2px!important}
+.content{background:linear-gradient(135deg,#f4f8fc 0%,#edf5fa 52%,#f7fafc 100%)!important}
+#dashboardPage .welcome{border:1px solid rgba(186,213,232,.9)!important;border-radius:22px!important;background:linear-gradient(120deg,rgba(255,255,255,.98),rgba(240,250,255,.96) 58%,rgba(229,250,246,.95))!important;box-shadow:0 12px 30px rgba(15,45,75,.08),inset 0 1px 0 #fff!important}
+#dashboardPage .welcome h1,#dashboardPage .welcome h2{letter-spacing:-.3px!important}
+#dashboardPage .card{border:1px solid rgba(203,220,234,.9)!important;border-radius:17px!important;background:linear-gradient(145deg,#fff,#f7fbff)!important;box-shadow:0 6px 0 rgba(30,64,90,.10),0 13px 26px rgba(15,45,75,.08)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+#dashboardPage .card:hover{transform:translateY(-4px)!important;box-shadow:0 9px 0 rgba(30,64,90,.09),0 18px 32px rgba(15,45,75,.14)!important}
+button:not(.menu-btn),.toolbar button,.action-btn{border-radius:10px!important;transition:filter .16s ease,transform .16s ease,box-shadow .16s ease!important}
+button:not(.menu-btn):hover,.toolbar button:hover,.action-btn:hover{filter:brightness(1.04)!important;transform:translateY(-1px)!important}
+input[type="text"],input[type="search"],select{border-radius:10px!important;border-color:#c9d9e8!important}
+@media(max-width:800px){#dashboardPage .welcome{padding:20px!important;border-radius:16px!important}#dashboardPage .card{border-radius:14px!important}}
+`;d.head.appendChild(polish)}const scripts=[['global-module-switch-fix','js/global-module-switch-fix.js?v=20261012-rbsk-isolation-06'],['jas-live-fix-script','js/jas-live-fix.js?v=20260927-jas-live-pptx-20'],['hwc-live-fix-script','js/hwc-live-fix.js?v=20260827-1'],['wellness-live-fix-script','js/wellness-live-fix.js?v=20261013-wellness-click-fix-01'],['module-switch-isolation-fix','js/module-switch-isolation-fix.js?v=20261013-wellness-click-fix-01'],['rch-live-fix-script','js/rch-live-fix.js?v=20260922-rch-date-03'],['ncd-search-fix-script','js/ncd-search-fix.js?v=20260923-ncd-search-01'],['rbsk-module-script','js/rbsk.js?v=20260929-rbsk-ppt-02']];scripts.forEach(([id,src])=>{if(!d.getElementById(id)){const s=d.createElement('script');s.id=id;s.src=src;d.head.appendChild(s)}})}catch(e){console.error('Dashboard fix load error',e)}}
 f.addEventListener('load',()=>{injectFixes();setTimeout(injectFixes,500);setTimeout(injectFixes,1500);setTimeout(injectFixes,3000)});
 </script>
 </body>
