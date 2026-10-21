@@ -977,6 +977,22 @@ body{
 
 }
 
+
+/* Health programme photo cards: dashboard home only */
+#dashboardPage .cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))!important;gap:18px!important}
+#dashboardPage .card{padding:0!important;overflow:hidden!important;cursor:pointer!important;min-width:0!important}
+#dashboardPage .programme-photo{height:148px!important;position:relative!important;overflow:hidden!important;background:linear-gradient(135deg,#dff5f7,#dceafe)!important}
+#dashboardPage .programme-photo img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;transition:transform .35s ease,filter .35s ease!important}
+#dashboardPage .programme-photo-shade{position:absolute!important;inset:0!important;background:linear-gradient(180deg,rgba(7,25,43,.04) 10%,rgba(7,25,43,.55) 100%)!important;pointer-events:none!important}
+#dashboardPage .programme-photo .card-icon{position:absolute!important;left:14px!important;bottom:12px!important;width:48px!important;height:48px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:26px!important;border:1px solid rgba(255,255,255,.55)!important;border-radius:15px!important;background:rgba(255,255,255,.22)!important;color:#fff!important;box-shadow:0 8px 18px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.45)!important;-webkit-backdrop-filter:blur(12px) saturate(150%)!important;backdrop-filter:blur(12px) saturate(150%)!important}
+#dashboardPage .programme-card-body{padding:15px 16px 16px!important}
+#dashboardPage .programme-card-body h3{margin:0 0 7px!important;color:#12334d!important;font-size:17px!important;line-height:1.35!important;font-weight:850!important}
+#dashboardPage .programme-card-body p{margin:0!important;color:#526a7d!important;font-size:13px!important;line-height:1.55!important;min-height:40px!important}
+#dashboardPage .programme-card-link{display:flex!important;justify-content:space-between!important;align-items:center!important;margin-top:13px!important;padding-top:10px!important;border-top:1px solid rgba(148,163,184,.22)!important;color:#087e8b!important;font-size:12px!important;font-weight:800!important;letter-spacing:.3px!important;text-transform:uppercase!important}
+#dashboardPage .card:hover .programme-photo img{transform:scale(1.07)!important;filter:saturate(1.12)!important}
+#dashboardPage .programme-photo.photo-fallback{background:linear-gradient(135deg,#0f766e,#075985)!important}
+@media(max-width:640px){#dashboardPage .cards{grid-template-columns:repeat(auto-fit,minmax(155px,1fr))!important;gap:12px!important}#dashboardPage .programme-photo{height:112px!important}#dashboardPage .programme-card-body{padding:12px!important}#dashboardPage .programme-card-body h3{font-size:15px!important}#dashboardPage .programme-card-body p{font-size:12px!important;min-height:0!important}}
+
 </style>
 
 <style id="pptx-selection-style">
@@ -1616,20 +1632,33 @@ function createMenu(){
 
    card.className="card";
 
+   const programmePhotos = [
+    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1576765608866-5b51046452a6?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1584516150909-c43483ee7932?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=900&q=82",
+    "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=82"
+   ];
    card.innerHTML=`
-
-    <div class="card-icon">
-     ${report.icon}
+    <div class="programme-photo">
+     <img src="${programmePhotos[index] || programmePhotos[0]}" alt="${report.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('photo-fallback');">
+     <div class="programme-photo-shade"></div>
+     <div class="card-icon">${report.icon}</div>
     </div>
-
-    <h3>
-     ${report.name}
-    </h3>
-
-    <p>
-     ${report.description}
-    </p>
-
+    <div class="programme-card-body">
+     <h3>${report.name}</h3>
+     <p>${report.description}</p>
+     <span class="programme-card-link">View Programme <span aria-hidden="true">↗</span></span>
+    </div>
    `;
 
    card.onclick=()=>{
