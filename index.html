@@ -7,16 +7,65 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="dashboardFrame" src="index_updated.html?v=20261015-nqas-facility-fix-04" title="Kharsia Health Dashboard"></iframe>
+<iframe id="dashboardFrame" src="index_updated.html?v=20261021-premium-3d-buttons-01" title="Kharsia Health Dashboard"></iframe>
 <script>
 const f=document.getElementById('dashboardFrame');
 function injectFixes(){try{const d=f.contentDocument||f.contentWindow.document;if(!d||!d.head)return;let style=d.getElementById('jas-heading-visibility-fix');if(!style){style=d.createElement('style');style.id='jas-heading-visibility-fix';style.textContent='#jasMeetingModule{visibility:visible!important;opacity:1!important}#jasMeetingModule .jas-title{display:block!important;visibility:visible!important;opacity:1!important;text-align:center!important;font-size:18px!important;font-weight:800!important;margin:6px 0 14px!important;padding:10px!important;line-height:1.35!important}';d.head.appendChild(style)}const themeId='kharsia-live-3d-buttons';if(!d.getElementById(themeId)){const theme=d.createElement('style');theme.id=themeId;theme.textContent=`
-.menu-btn{position:relative!important;border:1px solid rgba(148,163,184,.34)!important;border-radius:13px!important;background:linear-gradient(145deg,#243f5d,#10243b)!important;box-shadow:0 5px 0 #071626,0 8px 15px rgba(2,8,23,.32),inset 0 1px 0 rgba(255,255,255,.18)!important;transform:translateY(0)!important;transition:transform .16s ease,box-shadow .16s ease,background .16s ease!important}
-.menu-btn:hover{transform:translateY(-3px)!important;box-shadow:0 8px 0 #071626,0 12px 20px rgba(2,8,23,.36),inset 0 1px 0 rgba(255,255,255,.24)!important;background:linear-gradient(145deg,#315778,#12334b)!important}
-.menu-btn:active{transform:translateY(3px)!important;box-shadow:0 2px 0 #071626,0 4px 8px rgba(2,8,23,.25)!important}
-.menu-btn.active{background:linear-gradient(145deg,#22c1b5,#087e8b)!important;border-color:rgba(153,246,228,.75)!important;box-shadow:0 5px 0 #07545b,0 9px 18px rgba(13,148,136,.35),inset 0 1px 0 rgba(255,255,255,.4)!important}
-#dashboardPage .card{box-shadow:0 7px 0 rgba(30,64,90,.13),0 13px 26px rgba(15,45,75,.10)!important;transition:transform .18s ease,box-shadow .18s ease!important}
-#dashboardPage .card:hover{transform:translateY(-4px)!important;box-shadow:0 10px 0 rgba(30,64,90,.12),0 18px 32px rgba(15,45,75,.15)!important}
+/* Premium 3D navigation buttons: visual-only; preserves module logic and report layouts */
+#menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ display:block!important;width:100%!important;min-height:50px!important;
+ padding:12px 14px!important;margin:6px 0!important;
+ border:1px solid rgba(148,211,231,.24)!important;border-radius:14px!important;
+ color:#eaf7ff!important;text-align:left!important;font-weight:700!important;
+ letter-spacing:.12px!important;
+ background:linear-gradient(145deg,#244e70 0%,#153550 55%,#0e263d 100%)!important;
+ box-shadow:0 5px 0 #071a2a,0 9px 17px rgba(2,12,27,.28),inset 0 1px 0 rgba(255,255,255,.20),inset 0 -2px 0 rgba(0,0,0,.14)!important;
+ transform:translateY(0)!important;
+ transition:transform .16s ease,box-shadow .16s ease,filter .16s ease,background .16s ease!important;
+}
+#menuButtons .menu-btn::before,.sidebar .menu-btn::before,.menu-btn::before{
+ content:""!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:4px!important;
+ border-radius:14px 0 0 14px!important;background:linear-gradient(180deg,#67e8f9,#2dd4bf)!important;
+ opacity:.9!important;pointer-events:none!important;z-index:-1!important;
+}
+#menuButtons .menu-btn:hover,.sidebar .menu-btn:hover,.menu-btn:hover{
+ color:#fff!important;background:linear-gradient(145deg,#326c91 0%,#174a69 58%,#10334d 100%)!important;
+ transform:translateY(-3px)!important;
+ box-shadow:0 8px 0 #071a2a,0 13px 22px rgba(2,12,27,.34),inset 0 1px 0 rgba(255,255,255,.27)!important;
+ filter:saturate(1.12)!important;
+}
+#menuButtons .menu-btn:active,.sidebar .menu-btn:active,.menu-btn:active{
+ transform:translateY(3px)!important;
+ box-shadow:0 2px 0 #071a2a,0 4px 8px rgba(2,12,27,.24),inset 0 2px 4px rgba(0,0,0,.2)!important;
+}
+#menuButtons .menu-btn.active,.sidebar .menu-btn.active,.menu-btn.active{
+ color:#fff!important;border-color:rgba(153,246,228,.82)!important;
+ background:linear-gradient(135deg,#2dd4bf 0%,#0f9f9a 48%,#087e8b 100%)!important;
+ box-shadow:0 5px 0 #07545b,0 10px 20px rgba(13,148,136,.34),inset 0 1px 0 rgba(255,255,255,.42)!important;
+}
+#menuButtons .menu-btn.active::before,.sidebar .menu-btn.active::before,.menu-btn.active::before{
+ width:5px!important;background:#fff!important;opacity:1!important;
+}
+#menuButtons .menu-btn:focus-visible,.sidebar .menu-btn:focus-visible,.menu-btn:focus-visible{
+ outline:3px solid #67e8f9!important;outline-offset:3px!important;
+}
+#dashboardPage .card{
+ border:1px solid rgba(190,218,235,.9)!important;border-radius:18px!important;
+ background:linear-gradient(145deg,#fff 0%,#f7fbff 72%,#eefaf9 100%)!important;
+ box-shadow:0 6px 0 rgba(30,64,90,.12),0 13px 26px rgba(15,45,75,.09),inset 0 1px 0 #fff!important;
+ transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
+}
+#dashboardPage .card:hover{
+ transform:translateY(-5px)!important;border-color:#7dd3d0!important;
+ box-shadow:0 10px 0 rgba(30,64,90,.10),0 19px 34px rgba(15,45,75,.15),inset 0 1px 0 #fff!important;
+}
+@media(max-width:800px){
+ #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn{min-height:46px!important;padding:11px 12px!important;border-radius:12px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn,#dashboardPage .card{transition:none!important}
+}
 `;d.head.appendChild(theme)}const polishId='kharsia-live-polish-v1';if(!d.getElementById(polishId)){const polish=d.createElement('style');polish.id=polishId;polish.textContent=`
 /* Modern app shell and toolbar polish only; report tables and locked module layouts untouched */
 .header{background:linear-gradient(112deg,#0b3558 0%,#075985 52%,#0f766e 100%)!important;box-shadow:0 5px 22px rgba(9,35,62,.22)!important;border-bottom:1px solid rgba(255,255,255,.16)!important}
