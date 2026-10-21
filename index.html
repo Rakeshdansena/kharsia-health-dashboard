@@ -7,61 +7,62 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="dashboardFrame" src="index_updated.html?v=20261021-premium-3d-buttons-01" title="Kharsia Health Dashboard"></iframe>
+<iframe id="dashboardFrame" src="index_updated.html?v=20261021-liquid-glass-01" title="Kharsia Health Dashboard"></iframe>
 <script>
 const f=document.getElementById('dashboardFrame');
 function injectFixes(){try{const d=f.contentDocument||f.contentWindow.document;if(!d||!d.head)return;let style=d.getElementById('jas-heading-visibility-fix');if(!style){style=d.createElement('style');style.id='jas-heading-visibility-fix';style.textContent='#jasMeetingModule{visibility:visible!important;opacity:1!important}#jasMeetingModule .jas-title{display:block!important;visibility:visible!important;opacity:1!important;text-align:center!important;font-size:18px!important;font-weight:800!important;margin:6px 0 14px!important;padding:10px!important;line-height:1.35!important}';d.head.appendChild(style)}const themeId='kharsia-live-3d-buttons';if(!d.getElementById(themeId)){const theme=d.createElement('style');theme.id=themeId;theme.textContent=`
-/* Premium 3D navigation buttons: visual-only; preserves module logic and report layouts */
+/* Liquid-glass inspired module navigation; visual-only styling */
 #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn{
  position:relative!important;isolation:isolate!important;overflow:hidden!important;
  display:block!important;width:100%!important;min-height:50px!important;
  padding:12px 14px!important;margin:6px 0!important;
- border:1px solid rgba(148,211,231,.24)!important;border-radius:14px!important;
- color:#eaf7ff!important;text-align:left!important;font-weight:700!important;
- letter-spacing:.12px!important;
- background:linear-gradient(145deg,#244e70 0%,#153550 55%,#0e263d 100%)!important;
- box-shadow:0 5px 0 #071a2a,0 9px 17px rgba(2,12,27,.28),inset 0 1px 0 rgba(255,255,255,.20),inset 0 -2px 0 rgba(0,0,0,.14)!important;
+ border:1px solid rgba(255,255,255,.28)!important;border-radius:16px!important;
+ color:#f4fbff!important;text-align:left!important;font-weight:700!important;letter-spacing:.12px!important;
+ background:linear-gradient(135deg,rgba(255,255,255,.22) 0%,rgba(125,211,252,.12) 22%,rgba(15,43,69,.58) 100%)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(165%)!important;backdrop-filter:blur(18px) saturate(165%)!important;
+ box-shadow:0 10px 24px rgba(2,12,27,.22),inset 0 1px 0 rgba(255,255,255,.48),inset 0 -1px 0 rgba(255,255,255,.08)!important;
  transform:translateY(0)!important;
- transition:transform .16s ease,box-shadow .16s ease,filter .16s ease,background .16s ease!important;
+ transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease!important;
 }
 #menuButtons .menu-btn::before,.sidebar .menu-btn::before,.menu-btn::before{
- content:""!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:4px!important;
- border-radius:14px 0 0 14px!important;background:linear-gradient(180deg,#67e8f9,#2dd4bf)!important;
- opacity:.9!important;pointer-events:none!important;z-index:-1!important;
+ content:""!important;position:absolute!important;inset:1px 1px auto 1px!important;height:48%!important;
+ border-radius:14px 14px 50% 50%!important;
+ background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,0))!important;
+ pointer-events:none!important;z-index:-1!important;
 }
 #menuButtons .menu-btn:hover,.sidebar .menu-btn:hover,.menu-btn:hover{
- color:#fff!important;background:linear-gradient(145deg,#326c91 0%,#174a69 58%,#10334d 100%)!important;
- transform:translateY(-3px)!important;
- box-shadow:0 8px 0 #071a2a,0 13px 22px rgba(2,12,27,.34),inset 0 1px 0 rgba(255,255,255,.27)!important;
- filter:saturate(1.12)!important;
+ color:#fff!important;border-color:rgba(186,230,253,.65)!important;
+ background:linear-gradient(135deg,rgba(125,211,252,.30),rgba(45,212,191,.17) 48%,rgba(15,43,69,.64))!important;
+ transform:translateY(-2px)!important;
+ box-shadow:0 14px 28px rgba(2,12,27,.28),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.58)!important;
 }
 #menuButtons .menu-btn:active,.sidebar .menu-btn:active,.menu-btn:active{
- transform:translateY(3px)!important;
- box-shadow:0 2px 0 #071a2a,0 4px 8px rgba(2,12,27,.24),inset 0 2px 4px rgba(0,0,0,.2)!important;
+ transform:translateY(1px) scale(.99)!important;
+ box-shadow:0 5px 12px rgba(2,12,27,.22),inset 0 2px 5px rgba(2,12,27,.20)!important;
 }
 #menuButtons .menu-btn.active,.sidebar .menu-btn.active,.menu-btn.active{
- color:#fff!important;border-color:rgba(153,246,228,.82)!important;
- background:linear-gradient(135deg,#2dd4bf 0%,#0f9f9a 48%,#087e8b 100%)!important;
- box-shadow:0 5px 0 #07545b,0 10px 20px rgba(13,148,136,.34),inset 0 1px 0 rgba(255,255,255,.42)!important;
-}
-#menuButtons .menu-btn.active::before,.sidebar .menu-btn.active::before,.menu-btn.active::before{
- width:5px!important;background:#fff!important;opacity:1!important;
+ color:#fff!important;border-color:rgba(153,246,228,.76)!important;
+ background:linear-gradient(135deg,rgba(45,212,191,.50),rgba(14,165,164,.40) 52%,rgba(8,126,139,.62))!important;
+ -webkit-backdrop-filter:blur(20px) saturate(180%)!important;backdrop-filter:blur(20px) saturate(180%)!important;
+ box-shadow:0 12px 26px rgba(13,148,136,.22),inset 0 1px 0 rgba(255,255,255,.62),inset 0 -1px 0 rgba(255,255,255,.12)!important;
 }
 #menuButtons .menu-btn:focus-visible,.sidebar .menu-btn:focus-visible,.menu-btn:focus-visible{
- outline:3px solid #67e8f9!important;outline-offset:3px!important;
+ outline:2px solid #a5f3fc!important;outline-offset:3px!important;
 }
 #dashboardPage .card{
- border:1px solid rgba(190,218,235,.9)!important;border-radius:18px!important;
- background:linear-gradient(145deg,#fff 0%,#f7fbff 72%,#eefaf9 100%)!important;
- box-shadow:0 6px 0 rgba(30,64,90,.12),0 13px 26px rgba(15,45,75,.09),inset 0 1px 0 #fff!important;
+ border:1px solid rgba(255,255,255,.78)!important;border-radius:20px!important;
+ background:linear-gradient(135deg,rgba(255,255,255,.90),rgba(239,249,255,.74) 58%,rgba(225,250,246,.70))!important;
+ -webkit-backdrop-filter:blur(16px) saturate(145%)!important;backdrop-filter:blur(16px) saturate(145%)!important;
+ box-shadow:0 12px 28px rgba(15,45,75,.09),inset 0 1px 0 rgba(255,255,255,.95)!important;
  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
 }
 #dashboardPage .card:hover{
- transform:translateY(-5px)!important;border-color:#7dd3d0!important;
- box-shadow:0 10px 0 rgba(30,64,90,.10),0 19px 34px rgba(15,45,75,.15),inset 0 1px 0 #fff!important;
+ transform:translateY(-4px)!important;border-color:rgba(103,232,249,.78)!important;
+ box-shadow:0 17px 34px rgba(15,45,75,.14),inset 0 1px 0 rgba(255,255,255,.98)!important;
 }
 @media(max-width:800px){
- #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn{min-height:46px!important;padding:11px 12px!important;border-radius:12px!important}
+ #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn{min-height:46px!important;padding:11px 12px!important;border-radius:14px!important}
+ #dashboardPage .card{border-radius:16px!important}
 }
 @media(prefers-reduced-motion:reduce){
  #menuButtons .menu-btn,.sidebar .menu-btn,.menu-btn,#dashboardPage .card{transition:none!important}
