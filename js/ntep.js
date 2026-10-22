@@ -101,7 +101,7 @@ function renderTable(){
  var d=cache[activeTab];if(!d)return;
  var search=clean($('ntepSearch').value).toLowerCase(),sector=$('ntepSectorFilter').value,s=stats(d,activeTab);
  $('ntepSummary').innerHTML=s.cards.map(function(c){return '<div class="ntep-kpi"><span>'+esc(c[0])+'</span><strong>'+esc(c[1])+'</strong></div>'}).join('');
- var sectorI=idx(d.headers,['link phc','phc','sector','block','विकासखण्ड']),sel=$('ntepSectorFilter'),old=sel.value;
+ var sectorI=idx(d.headers,['link phc','phc','लिंक पी.एच.सी','लिंक पीएचसी','पी.एच.सी','पीएचसी','sector','block','विकासखण्ड']),sel=$('ntepSectorFilter'),old=sel.value;
  var options=Array.from(new Set(d.rows.map(function(r){return sectorI>=0?clean(r[sectorI]):''}).filter(Boolean))).sort();
  sel.innerHTML='<option value="">सभी PHC / Sector</option>'+options.map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>'}).join('');sel.style.display=sectorI>=0?'':'none';if(options.indexOf(old)>=0)sel.value=old;
  var rows=d.rows.filter(function(r){if(/^total$/i.test(clean(r[0]))||/^(कुल|योग)$/i.test(clean(r[0])))return false;if(search&&r.join(' ').toLowerCase().indexOf(search)<0)return false;if(sector&&sectorI>=0&&clean(r[sectorI])!==sector)return false;return true});
