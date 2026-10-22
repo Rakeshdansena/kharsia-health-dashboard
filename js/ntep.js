@@ -129,11 +129,11 @@ function showNTEP(index){
  ensureUI();addStyles();$('ntepModule').style.display='block';switchTab(activeTab||'panchayat');window.scrollTo(0,0)
 }
 function init(){
- if(!Array.isArray(window.REPORTS)||typeof window.createMenu!=='function'||typeof window.openReport!=='function')return false;
- if(window.REPORTS.some(function(r){return r.name==='NTEP'}))return true;
- window.REPORTS.push({name:'NTEP',icon:'🫁',description:'TB Programme · Panchayat Wise एवं Abhiyan Report',ntep:true});
+ if(!Array.isArray(REPORTS)||typeof window.createMenu!=='function'||typeof window.openReport!=='function')return false;
+ if(REPORTS.some(function(r){return r.name==='NTEP'}))return true;
+ REPORTS.push({name:'NTEP',icon:'🫁',description:'TB Programme · Panchayat Wise एवं Abhiyan Report',ntep:true});
  var oldOpen=window.openReport;
- window.openReport=function(index){var report=window.REPORTS[index];if(report&&report.name==='NTEP'){showNTEP(index);return}var m=$('ntepModule');if(m)m.style.display='none';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var search=$('searchBox');if(search)search.style.display='';return oldOpen.apply(this,arguments)};
+ window.openReport=function(index){var report=REPORTS[index];if(report&&report.name==='NTEP'){showNTEP(index);return}var m=$('ntepModule');if(m)m.style.display='none';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var search=$('searchBox');if(search)search.style.display='';return oldOpen.apply(this,arguments)};
  var oldDashboard=window.showDashboard;
  window.showDashboard=function(){var m=$('ntepModule');if(m)m.style.display='none';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var s=$('searchBox');if(s)s.style.display='';return oldDashboard.apply(this,arguments)};
  window.createMenu();return true
