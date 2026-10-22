@@ -65,7 +65,14 @@ async function fetchCSV(src){
 function normalize(raw,tab){
  if(!raw||!raw.length)return {headers:[],rows:[],title:''};
  var best=0,score=-1;
- for(var i=0;i<Math.min(raw.length,12);i++){var line=raw[i].map(clean).join(' ').toLowerCase(),s=0;['ग्राम पंचायत','पंचायत','target','लक्ष्य','screening','जांच','जाँच','achievement','अभियान','notification','population','facility','report'].forEach(function(k){if(line.indexOf(k)>=0)s++});if(s>score){score=s;best=i}}
+ for(var i=0;i<Math.min(raw.length,16);i++){
+  var cells=raw[i].map(clean),line=cells.join(' ').toLowerCase(),nonempty=cells.filter(Boolean).length,s=nonempty;
+  if(/^(sr\.?\s*no\.?|s\.?\s*no\.?|serial\s*no\.?|क्र\.?\s*सं\.?|सं\.क्रं)$/i.test(clean(cells[0])))s+=12;
+  ['health center','total population','screening','total high risk','total last','ग्राम पंचायत का नाम','ग्राम पंचायत की कुल जनसंख्या','संदेहास्पद','लिंक पी.एच.सी','प्रतिशत','टीबी नोटिफिकेशन'].forEach(function(k){if(line.indexOf(k)>=0)s+=3});
+  if(/facility wise report|panchayatwise|पंचायतवार|as on|report as on/i.test(line))s-=8;
+  if(nonempty<=1)s-=6;
+  if(s>score){score=s;best=i}
+ }
  var headers=(raw[best]||[]).map(function(v,i){return clean(v)||('Column '+(i+1))});
  var rows=raw.slice(best+1).filter(function(r){return r.some(function(v){return clean(v)})}).map(function(r){return headers.map(function(_,i){return clean(r[i]||'')})});
  var title=raw.slice(0,best).map(function(r){return r.map(clean).filter(Boolean).join(' · ')}).filter(Boolean).join(' | ');
