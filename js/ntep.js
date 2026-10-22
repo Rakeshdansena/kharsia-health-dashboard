@@ -74,7 +74,7 @@ function normalize(raw,tab){
 function idx(headers,terms){return headers.findIndex(function(h){return terms.some(function(t){return clean(h).toLowerCase().indexOf(t)>=0})})}
 function stats(d,tab){
  var h=d.headers,r=d.rows.filter(function(x){return !/^(total|कुल|योग)$/i.test(clean(x[0]))});
- var pct=idx(h,['प्रतिशत','%','screening %','achievement %']),target=idx(h,['लक्ष्य','target']),ach=idx(h,['संदेहास्पद मरीजों का कुल जांच','कुल जांच की संख्या','कुल जाँच की संख्या','जाँच की संख्या','screening','achievement','उपलब्धि']),pop=idx(h,['कुल जनसंख्या','population']),notif=idx(h,['टीबी नोटिफिकेशन','notification']);
+ var pct=idx(h,['प्रतिशत','%','screening %','achievement %']),target=idx(h,['लक्ष्य','target']),ach=idx(h,['संदेहास्पद मरीजों','जनवरी से सितम्बर','कुल जांच की संख्या','कुल जाँच की संख्या','जाँच की संख्या','screening','achievement','उपलब्धि']),pop=idx(h,['कुल जनसंख्या','population']),notif=idx(h,['टीबी नोटिफिकेशन','notification']);
  var total=r.find(function(x){return /^(total|कुल|योग)$/i.test(clean(x[0]))});
  var sum=function(i){if(i<0)return null;if(total&&num(total[i])!==null)return num(total[i]);return r.reduce(function(a,x){return a+(num(x[i])||0)},0)};
  var cards=[];
