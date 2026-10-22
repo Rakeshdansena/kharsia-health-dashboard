@@ -126,16 +126,16 @@ function showNTEP(index){
  document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=b.classList.contains('back-btn')?'':'none'});$('searchBox').style.display='none';
  var box=document.querySelector('.table-box');if(box)box.style.display='none';
  ['rchContainer','nrcModule','blindnessModule','nqasModule','dialysisModule','telemedicineModule','jasMeetingModule','ncdModuleContainer'].forEach(function(id){var el=$(id);if(el)el.style.display='none'});
- ensureUI();addStyles();$('ntepModule').style.display='block';switchTab(activeTab||'panchayat');window.scrollTo(0,0)
+ var st=$('status');if(st)st.style.display='none';ensureUI();addStyles();$('ntepModule').style.display='block';switchTab(activeTab||'panchayat');window.scrollTo(0,0)
 }
 function init(){
  if(!Array.isArray(REPORTS)||typeof window.createMenu!=='function'||typeof window.openReport!=='function')return false;
  if(REPORTS.some(function(r){return r.name==='NTEP'}))return true;
  REPORTS.push({name:'NTEP',icon:'🫁',description:'TB Programme · Panchayat Wise एवं Abhiyan Report',ntep:true});
  var oldOpen=window.openReport;
- window.openReport=function(index){var report=REPORTS[index];if(report&&report.name==='NTEP'){showNTEP(index);return}var m=$('ntepModule');if(m)m.style.display='none';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var search=$('searchBox');if(search)search.style.display='';return oldOpen.apply(this,arguments)};
+ window.openReport=function(index){var report=REPORTS[index];if(report&&report.name==='NTEP'){showNTEP(index);return}var m=$('ntepModule');if(m)m.style.display='none';var st=$('status');if(st)st.style.display='';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var search=$('searchBox');if(search)search.style.display='';return oldOpen.apply(this,arguments)};
  var oldDashboard=window.showDashboard;
- window.showDashboard=function(){var m=$('ntepModule');if(m)m.style.display='none';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var s=$('searchBox');if(s)s.style.display='';return oldDashboard.apply(this,arguments)};
+ window.showDashboard=function(){var m=$('ntepModule');if(m)m.style.display='none';var st=$('status');if(st)st.style.display='';document.querySelectorAll('.report-actions .action-btn').forEach(function(b){b.style.display=''});var s=$('searchBox');if(s)s.style.display='';return oldDashboard.apply(this,arguments)};
  window.createMenu();return true
 }
 var tries=0,timer=setInterval(function(){tries++;if(init()||tries>40)clearInterval(timer)},250);
