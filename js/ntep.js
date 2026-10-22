@@ -108,7 +108,8 @@ function renderTable(){
  if(activeTab==='panchayat'&&s.rank>=0)rows.sort(function(a,b){return (num(b[s.rank])||0)-(num(a[s.rank])||0)});
  var thead=$('ntepTable').querySelector('thead'),tbody=$('ntepTable').querySelector('tbody');
  thead.innerHTML='<tr>'+d.headers.map(function(h,i){return '<th data-col="'+i+'" title="Sort">'+esc(h)+' ↕</th>'}).join('')+'</tr>';
- function draw(list,colour){tbody.innerHTML=list.map(function(r){return '<tr>'+d.headers.map(function(h,i){var v=num(r[i]),cl='';if(colour&&i===s.pct&&v!==null)cl=v>=80?'ntep-pct-high':v>=50?'ntep-pct-mid':'ntep-pct-low';return '<td class="'+cl+'">'+esc(r[i])+'</td>'}).join('')+'</tr>'}).join('')||'<tr><td colspan="'+d.headers.length+'" class="ntep-empty">कोई रिकॉर्ड नहीं मिला।</td></tr>'}
+ var serialCol=d.headers.findIndex(function(h){return /^(क्र\.?\s*सं\.?|क्र\.सं|क्रमांक|s\.?\s*no\.?|serial\s*no\.?|sno)$/i.test(clean(h))});
+ function draw(list,colour){tbody.innerHTML=list.map(function(r,rowIndex){return '<tr>'+d.headers.map(function(h,i){var v=num(r[i]),cl='';if(colour&&i===s.pct&&v!==null)cl=v>=80?'ntep-pct-high':v>=50?'ntep-pct-mid':'ntep-pct-low';var value=i===serialCol?String(rowIndex+1):r[i];return '<td class="'+cl+'">'+esc(value)+'</td>'}).join('')+'</tr>'}).join('')||'<tr><td colspan="'+d.headers.length+'" class="ntep-empty">कोई रिकॉर्ड नहीं मिला।</td></tr>'}
  draw(rows,true);
  thead.querySelectorAll('th').forEach(function(th){th.addEventListener('click',function(){var i=Number(th.dataset.col),asc=th.dataset.asc!=='true';th.dataset.asc=String(asc);rows.sort(function(a,b){var x=num(a[i]),y=num(b[i]),cmp=x!==null&&y!==null?x-y:clean(a[i]).localeCompare(clean(b[i]),'en',{numeric:true});return asc?cmp:-cmp});draw(rows,false)})});
  shown[activeTab]={headers:d.headers,rows:rows}
