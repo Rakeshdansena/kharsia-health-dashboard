@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Login | Kharsia Health Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font-family:Arial,"Noto Sans",sans-serif;color:#eef7ff;background:radial-gradient(circle at 15% 15%,#155e75 0,transparent 34%),radial-gradient(circle at 90% 85%,#115e59 0,transparent 35%),linear-gradient(135deg,#071526,#102d45 55%,#071b2c)}
+.card{width:min(100%,430px);padding:34px;border:1px solid #ffffff30;border-radius:26px;background:#ffffff12;backdrop-filter:blur(22px);box-shadow:0 24px 70px #0006,inset 0 1px #ffffff2e}
+.logo{width:62px;height:62px;display:grid;place-items:center;border-radius:19px;font-size:30px;background:linear-gradient(135deg,#2dd4bf,#0284c7);box-shadow:0 10px 28px #0891b255;margin-bottom:20px}
+h1{font-size:25px;margin:0 0 8px}p{color:#c5d7e6;line-height:1.55;margin:0 0 22px}.field{margin:17px 0}.field label{display:block;font-size:13px;margin-bottom:8px;color:#d9e8f5}.field input{width:100%;padding:14px 15px;border:1px solid #ffffff35;border-radius:12px;background:#071a2bc9;color:white;font-size:15px;outline:none}.field input:focus{border-color:#5eead4;box-shadow:0 0 0 3px #2dd4bf25}button{width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#2dd4bf,#0ea5e9);color:#062337;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 8px 20px #0891b244}button:disabled{opacity:.6;cursor:wait}#message{display:none;margin-top:17px;padding:12px;border-radius:10px;background:#0f172ab8;color:#fde68a;font-size:14px;line-height:1.5}.foot{margin-top:20px;font-size:12px;color:#a9c0d3;text-align:center}
+</style></head>
+<body><main class="card"><div class="logo">🏥</div><h1>Kharsia Health Dashboard</h1><p>सुरक्षित लॉगिन करें। केवल स्वीकृत उपयोगकर्ता ही डैशबोर्ड खोल सकेंगे।</p>
+<form id="loginForm"><div class="field"><label for="email">Email Address</label><input id="email" type="email" autocomplete="username" required placeholder="अपना ईमेल लिखें"></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="अपना पासवर्ड लिखें"></div>
+<button id="submitBtn" type="submit">Login करें</button></form><div id="message" role="status"></div><div class="foot">Block Kharsia · District Raigarh · Chhattisgarh</div></main>
+<script>
+const SUPABASE_URL="https://txxqhwmtggbhkajdjp.supabase.co";
+const SUPABASE_KEY="sb_publishable_UenFJJj5-uLNmgpJ5Ffbtg_SLJKfLEu";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const form=document.getElementById('loginForm'), btn=document.getElementById('submitBtn'), msg=document.getElementById('message');
+function show(text){msg.textContent=text;msg.style.display='block'}
+async function routeIfApproved(session){
+ if(!session)return false;
+ const {data,error}=await sb.from('dashboard_access').select('approved,role').eq('user_id',session.user.id).maybeSingle();
+ if(error){show('स्वीकृति की जाँच नहीं हो सकी। Supabase में dashboard_access की SELECT policy जाँचें।');return false}
+ if(!data||data.approved!==true){await sb.auth.signOut();show('आपका Login बन गया है, लेकिन Dashboard Admin ने अभी अनुमति नहीं दी है।');return false}
+ location.replace('index_updated.html');return true
+}
+sb.auth.getSession().then(({data})=>routeIfApproved(data.session));
+form.addEventListener('submit',async e=>{e.preventDefault();btn.disabled=true;btn.textContent='जाँच हो रही है…';msg.style.display='none';
+ try{const {data,error}=await sb.auth.signInWithPassword({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value});if(error)throw error;await routeIfApproved(data.session)}
+ catch(err){show(err.message==='Invalid login credentials'?'ईमेल या पासवर्ड सही नहीं है।':'Login नहीं हो पाया: '+err.message)}
+ finally{btn.disabled=false;btn.textContent='Login करें'}
+});
+</script></body></html>
