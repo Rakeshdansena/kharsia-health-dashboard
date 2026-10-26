@@ -12,10 +12,16 @@
 <script>
 const f=document.getElementById('dashboardFrame');
 const authClient=window.supabase.createClient("https://txxqhwmtggbhkajdjdpw.supabase.co","sb_publishable_UenFJJj5-uLNmgpJ5Ffbtg_SLJKfLEu");
-(async()=>{try{const {data}=await authClient.auth.getSession();if(!data.session){location.replace('login.html');return}
+// Require a fresh successful login for every new dashboard entry or refresh.
+(async()=>{try{
+const justLoggedIn=sessionStorage.getItem('kharsia-login-just-approved')==='1';
+if(justLoggedIn){sessionStorage.removeItem('kharsia-login-just-approved');}
+else{location.replace('login.html');return;}
+const {data}=await authClient.auth.getSession();
+if(!data.session){location.replace('login.html');return}
 const {data:access,error}=await authClient.from('dashboard_access').select('approved').eq('user_id',data.session.user.id).maybeSingle();
 if(error||!access||access.approved!==true){await authClient.auth.signOut();location.replace('login.html');return}
-document.body.style.visibility='visible';f.src='index_updated.html?v=20261023-login-gate-01';
+document.body.style.visibility='visible';f.src='index_updated.html?v=20261023-login-gate-02';
 }catch(e){location.replace('login.html')}})();
 function injectFixes(){try{const d=f.contentDocument||f.contentWindow.document;if(!d||!d.head)return;let style=d.getElementById('jas-heading-visibility-fix');if(!style){style=d.createElement('style');style.id='jas-heading-visibility-fix';style.textContent='#jasMeetingModule{visibility:visible!important;opacity:1!important}#jasMeetingModule .jas-title{display:block!important;visibility:visible!important;opacity:1!important;text-align:center!important;font-size:18px!important;font-weight:800!important;margin:6px 0 14px!important;padding:10px!important;line-height:1.35!important}';d.head.appendChild(style)}const themeId='kharsia-live-3d-buttons';if(!d.getElementById(themeId)){const theme=d.createElement('style');theme.id=themeId;theme.textContent=`
 /* Liquid-glass inspired module navigation; visual-only styling */
