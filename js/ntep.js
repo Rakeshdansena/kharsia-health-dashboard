@@ -85,6 +85,8 @@ function stats(d,tab){
  var total=r.find(function(x){return /^(total|कुल|योग)$/i.test(clean(x[0]))});
  var sum=function(i){if(i<0)return null;if(total&&num(total[i])!==null)return num(total[i]);return r.reduce(function(a,x){return a+(num(x[i])||0)},0)};
  var cards=[];
+ var serial=idx(h,['sr. no.','s. no.','serial no.','क्रमांक','क्र. सं.','क्र सं']);
+ var isPercent=function(label){return /%|प्रतिशत|percent|percentage|achievement rate|screening rate/i.test(clean(label))};
  if(tab==='panchayat'){
   if(pop>=0)cards.push(['कुल जनसंख्या',sum(pop).toLocaleString('en-IN')]);
   if(target>=0)cards.push(['कुल जाँच लक्ष्य',sum(target).toLocaleString('en-IN')]);
@@ -92,9 +94,19 @@ function stats(d,tab){
   if(target>=0&&ach>=0)cards.push(['लक्ष्य उपलब्धि',(sum(ach)/Math.max(1,sum(target))*100).toFixed(1)+'%']);
   if(notif>=0)cards.push(['टीबी नोटिफिकेशन',sum(notif).toLocaleString('en-IN')])
  }else{
-  h.forEach(function(label,i){var vals=r.map(function(x){return num(x[i])}).filter(function(v){return v!==null});if(vals.length&&cards.length<5)cards.push([label,sum(i).toLocaleString('en-IN')])})
+  // Abhiyan summary: never sum serial numbers or percentage columns.
+  var preferred=[];
+  h.forEach(function(label,i){
+   if(i===serial||isPercent(label))return;
+   var vals=r.map(function(x){return num(x[i])}).filter(function(v){return v!==null});
+   if(vals.length)preferred.push(i)
+  });
+  preferred.slice(0,5).forEach(function(i){cards.push([h[i],sum(i).toLocaleString('en-IN')])});
+  if(!cards.length)cards.push(['कुल रिकॉर्ड',String(r.length)]);
  }
- var rank=pct>=0?pct:ach,ranked=r.filter(function(x){return rank>=0&&num(x[rank])!==null}).slice().sort(function(a,b){return num(b[rank])-num(a[rank])});
+ var rank=pct>=0?pct:ach;
+ if(tab==='abhiyan'&&rank>=0&&isPercent(h[rank]))rank=-1;
+ var ranked=r.filter(function(x){return rank>=0&&num(x[rank])!==null}).slice().sort(function(a,b){return num(b[rank])-num(a[rank])});
  if(ranked.length){cards.push(['सबसे अधिक',clean(ranked[0][0])+' · '+clean(ranked[0][rank])]);cards.push(['सबसे कम',clean(ranked[ranked.length-1][0])+' · '+clean(ranked[ranked.length-1][rank])])}
  if(!cards.length)cards.push(['कुल रिकॉर्ड',String(r.length)]);
  return {cards:cards,pct:pct,target:target,ach:ach,rank:rank}
