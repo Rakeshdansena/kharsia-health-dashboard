@@ -108,6 +108,11 @@ function stats(d,tab){
     cards.push(['Screening %',(sum(i)/sum(pop)*100).toFixed(2)+'%']);
    }
   });
+  // Ensure the requested current X-ray metric is included as a separate KPI.
+  var currentXray=idx(h,['total current xray done','current xray done','current x-ray done','वर्तमान एक्सरे','वर्तमान एक्स-रे']);
+  if(currentXray>=0&&!cards.some(function(card){return clean(card[0]).toLowerCase()===clean(h[currentXray]).toLowerCase()})){
+   cards.push(['Total Current Xray done',sum(currentXray).toLocaleString('en-IN')]);
+  }
   if(!cards.length)cards.push(['कुल रिकॉर्ड',String(r.length)]);
  }
  var rank=pct>=0?pct:ach;
