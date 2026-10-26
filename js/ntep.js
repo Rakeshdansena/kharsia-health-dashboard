@@ -101,7 +101,13 @@ function stats(d,tab){
    var vals=r.map(function(x){return num(x[i])}).filter(function(v){return v!==null});
    if(vals.length)preferred.push(i)
   });
-  preferred.slice(0,5).forEach(function(i){cards.push([h[i],sum(i).toLocaleString('en-IN')])});
+  preferred.slice(0,5).forEach(function(i){
+   cards.push([h[i],sum(i).toLocaleString('en-IN')]);
+   // Show screening as a percentage of the total population when both columns exist.
+   if(i===ach&&pop>=0&&sum(pop)>0){
+    cards.push(['Screening %',(sum(i)/sum(pop)*100).toFixed(2)+'%']);
+   }
+  });
   if(!cards.length)cards.push(['कुल रिकॉर्ड',String(r.length)]);
  }
  var rank=pct>=0?pct:ach;
