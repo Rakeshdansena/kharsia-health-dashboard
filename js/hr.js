@@ -103,7 +103,7 @@
     const posts = uniqueOptions('Post');
     const places = uniqueOptions('Posting Place');
     const jobs = uniqueOptions('Job Type');
-    root.innerHTML = \`
+    root.innerHTML = `
       <div class="hr-head">
         <div><div class="hr-eyebrow">BLOCK KHARSIA · HUMAN RESOURCE</div><h2>👥 Human Resource Management</h2>
         <p>कर्मचारी विवरण एवं Facility / Designation Wise Summary</p></div>
@@ -133,7 +133,7 @@
         </div>
         <div class="hr-table-wrap"><table class="hr-table" id="hrEmployeeTable"><thead><tr>\${HR_HEADERS.map(h=>'<th>'+esc(h)+'</th>').join('')}</tr></thead><tbody></tbody></table></div>
         <div class="hr-count" id="hrCount"></div>
-      </div>\`;
+      </div>`;
     document.getElementById('hrUpdated').textContent = hrLastUpdated
       ? 'Last Updated: ' + hrLastUpdated.toLocaleString('en-IN') + ' · Auto refresh every 5 minutes'
       : 'Google Sheet से डेटा प्राप्त किया गया।';
@@ -251,7 +251,7 @@
     if (document.getElementById('hr-module-styles')) return;
     const style = document.createElement('style');
     style.id = 'hr-module-styles';
-    style.textContent = \`
+    style.textContent = `
       #hrModule{padding:2px 0 28px;color:#172b3c}
       .hr-head{display:flex;justify-content:space-between;align-items:center;gap:16px;background:linear-gradient(120deg,#fff,#edf8f8);border:1px solid #d7e7ee;border-radius:16px;padding:20px;margin-bottom:12px}
       .hr-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#0f766e}.hr-head h2{font-size:24px;margin:5px 0;color:#12334b}.hr-head p,.hr-list-head p{font-size:12px;color:#64748b}
@@ -263,13 +263,40 @@
       .hr-list-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.hr-list-head input,.hr-filters select{border:1px solid #cbd5e1;border-radius:8px;padding:9px 10px;background:#fff;min-width:150px}.hr-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.hr-filters select{flex:1}.hr-count{font-size:12px;color:#64748b;padding-top:10px}
       @media(max-width:760px){.hr-head,.hr-list-head{align-items:flex-start;flex-direction:column}.hr-summary-grid{grid-template-columns:1fr}.hr-head h2{font-size:20px}.hr-head-actions{width:100%}.hr-btn{flex:1}.hr-list-head input{width:100%}}
       @media print{body *{visibility:hidden!important}#hrModule,#hrModule *{visibility:visible!important}#hrModule{position:absolute;left:0;top:0;width:100%;padding:0}.hr-head-actions,.hr-filters,.hr-list-head input{display:none!important}.hr-summary-grid{grid-template-columns:1fr 1fr}.hr-table{min-width:0;font-size:9px}.hr-table th,.hr-table td{padding:4px}}
-    \`;
+    `;
     document.head.appendChild(style);
   }
 
   function boot() {
     addStyles();
     install();
+    // Keep the HR page isolated when navigating back to the dashboard or another report.
+    if (typeof window.showDashboard === 'function' && !window.showDashboard.__hrWrapped) {
+      const originalShowDashboard = window.showDashboard;
+      const wrappedShowDashboard = function () {
+        const hr = document.getElementById('hrModule');
+        if (hr) { hr.classList.remove('active'); hr.style.display = 'none'; }
+        return originalShowDashboard.apply(this, arguments);
+      };
+      wrappedShowDashboard.__hrWrapped = true;
+      window.showDashboard = wrappedShowDashboard;
+    }
+    if (typeof window.openReport === 'function' && !window.openReport.__hrWrapped) {
+      const originalOpenReport = window.openReport;
+      const wrappedOpenReport = function () {
+        const hr = document.getElementById('hrModule');
+        if (hr) { hr.classList.remove('active'); hr.style.display = 'none'; }
+        return originalOpenReport.apply(this, arguments);
+      };
+      wrappedOpenReport.__hrWrapped = true;
+      window.openReport = wrappedOpenReport;
+    }
+    if (!window.__hrAutoRefreshStarted) {
+      window.__hrAutoRefreshStarted = true;
+      setInterval(() => {
+        if (document.getElementById('hrModule')?.classList.contains('active')) load();
+      }, HR_REFRESH_MS);
+    }
     // Dashboard's existing Google Charts callback builds its menu asynchronously.
     const original = window.createMenu;
     if (typeof original === 'function' && !original.__hrWrapped) {
