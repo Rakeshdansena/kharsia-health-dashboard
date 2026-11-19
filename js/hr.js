@@ -112,26 +112,26 @@
       </div>
       <div class="hr-updated" id="hrUpdated">डेटा लोड हो रहा है...</div>
       <div class="hr-kpis">
-        <div class="hr-kpi"><span>Total Employees</span><strong>\${hrRows.length}</strong></div>
-        <div class="hr-kpi"><span>Regular Employees</span><strong>\${regular}</strong></div>
-        <div class="hr-kpi"><span>Contractual Employees</span><strong>\${contractual}</strong></div>
-        <div class="hr-kpi"><span>Total Facilities</span><strong>\${facilities.length}</strong></div>
-        <div class="hr-kpi"><span>Total Designations</span><strong>\${designations.length}</strong></div>
+        <div class="hr-kpi"><span>Total Employees</span><strong>${hrRows.length}</strong></div>
+        <div class="hr-kpi"><span>Regular Employees</span><strong>${regular}</strong></div>
+        <div class="hr-kpi"><span>Contractual Employees</span><strong>${contractual}</strong></div>
+        <div class="hr-kpi"><span>Total Facilities</span><strong>${facilities.length}</strong></div>
+        <div class="hr-kpi"><span>Total Designations</span><strong>${designations.length}</strong></div>
       </div>
       <div class="hr-summary-grid">
-        \${summaryTable('Facility Wise Summary', facilities)}
-        \${summaryTable('Designation Wise Summary', designations)}
+        ${summaryTable('Facility Wise Summary', facilities)}
+        ${summaryTable('Designation Wise Summary', designations)}
       </div>
       <div class="hr-list-panel">
         <div class="hr-list-head"><div><h3>Employee Details</h3><p>Google Sheet: Human Resource</p></div>
           <input id="hrSearch" type="search" placeholder="नाम, पद, मोबाइल खोजें..." aria-label="कर्मचारी खोजें"></div>
         <div class="hr-filters">
-          <select id="hrFacilityFilter"><option value="">सभी Posting Place</option>\${places.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
-          <select id="hrPostFilter"><option value="">सभी Designation</option>\${posts.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
-          <select id="hrTypeFilter"><option value="">सभी Facility Type</option>\${facilityType.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
-          <select id="hrJobFilter"><option value="">सभी Job Type</option>\${jobs.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
+          <select id="hrFacilityFilter"><option value="">सभी Posting Place</option>${places.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
+          <select id="hrPostFilter"><option value="">सभी Designation</option>${posts.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
+          <select id="hrTypeFilter"><option value="">सभी Facility Type</option>${facilityType.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
+          <select id="hrJobFilter"><option value="">सभी Job Type</option>${jobs.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}</select>
         </div>
-        <div class="hr-table-wrap"><table class="hr-table" id="hrEmployeeTable"><thead><tr>\${HR_HEADERS.map(h=>'<th>'+esc(h)+'</th>').join('')}</tr></thead><tbody></tbody></table></div>
+        <div class="hr-table-wrap"><table class="hr-table" id="hrEmployeeTable"><thead><tr>${HR_HEADERS.map(h=>'<th>'+esc(h)+'</th>').join('')}</tr></thead><tbody></tbody></table></div>
         <div class="hr-count" id="hrCount"></div>
       </div>`;
     document.getElementById('hrUpdated').textContent = hrLastUpdated
